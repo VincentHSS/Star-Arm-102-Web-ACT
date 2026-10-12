@@ -80,18 +80,30 @@ EXACT = {
     'runtime/Browser_SDK/index.html': '安装组件自带的最小状态页面，完整界面在网站',
     'tools/serve_local.py': '源码启动入口，检查版本并同端口提供完整网页与 API',
     'tools/build_runtime_package.py': '构建 Debian 模板、桌面自启动、udev 与浏览器校验值',
-    'tools/package_site.py': '生成仅含静态网站的单个交付 ZIP 与 SHA256 清单',
+    'tools/package_site.py': '生成含静态网站、图文教程和 SHA256 清单的单个交付 ZIP',
+    'tools/capture_docs.cjs': '阻断本机硬件 API，以真实未连接界面生成教程截图',
     'tools/check_distribution.py': '校验安装模板、源码一致性、换行、静态文件与资源路径',
     'tools/check_file_map.py': '逐文件用途清单生成与遗漏检查',
     'tests/browser_smoke.cjs': '自动浏览器验证、临时本机服务与安装包生成检查',
 }
 DOCS = {
+    'GETTING_STARTED': '图文快速上手、下载选择与已有模型 / 自训练路线',
+    'CONSOLE_GUIDE': '控制台连接、三维查看、控制和舵机设置图文教程',
     'UBUNTU': 'Ubuntu 首次安装、本地启动、环境与数据目录教程',
     'WINDOWS': 'Windows 启动与功能支持范围教程', 'DEPLOYMENT': '服务器只上传静态文件的发布教程',
     'ACT_GUIDE': '采集、校准、训练、完整模型导入与执行教程',
     'ARCHITECTURE': '服务器、浏览器、本机后台与虚拟环境职责说明',
     'TROUBLESHOOTING': '启动、环境、设备、相机与导入问题排查',
     'DEVELOPMENT': '开发检查、打包、更新与持续集成教程', 'FILE_MAP': '本清单：每个仓库文件的用途',
+}
+
+DOC_IMAGES = {
+    'console-overview': '控制台全景', 'console-device-panel': '控制台设备连接面板',
+    'console-servo-setup': '控制台舵机设置页面', 'workspace-transition': '全屏工作区切换动画',
+    'act-collect-overview': 'ACT 数据采集全景', 'act-device-panel': 'ACT 设备连接面板',
+    'act-dataset-form': '数据集创建表单与未提交示例', 'act-calibration-dialog': '从臂校准窗口',
+    'act-first-setup': 'Ubuntu 首次安装与环境配置入口', 'act-model-import': '模型管理与导入入口',
+    'act-execution-overview': 'ACT 实机推理全景', 'act-execution-connections': '第 4 步从臂连接与校验门槛',
 }
 
 
@@ -105,6 +117,8 @@ def purpose(path):
     relative = path.relative_to(ROOT).as_posix()
     if relative in EXACT:
         return EXACT[relative]
+    if relative.startswith('docs/images/'):
+        return '真实界面教程截图（硬件未连接）：' + DOC_IMAGES[path.stem]
     if relative.startswith('docs/') and path.stem in DOCS:
         return DOCS[path.stem]
     if relative.startswith('Browser_SDK/src/'):

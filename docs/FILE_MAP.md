@@ -186,12 +186,26 @@
 | [ai_service/vendor/pyserial-3.5-py2.py3-none-any.whl](../ai_service/vendor/pyserial-3.5-py2.py3-none-any.whl) | pyserial 3.5 离线串口依赖，wheel 内含许可 |
 | [docs/ACT_GUIDE.md](../docs/ACT_GUIDE.md) | 采集、校准、训练、完整模型导入与执行教程 |
 | [docs/ARCHITECTURE.md](../docs/ARCHITECTURE.md) | 服务器、浏览器、本机后台与虚拟环境职责说明 |
+| [docs/CONSOLE_GUIDE.md](../docs/CONSOLE_GUIDE.md) | 控制台连接、三维查看、控制和舵机设置图文教程 |
 | [docs/DEPLOYMENT.md](../docs/DEPLOYMENT.md) | 服务器只上传静态文件的发布教程 |
 | [docs/DEVELOPMENT.md](../docs/DEVELOPMENT.md) | 开发检查、打包、更新与持续集成教程 |
 | [docs/FILE_MAP.md](../docs/FILE_MAP.md) | 本清单：每个仓库文件的用途 |
+| [docs/GETTING_STARTED.md](../docs/GETTING_STARTED.md) | 图文快速上手、下载选择与已有模型 / 自训练路线 |
 | [docs/TROUBLESHOOTING.md](../docs/TROUBLESHOOTING.md) | 启动、环境、设备、相机与导入问题排查 |
 | [docs/UBUNTU.md](../docs/UBUNTU.md) | Ubuntu 首次安装、本地启动、环境与数据目录教程 |
 | [docs/WINDOWS.md](../docs/WINDOWS.md) | Windows 启动与功能支持范围教程 |
+| [docs/images/act-calibration-dialog.png](../docs/images/act-calibration-dialog.png) | 真实界面教程截图（硬件未连接）：从臂校准窗口 |
+| [docs/images/act-collect-overview.png](../docs/images/act-collect-overview.png) | 真实界面教程截图（硬件未连接）：ACT 数据采集全景 |
+| [docs/images/act-dataset-form.png](../docs/images/act-dataset-form.png) | 真实界面教程截图（硬件未连接）：数据集创建表单与未提交示例 |
+| [docs/images/act-device-panel.png](../docs/images/act-device-panel.png) | 真实界面教程截图（硬件未连接）：ACT 设备连接面板 |
+| [docs/images/act-execution-connections.png](../docs/images/act-execution-connections.png) | 真实界面教程截图（硬件未连接）：第 4 步从臂连接与校验门槛 |
+| [docs/images/act-execution-overview.png](../docs/images/act-execution-overview.png) | 真实界面教程截图（硬件未连接）：ACT 实机推理全景 |
+| [docs/images/act-first-setup.png](../docs/images/act-first-setup.png) | 真实界面教程截图（硬件未连接）：Ubuntu 首次安装与环境配置入口 |
+| [docs/images/act-model-import.png](../docs/images/act-model-import.png) | 真实界面教程截图（硬件未连接）：模型管理与导入入口 |
+| [docs/images/console-device-panel.png](../docs/images/console-device-panel.png) | 真实界面教程截图（硬件未连接）：控制台设备连接面板 |
+| [docs/images/console-overview.png](../docs/images/console-overview.png) | 真实界面教程截图（硬件未连接）：控制台全景 |
+| [docs/images/console-servo-setup.png](../docs/images/console-servo-setup.png) | 真实界面教程截图（硬件未连接）：控制台舵机设置页面 |
+| [docs/images/workspace-transition.png](../docs/images/workspace-transition.png) | 真实界面教程截图（硬件未连接）：全屏工作区切换动画 |
 | [package-lock.json](../package-lock.json) | 固定 Node 开发依赖解析版本 |
 | [package.json](../package.json) | ES module 配置、前端测试命令和 Playwright 开发依赖 |
 | [runtime/Browser_SDK/index.html](../runtime/Browser_SDK/index.html) | 安装组件自带的最小状态页面，完整界面在网站 |
@@ -250,7 +264,8 @@
 | [tests/test_training_environment.py](../tests/test_training_environment.py) | 软件测试：独立 Python 环境准备、依赖安装与加速设备自检 |
 | [tests/test_training_jobs.py](../tests/test_training_jobs.py) | 软件测试：训练子进程、日志、检查点、停止与恢复 |
 | [tools/build_runtime_package.py](../tools/build_runtime_package.py) | 构建 Debian 模板、桌面自启动、udev 与浏览器校验值 |
+| [tools/capture_docs.cjs](../tools/capture_docs.cjs) | 阻断本机硬件 API，以真实未连接界面生成教程截图 |
 | [tools/check_distribution.py](../tools/check_distribution.py) | 校验安装模板、源码一致性、换行、静态文件与资源路径 |
 | [tools/check_file_map.py](../tools/check_file_map.py) | 逐文件用途清单生成与遗漏检查 |
-| [tools/package_site.py](../tools/package_site.py) | 生成仅含静态网站的单个交付 ZIP 与 SHA256 清单 |
+| [tools/package_site.py](../tools/package_site.py) | 生成含静态网站、图文教程和 SHA256 清单的单个交付 ZIP |
 | [tools/serve_local.py](../tools/serve_local.py) | 源码启动入口，检查版本并同端口提供完整网页与 API |

@@ -25,6 +25,18 @@ npm run test:browser
 
 修改 `ai_service/`、`runtime/` 或安装组件内容后，运行 `build_runtime_package.py`。它重建网站内的 `.deb` 模板并更新浏览器模板校验值；不能只更新其中一份。修改文件结构后使用 `python tools/check_file_map.py --write` 重建逐文件说明，再检查。
 
-`package_site.py` 只生成一个服务器网站 ZIP 到 `dist/`。不打入后台源码、临时日志、测试、模型、校准、示教数据或开发依赖。客户运行源码时从 GitHub 下载源码 ZIP，服务器发布使用 Release 的网站 ZIP。
+`package_site.py` 只生成一个交付 ZIP 到 `dist/`：静态资源在 `服务器网页`，图文教程与截图在 `使用教程`。教程不参与网站加载。不打入后台源码、临时日志、测试、模型、校准、示教数据或开发依赖。客户运行源码时从 GitHub 下载源码 ZIP，服务器发布使用 Release 的网站 ZIP。
+
+## 更新教程截图
+
+安装 Playwright 与 Chromium 后，在仓库根目录运行：
+
+```sh
+node tools/capture_docs.cjs
+```
+
+工具启动临时静态服务，阻断 `127.0.0.1:18765` 的本机 API 请求，仅拍摄实际网页的未连接状态。不会连接设备、录制数据或启动训练；表单示例只填写不提交。截图输出到 `docs/images/`，完成后关闭临时浏览器与服务。若本机使用已有 Edge，可设置 `PLAYWRIGHT_BROWSER_CHANNEL=msedge`；Python 命令不是 `python` 时可设置 `PYTHON=python3`。
+
+截图更新后逐张检查文字与布局，并核对教程按钮名称与真实界面一致。不要把未连接截图写成已完成训练或实机执行的证据。
 
 GitHub Actions 自动运行 JavaScript / Python 软件检查、安装包结构和文件说明检查。软件测试验证协议、队列、校准、数据集、模型导入及界面约束；它们不能替代 Ubuntu 系统安装、相机、串口、GPU 或机械臂实机验收。

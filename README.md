@@ -4,11 +4,29 @@
 
 **完整 ACT 实机流程使用 Ubuntu。** 网站可以放在服务器上，机械臂、相机、数据和 GPU 仍在客户电脑上。服务器不连接机械臂，也不执行训练。
 
+**第一次使用先看 [图文快速上手](docs/GETTING_STARTED.md)。** 教程包含 12 张实际界面截图，按按钮位置说明控制台连接、从臂校准、双相机、数据集创建、环境准备、模型导入和执行。截图为未连接硬件状态，不代表实机验证结果。
+
+![Star Arm 102 控制台](docs/images/console-overview.png)
+
+## 图文教程入口
+
+| 你要做什么 | 打开哪份教程 |
+| --- | --- |
+| 第一次使用，选下载包和操作路线 | [图文快速上手](docs/GETTING_STARTED.md) |
+| 连接设备、三维查看、主从控制、舵机设置 | [控制台图文教程](docs/CONSOLE_GUIDE.md) |
+| 采集、校准、训练、导入完整模型、实机推理 | [ACT 四步骤图文教程](docs/ACT_GUIDE.md) |
+| 客户首次安装或 Ubuntu 本地源码启动 | [Ubuntu 详细教程](docs/UBUNTU.md) |
+| Windows 安装 Python、找到脚本并启动 | [Windows 详细教程](docs/WINDOWS.md) |
+| 把唯一交付包上传到服务器 | [服务器上传与验收教程](docs/DEPLOYMENT.md) |
+| 按钮、组件、相机、串口、校准或模型有问题 | [常见问题](docs/TROUBLESHOOTING.md) |
+
 ## 我应该下载哪个？
 
 - **上传网站的运营者：** 到 [Releases](https://github.com/VincentHSS/Star-Arm-102-Web-ACT/releases/latest) 下载唯一的 `Star-Arm-102-SERVER-UPLOAD-ONLY.zip`。将其中 `服务器网页` 文件夹里的内容上传到网站目录，启用 HTTPS。无需填写发布配置或网站地址。
 - **在电脑上运行源码：** 点击 GitHub 的 **Code → Download ZIP**，解压后按下面的 Ubuntu 或 Windows 步骤启动。它包含网站、后台和两种启动脚本。
 - **通过服务器网站使用 ACT 的客户：** 打开网页进入第 2 步。首次需要安装网页提供的 Ubuntu 运行组件；之后网页检测连接并准备 ACT 环境。客户不需要下载源码、填写后台地址或输入训练命令。
+
+交付 ZIP 的 `使用教程` 文件夹也包含图文教程和截图，仍然只有一个交付包；运营者不需要将教程图片上传到网页资源目录。
 
 ## Ubuntu 本地启动
 
