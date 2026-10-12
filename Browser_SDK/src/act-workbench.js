@@ -1,4 +1,6 @@
-import { getLocalApi, localFetch, ensureRuntime, renderRuntimeEnvironment, publicationConfigured } from './local-service.js?v=upload-only-6';
+import { requestJson, fetchWithDeadline } from './api-client.js?v=responsive-1';
+import { createSingleFlight, createPageNavigator, withButtonFeedback, setInteractionStatus } from './page-lifecycle.js?v=responsive-1';
+import { getLocalApi, localFetch, ensureRuntime, renderRuntimeEnvironment, publicationConfigured } from './local-service.js?v=responsive-1';
 import { installWorkbenchMotion, switchWorkbenchView } from './act-motion.js?v=2026-10-12-motion-icons-13';
 import { effectiveCameraBackend, cameraConnectionSignature, nativeCameraReady, cameraRolePresentation } from './act-camera-state.js?v=2026-10-09-camera-ui-7';
 import { WaveformBuffer, WaveformChart } from './act-waveform.js?v=0.1.0-camera-reconnect-1';
@@ -8,18 +10,26 @@ import { CameraFrameUploader, encodeFrozenFrame, freezeVideoFrame } from './act-
 import { CameraFrameEncoderWorkerClient } from './act-camera-frame-encoder-worker-client.js?v=0.1.0-camera-worker-6';
 
 const API = getLocalApi();
-const state = { capabilities: null, trainingEnvironment: null, trainingPoll: null, trainingJob: null, trainingJobPoll: null, datasets: [], episodes: [], episode: null, selectedDatasetId: null, datasetStats: null, deviceBinding: null, serial: { leader: null, follower: null }, browserCameras: [], nativeCameras: [], cameraBackend: null, cameraFaultResetting: false, telemetryStream: null, completedRounds: 0, targetRounds: 20, cameraFrameCallbacks: { wrist: null, world: null }, cameraFrameSupport: { wrist: null, world: null }, frameDrain: null, models: [], selectedInferenceModelId: null, modelImporting: false, inference: null, inferenceGate: null, inferencePoll: null, inferenceStarting: false, inferenceStartError: null, inferenceLastActionCount: 0 };
+const state = { navigationPending: false, deviceEpoch: 0, capabilities: null, trainingEnvironment: null, trainingPoll: null, trainingJob: null, trainingJobPoll: null, datasets: [], episodes: [], episode: null, selectedDatasetId: null, datasetStats: null, deviceBinding: null, serial: { leader: null, follower: null }, browserCameras: [], nativeCameras: [], cameraBackend: null, cameraFaultResetting: false, telemetryStream: null, completedRounds: 0, targetRounds: 20, cameraFrameCallbacks: { wrist: null, world: null }, cameraFrameSupport: { wrist: null, world: null }, frameDrain: null, models: [], selectedInferenceModelId: null, modelImporting: false, inference: null, inferenceGate: null, inferencePoll: null, inferenceStarting: false, inferenceStartError: null, inferenceLastActionCount: 0 };
 const $ = (selector) => document.querySelector(selector);
 const cameraController = navigator.mediaDevices ? new BrowserCameraController(navigator.mediaDevices) : null;
 const qualityMonitor = new CaptureQualityMonitor({ windowSize: 250 });
 const frameEncoder = new CameraFrameEncoderWorkerClient();
 
-async function request(path, options = {}) {
-  const response = await localFetch(`${API}${path}`, { ...options, headers: { 'Content-Type': 'application/json', ...(options.headers || {}) } });
-  const body = await response.json().catch(() => ({}));
-  if (!response.ok) { const error = new Error(body.error?.message || `HTTP ${response.status}`); error.details = body.error?.details || []; error.code = body.error?.code; throw error; }
-  return body;
+const serialOperations = new Set();
+let refreshRevision = 0;
+function request(path, options = {}) {
+  const operation = requestJson(localFetch, `${API}${path}`, { ...options, headers: { 'Content-Type': 'application/json', ...(options.headers || {}) } }).then(body => {
+    if (options.method && options.method !== 'GET' && /^(\/datasets$|\/episodes\/[^/]+\/(start|stop|review)$|\/devices\/|\/settings\/data-dir$)/.test(path)) refreshRevision++;
+    return body;
+  });
+  if (path === '/devices/serial/connect') {
+    const tracked = operation.finally(() => serialOperations.delete(tracked));
+    serialOperations.add(tracked); return tracked;
+  }
+  return operation;
 }
+
 const frameUploader = new CameraFrameUploader({
   quality: 0.85,
   batchSize: 6,
@@ -43,9 +53,10 @@ async function downloadDataset() {
   button.disabled = true;
   setTransferStatus('正在校验并生成完整数据集 ZIP…', 'pending');
   try {
-    const response = await localFetch(`${API}/datasets/${dataset.id}/export`);
-    if (!response.ok) { const body = await response.json().catch(() => ({})); throw new Error(body.error?.message || `HTTP ${response.status}`); }
-    const blob = await response.blob();
+    const blob = await fetchWithDeadline(localFetch, `${API}/datasets/${dataset.id}/export`, {}, async response => {
+      if (!response.ok) { const body = await response.json(); throw new Error(body.error?.message || `HTTP ${response.status}`); }
+      return response.blob();
+    });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url; link.download = `${dataset.slug}.zip`; link.click();
@@ -60,12 +71,10 @@ async function importDataset(file) {
   $('#dataset-import').disabled = true;
   setTransferStatus(`正在校验并导入 ${file.name}…`, 'pending');
   try {
-    const response = await localFetch(`${API}/datasets/import`, { method: 'POST', headers: { 'Content-Type': 'application/octet-stream' }, body: file });
-    const body = await response.json().catch(() => ({}));
-    if (!response.ok) throw new Error(body.error?.message || `HTTP ${response.status}`);
+    const body = await requestJson(localFetch, `${API}/datasets/import`, { method: 'POST', headers: { 'Content-Type': 'application/octet-stream' }, body: file });
     state.selectedDatasetId = body.dataset.id;
     setTransferStatus(`已作为副本导入：${body.dataset.task_name} · ${body.dataset.slug}`, 'success');
-    await refresh();
+    await refreshAfterMutation();
   } catch (error) { setTransferStatus(`导入失败：${error.message}`, 'error'); }
   finally { $('#dataset-import').disabled = false; $('#dataset-import-file').value = ''; }
 }
@@ -462,11 +471,12 @@ function pollInference(delay = 500) {
   state.inferencePoll = window.setTimeout(async () => {
     try { renderInference(await request('/inference')); }
     catch (error) { $('#inference-message').textContent = `推理状态刷新失败：${error.message}`; }
-    finally { pollInference(500); }
+    finally { pollInference(document.hidden ? 5000 : document.querySelector('#infer.view.active') || ['loading','running','stopping'].includes(state.inference?.status) ? 500 : 2500); }
   }, delay);
 }
 
 async function startInference() {
+  if (state.navigationPending) return toast('正在切换页面，请稍候。');
   if (state.inferenceStarting || ['loading', 'running', 'stopping'].includes(state.inference?.status)) return;
   let startError = null;
   state.inferenceStartError = null;
@@ -497,7 +507,8 @@ async function stopInference() {
   $('#inference-stop').disabled = true;
   $('#inference-message').textContent = '正在停止动作输出并对 J1–J7 立即卸力…';
   try { renderInference(await request('/inference/stop', { method: 'POST', body: JSON.stringify({ reason: 'operator' }) })); }
-  catch (error) { $('#inference-message').textContent = `停止失败：${error.message}`; }
+  catch (error) { $('#inference-message').textContent = `停止失败：${error.message}`; setInteractionStatus(error.message, 'error'); }
+  finally { $('#inference-stop').disabled = !['loading', 'running', 'stopping'].includes(state.inference?.status); }
 }
 
 async function loadModels(result = null) {
@@ -538,7 +549,7 @@ async function useInferenceModel(modelId) {
   state.inferenceStartError = null;
   $('#inference-confirm').checked = false;
   await loadModels();
-  document.querySelector('[data-view="infer"]')?.click();
+  if (document.querySelector('.view.active')?.id !== 'infer' && !await navigateActView('infer')) return;
   await validateInference();
 }
 
@@ -556,7 +567,8 @@ async function importActModel(file) {
     state.inferenceStartError = null;
     $('#inference-confirm').checked = false;
     await loadModels();
-    document.querySelector('[data-view="infer"]')?.click();
+    state.modelImporting = false;
+    if (document.querySelector('.view.active')?.id !== 'infer' && !await navigateActView('infer')) return;
     await validateInference();
     setModelImportStatus(state.inferenceGate?.ready
       ? `已导入 ${model.id}，执行条件已通过，确认工作区后即可启动。`
@@ -594,12 +606,11 @@ async function importArmCalibration(file) {
 
 async function exportActModel(modelId) {
   try {
-    const response = await localFetch(`${API}/models/${encodeURIComponent(modelId)}/export`);
-    if (!response.ok) {
-      const body = await response.json().catch(() => ({}));
-      throw new Error(body.error?.message || `HTTP ${response.status}`);
-    }
-    const url = URL.createObjectURL(await response.blob());
+    const blob = await fetchWithDeadline(localFetch, `${API}/models/${encodeURIComponent(modelId)}/export`, {}, async response => {
+      if (!response.ok) { const body = await response.json(); throw new Error(body.error?.message || `HTTP ${response.status}`); }
+      return response.blob();
+    });
+    const url = URL.createObjectURL(blob);
     const anchor = document.createElement('a');
     anchor.href = url; anchor.download = `${modelId}.zip`; anchor.click();
     window.setTimeout(() => URL.revokeObjectURL(url), 1000);
@@ -660,7 +671,7 @@ async function loadTrainingEnvironment() {
         const latest = await request(`/training/environment/prepare/${environment.job_id}`);
         renderTrainingEnvironment(latest);
         if (latest.status === 'preparing') state.trainingPoll = window.setTimeout(poll, 1000);
-        else { state.trainingPoll = null; await refresh(); }
+        else { state.trainingPoll = null; await refreshAfterMutation(); }
       } catch (error) { state.trainingPoll = null; $('#training-result').textContent = error.message; }
     };
     state.trainingPoll = window.setTimeout(poll, 1000);
@@ -974,7 +985,14 @@ function restoreCollectionState(workspace) {
   renderRoundProgress();
 }
 
-async function refresh() {
+const refresh = createSingleFlight(async () => {
+  let revision;
+  do { revision = refreshRevision; await refreshState(revision); }
+  while (revision !== refreshRevision);
+});
+function refreshAfterMutation() { refreshRevision++; return refresh(); }
+async function refreshState(revision) {
+  const deviceEpoch = state.deviceEpoch;
   try {
     const [health, caps, workspace, devices, trainingEnvironment, trainingJobs, models, inference] = await Promise.all([
       request('/health'), request('/capabilities'), request('/state'), request('/devices'),
@@ -982,13 +1000,12 @@ async function refresh() {
     ]);
     $('#service-state').className = 'service-state ok';
     $('#service-state span').textContent = `本机服务已连接 · ${health.version}`;
-    state.deviceBinding = devices.binding;
+    if (deviceEpoch === state.deviceEpoch) state.deviceBinding = devices.binding;
     state.data_dir = workspace.data_dir;
     state.data_dir_explicit = Boolean(workspace.data_dir_explicit);
-    renderDatasets(workspace.datasets || []);
-    restoreCollectionState(workspace);
+    if (revision === refreshRevision) { renderDatasets(workspace.datasets || []); restoreCollectionState(workspace); }
     await refreshDatasetStats();
-    renderSerialState(devices.serial_connections);
+    if (deviceEpoch === state.deviceEpoch) renderSerialState(devices.serial_connections);
     renderCapabilities(caps);
     renderTrainingEnvironment(trainingEnvironment);
     if (trainingEnvironment.status === 'preparing') await loadTrainingEnvironment();
@@ -996,8 +1013,8 @@ async function refresh() {
     renderTrainingJob(latestJob);
     if (latestJob && ['running', 'stopping'].includes(latestJob.status)) pollTrainingJob(latestJob.id);
     await loadModels(models);
-    renderInference(inference);
-    renderDeviceBinding(devices.binding);
+    if (deviceEpoch === state.deviceEpoch) renderInference(inference);
+    if (deviceEpoch === state.deviceEpoch) renderDeviceBinding(devices.binding);
     renderJoints();
     maybeShowDataDirSetup();
   } catch (error) {
@@ -1006,7 +1023,7 @@ async function refresh() {
     toast(state.capabilities ? error.message : '首次环境配置已合并到第 2 步，按页面提示完成系统安装与授权后，会自动准备运行环境。');
   }
 }
-async function connectSerial(role) { const prefix = role === 'leader' ? 'leader' : 'follower'; const port = $(`#${prefix}-port`).value; if (!port) return toast(`请先选择${role === 'leader' ? ' Leader' : '真实 FL'}串口`); try { const result = await request('/devices/serial/connect', { method: 'POST', body: JSON.stringify({ role, port, leader_type: $('#leader-type').value }) }); state.serial[role] = result; state.deviceBinding = null; setDeviceCard(role, true, `${result.port} · ${result.baudrate / 1000} kbps`, result.verification); $(`#${role}-state`).textContent = result.port; toast(`${role === 'leader' ? 'Leader' : '真实 FL'}串口已连接；J1–J7 实时样本尚未接入`); renderCapabilities(state.capabilities); } catch (error) { toast(error.message); } }
+async function connectSerial(role) { if (state.navigationPending) return toast('正在切换页面，请稍候。'); state.deviceEpoch++; const prefix = role === 'leader' ? 'leader' : 'follower'; const port = $(`#${prefix}-port`).value; if (!port) return toast(`请先选择${role === 'leader' ? ' Leader' : '真实 FL'}串口`); try { const result = await request('/devices/serial/connect', { method: 'POST', body: JSON.stringify({ role, port, leader_type: $('#leader-type').value }) }); state.serial[role] = result; state.deviceBinding = null; setDeviceCard(role, true, `${result.port} · ${result.baudrate / 1000} kbps`, result.verification); $(`#${role}-state`).textContent = result.port; toast(`${role === 'leader' ? 'Leader' : '真实 FL'}串口已连接；J1–J7 实时样本尚未接入`); renderCapabilities(state.capabilities); } catch (error) { toast(error.message); } }
 async function disconnectSerial(role) { try { await request('/devices/serial/disconnect', { method: 'POST', body: JSON.stringify({ role }) }); state.serial[role] = null; state.deviceBinding = null; setDeviceCard(role, false, ''); $('#bind-devices').disabled = true; updateNextAction(); toast(`${role === 'leader' ? 'Leader' : '真实 FL'}已断开，采集权限已撤销`); } catch (error) { toast(error.message); } }
 function updateCameraSelectionState() {
   const backend = effectiveCameraBackend($('#camera-backend').value, state.nativeCameras);
@@ -1208,7 +1225,7 @@ async function disconnectCameras(showToast = true) {
   renderCaptureQuality();
   for (const [id, labelSelector] of [['wrist-preview', '#wrist-camera'], ['world-preview', '#world-camera']]) { const video = $(`#${id}`); video.srcObject = null; video.closest('.camera-view').classList.remove('streaming', 'native-streaming'); $(labelSelector).textContent = '未连接'; }
   $('#camera-badge').textContent = Math.max(state.browserCameras.length, state.nativeCameras.length) >= 2 ? 'FOUND' : 'LOCKED'; $('#camera-badge').className = `status-badge ${Math.max(state.browserCameras.length, state.nativeCameras.length) >= 2 ? 'pending' : 'off'}`; $('#camera-transport').textContent = '末端视角 + 世界视角 · 30 FPS'; $('#detect-cameras').disabled = false; $('#disconnect-cameras').disabled = true; $('#capture-profile').disabled = false; $('#camera-backend').disabled = false; $('#bind-devices').disabled = true; populateCameraChoices(); updateNextAction();
-  if (wasRecording) await refresh();
+  if (wasRecording) await refreshAfterMutation();
   if (showToast) toast(wasRecording ? '相机已断开，Episode 已停止并保留待审核数据' : '相机预览已关闭');
 }
 async function recoverNativeCameraFault(error) {
@@ -1277,19 +1294,25 @@ $('#dataset-form').addEventListener('submit', async event => {
     if (![width, height].every(Number.isFinite)) throw new Error('请选择有效的采集分辨率');
     const created = await request('/datasets', { method: 'POST', body: JSON.stringify({ task_name: taskName, slug, width, height, fps: 30 }) });
     state.selectedDatasetId = created.id;
+    renderDatasets([...state.datasets.filter(item => item.id !== created.id), created]);
     formElement.querySelector('[name="task_name"]').value = '';
     formElement.querySelector('[name="slug"]').value = '';
     setDatasetFormStatus(`数据集“${created.task_name}”已创建并锁定 ${created.capture.width}×${created.capture.height}@${created.capture.fps} FPS。`, 'success');
     toast('数据集已创建');
-    await refresh();
+    await refreshAfterMutation();
   } catch (error) {
     setDatasetFormStatus(`创建失败：${error.message}`, 'error');
     toast(`创建失败：${error.message}`);
   } finally { submit.disabled = false; }
 });
 
-$('#connect-leader').addEventListener('click', () => connectSerial('leader')); $('#disconnect-leader').addEventListener('click', () => disconnectSerial('leader')); $('#connect-follower').addEventListener('click', () => connectSerial('follower')); $('#disconnect-follower').addEventListener('click', () => disconnectSerial('follower')); $('#detect-cameras').addEventListener('click', detectCameras); $('#connect-cameras').addEventListener('click', connectCameras); $('#disconnect-cameras').addEventListener('click', disconnectCameras); $('#wrist-camera-select').addEventListener('change', updateCameraSelectionState); $('#world-camera-select').addEventListener('change', updateCameraSelectionState);
-$('#bind-devices').addEventListener('click', async () => { const payload = { leader_type: $('#leader-type').value, leader_port: $('#leader-port').value, follower_port: $('#follower-port').value, wrist_camera_id: $('#wrist-camera-select').value, world_camera_id: $('#world-camera-select').value }; try { const binding = await request('/devices/bind', { method: 'POST', body: JSON.stringify(payload) }); renderDeviceBinding(binding); toast('设备选择已保存；机械臂 J1–J7 实时校验尚未接入'); } catch (error) { toast(error.message); } });
+for (const role of ['leader', 'follower']) for (const operation of ['connect', 'disconnect']) {
+  const button = $(`#${operation}-${role}`);
+  button.addEventListener('click', () => withButtonFeedback(button,
+    () => operation === 'connect' ? connectSerial(role) : disconnectSerial(role),
+    { label: operation === 'connect' ? '正在连接…' : '正在断开…', restore: () => renderSerialState(state.serial) }));
+}  $('#detect-cameras').addEventListener('click', detectCameras); $('#connect-cameras').addEventListener('click', connectCameras); $('#disconnect-cameras').addEventListener('click', disconnectCameras); $('#wrist-camera-select').addEventListener('change', updateCameraSelectionState); $('#world-camera-select').addEventListener('change', updateCameraSelectionState);
+$('#bind-devices').addEventListener('click', () => withButtonFeedback($('#bind-devices'), async () => { if (state.navigationPending) return toast('正在切换页面，请稍候。'); const payload = { leader_type: $('#leader-type').value, leader_port: $('#leader-port').value, follower_port: $('#follower-port').value, wrist_camera_id: $('#wrist-camera-select').value, world_camera_id: $('#world-camera-select').value }; try { const binding = await request('/devices/bind', { method: 'POST', body: JSON.stringify(payload) }); renderDeviceBinding(binding); toast('设备选择已保存；机械臂 J1–J7 实时校验尚未接入'); } catch (error) { toast(error.message); } }, { label: '正在保存…', restore: () => renderCapabilities(state.capabilities) }));
 $('#training-prepare').addEventListener('click', () => prepareTrainingEnvironment(false));
 $('#training-retry').addEventListener('click', () => prepareTrainingEnvironment(true));
 $('#training-start').addEventListener('click', startTraining);
@@ -1304,21 +1327,22 @@ $('#inference-prepare-runtime').addEventListener('click', () => prepareTrainingE
 $('#model-list').addEventListener('click', event => {
   const use = event.target.closest('[data-use-model]');
   const download = event.target.closest('[data-export-model]');
-  if (use) void useInferenceModel(use.dataset.useModel);
-  if (download) void exportActModel(download.dataset.exportModel);
+  if (use) void withButtonFeedback(use, () => useInferenceModel(use.dataset.useModel), { label: '正在准备…' });
+  if (download) void withButtonFeedback(download, () => exportActModel(download.dataset.exportModel), { label: '正在导出…' });
 });
 $('#inference-confirm').addEventListener('change', () => renderInferenceGate());
-$('#inference-validate').addEventListener('click', validateInference);
+$('#inference-validate').addEventListener('click', () => withButtonFeedback($('#inference-validate'), validateInference, { label: '检查中…', restore: renderInferenceGate }));
 $('#inference-start').addEventListener('click', startInference);
 $('#inference-stop').addEventListener('click', stopInference);
-$('#emergency-stop').addEventListener('click', async () => { try { if (frameUploader.snapshot().active) frameUploader.stopAndDrain().catch(() => {}); await request('/emergency-stop', { method: 'POST', body: JSON.stringify({ reason: 'operator' }) }); await refresh(); $('#stop-episode').disabled = true; $('#episode-control-status').textContent = '已急停：硬件控制已立即停止，当前 Episode 等待审核。'; setWaveformStatus('已急停', 'error'); toast('急停已触发，硬件控制已停止'); } catch (error) { toast(`急停失败：${error.message}`); } });
+$('#emergency-stop').addEventListener('click', async () => { try { if (frameUploader.snapshot().active) frameUploader.stopAndDrain().catch(() => {}); await request('/emergency-stop', { method: 'POST', body: JSON.stringify({ reason: 'operator' }) }); await refreshAfterMutation(); $('#stop-episode').disabled = true; $('#episode-control-status').textContent = '已急停：硬件控制已立即停止，当前 Episode 等待审核。'; setWaveformStatus('已急停', 'error'); toast('急停已触发，硬件控制已停止'); } catch (error) { toast(`急停失败：${error.message}`); } });
 window.addEventListener('resize', () => { waveformChart.schedule(); inferenceWaveformChart?.schedule(); }); window.addEventListener('beforeunload', () => { if (state.trainingPoll) clearTimeout(state.trainingPoll); if (state.trainingJobPoll) clearTimeout(state.trainingJobPoll); if (state.inferencePoll) clearTimeout(state.inferencePoll); closeTelemetryStream(); frameEncoder.terminate(); cameraController?.close(); if (state.episode?.status === 'recording') navigator.sendBeacon(`${API}/emergency-stop`, JSON.stringify({ reason: 'page_unload' })); });
 installWorkbenchMotion();
-$('.workflow').addEventListener('click', event => { const button = event.target.closest('[data-view]'); if (!button) return; switchWorkbenchView(button.dataset.view); restartNativePreviewForActiveView(); if (button.dataset.view === 'train' && !['ready','preparing','failed'].includes(state.trainingEnvironment?.status)) void prepareTrainingEnvironment(false, false); });
+$('.workflow').addEventListener('click', event => { const button = event.target.closest('[data-view]'); if (!button || button.dataset.view === document.querySelector('.view.active')?.id) return; void navigateActView(button.dataset.view); });
 $('.waveform-mode').addEventListener('click', event => { const button = event.target.closest('[data-waveform-view]'); if (button) setWaveformView(button.dataset.waveformView); });
 $('#waveform-joints').addEventListener('click', event => { const button = event.target.closest('[data-joint]'); if (button) selectWaveformJoint(button.dataset.joint); });
 $('#waveform-channel-legend').addEventListener('change', event => { const input = event.target.closest('[data-channel]'); if (input) setWaveformChannel(input.dataset.channel, input.checked); });
 async function startEpisode() {
+  if (state.navigationPending) return toast('正在切换页面，请稍候。');
   const datasetId = selectedDatasetId();
   if (!datasetId) return toast('请先创建并选择数据集');
   if (!state.deviceBinding) return toast('请先保存设备选择');
@@ -1388,8 +1412,8 @@ async function stopEpisode() {
     renderSelectedDataset();
   }
 }
-$('#refresh').addEventListener('click', refresh); $('#episode-button').addEventListener('click', startEpisode); $('#stop-episode').addEventListener('click', stopEpisode);
-document.querySelectorAll('#episode-review [data-decision]').forEach(button => button.addEventListener('click', async () => { if (!state.episode?.id) return; try { const result = await request(`/episodes/${state.episode.id}/review`, { method: 'POST', body: JSON.stringify({ decision: button.dataset.decision }) }); state.episode = null; $('#episode-review').classList.add('hidden'); await refresh(); toast(result.status === 'accepted_success' ? '成功示教已保存' : result.status === 'accepted_failure' ? '失败记录已保存' : 'Episode 已删除'); } catch (error) { toast(`Episode 审核失败：${error.message}`); } }));
+$('#refresh').addEventListener('click', () => withButtonFeedback($('#refresh'), refreshAfterMutation)); $('#episode-button').addEventListener('click', startEpisode); $('#stop-episode').addEventListener('click', stopEpisode);
+document.querySelectorAll('#episode-review [data-decision]').forEach(button => button.addEventListener('click', async () => { if (!state.episode?.id) return; try { const result = await request(`/episodes/${state.episode.id}/review`, { method: 'POST', body: JSON.stringify({ decision: button.dataset.decision }) }); state.episode = null; $('#episode-review').classList.add('hidden'); await refreshAfterMutation(); toast(result.status === 'accepted_success' ? '成功示教已保存' : result.status === 'accepted_failure' ? '失败记录已保存' : 'Episode 已删除'); } catch (error) { toast(`Episode 审核失败：${error.message}`); } }));
 $('#target-rounds').addEventListener('change', () => { renderRoundProgress(); renderDeviceBinding(state.deviceBinding); });
 $('#active-dataset').addEventListener('change', async () => { if (state.episode) { $('#active-dataset').value = state.selectedDatasetId || ''; return toast('Episode 运行或待审核时不能切换数据集'); } if (state.cameraBackend) { $('#active-dataset').value = state.selectedDatasetId || ''; return toast('摄像头已连接，断开后才能切换数据集'); } state.selectedDatasetId = $('#active-dataset').value || null; renderSelectedDataset(); restoreCollectionState({ datasets: state.datasets, episodes: state.episodes }); await refreshDatasetStats(); renderDeviceBinding(state.deviceBinding); });
 $('#dataset-export').addEventListener('click', downloadDataset);
@@ -1513,6 +1537,7 @@ function scheduleFollowerCalibration() {
 async function openFollowerCalibration() {
   const dialog = $('#follower-calibration-dialog');
   if (!dialog.open) dialog.showModal();
+  setCalibrationStatus('正在读取本机校准状态…');
   try { renderFollowerCalibration(await calibrationRequest('/follower-calibration')); scheduleFollowerCalibration(); }
   catch (error) { setCalibrationStatus(error.message); }
 }
@@ -1609,24 +1634,59 @@ document.querySelectorAll('[data-camera-exit]').forEach(button => button.addEven
   if (document.fullscreenElement) document.exitFullscreen().catch(error => toast(error.message));
 }));
 
+const releaseActSerialPorts = createSingleFlight(async () => {
+  state.deviceEpoch++;
+  await Promise.allSettled([...serialOperations]);
+  if (followerCalibrationBusy || ['recording', 'paused'].includes(followerCalibrationState?.status)) {
+    throw new Error('请先保存或取消从臂校准，再切换页面。');
+  }
+  if (state.modelImporting || state.frameDrain || state.inferenceStarting) {
+    throw new Error('当前操作尚未完成，请稍后再切换页面。');
+  }
+  if (state.episode?.status === 'recording') {
+    await stopEpisode();
+    if (state.episode?.status === 'recording') throw new Error('采集尚未停止，页面与串口连接已保留。');
+  }
+  if (!state.capabilities && !Object.values(state.serial).some(port => port?.connected)) return;
+  const inference = await request('/inference');
+  if (['loading', 'running', 'stopping'].includes(inference.status)) {
+    const stopped = await request('/inference/stop', { method: 'POST', body: JSON.stringify({ reason: 'page_switch' }) });
+    renderInference(stopped);
+    if (['loading', 'running', 'stopping'].includes(stopped.status)) throw new Error('推理尚未停止，请稍后再切换。');
+  }
+  const devices = await request('/devices');
+  for (const role of ['leader', 'follower']) {
+    if (devices.serial_connections?.[role]?.connected || state.serial[role]?.connected) {
+      await request('/devices/serial/disconnect', { method: 'POST', body: JSON.stringify({ role }) });
+      state.serial[role] = null; setDeviceCard(role, false, '');
+    }
+  }
+  state.deviceBinding = null; state.inferenceGate = null;
+  renderDeviceBinding(null); renderInferenceGate();
+});
+
+const navigateActView = createPageNavigator({
+  release: releaseActSerialPorts,
+  activate: id => {
+    switchWorkbenchView(id); restartNativePreviewForActiveView();
+    if (id === 'infer') pollInference(0);
+    if (id === 'train' && !['ready', 'preparing', 'failed'].includes(state.trainingEnvironment?.status)) void prepareTrainingEnvironment(false, false);
+  },
+  onPending: (id, busy) => {
+    state.navigationPending = busy;
+    document.querySelectorAll('.workflow [data-view]').forEach(button => {
+      button.disabled = busy;
+      if (busy && button.dataset.view === id) button.setAttribute('aria-busy', 'true'); else button.removeAttribute('aria-busy');
+    });
+    if (busy) setInteractionStatus('正在停止当前控制并断开串口…');
+    else if (document.getElementById('interaction-status')?.dataset.kind !== 'error') setInteractionStatus('');
+  },
+  onError: error => setInteractionStatus(`切换未完成：${error.message}`, 'error'),
+});
+
 window.addEventListener('workbench:before-switch', event => {
   event.detail.waits.push((async () => {
-    if (followerCalibrationBusy || ['recording', 'paused'].includes(followerCalibrationState?.status)) {
-      throw new Error('请先保存或取消从臂校准，再切换工作台。');
-    }
-    if (state.episode || state.frameDrain || state.modelImporting) {
-      throw new Error('请先完成模型导入，或停止采集并保存审核结果，再切换工作台。');
-    }
-    const inference = state.inference ? await request('/inference') : { status: 'idle' };
-    if (['loading', 'running', 'stopping'].includes(inference.status)) {
-      const stopped = await request('/inference/stop', { method: 'POST', body: JSON.stringify({ reason: 'workspace_switch' }) });
-      if (['loading', 'running', 'stopping'].includes(stopped.status)) throw new Error('推理尚未停止，请稍后再切换。');
-    }
-    // Do not swallow a camera or UART release failure on a navigation boundary.
-    if (state.cameraBackend === 'native') await request('/cameras/native/disconnect', { method: 'POST', body: '{}' });
+    await releaseActSerialPorts();
     if (state.cameraBackend) await disconnectCameras(false);
-    for (const role of ['leader', 'follower']) {
-      if (state.serial[role]?.connected) await request('/devices/serial/disconnect', { method: 'POST', body: JSON.stringify({ role }) });
-    }
   })());
 });

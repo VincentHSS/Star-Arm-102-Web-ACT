@@ -20,6 +20,7 @@ function harness({ ready = true, fail = false, active = false } = {}) {
     request: async (path, options) => { calls.push({ path, options }); if (fail) throw new Error('missing processor'); return { id: 'imported', tasks: ['task'], execution_ready: true }; },
     loadModels: async () => { state.models.push({ id: 'imported', execution_ready: true }); calls.push('loaded'); },
     validateInference: async () => { state.inferenceGate = { ready }; calls.push('validated'); },
+    navigateActView: async () => { calls.push('navigate'); return true; },
     startInference: () => calls.push('UNEXPECTED ROBOT START'),
   };
   vm.createContext(context);

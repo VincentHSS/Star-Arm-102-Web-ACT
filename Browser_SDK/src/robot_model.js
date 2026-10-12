@@ -326,6 +326,11 @@ export function createRobotModel({
   let loadGeneration = 0;
   let observer = null;
   let destroyed = false;
+  let renderDirty = true;
+  let sceneVisible = true;
+  let visibilityObserver = null;
+  const invalidate = () => { renderDirty = true; };
+  controls.addEventListener('change', invalidate);
   let handleEnabled = false;
   let hoverHandle = null;
   let dragConstraint = null;
@@ -340,6 +345,7 @@ export function createRobotModel({
   });
 
   function setHandleVisual(state) {
+    renderDirty = true;
     const style = HANDLE_STYLES[state];
     const activeKey = dragConstraint?.axisName ?? (dragConstraint?.mode === 'screen' ? 'screen' : hoverHandle);
     for (const visual of gizmoVisuals) {
@@ -566,6 +572,7 @@ export function createRobotModel({
   rebuildSkeleton(activeModelConfig);
 
   function updateNodes(tree, nodes, angles) {
+    renderDirty = true;
     applyModelJointAngles(tree, angles);
     for (const [name, joint] of tree.joints) {
       const node = nodes.get(name);
@@ -592,6 +599,7 @@ export function createRobotModel({
   }
 
   function resize() {
+    renderDirty = true;
     const width = Math.max(1, canvas.clientWidth || canvas.parentElement?.clientWidth || 1);
     const height = Math.max(1, canvas.clientHeight || canvas.parentElement?.clientHeight || 1);
     renderer.setSize(width, height, false);
@@ -601,15 +609,18 @@ export function createRobotModel({
 
   function render() {
     if (destroyed) return;
+    frame = requestAnimationFrame(render);
+    if (document.hidden || !sceneVisible) return;
+    const cameraChanged = controls.update();
+    if (!renderDirty && !cameraChanged) return;
     if (tcpTranslationGizmo.visible) {
       const distance = camera.position.distanceTo(tcpTranslationGizmo.position);
       tcpTranslationGizmo.scale.setScalar(THREE.MathUtils.clamp(distance * 0.16, 0.55, 2.4));
     }
+    renderDirty = false;
     const sample = renderRateMeter.tick(performance.now());
     if (sample) onRenderFps(sample.hz);
-    controls.update();
     renderer.render(scene, camera);
-    frame = requestAnimationFrame(render);
   }
 
   function resetCamera() {
@@ -646,12 +657,21 @@ export function createRobotModel({
         ...part,
         geometry: await loader.loadAsync(new URL(part.url, import.meta.url).href),
       })));
-      if (destroyed || generation !== loadGeneration) return api;
+      if (destroyed || generation !== loadGeneration) {
+        for (const { geometry } of geometries) geometry.dispose();
+        return api;
+      }
       for (const { link, geometry } of geometries) {
+        await new Promise(resolve => setTimeout(resolve, 0));
+        if (destroyed || generation !== loadGeneration) {
+          for (const part of geometries) part.geometry.dispose();
+          return api;
+        }
         geometry.computeVertexNormals();
         const actualMaterial = new THREE.MeshStandardMaterial({ color: 0xd8dde5, metalness: 0.35, roughness: 0.42 });
         actualLinks.get(link).add(new THREE.Mesh(geometry, actualMaterial));
-        const previewGeometry = geometry.clone();
+        // Both meshes can share immutable vertex data; material and transforms remain independent.
+        const previewGeometry = geometry;
         const previewMaterial = new THREE.MeshStandardMaterial({
           color: 0x1be7e2, transparent: true, opacity: 0.28, depthWrite: false, wireframe: true,
         });
@@ -684,6 +704,7 @@ export function createRobotModel({
   }
 
   function preview(angles = null) {
+    renderDirty = true;
     previewRoot.visible = Boolean(angles);
     if (angles) updateNodes(previewTree, previewNodes, angles);
   }
@@ -724,6 +745,8 @@ export function createRobotModel({
     destroyed = true;
     cancelAnimationFrame(frame);
     observer?.disconnect();
+    visibilityObserver?.disconnect();
+    controls.removeEventListener('change', invalidate);
     cancelTcpDrag('三维模型已销毁');
     renderer.domElement.removeEventListener('pointerdown', onPointerDown);
     renderer.domElement.removeEventListener('pointermove', onPointerMove);
@@ -744,6 +767,10 @@ export function createRobotModel({
   resize();
   observer = typeof ResizeObserver === 'function' ? new ResizeObserver(resize) : null;
   observer?.observe(canvas.parentElement || canvas);
+  if (typeof IntersectionObserver === 'function') {
+    visibilityObserver = new IntersectionObserver(entries => { sceneVisible = entries[0]?.isIntersecting !== false; renderDirty = true; });
+    visibilityObserver.observe(canvas);
+  }
   render();
   return api;
 }

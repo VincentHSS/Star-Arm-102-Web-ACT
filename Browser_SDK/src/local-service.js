@@ -38,6 +38,7 @@ async function detect() {
       if (!announced) { announced = true;window.dispatchEvent(new Event('act:runtime-connected')); }
       if (requested) { requested = false;queueMicrotask(()=>window.dispatchEvent(new Event('act:runtime-auto-prepare'))); }
     }
+    if (!connected()) announced = false;
     render();return connected();
   })();
   return checking;
@@ -64,7 +65,8 @@ if (panel) {
     } catch(error){downloadError=`安装文件生成失败：${error.message}`;}
     finally {buildingInstaller=false;download.removeAttribute('aria-disabled');render();}
   });
-  const poll = setInterval(detect, 3500);
+  const poll = setInterval(() => { if (!document.hidden || requested) void detect(); }, 3500);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) void detect(); });
   window.addEventListener('pagehide',()=>clearInterval(poll),{once:true});
   detect();
 }

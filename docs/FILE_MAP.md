@@ -108,6 +108,7 @@
 | [Browser_SDK/src/act-waveform.js](../Browser_SDK/src/act-waveform.js) | Action / State 多通道曲线、时间轴与绘制 |
 | [Browser_SDK/src/act-workbench.css](../Browser_SDK/src/act-workbench.css) | ACT 四步骤工作台的流程、API、采集、训练和模型执行交互（样式） |
 | [Browser_SDK/src/act-workbench.js](../Browser_SDK/src/act-workbench.js) | ACT 四步骤工作台的流程、API、采集、训练和模型执行交互 |
+| [Browser_SDK/src/api-client.js](../Browser_SDK/src/api-client.js) | 本机 API 请求与响应体超时、错误反馈和取消管理 |
 | [Browser_SDK/src/app.js](../Browser_SDK/src/app.js) | 控制台入口：初始化 3D、机械臂、串口和界面事件 |
 | [Browser_SDK/src/b601_model_data.js](../Browser_SDK/src/b601_model_data.js) | B601 显示模型的零件与关节数据 |
 | [Browser_SDK/src/browser_serial_utils.js](../Browser_SDK/src/browser_serial_utils.js) | 浏览器串口超时、读取与可取消任务工具 |
@@ -126,10 +127,12 @@
 | [Browser_SDK/src/follower_target.js](../Browser_SDK/src/follower_target.js) | 从臂目标与实际关节状态转换 |
 | [Browser_SDK/src/i18n.js](../Browser_SDK/src/i18n.js) | 控制台中英文文本 |
 | [Browser_SDK/src/ik_solver.js](../Browser_SDK/src/ik_solver.js) | 末端逆运动学求解 |
+| [Browser_SDK/src/interaction.css](../Browser_SDK/src/interaction.css) | 按钮处理提示与页面切换状态样式（样式） |
 | [Browser_SDK/src/joint_mapper.js](../Browser_SDK/src/joint_mapper.js) | 舵机角度与显示模型关节方向映射 |
 | [Browser_SDK/src/joint_slider_control.js](../Browser_SDK/src/joint_slider_control.js) | 关节滑条输入与连续控制 |
 | [Browser_SDK/src/local-service.js](../Browser_SDK/src/local-service.js) | 本机后台探测、组件下载与环境准备接续 |
 | [Browser_SDK/src/manual_control_session.js](../Browser_SDK/src/manual_control_session.js) | 手动控制会话的启动、结束与指令管理 |
+| [Browser_SDK/src/page-lifecycle.js](../Browser_SDK/src/page-lifecycle.js) | 页面切换前停止控制、释放串口与按钮处理状态 |
 | [Browser_SDK/src/piper_model_data.js](../Browser_SDK/src/piper_model_data.js) | PiPER Mate 烘焙模型与关节原始数据 |
 | [Browser_SDK/src/rate_meter.js](../Browser_SDK/src/rate_meter.js) | 采样与通信频率统计 |
 | [Browser_SDK/src/reset_origin.js](../Browser_SDK/src/reset_origin.js) | 机械臂回零与原点重置 |
@@ -203,9 +206,11 @@
 | [tests/act_capture_quality.test.js](../tests/act_capture_quality.test.js) | 软件测试：采集同步质量和帧率统计 |
 | [tests/act_waveform.test.js](../tests/act_waveform.test.js) | 软件测试：Action / State 多通道曲线、时间轴与绘制 |
 | [tests/act_workbench_contract.test.js](../tests/act_workbench_contract.test.js) | 软件测试：ACT 页面结构与流程约束 |
+| [tests/api_client.test.js](../tests/api_client.test.js) | 软件测试：请求及响应体超时、取消与禁止自动重试 |
 | [tests/browser_smoke.cjs](../tests/browser_smoke.cjs) | 自动浏览器验证、临时本机服务与安装包生成检查 |
 | [tests/follower_calibration_ui.test.js](../tests/follower_calibration_ui.test.js) | 软件测试：从臂校准与重试界面 |
 | [tests/model_import_ui.test.js](../tests/model_import_ui.test.js) | 软件测试：完整模型导入界面 |
+| [tests/page_lifecycle.test.js](../tests/page_lifecycle.test.js) | 软件测试：停止和释放成功后切页、失败保留原页与重复点击合并 |
 | [tests/piper/factory_params.test.js](../tests/piper/factory_params.test.js) | 软件测试：舵机工厂参数定义、解析与验证 |
 | [tests/piper/fl_trajectory_controller.test.js](../tests/piper/fl_trajectory_controller.test.js) | 软件测试：从臂轨迹播放、暂停、停止和指令调度 |
 | [tests/piper/fl_trajectory_model.test.js](../tests/piper/fl_trajectory_model.test.js) | 软件测试：从臂轨迹结构、插值与关节模型 |

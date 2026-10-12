@@ -31,6 +31,8 @@ sh start_ubuntu.sh
 
 Windows 支持控制台 Web Serial、界面预览以及数据集和模型管理。**当前完整 ACT 训练、Linux 原生双相机和实机执行需要 Ubuntu**；Windows 脚本不会将这些 Linux 功能变成 Windows 驱动。详见 [Windows 教程](docs/WINDOWS.md)。
 
+控制台子页面和 ACT 步骤切换时会自动停止当前控制并释放串口；在下一页操作机械臂前需重新连接。按钮处理中会显示状态，本机服务无响应时会提示超时。
+
 ## 服务器发布与文件说明
 
 - [服务器上传教程](docs/DEPLOYMENT.md)：上传哪些文件、HTTPS、客户首次安装流程。

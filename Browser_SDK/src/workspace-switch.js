@@ -1,4 +1,4 @@
-import { getLocalApi, localFetch } from './local-service.js?v=upload-only-6';
+import { getLocalApi, localFetch } from './local-service.js?v=responsive-1';
 const names = { act: 'ACT 工作台', piper: '控制台' };
 const overlay = document.createElement('section');
 overlay.id = 'workspace-switch-screen';
@@ -31,7 +31,7 @@ async function response(url) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 8000);
   try {
-    const result = await (url.startsWith(getLocalApi()) ? localFetch : fetch)(url, { cache: 'no-store', signal: controller.signal });
+    const result = await (url.startsWith(getLocalApi()) ? localFetch : fetch)(url, { cache: 'no-cache', signal: controller.signal });
     if (!result.ok) throw new Error(`页面加载失败（${result.status}）`);
     return result;
   } finally { clearTimeout(timeout); }
@@ -70,7 +70,7 @@ async function switchTo(link) {
     phase(1, '正在载入工作台页面与本机服务…');
     await response(url.href);
     // The static site can open the ACT setup page before the computer-side service is started.
-    if (target === 'act') await response(`${getLocalApi()}/health`).catch(() => {});
+    if (target === 'act') void localFetch(`${getLocalApi()}/health`, { signal: AbortSignal.timeout(1800) }).catch(() => {});
     if (cancelled || operation !== generation) return;
     phase(2, '页面已准备，稍候进入工作台');
     await holdReady(operation);

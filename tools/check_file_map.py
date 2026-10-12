@@ -6,6 +6,9 @@ ROOT = Path(__file__).resolve().parent.parent
 IGNORED = {'.git', '__pycache__', 'node_modules', 'dist', '.venv', '.local-state'}
 
 FRONTEND = {
+    'api-client': '本机 API 请求与响应体超时、错误反馈和取消管理',
+    'page-lifecycle': '页面切换前停止控制、释放串口与按钮处理状态',
+    'interaction': '按钮处理提示与页面切换状态样式',
     'a1z_model_data': 'A1Z 3D 零件与关节数据', 'b601_model_data': 'B601 显示模型的零件与关节数据',
     'piper_model_data': 'PiPER Mate 烘焙模型与关节原始数据', 'urdf_model_data': '原始机械臂 URDF 转换后的显示数据',
     'act-camera-frame-encoder-worker-client': '管理相机编码 Worker 请求、超时与退出',
@@ -117,7 +120,7 @@ def purpose(path):
     if relative.startswith('tests/'):
         stem = path.stem.removesuffix('.test').removeprefix('test_')
         test_names = {
-            'api': 'HTTP API、数据集与轮次流程', 'native_camera_api': '原生相机 HTTP API',
+            'api': 'HTTP API、数据集与轮次流程', 'api_client': '请求及响应体超时、取消与禁止自动重试', 'page_lifecycle': '停止和释放成功后切页、失败保留原页与重复点击合并', 'native_camera_api': '原生相机 HTTP API',
             'native_camera_manager': '原生双相机管理', 'native_cameras_streaming': '原生相机流与结束排空',
             'release_version_contract': '两系统启动脚本与整合服务入口',
             'piper_leader_contract': 'PiPER Mate 姿态源配置与显示约束',

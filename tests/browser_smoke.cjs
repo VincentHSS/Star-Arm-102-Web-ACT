@@ -12,7 +12,8 @@ const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
 (async () => {
   const state = fs.mkdtempSync(path.join(os.tmpdir(), 'star-arm-browser-'));
   const output = path.join(ROOT, 'dist'); fs.mkdirSync(output, { recursive: true });
-  let browser, logs = '';
+  let browser, page, logs = '';
+  const errors = [], missing = [];
   // Never accidentally exercise an existing customer's runtime.
   let occupied = false;
   try { await fetch(site + '/api/v1/health', { signal: AbortSignal.timeout(1000) }); occupied = true; } catch {}
@@ -34,8 +35,7 @@ const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
     }
     assert(ready, logs || 'Runtime did not become ready');
     browser = await chromium.launch({ headless: true, ...(process.env.PLAYWRIGHT_BROWSER_CHANNEL ? { channel: process.env.PLAYWRIGHT_BROWSER_CHANNEL } : {}) });
-    const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
-    const errors = [], missing = [];
+    page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
     page.on('pageerror', e => errors.push(e.message));
     page.on('response', r => { if (r.status() >= 400 && !r.url().includes('/api/')) missing.push(r.url()); });
     let environment = 'not_prepared', prepares = 0;
@@ -44,6 +44,34 @@ const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
     await page.route('**/api/v1/training/environment', r => r.fulfill({ json: snapshot() }));
     await page.route('**/api/v1/training/environment/prepare', r => { prepares++; environment = 'preparing'; return r.fulfill({ json: snapshot() }); });
     await page.route('**/api/v1/training/environment/prepare/browser-check', r => r.fulfill({ json: snapshot() }));
+    const serial = { leader: { connected: true, port: '/dev/mock-leader', baudrate: 1000000 },
+      follower: { connected: true, port: '/dev/mock-follower', baudrate: 1000000 } };
+    const disconnected = [], shutdownOrder = []; let failDisconnect = false;
+    const inferenceBase = await (await fetch(site + '/api/v1/inference')).json();
+    let inference = { ...inferenceBase, status: 'running' }, recording = null;
+    await page.route('**/api/v1/inference', r => r.fulfill({ json: inference }));
+    await page.route('**/api/v1/inference/stop', r => {
+      shutdownOrder.push('stop-inference'); inference = { ...inference, status: 'stopped' };
+      return r.fulfill({ json: inference });
+    });
+    await page.route('**/api/v1/state', async r => {
+      const response = await r.fetch(); const body = await response.json();
+      if (recording) body.episodes = [recording];
+      return r.fulfill({ json: body });
+    });
+    await page.route('**/api/v1/episodes/mock-recording/stop', r => {
+      shutdownOrder.push('stop-recording');
+      recording = { ...recording, status: 'review', valid_frames: 0, camera_frames: { wrist: 0, world: 0 }, integrity: { ok: false, errors: ['模拟轮次无样本'] } };
+      return r.fulfill({ json: recording });
+    });
+    await page.route('**/api/v1/devices', r => r.fulfill({ json: { binding: null, serial_connections: serial } }));
+    await page.route('**/api/v1/devices/serial/disconnect', async r => {
+      const role = r.request().postDataJSON().role;
+      await pause(150);
+      if (failDisconnect) return r.fulfill({ status: 409, json: { error: { message: '模拟串口释放失败', code: 'busy' } } });
+      serial[role] = null; disconnected.push(role); shutdownOrder.push('disconnect-' + role);
+      return r.fulfill({ json: { role, connected: false } });
+    });
     await page.goto(site + '/act-workbench.html');
     await page.waitForFunction(() => document.querySelector('#service-state').textContent.includes('已连接'));
     await page.locator('#dataset-form [name=task_name]').fill('浏览器验证任务');
@@ -51,14 +79,31 @@ const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
     await page.locator('#dataset-form [type=submit]').click();
     await page.waitForFunction(() => document.querySelector('#active-dataset').value !== '');
     const datasetResponse = await page.request.get(site + '/api/v1/datasets');
-    assert.equal((await datasetResponse.json()).items.length, 1);
+    const datasets = (await datasetResponse.json()).items;
+    assert.equal(datasets.length, 1);
+    recording = { id: 'mock-recording', dataset_id: datasets[0].id, status: 'recording' };
+    await page.click('#refresh');
+    await page.waitForFunction(() => !document.querySelector('#stop-episode').disabled);
     await page.click('.workflow [data-view="train"]');
     await page.waitForFunction(() => document.querySelector('#training-title').textContent.includes('正在自动准备'));
+    assert.deepEqual(disconnected, ['leader', 'follower'], 'ACT step changes must release both serial roles');
+    assert.deepEqual(shutdownOrder, ['stop-recording', 'stop-inference', 'disconnect-leader', 'disconnect-follower']);
+    assert.equal(recording.status, 'review', 'Stopped recording must be preserved for review');
+    recording = null;
     assert.equal(prepares, 1);
     environment = 'ready';
     await page.waitForFunction(() => document.querySelector('#training-title').textContent.includes('已就绪'));
     await page.click('.workflow [data-view="models"]');
+    await page.waitForFunction(() => document.querySelector('#models').classList.contains('active'));
     assert(await page.locator('#models').isVisible());
+    serial.leader = { connected: true, port: '/dev/mock-leader', baudrate: 1000000 }; failDisconnect = true;
+    await page.click('.workflow [data-view="infer"]');
+    await page.waitForFunction(() => document.querySelector('#interaction-status')?.textContent.includes('模拟串口释放失败'));
+    assert(await page.locator('#models').isVisible(), 'A failed release must keep the previous page');
+    failDisconnect = false;
+    await page.click('.workflow [data-view="infer"]');
+    await page.waitForFunction(() => document.querySelector('#infer').classList.contains('active'));
+    assert.equal(serial.leader, null);
     await page.click('.workflow [data-view="train"]'); await pause(400); assert.equal(prepares, 1);
     assert.equal(await page.locator('a[href^="star-arm-act:"]').count(), 0);
     const installer = await page.evaluate(async () => {
@@ -76,6 +121,37 @@ const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
       await page.waitForURL('**/' + destination);
       assert(Date.now() - started >= 4800, 'Ready transition should hold for about 5 seconds');
       assert.equal(await page.locator('#workspace-switch-screen').isVisible(), false, 'Destination must not replay the loader');
+      if (target === 'piper') {
+        await page.waitForFunction(() => document.querySelector('#modelLoadStatus')?.dataset.state === 'ready');
+        await page.evaluate(async () => {
+          const THREE = await import('./assets/vendor/three.module.js');
+          window.testSceneDraws = 0;
+          THREE.Object3D.prototype.onBeforeRender = function () { window.testSceneDraws++; };
+        });
+        await pause(1600); await page.evaluate(() => { window.testSceneDraws = 0; }); await pause(350);
+        assert.equal(await page.evaluate(() => window.testSceneDraws), 0, 'An unchanged scene should not keep drawing meshes');
+        await page.locator('#robotCanvas').hover(); await page.mouse.wheel(0, 150);
+        await page.waitForFunction(() => window.testSceneDraws > 0);
+        // Simulate open console buses without exposing or moving any physical hardware.
+        await page.evaluate(async () => {
+          const { SerialServoBus } = await import('./src/serial_servo_bus.js');
+          const descriptor = Object.getOwnPropertyDescriptor(SerialServoBus.prototype, 'connected');
+          const disconnect = SerialServoBus.prototype.disconnect, closed = new WeakSet();
+          window.testClosedPorts = [];
+          Object.defineProperty(SerialServoBus.prototype, 'connected', { configurable: true,
+            get() { return !closed.has(this) || descriptor.get.call(this); } });
+          SerialServoBus.prototype.disconnect = async function (...args) {
+            window.testClosedPorts.push(this.name); closed.add(this); return disconnect.apply(this, args);
+          };
+          window.restoreTestBuses = () => { Object.defineProperty(SerialServoBus.prototype, 'connected', descriptor); SerialServoBus.prototype.disconnect = disconnect; };
+        });
+        await page.click('[data-tab="reset-origin"]');
+        await page.waitForFunction(() => document.querySelector('#resetOriginView').classList.contains('active'));
+        assert.deepEqual(await page.evaluate(() => window.testClosedPorts), ['Leader', 'Reset Arm', 'Factory Arm']);
+        await page.evaluate(() => window.restoreTestBuses());
+        await page.click('[data-tab="teleop"]');
+        await page.waitForFunction(() => document.querySelector('#teleopView').classList.contains('active'));
+      }
     }
     await page.waitForFunction(() => document.querySelector('#service-state').textContent.includes('已连接'));
     const bad = fs.readFileSync(path.join(ROOT, 'Browser_SDK/downloads/act-runtime-template.deb')); bad[10] ^= 1;
@@ -91,7 +167,18 @@ const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
     console.log(JSON.stringify({ localStartup: true, datasetCreated: true, environmentAutomaticallyPrepared: true,
       readyEnvironmentReused: true, modelView: true, installerGenerated: true, unauthorizedOriginBlocked: true,
       fiveSecondTransitions: true, noDuplicateLoader: true, corruptTemplateRejected: true, mobileFits: true,
+      actStepPortsReleased: true, releaseFailureKeepsPage: true, consoleTabPortsReleased: true,
+      recordingPreservedForReview: true, controlStoppedBeforeDisconnect: true,
+      idleSceneDoesNotRedraw: true, interactiveSceneStillDraws: true,
       nativeUbuntuInstallationTested: false, hardwareTested: false, pageErrors: errors, missingAssets: missing }, null, 2));
+  } catch (error) {
+    if (page) {
+      console.error(JSON.stringify({ url: page.url(), pageErrors: errors, missingAssets: missing,
+        switchMessage: await page.locator('#switch-message').textContent().catch(() => ''),
+        interaction: await page.locator('#interaction-status').textContent().catch(() => '') }));
+      await page.screenshot({ path: path.join(output, 'browser-failure.png') }).catch(() => {});
+    }
+    throw error;
   } finally {
     if (browser) await browser.close();
     if (service.exitCode === null) {

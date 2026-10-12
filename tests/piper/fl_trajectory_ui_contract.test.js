@@ -67,7 +67,7 @@ test('application integrates the FL-only workspace and versioned modules', async
   assert.match(controller, /result\.limitReached \|\| elapsed >= FL_TRAJECTORY_MAX_DURATION_MS[\s\S]*void this\.stopRecording[\s\S]*\.catch\(\(error\) => \{[\s\S]*try \{ this\.setState\('fault', error\); \}[\s\S]*catch \(_\) \{\}/);
   assert.match(app, /async performDisconnectAll\(\)[\s\S]*const connectionId = this\.followerConnectionId[\s\S]*trajectoryWorkspace\.handleDisconnect\(\{ connectionId \}\)[\s\S]*Promise\.allSettled[\s\S]*throw new AggregateError/);
   assert.match(app, /async function activateTab\(name\)[\s\S]*if \(name !== 'trajectory' && document\.querySelector\('#trajectoryView'\)\.classList\.contains\('active'\)\)[\s\S]*await trajectoryWorkspace\.stop\(\)[\s\S]*applyTab\(name\)/);
-  assert.match(app, /for \(const tab of els\.tabs\) tab\.addEventListener\('click', \(\) => runAction\(\(\) => activateTab\(tab\.dataset\.tab\)\)\)/);
+  assert.match(app, /for \(const tab of els\.tabs\) tab\.addEventListener\('click',[\s\S]*navigateConsoleTab\(tab\.dataset\.tab\)/);
   assert.doesNotMatch(html, /DIGITAL TWIN WORKSPACE · v\d+\.\d+\.\d+/);
   assert.equal((html.match(/>v1\.1\.2</g) ?? []).length, 1);
   assert.match(version, /APP_VERSION = 'v1\.1\.2'/);

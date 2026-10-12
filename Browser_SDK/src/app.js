@@ -1,9 +1,10 @@
+import { createPageNavigator, releaseWorkbenchConnections, setInteractionStatus, withButtonFeedback } from './page-lifecycle.js?v=responsive-1';
 import { APP_VERSION } from './version.js';
 import { isDeviceLostError, userMessageForSerialError } from './browser_serial_utils.js';
 import { ServoProtocol, clampGripperAngle, parseMonitorPacket, parsePublicParametersPacket, parseInternalParametersPacket, selectParameterResponse } from './fashionstar_serial.js';
 import { resetArmOrigin, verifyOriginAngles } from './reset_origin.js';
 import { restoreFactoryParameters, compareParameters } from './factory_restore.js';
-import { createRobotModel } from './robot_model.js?v=1.1.2-star-scene-2';
+import { createRobotModel } from './robot_model.js?v=1.1.2-responsive-1';
 import { MODEL_CONFIGS, resolveDisplayModelKey, isDisplayOnlyModelKey, PIPER_MODEL_KEY, LEADER_TYPE_PIPER } from './robot_model_configs.js';
 import { mapLeaderAnglesToB601 } from './b601_model_data.js';
 import { mapLeaderAnglesToA1Z } from './a1z_model_data.js';
@@ -44,6 +45,7 @@ import {
 const SERVO_IDS = [0, 1, 2, 3, 4, 5, 6];
 const BAUD_RATE = 1000000;
 let connectionSequence = 0;
+let consoleNavigationPending = false;
 const nextConnectionId = (role) => `${role}-${Date.now()}-${++connectionSequence}`;
 
 const els = {
@@ -194,6 +196,7 @@ class BrowserTeleopController {
   }
 
   async connectLeader() {
+    if (consoleNavigationPending) throw new Error('正在切换页面，请稍候。');
     if (this.leader.connected) throw new Error(t('error.leader-serial-connected'));
     const leaderType = getLeaderProfileCode();
     const operation = this.leaderConnectionLock.begin(leaderType);
@@ -228,6 +231,7 @@ class BrowserTeleopController {
   }
 
   async connectFollower() {
+    if (consoleNavigationPending) throw new Error('正在切换页面，请稍候。');
     const targetType = this.followerTarget.type;
     if (this.followerConnected()) throw new Error(targetType === FOLLOWER_TARGET_VIRTUAL ? t('status.virtual-fl-connected') : t('status.follower-serial-connected'));
     const operation = this.followerConnectionLock.begin(targetType);
@@ -353,6 +357,7 @@ class BrowserTeleopController {
   }
 
   async connectResetArm() {
+    if (consoleNavigationPending) throw new Error('正在切换页面，请稍候。');
     if (this.running) throw new Error(t('error.stop-teleop-first'));
     if (this.leader.connected || this.follower?.connected || this.factoryBus.connected) throw new Error(t('error.disconnect-other-first'));
     hideResetOperationNotice();
@@ -394,6 +399,7 @@ class BrowserTeleopController {
   }
 
   async connectFactoryArm() {
+    if (consoleNavigationPending) throw new Error('正在切换页面，请稍候。');
     if (this.running || this.leader.connected || this.follower?.connected || this.resetBus.connected) {
       throw new Error(t('error.stop-and-disconnect-first'));
     }
@@ -1062,8 +1068,8 @@ window.addEventListener('beforeunload', () => {
   robotModel.destroy();
 }, { once: true });
 
-els.connectLeader.addEventListener('click', () => runAction(() => controller.connectLeader()));
-els.connectFollower.addEventListener('click', () => runAction(() => controller.connectFollower()));
+els.connectLeader.addEventListener('click', () => withButtonFeedback(els.connectLeader, () => runAction(() => controller.connectLeader()), { label: '正在选择并连接…', restore: renderConnectionState }));
+els.connectFollower.addEventListener('click', () => withButtonFeedback(els.connectFollower, () => runAction(() => controller.connectFollower()), { label: '正在选择并连接…', restore: renderConnectionState }));
 function syncFollowerTypeSwitch() {
   const type = els.followerType.value;
   const disabled = els.followerType.disabled;
@@ -1111,7 +1117,7 @@ els.enterSliderControl.addEventListener('click', () => runAction(enterSelectedSl
 els.exitSliderControl.addEventListener('click', () => runAction(exitSelectedSliderControl));
 els.start.addEventListener('click', () => runAction(() => controller.start()));
 els.stop.addEventListener('click', () => runAction(() => controller.stop()));
-els.connectResetArm.addEventListener('click', () => runResetAction(() => controller.connectResetArm()));
+els.connectResetArm.addEventListener('click', () => withButtonFeedback(els.connectResetArm, () => runResetAction(() => controller.connectResetArm()), { label: '正在选择并连接…', restore: renderResetState }));
 els.disconnectResetArm.addEventListener('click', () => runResetAction(() => controller.disconnectResetArm()));
 els.resetOrigin.addEventListener('click', openResetConfirmDialog);
 els.cancelResetOrigin.addEventListener('click', closeResetConfirmDialog);
@@ -1120,13 +1126,26 @@ els.confirmResetOrigin.addEventListener('click', () => {
   runResetOriginAction(() => controller.resetOriginPoints());
 });
 els.resetConfirmDialog.addEventListener('cancel', (event) => { event.preventDefault(); closeResetConfirmDialog(); });
-els.connectFactoryArm.addEventListener('click', () => runFactoryAction(() => controller.connectFactoryArm()));
+els.connectFactoryArm.addEventListener('click', () => withButtonFeedback(els.connectFactoryArm, () => runFactoryAction(() => controller.connectFactoryArm()), { label: '正在选择并连接…', restore: renderFactoryState }));
 els.disconnectFactoryArm.addEventListener('click', () => runFactoryAction(() => controller.disconnectFactoryArm()));
 els.restoreFactory.addEventListener('click', openFactoryConfirmDialog);
 els.cancelFactoryRestore.addEventListener('click', closeFactoryConfirmDialog);
 els.confirmFactoryRestore.addEventListener('click', () => { closeFactoryConfirmDialog(); runFactoryAction(() => controller.restoreFactory()); });
 els.factoryConfirmDialog.addEventListener('cancel', (event) => { event.preventDefault(); closeFactoryConfirmDialog(); });
-for (const tab of els.tabs) tab.addEventListener('click', () => runAction(() => activateTab(tab.dataset.tab)));
+for (const tab of els.tabs) tab.addEventListener('click', () => { if (!tab.classList.contains('active')) void navigateConsoleTab(tab.dataset.tab); });
+
+const navigateConsoleTab = createPageNavigator({
+  release: () => releaseWorkbenchConnections(2),
+  activate: activateTab,
+  onPending: (name, busy) => {
+    consoleNavigationPending = busy;
+    for (const tab of els.tabs) { tab.disabled = busy; if (busy && tab.dataset.tab === name) tab.setAttribute('aria-busy', 'true'); else tab.removeAttribute('aria-busy'); }
+    if (busy) setInteractionStatus('正在停止当前控制并断开串口…');
+    else if (document.getElementById('interaction-status')?.dataset.kind !== 'error') setInteractionStatus('');
+    renderResetState(); renderFactoryState();
+  },
+  onError: error => { setInteractionStatus(`切换未完成：${error.message}`, 'error'); log(error.message); },
+});
 
 const savedSettings = loadSettings(localStorage);
 els.loopInterval.value = String(savedSettings.loopIntervalMs);
@@ -1148,6 +1167,7 @@ async function runAction(action) {
     await action();
   } catch (error) {
     log(tWithVars('error.generic', { message: error.message }));
+    setInteractionStatus(error.message, 'error');
   } finally {
     renderConnectionState();
     renderRunState();
