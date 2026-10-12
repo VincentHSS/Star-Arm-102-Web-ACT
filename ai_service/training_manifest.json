@@ -1,0 +1,23 @@
+{
+  "format_version": 1,
+  "python": ">=3.10,<3.13",
+  "lerobot": "0.4.4",
+  "packages": ["lerobot==0.4.4"],
+  "backends": {
+    "cuda": {
+      "label": "NVIDIA CUDA",
+      "torch_index": "https://download.pytorch.org/whl/cu128",
+      "torch_packages": ["torch>=2.7,<2.11", "torchvision>=0.22,<0.26"]
+    },
+    "rocm": {
+      "label": "AMD ROCm",
+      "torch_index": "https://download.pytorch.org/whl/rocm6.3",
+      "torch_packages": ["torch>=2.7,<2.8", "torchvision>=0.22,<0.23"]
+    },
+    "xpu": {
+      "label": "Intel XPU",
+      "torch_index": "https://download.pytorch.org/whl/xpu",
+      "torch_packages": ["torch>=2.7,<2.11", "torchvision>=0.22,<0.26"]
+    }
+  }
+}

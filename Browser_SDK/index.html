@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Star Arm 102 · 控制台 / PiPER Mate</title>
+  <link rel="stylesheet" href="./src/styles.css?v=1.1.2">
+  <link rel="stylesheet" href="./src/fl_trajectory_styles.css?v=1.1.2">
+  <link rel="stylesheet" href="./src/workspace-switch.css?v=2026-10-12-upload-only-11">
+<style>html,body{background:#0f1416}</style>
+<link rel="icon" href="assets/logo-icon.png">
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div class="brand">
+        <img src="./assets/logo-icon.png" alt="" class="brand-logo" aria-hidden="true">
+        <div class="brand-copy"><strong>Star Arm 102</strong><small>CONTROL CONSOLE / 控制台</small></div>
+      </div>
+      <nav class="tabs" data-i18n-aria="nav.function-tabs">
+        <button class="tab active" data-tab="teleop" aria-selected="true"><span data-i18n="nav.teleop">实时控制</span> <small>Beta</small></button>
+        <button class="tab" data-tab="trajectory" aria-selected="false"><span data-i18n="nav.data-collection">轨迹记录</span> <small>Beta</small></button>
+        <button class="tab" data-tab="reset-origin" aria-selected="false"><span data-i18n="nav.reset-origin">重设零点</span></button>
+        <button class="tab" data-tab="factory-restore" aria-selected="false"><span data-i18n="nav.factory-restore">恢复出厂参数</span></button>
+        <button class="tab" data-tab="servo-setup" aria-selected="false"><span data-i18n="nav.servo-setup">舵机配置</span></button>
+      </nav>
+      <div class="top-state"><a class="workspace-launch" href="act-workbench.html" data-workspace-target="act"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z"/></svg><span>ACT 工作台</span></a>
+        <span class="connection-light"></span>
+        <span id="runStatus" data-i18n="status.not-started">未启动</span>
+        <span id="appVersion" class="version-badge">v1.1.2</span>
+        <div id="langSwitch" class="language-switch" data-language="zh" role="group" title="切换语言 / Switch Language" data-i18n-title="lang.switch" aria-label="切换语言 / Switch Language">
+          <span class="language-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18M12 3c2.4 2.5 3.6 5.5 3.6 9S14.4 18.5 12 21M12 3C9.6 5.5 8.4 8.5 8.4 12S9.6 18.5 12 21"></path></svg></span>
+          <button id="langZh" class="language-option" type="button" aria-pressed="true" title="切换到中文"><span>中文</span></button>
+          <button id="langEn" class="language-option" type="button" aria-pressed="false" title="Switch to English"><span>EN</span></button>
+        </div>
+      </div>
+    </header>
+
+    <div id="teleopView" class="tab-view active digital-twin-workspace">
+      <aside class="left-rail device-region">
+        <section id="teleopControls" class="panel controls">
+          <div class="panel-heading"><p class="section-kicker"><span data-i18n="section.device">DEVICE / 设备</span></p><h1 data-i18n="panel.teleop">实时控制（Beta 版）</h1></div>
+          <div class="status-grid">
+            <div class="status-card"><span data-i18n="device.leader">Leader</span><strong id="leaderStatus" data-i18n="status.not-connected">未连接</strong></div>
+            <div class="status-card"><span data-i18n="device.follower">Follower</span><strong id="followerStatus" data-i18n="status.not-connected">未连接</strong></div>
+          </div>
+          <div class="button-row connection-actions">
+            <button id="connectLeader" class="primary" data-i18n="btn.connect-leader">连接 Leader</button>
+            <button id="connectFollower" class="primary" data-i18n="btn.connect-follower">连接 Follower</button>
+            <button id="disconnectAll" class="ghost" data-i18n="btn.disconnect-all">全部断开</button>
+          </div>
+          <label><span data-i18n="label.leader-type">Leader 类型</span>
+            <select id="leaderType"><option value="102LD">Star Arm 102-LD</option><option value="102HD" data-i18n="option.leader-hd">Star Arm 102-HD（启用悬停按键）</option><option value="102PIPER" data-i18n="option.leader-piper">PiPER Mate（仅展示本体）</option></select>
+          </label>
+          <div class="follower-target-field"><span class="follower-target-label" data-i18n="label.follower-type">Follower 类型</span>
+            <input id="followerType" type="hidden" value="physical">
+            <div id="followerTypeSwitch" class="follower-type-switch" data-follower-type="physical" role="group" data-i18n-aria="label.follower-type">
+              <button id="followerTypePhysical" class="follower-type-option" type="button" data-follower-type-option="physical" aria-pressed="true" data-i18n="device.physical-fl">真实 FL</button>
+              <button id="followerTypeVirtual" class="follower-type-option" type="button" data-follower-type-option="virtual" aria-pressed="false" data-i18n="device.virtual-fl-short">虚拟 FL</button>
+            </div>
+          </div>
+          <label id="virtualFollowerModelField" class="follower-target-field" hidden><span data-i18n="label.virtual-model">虚拟型号</span>
+            <select id="virtualFollowerModel"><option value="star-arm-102-fl" selected>Star Arm 102-FL</option><option value="rebot-b601">reBot Arm B601</option><option value="galaxea-a1z" data-i18n="model.a1z">星海图 A1Z（带平移夹爪）</option></select>
+          </label>
+          <p id="virtualFollowerNotice" class="virtual-follower-notice" role="status" hidden data-i18n="notice.virtual-follower">仅驱动三维模型，不发送 Follower 串口指令</p>
+          <p id="b601VirtualNotice" class="virtual-follower-notice" role="status" hidden data-i18n="notice.b601-virtual">B601 仅跟随 J1–J6，不发送硬件命令</p>
+          <p id="a1zVirtualNotice" class="virtual-follower-notice" role="status" hidden data-i18n="notice.a1z-virtual">星海图 A1Z 仅跟随 J1–J6，不发送硬件命令</p>
+          <details class="debug-panel" open>
+            <summary data-i18n="teleop.parameters">遥操作参数</summary>
+            <div class="settings-grid">
+              <label><span data-i18n="label.control-interval">控制循环间隔 ms</span><input id="loopInterval" type="number" min="0" max="100" step="1" value="20"><small data-i18n="teleop.interval-help">0 ms 表示浏览器允许的最快循环（每轮仍异步让出）</small></label>
+              <label><span data-i18n="label.filter-size">滤波窗口</span><input id="filterSize" type="number" min="0" max="100" step="1" value="30"><small data-i18n="teleop.filter-help">0 表示关闭滤波，直接使用最新有效角度</small></label>
+            </div>
+          </details>
+          <p id="settingsError" class="warning-note" role="alert" hidden></p>
+          <div class="button-row run-row"><button id="startTeleop" class="start" data-i18n="btn.start-teleop">启动遥操作</button><button id="stopTeleop" class="stop" data-i18n="btn.stop-teleop">停止</button></div>
+          <details class="debug-panel"><summary data-i18n="debug.settings">调试设置与运行日志</summary><div class="settings-grid"><label><span data-i18n="label.timeout">Leader 响应超时 ms</span><input id="responseTimeout" type="number" min="100" max="2000" value="800"></label><label><span data-i18n="label.raw-log">原始串口日志</span><select id="rawLogEnabled"><option value="off" data-i18n="teleop.raw-log-off">关闭</option><option value="on" data-i18n="teleop.raw-log-on">开启</option></select></label></div><pre id="logs" data-i18n="debug.waiting">等待连接串口...</pre></details>
+        </section>
+      </aside>
+
+      <section id="robotScenePanel" class="scene-stage robot-scene-panel model-region" aria-labelledby="robotSceneTitle">
+        <div class="scene-title"><p class="section-kicker"><span data-i18n="model.live-twin">LIVE DIGITAL TWIN</span></p><h2 id="robotSceneTitle"><span data-i18n="model.real-arm">真实三维机械臂</span></h2><strong id="modelLoadStatus" class="model-load-status" data-state="loading" role="status"><span data-i18n="model.loading">等待加载本地 STL</span></strong></div>
+        <div class="robot-scene-controls">
+          <div class="displayed-model"><span data-i18n="model.current-display">当前显示</span><strong id="displayedModelStatus" role="status">Leader · Star Arm 102-LD</strong></div>
+          <strong id="modelPermission" role="status" data-i18n="notice.no-power">无动力 Leader，仅支持姿态采集</strong>
+          <fieldset class="pose-source" data-i18n-aria="label.pose-source"><legend data-i18n="label.pose-source">姿态来源</legend><label><input id="poseSourceLeader" type="radio" name="poseSource" value="leader" checked> Leader</label><label><input id="poseSourceFollower" type="radio" name="poseSource" value="follower"> Follower</label></fieldset>
+        </div>
+        <div id="robotViewport" class="robot-viewport"><canvas id="robotCanvas" aria-label="Star Arm 102 三维模型"></canvas><div id="modelLoadError" class="model-load-error" role="alert" hidden></div></div>
+        <div class="scene-tool-row" aria-label="视角工具"><button id="resetCamera" class="ghost" type="button"><span data-i18n="btn.default-view">默认视角</span></button><button id="fitCamera" class="ghost" type="button"><span data-i18n="btn.fit-model">适应模型</span></button><button id="fullscreenScene" class="ghost" type="button"><span data-i18n="btn.fullscreen">全屏</span></button></div>
+        <div class="scene-legend"><span class="actual-swatch"></span><span data-i18n="legend.actual">实体姿态</span> <span class="preview-swatch"></span><span data-i18n="legend.preview">青色目标预览</span></div>
+        <div class="scene-hud" data-i18n-aria="telemetry.real-time"><div><span><span data-i18n="telemetry.target-tcp">目标 TCP / TCP TARGET</span></span><strong id="targetTcpResult">—</strong></div><div><span data-i18n="telemetry.control">CONTROL</span><strong id="teleopFrequency"><span data-i18n="telemetry.not-running">未运行</span></strong></div><div><span data-i18n="telemetry.render">RENDER</span><strong id="renderFps"><span data-i18n="telemetry.sampling">采样中…</span></strong></div></div>
+      </section>
+
+      <aside class="right-rail control-region">
+        <div class="target-mode-switch" role="tablist" data-i18n-aria="label.target-mode">
+          <button id="targetModeJoint" class="target-mode-button is-active" type="button" role="tab" aria-selected="true" data-target-mode="joint" data-i18n="option.joint-control">关节控制</button>
+          <button id="targetModeTcp" class="target-mode-button" type="button" role="tab" aria-selected="false" data-target-mode="tcp"><span data-i18n="option.tcp-control">世界坐标</span></button>
+        </div>
+        <div id="jointControlView" class="target-mode-view" data-target-mode-view="joint">
+        <section id="leaderAnglesPanel" class="panel joint-panel joint-slider-panel" aria-labelledby="jointSliderTitle">
+          <div class="section-heading"><div><p class="section-kicker">JOINT TELEMETRY / TARGET</p><h2 id="jointSliderTitle" data-i18n="panel.joint-sliders">七关节状态与目标</h2></div><strong id="jointSliderPermission" role="status" data-i18n="notice.ld-readonly">LD 型号只读</strong></div>
+          <p class="target-input-note" data-i18n="notice.slider-control">实时值跟随机械臂回读；进入滑块控制后，拖动滑块或输入角度只生成青色预览，不会直接驱动机械臂。</p>
+          <div class="manual-control-mode" data-i18n-aria="control.manual-mode">
+            <div><span><span data-i18n="label.current-mode">当前模式</span></span><strong id="manualModeStatus" role="status" data-i18n="status.waiting">等待连接</strong></div>
+            <button id="enterSliderControl" class="primary" type="button" disabled><span data-i18n="btn.enter-slider">进入滑块控制</span></button>
+            <button id="exitSliderControl" class="ghost" type="button" disabled><span data-i18n="btn.exit-slider">退出滑块控制</span></button>
+          </div>
+          <div id="jointSliders" class="joint-sliders">
+            <label><span><b>J1</b><small><span data-i18n="joint.real-time">实时</span> <output id="jointActualValue1">0.0°</output></small><small><span data-i18n="joint.target">目标</span> <output id="jointSliderValue1">0.0°</output></small></span><div class="joint-target-editor"><input id="jointSlider1" type="range" min="-130.06" max="130.06" step="0.1" value="0"><input id="jointInput1" type="number" min="-130.06" max="130.06" step="0.1" value="0" disabled><span>°</span></div></label>
+            <label><span><b>J2</b><small><span data-i18n="joint.real-time">实时</span> <output id="jointActualValue2">0.0°</output></small><small><span data-i18n="joint.target">目标</span> <output id="jointSliderValue2">0.0°</output></small></span><div class="joint-target-editor"><input id="jointSlider2" type="range" min="0" max="179.91" step="0.1" value="0"><input id="jointInput2" type="number" min="0" max="179.91" step="0.1" value="0" disabled><span>°</span></div></label>
+            <label><span><b>J3</b><small><span data-i18n="joint.real-time">实时</span> <output id="jointActualValue3">0.0°</output></small><small><span data-i18n="joint.target">目标</span> <output id="jointSliderValue3">0.0°</output></small></span><div class="joint-target-editor"><input id="jointSlider3" type="range" min="-179.91" max="0" step="0.1" value="0"><input id="jointInput3" type="number" min="-179.91" max="0" step="0.1" value="0" disabled><span>°</span></div></label>
+            <label><span><b>J4</b><small><span data-i18n="joint.real-time">实时</span> <output id="jointActualValue4">0.0°</output></small><small><span data-i18n="joint.target">目标</span> <output id="jointSliderValue4">0.0°</output></small></span><div class="joint-target-editor"><input id="jointSlider4" type="range" min="-89.95" max="126.05" step="0.1" value="0"><input id="jointInput4" type="number" min="-89.95" max="126.05" step="0.1" value="0" disabled><span>°</span></div></label>
+            <label><span><b>J5</b><small><span data-i18n="joint.real-time">实时</span> <output id="jointActualValue5">0.0°</output></small><small><span data-i18n="joint.target">目标</span> <output id="jointSliderValue5">0.0°</output></small></span><div class="joint-target-editor"><input id="jointSlider5" type="range" min="-68.75" max="68.75" step="0.1" value="0"><input id="jointInput5" type="number" min="-68.75" max="68.75" step="0.1" value="0" disabled><span>°</span></div></label>
+            <label><span><b>J6</b><small><span data-i18n="joint.real-time">实时</span> <output id="jointActualValue6">0.0°</output></small><small><span data-i18n="joint.target">目标</span> <output id="jointSliderValue6">0.0°</output></small></span><div class="joint-target-editor"><input id="jointSlider6" type="range" min="-179.91" max="179.91" step="0.1" value="0"><input id="jointInput6" type="number" min="-179.91" max="179.91" step="0.1" value="0" disabled><span>°</span></div></label>
+            <label><span><b><b data-i18n="joint.gripper-prefix">J7 </b><span data-i18n="joint.gripper">夹爪</span></b><small><span data-i18n="joint.real-time">实时</span> <output id="jointActualValue7">0.0°</output></small><small><span data-i18n="joint.target">目标</span> <output id="jointSliderValue7">0.0°</output></small></span><div class="joint-target-editor"><input id="jointSlider7" type="range" min="0" max="89.95" step="0.1" value="0"><input id="jointInput7" type="number" min="0" max="89.95" step="0.1" value="0" disabled><span>°</span></div></label>
+          </div>
+        </section>
+        </div>
+        <div id="tcpControlView" class="target-mode-view" data-target-mode-view="tcp" hidden>
+        <section id="targetControlPanel" class="panel target-control-panel" aria-labelledby="targetControlTitle">
+          <div class="target-control-heading"><div><p class="section-kicker">WORLD COORDINATES</p><h2 id="targetControlTitle"><span data-i18n="option.tcp-control">世界坐标</span><span data-i18n="joint.target">目标</span></h2></div><strong id="targetPermission" role="status" data-i18n="notice.no-power">无动力 Leader，仅支持姿态采集</strong></div>
+          <p class="target-input-note" data-i18n="tcp.drag-instructions">拖动末端局部红色 X、绿色 Y、蓝色 Z 箭头可单轴移动；拖动 XY、YZ、XZ 半透明平面可双轴移动；拖动中心方块可沿屏幕平面自由移动。按住 Shift 时以 1 mm 步进。全程仅生成预览，须点击确认执行才会发送命令。</p>
+          <div class="tcp-input-grid"><label><span data-i18n="tcp.x">TCP X（mm）</span><input id="tcpX" type="number" step="1" value="0" inputmode="decimal"></label><label><span data-i18n="tcp.y">TCP Y（mm）</span><input id="tcpY" type="number" step="1" value="0" inputmode="decimal"></label><label><span data-i18n="tcp.z">TCP Z（mm）</span><input id="tcpZ" type="number" step="1" value="0" inputmode="decimal"></label></div>
+          <div class="button-row target-actions"><button id="previewTarget" class="preview-target" type="button" data-i18n="tcp.preview">计算并预览</button><button id="exitTcpControl" class="ghost" type="button" disabled data-i18n="tcp.exit"><span data-i18n="option.tcp-control">世界坐标</span>控制</button></div>
+        </section>
+        </div>
+        <section id="sharedTargetConfirmation" class="panel shared-target-confirmation" aria-labelledby="sharedTargetTitle">
+          <div class="shared-target-heading"><div><p class="section-kicker">SAFE EXECUTION</p><h2 id="sharedTargetTitle" data-i18n="confirm.preview-title">预览与确认</h2></div><strong id="targetSourceLabel" data-i18n="confirm.current-mode">当前：关节<span data-i18n="joint.target">目标</span></strong></div>
+          <label class="target-duration-field"><span data-i18n="confirm.duration">执行时长（ms）</span><input id="targetDuration" type="number" min="1" step="1" value="800" inputmode="numeric"></label>
+          <div class="button-row target-actions"><button id="confirmTarget" class="confirm-target" type="button" disabled data-i18n="confirm.execute">确认执行关节<span data-i18n="joint.target">目标</span></button><button id="cancelTarget" class="ghost" type="button" disabled data-i18n="confirm.cancel-preview">取消预览</button></div>
+          <p class="target-conflict-note" data-i18n="confirm.safety-mechanism">两种控制方式（滑块/<span data-i18n="joint.target">目标</span>姿态）均采用"仅预览，确认后执行"的安全机制。切换控制方式会自动取消未确认的预览；确认执行后将先停止遥操作，执行结束后不会自动恢复遥操作。</p>
+          <article id="targetState" class="target-state is-idle" aria-live="polite"><div><span class="target-state-mark" aria-hidden="true"></span><div><strong id="targetStatusTitle" data-i18n="confirm.waiting-connection">等待可控连接</strong><p id="targetStatusDetail" data-i18n="confirm.select-model">请选择 HD Leader 或 FL Follower 模型，并连接对应串口。</p></div></div><dl class="target-result-grid"><div><dt data-i18n="confirm.position-error">位置误差</dt><dd id="targetError">—</dd></div><div><dt data-i18n="confirm.iterations">迭代次数</dt><dd id="targetIterations">—</dd></div></dl><div class="target-angle-result"><span data-i18n="confirm.target-angle">关节<span data-i18n="joint.target">目标</span>角</span><strong id="targetAngles">—</strong></div><p id="targetCalibration" class="target-calibration" data-i18n="confirm.calibration-status">预览后将显示校准状态。</p></article>
+        </section>
+      </aside>
+
+      <section id="emergencyDock" class="emergency-dock safety-region" data-i18n-aria="safety.emergency-stop">
+        <div class="emergency-copy"><span data-i18n="section.safety">SAFETY</span><strong data-i18n="safety.check-obstacles">操作前确认机械臂周围无障碍物</strong><p id="emergencyStatus" class="operation-status" role="alert" aria-live="assertive" data-i18n="safety.emergency-desc">紧急停止可随时终止循环，并发送停止命令到当前连接的机械臂。</p></div>
+        <button id="emergencyStop" class="emergency-stop" type="button" data-i18n="btn.emergency-stop">紧急停止</button>
+      </section>
+    </div>
+
+
+    <div id="trajectoryView" class="tab-view fl-trajectory-workspace">
+      <section class="fl-device-bar" aria-labelledby="flTrajectoryTitle">
+        <div class="fl-device-title"><p class="section-kicker">MANUAL FL TRAJECTORY</p><h1 id="flTrajectoryTitle" data-i18n="fltraj.title">真实 FL 手动轨迹</h1></div>
+        <div class="fl-device-model"><span data-i18n="fltraj.model">Follower 型号</span><strong>Star Arm 102-FL</strong></div>
+        <div class="fl-device-actions"><button id="flTrajectoryConnect" class="primary" type="button" data-i18n="fltraj.connect">连接真实 FL</button><button id="flTrajectoryDisconnect" class="ghost" type="button" disabled data-i18n="fltraj.disconnect">断开</button></div>
+        <div class="fl-device-state"><span class="connection-light"></span><div><span data-i18n="fltraj.connection">连接状态</span><strong id="flTrajectoryConnection" data-i18n="status.not-connected">未连接</strong></div></div>
+        <div class="fl-device-state"><div><span data-i18n="fltraj.arm-state">机械臂状态</span><strong id="flTrajectoryArmState" data-i18n="fltraj.waiting">等待连接</strong></div></div>
+        <div class="fl-device-state"><div><span data-i18n="fltraj.readback">实时回读</span><strong id="flTrajectoryRate">0.0 Hz</strong></div></div>
+        <button id="flTrajectoryEmergency" class="emergency-stop" type="button" data-i18n="btn.emergency-stop">紧急停止</button>
+      </section>
+      <main class="fl-trajectory-main">
+        <section class="fl-trajectory-visual">
+          <div id="trajectorySceneHost" class="fl-trajectory-scene"><strong id="flTrajectoryModelNotice" class="trajectory-model-notice" data-i18n="fltraj.fixed-model">三维视图固定显示 Star Arm 102-FL 实机回读姿态</strong></div>
+          <section class="fl-timeline panel">
+            <div class="fl-timeline-head"><div><span data-i18n="fltraj.current">当前轨迹</span><strong id="flTrajectorySummary" data-i18n="fltraj.empty">尚未录制</strong></div><div><span data-i18n="fltraj.elapsed">时间</span><strong id="flTrajectoryElapsed">00:00.000</strong></div></div>
+            <div class="fl-timeline-track"><div id="flTrajectoryProgress" class="fl-timeline-progress"></div><span id="flTrajectoryPlayhead"></span></div>
+            <p id="flTrajectoryTimelineHint" data-i18n="fltraj.timeline-hint">连接并开始录制后，手动拖动已卸力的 FL。</p>
+          </section>
+        </section>
+        <aside class="fl-trajectory-inspector">
+          <section class="panel fl-joint-panel"><div class="section-heading"><div><p class="section-kicker">JOINT TELEMETRY</p><h2 data-i18n="fltraj.joints">J1–J7 实时角度</h2></div><strong id="flTrajectoryRecordBadge" data-i18n="fltraj.idle">待机</strong></div><div class="fl-joint-list">
+            <div data-fl-joint="0"><b>J1</b><span><i></i></span><output>0.0°</output></div><div data-fl-joint="1"><b>J2</b><span><i></i></span><output>0.0°</output></div><div data-fl-joint="2"><b>J3</b><span><i></i></span><output>0.0°</output></div><div data-fl-joint="3"><b>J4</b><span><i></i></span><output>0.0°</output></div><div data-fl-joint="4"><b>J5</b><span><i></i></span><output>0.0°</output></div><div data-fl-joint="5"><b>J6</b><span><i></i></span><output>0.0°</output></div><div data-fl-joint="6"><b>J7</b><span><i></i></span><output>0.0°</output></div>
+          </div></section>
+          <section class="panel fl-operation-panel"><label><span data-i18n="fltraj.name">轨迹名称</span><input id="flTrajectoryName" maxlength="40" value="手动轨迹 1" data-i18n-value="fltraj.default-name"></label><div class="fl-file-actions"><button id="flTrajectoryExport" class="ghost" type="button" disabled data-i18n="fltraj.export">导出 JSON</button><label class="trajectory-import"><span data-i18n="fltraj.import">导入 JSON</span><input id="flTrajectoryImport" type="file" accept="application/json,.json"></label></div><div class="button-row"><button id="flTrajectoryStart" class="start" type="button" disabled data-i18n="fltraj.start">开始录制</button><button id="flTrajectoryStopRecord" class="stop" type="button" disabled data-i18n="fltraj.stop-record">停止录制</button></div><article id="flTrajectoryStatus" class="trajectory-status" data-state="idle" aria-live="polite"><strong data-i18n="fltraj.waiting">等待连接</strong><p data-i18n="fltraj.waiting-detail">连接后机械臂将卸力并持续回读 J1–J7。</p></article><section class="fl-preview-gate" aria-labelledby="flTrajectoryPreviewGate"><div class="fl-preview-gate-heading"><span data-i18n="fltraj.preview-step">安全步骤 1 · 虚拟试播放</span><strong id="flTrajectoryPreviewGate" data-state="locked" data-i18n="fltraj.preview-required">未预演 · 实机播放锁定</strong></div><p data-i18n="fltraj.preview-zero-write">青色模型仅在浏览器中播放，绝不发送串口运动指令。开始后可随时手动确认无误。</p><div class="fl-preview-actions"><button id="flTrajectoryStartPreview" class="preview-target" type="button" disabled data-i18n="fltraj.start-preview">开始虚拟试播放</button><button id="flTrajectoryApprovePreview" class="confirm-target" type="button" disabled data-i18n="fltraj.approve-preview">结束并确认无误</button><button id="flTrajectoryStopPreview" class="ghost" type="button" disabled data-i18n="fltraj.stop-preview">停止预演</button></div></section><section class="fl-physical-gate"><span data-i18n="fltraj.physical-step">安全步骤 2 · 实机二次确认</span><div class="fl-playback-actions"><button id="flTrajectoryPreparePlayback" class="confirm-target" type="button" disabled data-i18n="fltraj.prepare">实机播放</button><button id="flTrajectoryStopPlayback" class="stop" type="button" disabled data-i18n="fltraj.stop-playback">停止实机播放</button><button id="flTrajectoryReleaseTorque" class="ghost" type="button" disabled data-i18n="fltraj.release-torque">卸力</button></div></section><p class="target-conflict-note" data-i18n="fltraj.safety">只有完成并确认同一轨迹的虚拟试播放后，才可进入真实 FL 二次确认。</p></section>
+        </aside>
+      </main>
+      <dialog id="flTrajectoryPlaybackDialog" class="confirm-dialog" aria-labelledby="flTrajectoryPlaybackTitle"><div class="confirm-dialog-content"><p class="section-kicker" data-i18n="dialog.real-arm-safety">真实机械臂安全确认</p><h2 id="flTrajectoryPlaybackTitle" data-i18n="fltraj.confirm-title">确认重播轨迹？</h2><p data-i18n="fltraj.confirm-desc">机械臂将先用 2000 ms 平滑移动到首帧，再按原始时序执行全部帧。请确认周围无人和障碍物。</p><div class="fl-confirm-grid"><div><span data-i18n="fltraj.device">执行设备</span><strong>Star Arm 102-FL</strong></div><div><span data-i18n="fltraj.name">轨迹名称</span><strong id="flTrajectoryConfirmName">—</strong></div><div><span data-i18n="fltraj.frames">帧数</span><strong id="flTrajectoryConfirmFrames">0</strong></div><div><span data-i18n="fltraj.duration">轨迹时长</span><strong id="flTrajectoryConfirmDuration">0 ms</strong></div></div><div class="button-row confirm-actions"><button id="flTrajectoryCancelPlayback" class="ghost" type="button" data-i18n="btn.cancel">取消</button><button id="flTrajectoryConfirmPlayback" class="confirm-origin" type="button" data-i18n="fltraj.confirm">确认重播真实 FL</button></div></div></dialog>
+    </div>
+
+    <div id="resetOriginView" class="tab-view maintenance-view">
+      <section id="resetOriginPanel" class="panel reset-panel"><div class="reset-header"><div><p class="section-kicker">Maintenance Tool</p><h2 data-i18n="reset-origin.title">重设手臂零点</h2><p data-i18n="reset-origin.desc">选择哪一台手臂的串口，就设置该手臂 ID 0–6 舵机的当前位置为零点，不区分 Leader 或 Follower。</p></div><div class="danger-card"><strong data-i18n="reset-origin.warning">操作前必须扶稳手臂</strong><span data-i18n="reset-origin.hold-steady">机械臂卸力后关节可以自由转动，请先摆到目标零位。</span></div></div><div class="reset-steps"><div class="reset-step"><b>01</b><strong data-i18n="reset-origin.step1">选择手臂串口</strong><span data-i18n="reset-origin.step1-desc">连接需要设置零点的机械臂。</span></div><div class="reset-step"><b>02</b><strong data-i18n="reset-origin.step2">扶稳并摆正</strong><span data-i18n="reset-origin.step2-desc">将所有关节摆放到目标零位。</span></div><div class="reset-step"><b>03</b><strong data-i18n="reset-origin.step3">确认执行</strong><span data-i18n="reset-origin.step3-desc">设置和校验期间请勿移动机械臂。</span></div></div><div class="reset-status"><div class="status-card"><span data-i18n="label.reset-serial">零点设置串口</span><strong id="resetArmStatus" data-i18n="status.not-connected">未连接</strong></div><div class="status-card"><span><span data-i18n="joint.target">目标</span>舵机</span><strong>ID 0–6</strong></div><div class="status-card"><span data-i18n="label.reset-status">设置状态</span><strong id="resetStatus" data-i18n="status.waiting">等待连接</strong></div></div><div class="button-row reset-actions"><button id="connectResetArm" class="primary" data-i18n="btn.connect-reset-arm">选择手臂串口</button><button id="disconnectResetArm" class="ghost" data-i18n="btn.disconnect-reset-arm">断开串口</button><button id="resetOrigin" class="origin" disabled data-i18n="btn.reset-origin">重设零点</button></div><div id="resetOperationNotice" class="reset-operation-notice" role="alert" aria-live="assertive" hidden><span id="resetOperationIcon" class="reset-operation-icon" aria-hidden="true"></span><div><strong id="resetOperationTitle"></strong><p id="resetOperationDetail"></p></div></div><p class="warning-note" data-i18n="reset-origin.no-auto-restore"><strong>注意：</strong>操作完成后不会自动恢复锁力。请保持手臂被扶稳，完成后再根据使用场景重新连接或控制。</p></section>
+      <section class="panel"><h2 data-i18n="reset-origin.logs">零点设置日志</h2><pre id="resetLogs" data-i18n="reset-origin.waiting">请先选择需要重设零点的手臂串口...</pre></section>
+    </div>
+
+    <div id="factoryRestoreView" class="tab-view maintenance-view">
+      <section class="panel reset-panel"><div class="factory-workspace"><div class="factory-main"><div class="reset-header"><div><p class="section-kicker">Maintenance Tool</p><h2 data-i18n="factory-restore.title">恢复出厂参数</h2><p data-i18n="factory-restore.desc">请先选择手臂型号（Star Arm 102-FL / HD 或 Violin U25 / U45），再连接对应手臂串口。连接后型号将锁定，断开串口后才可重新选择。</p></div><div class="danger-card"><strong data-i18n="factory-restore.no-zero">不会设置机械臂零点</strong><span data-i18n="factory-restore.confirm-model">操作前请确认手臂型号，并扶稳机械臂。</span></div></div><div class="settings-grid factory-settings"><label><span data-i18n="label.arm-model">手臂型号</span><select id="factoryModel"><option value="FL">Star Arm 102-FL</option><option value="HD">Star Arm 102-HD</option><option value="U25">Violin U25</option><option value="U45">Violin U45</option></select></label></div><div class="reset-status"><div class="status-card"><span data-i18n="label.factory-serial">参数设置串口</span><strong id="factoryArmStatus" data-i18n="status.not-connected">未连接</strong></div><div class="status-card"><span><span data-i18n="joint.target">目标</span>舵机</span><strong>ID 0–6</strong></div><div class="status-card"><span data-i18n="label.factory-status">恢复状态</span><strong id="factoryStatus" data-i18n="status.waiting">等待连接</strong></div></div><div class="button-row reset-actions"><button id="connectFactoryArm" class="primary" data-i18n="btn.connect-reset-arm">选择手臂串口</button><button id="disconnectFactoryArm" class="ghost" data-i18n="btn.disconnect-reset-arm">断开串口</button><button id="restoreFactory" class="origin" disabled data-i18n="btn.restore-factory">恢复出厂参数</button></div></div><aside id="factoryProgressPanel" class="factory-progress-panel" aria-live="polite"><div class="factory-progress-heading"><div><p class="section-kicker">Progress</p><h3 data-i18n="factory-restore.progress">恢复进度</h3></div><span id="factoryProgressSummary" data-i18n="factory-restore.waiting">等待开始</span></div><ol class="factory-progress-list"><li class="factory-progress-step is-pending" data-factory-step="stop"><span class="factory-step-number">1</span><div><strong data-i18n="factory-restore.step1">机械臂卸力</strong><small data-i18n="factory-restore.waiting-exec">等待执行</small></div><span class="factory-step-state" aria-hidden="true"></span></li><li class="factory-progress-step is-pending" data-factory-step="public"><span class="factory-step-number">2</span><div><strong data-i18n="factory-restore.step2">写入公开参数</strong><small data-i18n="factory-restore.waiting-exec">等待执行</small></div><span class="factory-step-state" aria-hidden="true"></span></li><li class="factory-progress-step is-pending" data-factory-step="internal"><span class="factory-step-number">3</span><div><strong data-i18n="factory-restore.step3">写入内部参数</strong><small data-i18n="factory-restore.waiting-exec">等待执行</small></div><span class="factory-step-state" aria-hidden="true"></span></li><li class="factory-progress-step is-pending" data-factory-step="verify"><span class="factory-step-number">4</span><div><strong data-i18n="factory-restore.step4">自动校验</strong><small data-i18n="factory-restore.waiting-exec">等待执行</small></div><span class="factory-step-state" aria-hidden="true"></span></li></ol><div id="factoryManualPowerNotice" class="factory-manual-power-notice" role="status" hidden><span class="factory-manual-power-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M12 2v10"></path><path d="M18.36 6.64a9 9 0 1 1-12.72 0"></path></svg></span><div><strong data-i18n="factory-restore.power-cycle">请关闭机械臂电源，再重新上电后使用</strong></div></div></aside></div></section><section class="panel"><h2 data-i18n="factory-restore.logs">恢复参数日志</h2><pre id="factoryLogs" data-i18n="factory-restore.waiting-connect">请先选择手臂型号并连接串口...</pre></section>
+    </div>
+
+
+  <dialog id="resetConfirmDialog" class="confirm-dialog" aria-labelledby="resetConfirmTitle"><div class="confirm-dialog-content"><p class="section-kicker" data-i18n="dialog.safety-confirm">安全确认</p><h2 id="resetConfirmTitle" data-i18n="reset-confirm.title">确认设置当前位置为零点？</h2><p data-i18n="reset-confirm.desc">请确认你已扶稳机械臂，并已将所有关节摆放到目标零位。设置和校验期间请勿移动机械臂，完成后机械臂会保持卸力状态。</p><div class="confirm-check"><strong data-i18n="reset-confirm.target">执行对象</strong><span data-i18n="reset-confirm.all-joints">当前连接手臂的全部关节</span></div><div class="button-row confirm-actions"><button id="cancelResetOrigin" class="ghost" type="button" data-i18n="btn.cancel">取消</button><button id="confirmResetOrigin" class="confirm-origin" type="button" data-i18n="reset-confirm.btn">确认设置当前位置为零点</button></div></div></dialog>
+  <dialog id="factoryConfirmDialog" class="confirm-dialog" aria-labelledby="factoryConfirmTitle"><div class="confirm-dialog-content"><p class="section-kicker" data-i18n="dialog.safety-confirm">安全确认</p><h2 id="factoryConfirmTitle" data-i18n="factory-confirm.title">确认恢复出厂参数？</h2><p data-i18n="factory-confirm.desc">请确认手臂型号选择正确并已扶稳机械臂。本操作不会设置或改变机械臂零点。</p><div class="confirm-check"><strong data-i18n="factory-confirm.current-model">当前参数型号</strong><span id="factoryConfirmModel">Star Arm 102-FL</span></div><div class="button-row confirm-actions"><button id="cancelFactoryRestore" class="ghost" type="button" data-i18n="btn.cancel">取消</button><button id="confirmFactoryRestore" class="confirm-origin" type="button" data-i18n="factory-confirm.btn">确认恢复出厂参数</button></div></div></dialog>
+
+    <!-- 舵机配置视图 -->
+    <div id="servoSetupView" class="tab-view maintenance-view">
+      <section class="panel servo-panel">
+        <div class="servo-container">
+          <aside class="servo-sidebar">
+            <h3 data-i18n="servo-setup.steps-title">配置步骤</h3>
+            <ol class="servo-steps">
+              <li class="step"><span class="num">1</span><div><strong data-i18n="servo-setup.step1">连接舵机</strong><small data-i18n="servo-setup.step1-desc">按当前 ID 和波特率连接</small></div></li>
+              <li class="step"><span class="num">2</span><div><strong data-i18n="servo-setup.step2">设置参数</strong><small data-i18n="servo-setup.step2-desc">ID + 1 Mbps</small></div></li>
+              <li class="step"><span class="num">3</span><div><strong data-i18n="servo-setup.step3">完成</strong><small data-i18n="servo-setup.step3-desc">安装到机械臂</small></div></li>
+            </ol>
+            <div class="servo-status">
+              <div class="status-item"><span data-i18n="servo-setup.serial">串口</span><strong id="portStatus" data-i18n="status.not-connected">未连接</strong></div>
+              <div class="status-item"><span data-i18n="servo-setup.baudrate">波特率</span><strong id="paramStatus">-</strong></div>
+              <div class="status-item"><span data-i18n="servo-setup.status">状态</span><strong id="workState" data-i18n="status.waiting">等待连接</strong></div>
+            </div>
+            <div class="progress-wrap"><div class="progress-label" data-i18n="servo-setup.progress">进度</div><div class="progress-track"><div id="progressBar" class="progress-bar"></div></div><small id="progressText" data-i18n="servo-setup.waiting-start">等待开始</small></div>
+          </aside>
+          <main class="servo-main">
+            <header class="servo-header">
+              <div><p class="kicker">Servo Configuration</p><h1 data-i18n="servo-setup.title">舵机配置</h1><p data-i18n="servo-setup.desc">将新舵机设置为机械臂对应的 ID，波特率调整为 1 Mbps。</p></div>
+              <div class="warn-card"><strong data-i18n="servo-setup.warn-title">⚠ 只连接一颗舵机</strong><span data-i18n="servo-setup.warn-desc">不要连接整台机械臂，避免 ID 冲突。</span></div>
+            </header>
+            <div class="servo-form">
+              <div class="form-group">
+                <label for="initialId" data-i18n="servo-setup.initial-id">初始舵机 ID</label>
+                <input type="number" id="initialId" min="0" max="253" value="0">
+                <small data-i18n="servo-setup.initial-id-note">填写舵机当前 ID，新舵机通常为 0</small>
+              </div>
+              <div class="form-group">
+                <label for="initialBaudRate" data-i18n="servo-setup.initial-baudrate">初始波特率</label>
+                <select id="initialBaudRate">
+                  <option value="115200">115,200 bps</option>
+                  <option value="1000000">1,000,000 bps</option>
+                </select>
+                <small data-i18n="servo-setup.initial-baudrate-note">选择舵机当前使用的波特率</small>
+              </div>
+              <div class="form-group">
+                <label for="targetId" data-i18n="servo-setup.target-id">目标舵机 ID</label>
+                <input type="number" id="targetId" min="0" max="6" value="">
+                <small data-i18n="servo-setup.id-range">范围 0-6，对应机械臂 J1-J7</small>
+              </div>
+              <div class="form-group">
+                <label data-i18n="servo-setup.target-baudrate">目标波特率</label>
+                <input type="text" value="1,000,000 bps (固定)" readonly data-i18n-value="servo-setup.baudrate-fixed">
+                <small data-i18n="servo-setup.baudrate-note">Star Arm 102 统一使用 1 Mbps</small>
+              </div>
+            </div>
+            <label class="check-label"><input type="checkbox" id="singleCheck"><span data-i18n="servo-setup.confirm-single">我确认当前只连接了这一颗新舵机</span></label>
+            <div class="btn-row">
+              <button id="btnConnect" class="btn-primary" data-i18n="servo-setup.connect">连接舵机</button>
+              <button id="btnDisconnect" class="btn-ghost" disabled data-i18n="servo-setup.disconnect">断开</button>
+              <button id="btnWrite" class="btn-success" disabled data-i18n="servo-setup.write">写入配置</button>
+            </div>
+            <div class="log-box"><h4 data-i18n="debug.logs">日志</h4><pre id="servoLog" data-i18n="servo-setup.waiting-servo">等待连接舵机...</pre></div>
+          </main>
+        </div>
+      </section>
+    </div>
+
+    <dialog id="confirmDialog" class="simple-dialog">
+      <div class="dialog-body">
+        <h3 data-i18n="servo-confirm.title">确认写入配置？</h3>
+        <p><span data-i18n="servo-confirm.desc-prefix">将把舵机从初始 ID</span> <strong id="confirmInitialId">0</strong> <span data-i18n="servo-confirm.desc-target">设置为目标 ID</span> <strong id="confirmId">—</strong>，<span data-i18n="servo-confirm.desc-baudrate">波特率设置为 1 Mbps</span></p>
+        <div class="dialog-btns">
+          <button id="btnCancel" class="btn-ghost" data-i18n="btn.cancel">取消</button>
+          <button id="btnConfirm" class="btn-success" data-i18n="servo-confirm.write">确认写入</button>
+        </div>
+      </div>
+    </dialog>
+  <script type="module" src="./src/servo_setup.js?v=1.1.2-merged-piper-1"></script>
+  <script type="module" src="./src/app.js?v=1.1.2-star-scene-2"></script>
+  <script type="module" src="./src/workspace-switch.js?v=2026-10-12-upload-only-11"></script>
+</body>
+</html>

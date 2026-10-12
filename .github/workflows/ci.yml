@@ -1,0 +1,43 @@
+name: Software checks
+on:
+  push:
+  pull_request:
+jobs:
+  unit-tests:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    env:
+      PYTHONUTF8: '1'
+      NO_PROXY: localhost,127.0.0.1,::1
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm test
+      - run: python -m unittest discover -s tests -p 'test_*.py'
+      - run: python tools/build_runtime_package.py
+      - run: python tools/check_distribution.py
+      - run: python tools/check_file_map.py
+  browser-check:
+    runs-on: ubuntu-latest
+    env:
+      PYTHONUTF8: '1'
+      NO_PROXY: localhost,127.0.0.1,::1
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:browser
+      - run: python tools/check_distribution.py --generated dist/browser-generated.deb
