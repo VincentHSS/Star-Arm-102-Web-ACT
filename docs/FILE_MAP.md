@@ -93,7 +93,7 @@
 | [Browser_SDK/assets/vendor/three.core.js](../Browser_SDK/assets/vendor/three.core.js) | Three.js 几何、场景、材质与数学核心 |
 | [Browser_SDK/assets/vendor/three.module.js](../Browser_SDK/assets/vendor/three.module.js) | Three.js 模块入口与 WebGL 实现 |
 | [Browser_SDK/downloads/act-runtime-template.deb](../Browser_SDK/downloads/act-runtime-template.deb) | 通用 Ubuntu 组件模板，由网页绑定当前网站后下载 |
-| [Browser_SDK/index.html](../Browser_SDK/index.html) | PiPER Mate 控制台首页 |
+| [Browser_SDK/index.html](../Browser_SDK/index.html) | Star Arm 102 控制台首页 |
 | [Browser_SDK/src/a1z_model_data.js](../Browser_SDK/src/a1z_model_data.js) | A1Z 3D 零件与关节数据 |
 | [Browser_SDK/src/act-camera-frame-encoder-worker-client.js](../Browser_SDK/src/act-camera-frame-encoder-worker-client.js) | 管理相机编码 Worker 请求、超时与退出 |
 | [Browser_SDK/src/act-camera-frame-encoder-worker.js](../Browser_SDK/src/act-camera-frame-encoder-worker.js) | 在后台 Worker 中编码相机 JPEG，减少主界面阻塞 |

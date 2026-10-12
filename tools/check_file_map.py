@@ -69,7 +69,7 @@ EXACT = {
     'package-lock.json': '固定 Node 开发依赖解析版本',
     'start_ubuntu.sh': 'Ubuntu 一步启动本机网页与后台并打开浏览器',
     'start_windows.bat': 'Windows 自动选择 Python 启动同一网页与后台',
-    'Browser_SDK/index.html': 'PiPER Mate 控制台首页',
+    'Browser_SDK/index.html': 'Star Arm 102 控制台首页',
     'Browser_SDK/act-workbench.html': 'ACT 采集、训练、模型和执行四步骤页面',
     'Browser_SDK/downloads/act-runtime-template.deb': '通用 Ubuntu 组件模板，由网页绑定当前网站后下载',
     'runtime/ubuntu_runtime.py': '用户后台启动、网站授权、环回 API 与组件连接检测',
