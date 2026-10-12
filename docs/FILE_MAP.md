@@ -16,49 +16,11 @@
 | [.gitattributes](../.gitattributes) | 固定 Linux 脚本 LF、Windows 脚本 CRLF 与二进制资源属性 |
 | [.github/workflows/ci.yml](../.github/workflows/ci.yml) | GitHub 自动软件测试、组件校验与文件说明检查 |
 | [.gitignore](../.gitignore) | 排除客户数据、模型、环境、缓存、日志和生成包 |
-| [ai_service/__init__.py](../ai_service/__init__.py) | Python 后台包入口 |
-| [ai_service/act_policy_worker.py](../ai_service/act_policy_worker.py) | 独立进程加载 ACT 策略并产生预测动作 |
-| [ai_service/action_schedule.py](../ai_service/action_schedule.py) | 动作块队列、节拍调度与多次预测融合 |
-| [ai_service/app.py](../ai_service/app.py) | 本机 HTTP API、静态页面与资源生命周期 |
-| [ai_service/capabilities.py](../ai_service/capabilities.py) | 检测 Python、训练依赖、GPU 与运行阻碍 |
-| [ai_service/devices.py](../ai_service/devices.py) | 设备枚举与稳定标识、角色绑定 |
-| [ai_service/domain.py](../ai_service/domain.py) | 数据集、轮次、设备绑定与业务错误规则 |
-| [ai_service/episode_data.py](../ai_service/episode_data.py) | 示教轮次、JPEG、索引、完整性及导入导出 |
-| [ai_service/fashionstar_protocol.py](../ai_service/fashionstar_protocol.py) | FashionStar 原始协议打包、校验与反馈解析 |
-| [ai_service/follower_calibration.py](../ai_service/follower_calibration.py) | 从臂校准记录、范围、JSON 与归一化转换 |
-| [ai_service/inference_runtime.py](../ai_service/inference_runtime.py) | 策略进程、状态读取、动作调度与推理诊断 |
-| [ai_service/lerobot_convert.py](../ai_service/lerobot_convert.py) | 将示教角度、相机和统计量转换到 LeRobot 数据约定 |
-| [ai_service/model_import.py](../ai_service/model_import.py) | 完整模型包验证、发行包识别与导入整理 |
-| [ai_service/native_act_driver.py](../ai_service/native_act_driver.py) | 原生 FashionStar SDK 适配与从臂读写、校准坐标转换 |
-| [ai_service/native_cameras.py](../ai_service/native_cameras.py) | Ubuntu V4L2 双相机枚举、模式、JPEG 流与采集 |
-| [ai_service/release_adapter.py](../ai_service/release_adapter.py) | 将上游发行模型的目录和配置适配为本工作台模型 |
-| [ai_service/serial_connections.py](../ai_service/serial_connections.py) | Linux 主从臂串口连接、读取、写入与状态 |
-| [ai_service/store.py](../ai_service/store.py) | 业务状态的本机持久化 |
-| [ai_service/synchronizer.py](../ai_service/synchronizer.py) | 关节与相机样本时间同步 |
-| [ai_service/telemetry.py](../ai_service/telemetry.py) | 实时状态和 SSE 遥测发布 |
-| [ai_service/teleop_runtime.py](../ai_service/teleop_runtime.py) | 主从臂示教循环、滤波与真实样本发布 |
-| [ai_service/training_dataset.py](../ai_service/training_dataset.py) | 训练数据准备、完整性检查与转换缓存 |
-| [ai_service/training_environment.py](../ai_service/training_environment.py) | 独立 Python 环境准备、依赖安装与加速设备自检 |
-| [ai_service/training_jobs.py](../ai_service/training_jobs.py) | 训练子进程、日志、检查点、停止与恢复 |
-| [ai_service/training_manifest.json](../ai_service/training_manifest.json) | Python / LeRobot / PyTorch 版本及加速源清单 |
-| [ai_service/vendor/fashionstar_uart_sdk-1.3.6-py3-none-any.whl](../ai_service/vendor/fashionstar_uart_sdk-1.3.6-py3-none-any.whl) | FashionStar 官方 UART SDK 1.3.6 离线依赖 |
-| [ai_service/vendor/fashionstar_uart_sdk-1.3.6-py3-none-any.whl.LICENSE.txt](../ai_service/vendor/fashionstar_uart_sdk-1.3.6-py3-none-any.whl.LICENSE.txt) | FashionStar SDK 随附的原始许可文本 |
-| [ai_service/vendor/pyserial-3.5-py2.py3-none-any.whl](../ai_service/vendor/pyserial-3.5-py2.py3-none-any.whl) | pyserial 3.5 离线串口依赖，wheel 内含许可 |
-| [ai_service/vendor/README.txt](../ai_service/vendor/README.txt) | 离线原生 SDK / 串口 wheel 来源与 SHA256 |
 | [Browser_SDK/act-workbench.html](../Browser_SDK/act-workbench.html) | ACT 采集、训练、模型和执行四步骤页面 |
 | [Browser_SDK/assets/icon.png](../Browser_SDK/assets/icon.png) | 网站图标 |
 | [Browser_SDK/assets/logo-full.png](../Browser_SDK/assets/logo-full.png) | 完整品牌图像 |
 | [Browser_SDK/assets/logo-icon.png](../Browser_SDK/assets/logo-icon.png) | 品牌图标与组件桌面图标 |
 | [Browser_SDK/assets/logo.svg](../Browser_SDK/assets/logo.svg) | 品牌矢量图标 |
-| [Browser_SDK/assets/models/a1z/arm_link1.STL](../Browser_SDK/assets/models/a1z/arm_link1.STL) | a1z 模型的 arm_link1 零件三角网格，用于 3D 显示 |
-| [Browser_SDK/assets/models/a1z/arm_link2.STL](../Browser_SDK/assets/models/a1z/arm_link2.STL) | a1z 模型的 arm_link2 零件三角网格，用于 3D 显示 |
-| [Browser_SDK/assets/models/a1z/arm_link3.STL](../Browser_SDK/assets/models/a1z/arm_link3.STL) | a1z 模型的 arm_link3 零件三角网格，用于 3D 显示 |
-| [Browser_SDK/assets/models/a1z/arm_link4.STL](../Browser_SDK/assets/models/a1z/arm_link4.STL) | a1z 模型的 arm_link4 零件三角网格，用于 3D 显示 |
-| [Browser_SDK/assets/models/a1z/arm_link5.STL](../Browser_SDK/assets/models/a1z/arm_link5.STL) | a1z 模型的 arm_link5 零件三角网格，用于 3D 显示 |
-| [Browser_SDK/assets/models/a1z/arm_link6.STL](../Browser_SDK/assets/models/a1z/arm_link6.STL) | a1z 模型的 arm_link6 零件三角网格，用于 3D 显示 |
-| [Browser_SDK/assets/models/a1z/base_link.STL](../Browser_SDK/assets/models/a1z/base_link.STL) | a1z 模型的 base_link 零件三角网格，用于 3D 显示 |
-| [Browser_SDK/assets/models/a1z/gripper_finger_left_link.STL](../Browser_SDK/assets/models/a1z/gripper_finger_left_link.STL) | a1z 模型的 gripper_finger_left_link 零件三角网格，用于 3D 显示 |
-| [Browser_SDK/assets/models/a1z/gripper_finger_right_link.STL](../Browser_SDK/assets/models/a1z/gripper_finger_right_link.STL) | a1z 模型的 gripper_finger_right_link 零件三角网格，用于 3D 显示 |
 | [Browser_SDK/assets/models/a1z-gripper/arm_link1.STL](../Browser_SDK/assets/models/a1z-gripper/arm_link1.STL) | a1z-gripper 模型的 arm_link1 零件三角网格，用于 3D 显示 |
 | [Browser_SDK/assets/models/a1z-gripper/arm_link2.stl](../Browser_SDK/assets/models/a1z-gripper/arm_link2.stl) | a1z-gripper 模型的 arm_link2 零件三角网格，用于 3D 显示 |
 | [Browser_SDK/assets/models/a1z-gripper/arm_link3.stl](../Browser_SDK/assets/models/a1z-gripper/arm_link3.stl) | a1z-gripper 模型的 arm_link3 零件三角网格，用于 3D 显示 |
@@ -68,6 +30,19 @@
 | [Browser_SDK/assets/models/a1z-gripper/base_link.stl](../Browser_SDK/assets/models/a1z-gripper/base_link.stl) | a1z-gripper 模型的 base_link 零件三角网格，用于 3D 显示 |
 | [Browser_SDK/assets/models/a1z-gripper/gripper_finger_left_link.stl](../Browser_SDK/assets/models/a1z-gripper/gripper_finger_left_link.stl) | a1z-gripper 模型的 gripper_finger_left_link 零件三角网格，用于 3D 显示 |
 | [Browser_SDK/assets/models/a1z-gripper/gripper_finger_right_link.stl](../Browser_SDK/assets/models/a1z-gripper/gripper_finger_right_link.stl) | a1z-gripper 模型的 gripper_finger_right_link 零件三角网格，用于 3D 显示 |
+| [Browser_SDK/assets/models/a1z/arm_link1.STL](../Browser_SDK/assets/models/a1z/arm_link1.STL) | a1z 模型的 arm_link1 零件三角网格，用于 3D 显示 |
+| [Browser_SDK/assets/models/a1z/arm_link2.STL](../Browser_SDK/assets/models/a1z/arm_link2.STL) | a1z 模型的 arm_link2 零件三角网格，用于 3D 显示 |
+| [Browser_SDK/assets/models/a1z/arm_link3.STL](../Browser_SDK/assets/models/a1z/arm_link3.STL) | a1z 模型的 arm_link3 零件三角网格，用于 3D 显示 |
+| [Browser_SDK/assets/models/a1z/arm_link4.STL](../Browser_SDK/assets/models/a1z/arm_link4.STL) | a1z 模型的 arm_link4 零件三角网格，用于 3D 显示 |
+| [Browser_SDK/assets/models/a1z/arm_link5.STL](../Browser_SDK/assets/models/a1z/arm_link5.STL) | a1z 模型的 arm_link5 零件三角网格，用于 3D 显示 |
+| [Browser_SDK/assets/models/a1z/arm_link6.STL](../Browser_SDK/assets/models/a1z/arm_link6.STL) | a1z 模型的 arm_link6 零件三角网格，用于 3D 显示 |
+| [Browser_SDK/assets/models/a1z/base_link.STL](../Browser_SDK/assets/models/a1z/base_link.STL) | a1z 模型的 base_link 零件三角网格，用于 3D 显示 |
+| [Browser_SDK/assets/models/a1z/gripper_finger_left_link.STL](../Browser_SDK/assets/models/a1z/gripper_finger_left_link.STL) | a1z 模型的 gripper_finger_left_link 零件三角网格，用于 3D 显示 |
+| [Browser_SDK/assets/models/a1z/gripper_finger_right_link.STL](../Browser_SDK/assets/models/a1z/gripper_finger_right_link.STL) | a1z 模型的 gripper_finger_right_link 零件三角网格，用于 3D 显示 |
+| [Browser_SDK/assets/models/b601-gripper/gripper_left.STL](../Browser_SDK/assets/models/b601-gripper/gripper_left.STL) | b601-gripper 模型的 gripper_left 零件三角网格，用于 3D 显示 |
+| [Browser_SDK/assets/models/b601-gripper/gripper_link.STL](../Browser_SDK/assets/models/b601-gripper/gripper_link.STL) | b601-gripper 模型的 gripper_link 零件三角网格，用于 3D 显示 |
+| [Browser_SDK/assets/models/b601-gripper/gripper_right.STL](../Browser_SDK/assets/models/b601-gripper/gripper_right.STL) | b601-gripper 模型的 gripper_right 零件三角网格，用于 3D 显示 |
+| [Browser_SDK/assets/models/b601-gripper/link6.STL](../Browser_SDK/assets/models/b601-gripper/link6.STL) | b601-gripper 模型的 link6 零件三角网格，用于 3D 显示 |
 | [Browser_SDK/assets/models/b601/base_link.STL](../Browser_SDK/assets/models/b601/base_link.STL) | b601 模型的 base_link 零件三角网格，用于 3D 显示 |
 | [Browser_SDK/assets/models/b601/end_link.STL](../Browser_SDK/assets/models/b601/end_link.STL) | b601 模型的 end_link 零件三角网格，用于 3D 显示 |
 | [Browser_SDK/assets/models/b601/link1.STL](../Browser_SDK/assets/models/b601/link1.STL) | b601 模型的 link1 零件三角网格，用于 3D 显示 |
@@ -76,10 +51,6 @@
 | [Browser_SDK/assets/models/b601/link4.STL](../Browser_SDK/assets/models/b601/link4.STL) | b601 模型的 link4 零件三角网格，用于 3D 显示 |
 | [Browser_SDK/assets/models/b601/link5.STL](../Browser_SDK/assets/models/b601/link5.STL) | b601 模型的 link5 零件三角网格，用于 3D 显示 |
 | [Browser_SDK/assets/models/b601/link6.STL](../Browser_SDK/assets/models/b601/link6.STL) | b601 模型的 link6 零件三角网格，用于 3D 显示 |
-| [Browser_SDK/assets/models/b601-gripper/gripper_left.STL](../Browser_SDK/assets/models/b601-gripper/gripper_left.STL) | b601-gripper 模型的 gripper_left 零件三角网格，用于 3D 显示 |
-| [Browser_SDK/assets/models/b601-gripper/gripper_link.STL](../Browser_SDK/assets/models/b601-gripper/gripper_link.STL) | b601-gripper 模型的 gripper_link 零件三角网格，用于 3D 显示 |
-| [Browser_SDK/assets/models/b601-gripper/gripper_right.STL](../Browser_SDK/assets/models/b601-gripper/gripper_right.STL) | b601-gripper 模型的 gripper_right 零件三角网格，用于 3D 显示 |
-| [Browser_SDK/assets/models/b601-gripper/link6.STL](../Browser_SDK/assets/models/b601-gripper/link6.STL) | b601-gripper 模型的 link6 零件三角网格，用于 3D 显示 |
 | [Browser_SDK/assets/models/fl/base_link.STL](../Browser_SDK/assets/models/fl/base_link.STL) | fl 模型的 base_link 零件三角网格，用于 3D 显示 |
 | [Browser_SDK/assets/models/fl/link1.STL](../Browser_SDK/assets/models/fl/link1.STL) | fl 模型的 link1 零件三角网格，用于 3D 显示 |
 | [Browser_SDK/assets/models/fl/link2.STL](../Browser_SDK/assets/models/fl/link2.STL) | fl 模型的 link2 零件三角网格，用于 3D 显示 |
@@ -179,6 +150,37 @@
 | [Browser_SDK/src/version.js](../Browser_SDK/src/version.js) | 原控制台版本显示信息 |
 | [Browser_SDK/src/workspace-switch.css](../Browser_SDK/src/workspace-switch.css) | 控制台与 ACT 的全屏能量环切换、倒计时与取消（样式） |
 | [Browser_SDK/src/workspace-switch.js](../Browser_SDK/src/workspace-switch.js) | 控制台与 ACT 的全屏能量环切换、倒计时与取消 |
+| [README.md](../README.md) | 客户入口、下载选择、两系统启动与教程索引 |
+| [THIRD_PARTY.md](../THIRD_PARTY.md) | 第三方组件来源、许可位置与资产说明 |
+| [ai_service/__init__.py](../ai_service/__init__.py) | Python 后台包入口 |
+| [ai_service/act_policy_worker.py](../ai_service/act_policy_worker.py) | 独立进程加载 ACT 策略并产生预测动作 |
+| [ai_service/action_schedule.py](../ai_service/action_schedule.py) | 动作块队列、节拍调度与多次预测融合 |
+| [ai_service/app.py](../ai_service/app.py) | 本机 HTTP API、静态页面与资源生命周期 |
+| [ai_service/capabilities.py](../ai_service/capabilities.py) | 检测 Python、训练依赖、GPU 与运行阻碍 |
+| [ai_service/devices.py](../ai_service/devices.py) | 设备枚举与稳定标识、角色绑定 |
+| [ai_service/domain.py](../ai_service/domain.py) | 数据集、轮次、设备绑定与业务错误规则 |
+| [ai_service/episode_data.py](../ai_service/episode_data.py) | 示教轮次、JPEG、索引、完整性及导入导出 |
+| [ai_service/fashionstar_protocol.py](../ai_service/fashionstar_protocol.py) | FashionStar 原始协议打包、校验与反馈解析 |
+| [ai_service/follower_calibration.py](../ai_service/follower_calibration.py) | 从臂校准记录、范围、JSON 与归一化转换 |
+| [ai_service/inference_runtime.py](../ai_service/inference_runtime.py) | 策略进程、状态读取、动作调度与推理诊断 |
+| [ai_service/lerobot_convert.py](../ai_service/lerobot_convert.py) | 将示教角度、相机和统计量转换到 LeRobot 数据约定 |
+| [ai_service/model_import.py](../ai_service/model_import.py) | 完整模型包验证、发行包识别与导入整理 |
+| [ai_service/native_act_driver.py](../ai_service/native_act_driver.py) | 原生 FashionStar SDK 适配与从臂读写、校准坐标转换 |
+| [ai_service/native_cameras.py](../ai_service/native_cameras.py) | Ubuntu V4L2 双相机枚举、模式、JPEG 流与采集 |
+| [ai_service/release_adapter.py](../ai_service/release_adapter.py) | 将上游发行模型的目录和配置适配为本工作台模型 |
+| [ai_service/serial_connections.py](../ai_service/serial_connections.py) | Linux 主从臂串口连接、读取、写入与状态 |
+| [ai_service/store.py](../ai_service/store.py) | 业务状态的本机持久化 |
+| [ai_service/synchronizer.py](../ai_service/synchronizer.py) | 关节与相机样本时间同步 |
+| [ai_service/telemetry.py](../ai_service/telemetry.py) | 实时状态和 SSE 遥测发布 |
+| [ai_service/teleop_runtime.py](../ai_service/teleop_runtime.py) | 主从臂示教循环、滤波与真实样本发布 |
+| [ai_service/training_dataset.py](../ai_service/training_dataset.py) | 训练数据准备、完整性检查与转换缓存 |
+| [ai_service/training_environment.py](../ai_service/training_environment.py) | 独立 Python 环境准备、依赖安装与加速设备自检 |
+| [ai_service/training_jobs.py](../ai_service/training_jobs.py) | 训练子进程、日志、检查点、停止与恢复 |
+| [ai_service/training_manifest.json](../ai_service/training_manifest.json) | Python / LeRobot / PyTorch 版本及加速源清单 |
+| [ai_service/vendor/README.txt](../ai_service/vendor/README.txt) | 离线原生 SDK / 串口 wheel 来源与 SHA256 |
+| [ai_service/vendor/fashionstar_uart_sdk-1.3.6-py3-none-any.whl](../ai_service/vendor/fashionstar_uart_sdk-1.3.6-py3-none-any.whl) | FashionStar 官方 UART SDK 1.3.6 离线依赖 |
+| [ai_service/vendor/fashionstar_uart_sdk-1.3.6-py3-none-any.whl.LICENSE.txt](../ai_service/vendor/fashionstar_uart_sdk-1.3.6-py3-none-any.whl.LICENSE.txt) | FashionStar SDK 随附的原始许可文本 |
+| [ai_service/vendor/pyserial-3.5-py2.py3-none-any.whl](../ai_service/vendor/pyserial-3.5-py2.py3-none-any.whl) | pyserial 3.5 离线串口依赖，wheel 内含许可 |
 | [docs/ACT_GUIDE.md](../docs/ACT_GUIDE.md) | 采集、校准、训练、完整模型导入与执行教程 |
 | [docs/ARCHITECTURE.md](../docs/ARCHITECTURE.md) | 服务器、浏览器、本机后台与虚拟环境职责说明 |
 | [docs/DEPLOYMENT.md](../docs/DEPLOYMENT.md) | 服务器只上传静态文件的发布教程 |
@@ -189,7 +191,6 @@
 | [docs/WINDOWS.md](../docs/WINDOWS.md) | Windows 启动与功能支持范围教程 |
 | [package-lock.json](../package-lock.json) | 固定 Node 开发依赖解析版本 |
 | [package.json](../package.json) | ES module 配置、前端测试命令和 Playwright 开发依赖 |
-| [README.md](../README.md) | 客户入口、下载选择、两系统启动与教程索引 |
 | [runtime/Browser_SDK/index.html](../runtime/Browser_SDK/index.html) | 安装组件自带的最小状态页面，完整界面在网站 |
 | [runtime/start_desktop_sessions.py](../runtime/start_desktop_sessions.py) | 安装后识别活动桌面用户并启动用户后台 |
 | [runtime/ubuntu_runtime.py](../runtime/ubuntu_runtime.py) | 用户后台启动、网站授权、环回 API 与组件连接检测 |
@@ -243,7 +244,6 @@
 | [tests/test_training_dataset.py](../tests/test_training_dataset.py) | 软件测试：训练数据准备、完整性检查与转换缓存 |
 | [tests/test_training_environment.py](../tests/test_training_environment.py) | 软件测试：独立 Python 环境准备、依赖安装与加速设备自检 |
 | [tests/test_training_jobs.py](../tests/test_training_jobs.py) | 软件测试：训练子进程、日志、检查点、停止与恢复 |
-| [THIRD_PARTY.md](../THIRD_PARTY.md) | 第三方组件来源、许可位置与资产说明 |
 | [tools/build_runtime_package.py](../tools/build_runtime_package.py) | 构建 Debian 模板、桌面自启动、udev 与浏览器校验值 |
 | [tools/check_distribution.py](../tools/check_distribution.py) | 校验安装模板、源码一致性、换行、静态文件与资源路径 |
 | [tools/check_file_map.py](../tools/check_file_map.py) | 逐文件用途清单生成与遗漏检查 |

@@ -93,8 +93,9 @@ DOCS = {
 
 
 def files():
-    return sorted(p for p in ROOT.rglob('*') if p.is_file() and not set(p.relative_to(ROOT).parts) & IGNORED
-                  and p.suffix not in ('.pyc', '.log') and not p.name.startswith('.env'))
+    return sorted((p for p in ROOT.rglob('*') if p.is_file() and not set(p.relative_to(ROOT).parts) & IGNORED
+                   and p.suffix not in ('.pyc', '.log') and not p.name.startswith('.env')),
+                  key=lambda p: p.relative_to(ROOT).as_posix())
 
 
 def purpose(path):

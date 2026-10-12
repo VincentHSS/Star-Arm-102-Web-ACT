@@ -34,7 +34,7 @@ class FakeProcess:
 class TrainingJobManagerTests(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
-        self.root = Path(self.tmp.name)
+        self.root = Path(self.tmp.name).resolve()
         self.process = FakeProcess()
         self.commands = []
 
