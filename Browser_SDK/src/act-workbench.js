@@ -85,8 +85,19 @@ function setDeviceCard(role, connected, detail, verification = '') { const prefi
 function setDatasetFormStatus(message, mode = '') { const target = $('#dataset-form-status'); target.textContent = message; target.className = `form-status ${mode}`.trim(); }
 function updateNextAction() { const target = $('#camera-next-action'); const leaderConnected = Boolean(state.serial.leader?.connected); const followerConnected = Boolean(state.serial.follower?.connected); const camerasConnected = $('#camera-badge').classList.contains('on'); let message = '下一步：连接 Leader 和真实 FL。'; let ready = false; if (leaderConnected && !followerConnected) message = '下一步：连接真实 FL。'; else if (!leaderConnected && followerConnected) message = '下一步：连接 Leader。'; else if (leaderConnected && followerConnected && Math.max(state.browserCameras.length, state.nativeCameras.length) < 2) message = '机械臂已连接。下一步：点击“检测摄像头”。'; else if (leaderConnected && followerConnected && !camerasConnected) message = '已检测到摄像头。下一步：选择末端与世界视角，然后连接两台摄像头。'; else if (leaderConnected && followerConnected && camerasConnected && !state.deviceBinding) message = '全部设备已连接。下一步：保存设备选择。'; else if (state.deviceBinding?.capture_ready) { message = '设备检查通过。下一步：创建或选择数据集，然后开始 Episode。'; ready = true; } else if (state.deviceBinding) message = '设备选择已保存。串口已打开，等待真实 J1–J7 样本；现在可以创建数据集并开始 Episode。'; target.textContent = message; target.className = `next-action${ready ? ' ready' : ''}`; }
 function renderDeviceBinding(binding) { state.deviceBinding = binding; const bound = Boolean(binding); const ready = Boolean(binding?.capture_ready); const recording = state.episode?.status === 'recording'; $('#episode-button').disabled = !bound || !state.datasets.length || Boolean(state.episode) || state.completedRounds >= state.targetRounds; $('#stop-episode').disabled = !recording; $('#capture-gate').textContent = ready ? '设备检查通过' : bound ? '串口已打开 · 等待样本' : '等待设备'; $('#capture-gate').className = `tag ${ready ? 'ready' : bound ? 'pending' : 'blocked'}`; $('#binding-status').textContent = ready ? 'Leader、真实 FL 和两台摄像头均已检查，可以开始 Episode。' : bound ? '设备选择已保存。串口已打开，等待真实 J1–J7 样本；波形没有样本时不会显示模拟数据。' : '请先连接 Leader、真实 FL 和两台不同的摄像头。'; updateNextAction(); }
-function renderSerialState(connections = {}) { for (const role of ['leader', 'follower']) { const connection = connections[role]; state.serial[role] = connection || null; setDeviceCard(role, Boolean(connection?.connected), connection ? `${connection.port} · ${connection.baudrate / 1000} kbps` : '', connection?.verification); } }
-function renderCapabilities(caps) { state.capabilities = caps; const ports = caps.serial_ports || []; const cameraCount = state.browserCameras.length; const backend = caps.torch.backend ? caps.torch.backend.toUpperCase() : '未准备'; $('#capability-list').innerHTML = [capabilityRow('GPU', caps.gpu.available ? caps.gpu.name : '等待后端检测', caps.gpu.available), capabilityRow('训练运行时', caps.torch.installed ? '已安装' : '未准备', caps.torch.installed), capabilityRow('加速后端', backend, Boolean(caps.torch.backend)), capabilityRow('ACT 执行链', caps.act_runtime.execution_available ? `LeRobot ${caps.act_runtime.lerobot_version || ''}`.trim() : '未准备', caps.act_runtime.execution_available), capabilityRow('ACT 训练', caps.training_ready ? '可用' : '不可用', caps.training_ready), capabilityRow('浏览器摄像头', cameraCount ? `${cameraCount} 台` : '等待授权', cameraCount >= 2), capabilityRow('机械臂串口', `${ports.length} 个设备`, ports.length >= 2)].join(''); populateSelect('#leader-port', ports, item => item, item => item); populateSelect('#follower-port', ports, item => item, item => item); $('#bind-devices').disabled = !(state.serial.leader?.connected && state.serial.follower?.connected && $('#camera-badge').classList.contains('on')); updateNextAction(); }
+function renderSerialState(connections = {}) { for (const role of ['leader', 'follower']) { const connection = connections[role]; state.serial[role] = connection || null; setDeviceCard(role, Boolean(connection?.connected), connection ? `${connection.port} · ${connection.baudrate / 1000} kbps` : '', connection?.verification); } renderInferenceSerialState(); }
+function renderInferenceSerialState() {
+  const connection = state.serial.follower;
+  const active = state.inferenceStarting || ['loading', 'running', 'stopping'].includes(state.inference?.status);
+  $('#inference-follower-port').disabled = Boolean(connection?.connected) || active || state.navigationPending;
+  $('#inference-connect-follower').disabled = Boolean(connection?.connected) || active || state.navigationPending;
+  $('#inference-disconnect-follower').disabled = !connection?.connected || state.navigationPending;
+  $('#inference-serial-status').textContent = connection?.connected
+    ? `从臂已连接 · ${connection.port} · 1 Mbps`
+    : '切换页面后串口已释放，请在这里连接从臂。';
+}
+
+function renderCapabilities(caps) { state.capabilities = caps; const ports = caps.serial_ports || []; const cameraCount = state.browserCameras.length; const backend = caps.torch.backend ? caps.torch.backend.toUpperCase() : '未准备'; $('#capability-list').innerHTML = [capabilityRow('GPU', caps.gpu.available ? caps.gpu.name : '等待后端检测', caps.gpu.available), capabilityRow('训练运行时', caps.torch.installed ? '已安装' : '未准备', caps.torch.installed), capabilityRow('加速后端', backend, Boolean(caps.torch.backend)), capabilityRow('ACT 执行链', caps.act_runtime.execution_available ? `LeRobot ${caps.act_runtime.lerobot_version || ''}`.trim() : '未准备', caps.act_runtime.execution_available), capabilityRow('ACT 训练', caps.training_ready ? '可用' : '不可用', caps.training_ready), capabilityRow('浏览器摄像头', cameraCount ? `${cameraCount} 台` : '等待授权', cameraCount >= 2), capabilityRow('机械臂串口', `${ports.length} 个设备`, ports.length >= 2)].join(''); populateSelect('#leader-port', ports, item => item, item => item); populateSelect('#follower-port', ports, item => item, item => item); populateSelect('#inference-follower-port', ports, item => item, item => item); if (!$('#inference-follower-port').value) $('#inference-follower-port').value = $('#follower-port').value; renderInferenceSerialState(); $('#bind-devices').disabled = !(state.serial.leader?.connected && state.serial.follower?.connected && $('#camera-badge').classList.contains('on')); updateNextAction(); }
 
 function renderTrainingEnvironment(environment) {
   const wasReady = state.trainingEnvironment?.status === 'ready';
@@ -292,6 +303,7 @@ function populateInferenceTasks() {
 }
 
 function renderInferenceGate(gate = state.inferenceGate) {
+  renderInferenceSerialState();
   const model = selectedInferenceModel();
   const blockers = gate?.blockers || model?.blockers || [];
   const rows = [
@@ -1023,7 +1035,7 @@ async function refreshState(revision) {
     toast(state.capabilities ? error.message : '首次环境配置已合并到第 2 步，按页面提示完成系统安装与授权后，会自动准备运行环境。');
   }
 }
-async function connectSerial(role) { if (state.navigationPending) return toast('正在切换页面，请稍候。'); state.deviceEpoch++; const prefix = role === 'leader' ? 'leader' : 'follower'; const port = $(`#${prefix}-port`).value; if (!port) return toast(`请先选择${role === 'leader' ? ' Leader' : '真实 FL'}串口`); try { const result = await request('/devices/serial/connect', { method: 'POST', body: JSON.stringify({ role, port, leader_type: $('#leader-type').value }) }); state.serial[role] = result; state.deviceBinding = null; setDeviceCard(role, true, `${result.port} · ${result.baudrate / 1000} kbps`, result.verification); $(`#${role}-state`).textContent = result.port; toast(`${role === 'leader' ? 'Leader' : '真实 FL'}串口已连接；J1–J7 实时样本尚未接入`); renderCapabilities(state.capabilities); } catch (error) { toast(error.message); } }
+async function connectSerial(role, selectedPort = null) { if (state.navigationPending) return toast('正在切换页面，请稍候。'); state.deviceEpoch++; const prefix = role === 'leader' ? 'leader' : 'follower'; const port = selectedPort || $(`#${prefix}-port`).value; if (!port) return toast(`请先选择${role === 'leader' ? ' Leader' : '真实 FL'}串口`); try { const result = await request('/devices/serial/connect', { method: 'POST', body: JSON.stringify({ role, port, leader_type: $('#leader-type').value }) }); state.serial[role] = result; state.deviceBinding = null; setDeviceCard(role, true, `${result.port} · ${result.baudrate / 1000} kbps`, result.verification); $(`#${role}-state`).textContent = result.port; toast(`${role === 'leader' ? 'Leader' : '真实 FL'}串口已连接；J1–J7 实时样本尚未接入`); renderCapabilities(state.capabilities); } catch (error) { toast(error.message); } }
 async function disconnectSerial(role) { try { await request('/devices/serial/disconnect', { method: 'POST', body: JSON.stringify({ role }) }); state.serial[role] = null; state.deviceBinding = null; setDeviceCard(role, false, ''); $('#bind-devices').disabled = true; updateNextAction(); toast(`${role === 'leader' ? 'Leader' : '真实 FL'}已断开，采集权限已撤销`); } catch (error) { toast(error.message); } }
 function updateCameraSelectionState() {
   const backend = effectiveCameraBackend($('#camera-backend').value, state.nativeCameras);
@@ -1313,6 +1325,14 @@ for (const role of ['leader', 'follower']) for (const operation of ['connect', '
     { label: operation === 'connect' ? '正在连接…' : '正在断开…', restore: () => renderSerialState(state.serial) }));
 }  $('#detect-cameras').addEventListener('click', detectCameras); $('#connect-cameras').addEventListener('click', connectCameras); $('#disconnect-cameras').addEventListener('click', disconnectCameras); $('#wrist-camera-select').addEventListener('change', updateCameraSelectionState); $('#world-camera-select').addEventListener('change', updateCameraSelectionState);
 $('#bind-devices').addEventListener('click', () => withButtonFeedback($('#bind-devices'), async () => { if (state.navigationPending) return toast('正在切换页面，请稍候。'); const payload = { leader_type: $('#leader-type').value, leader_port: $('#leader-port').value, follower_port: $('#follower-port').value, wrist_camera_id: $('#wrist-camera-select').value, world_camera_id: $('#world-camera-select').value }; try { const binding = await request('/devices/bind', { method: 'POST', body: JSON.stringify(payload) }); renderDeviceBinding(binding); toast('设备选择已保存；机械臂 J1–J7 实时校验尚未接入'); } catch (error) { toast(error.message); } }, { label: '正在保存…', restore: () => renderCapabilities(state.capabilities) }));
+$('#inference-connect-follower').addEventListener('click', () => withButtonFeedback($('#inference-connect-follower'), async () => {
+  await connectSerial('follower', $('#inference-follower-port').value);
+  if (state.serial.follower?.connected && selectedInferenceModel()) await validateInference();
+}, { label: '正在连接…', restore: () => renderSerialState(state.serial) }));
+$('#inference-disconnect-follower').addEventListener('click', () => withButtonFeedback($('#inference-disconnect-follower'), async () => {
+  await disconnectSerial('follower'); state.inferenceGate = null; renderInferenceGate();
+}, { label: '正在断开…', restore: () => renderSerialState(state.serial) }));
+$('#inference-refresh-ports').addEventListener('click', () => withButtonFeedback($('#inference-refresh-ports'), refreshAfterMutation));
 $('#training-prepare').addEventListener('click', () => prepareTrainingEnvironment(false));
 $('#training-retry').addEventListener('click', () => prepareTrainingEnvironment(true));
 $('#training-start').addEventListener('click', startTraining);
@@ -1674,6 +1694,7 @@ const navigateActView = createPageNavigator({
   },
   onPending: (id, busy) => {
     state.navigationPending = busy;
+    renderInferenceSerialState();
     document.querySelectorAll('.workflow [data-view]').forEach(button => {
       button.disabled = busy;
       if (busy && button.dataset.view === id) button.setAttribute('aria-busy', 'true'); else button.removeAttribute('aria-busy');

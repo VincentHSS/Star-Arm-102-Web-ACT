@@ -72,6 +72,12 @@ const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
       serial[role] = null; disconnected.push(role); shutdownOrder.push('disconnect-' + role);
       return r.fulfill({ json: { role, connected: false } });
     });
+    await page.route('**/api/v1/devices/serial/connect', r => {
+      const payload = r.request().postDataJSON();
+      assert.equal(payload.role, 'follower');
+      serial.follower = { role: 'follower', port: payload.port, connected: true, baudrate: 1000000 };
+      return r.fulfill({ json: serial.follower });
+    });
     await page.goto(site + '/act-workbench.html');
     await page.waitForFunction(() => document.querySelector('#service-state').textContent.includes('已连接'));
     await page.locator('#dataset-form [name=task_name]').fill('浏览器验证任务');
@@ -104,6 +110,11 @@ const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
     await page.click('.workflow [data-view="infer"]');
     await page.waitForFunction(() => document.querySelector('#infer').classList.contains('active'));
     assert.equal(serial.leader, null);
+    await page.evaluate(() => { document.querySelector('#inference-follower-port').add(new Option('Mock follower', '/dev/mock-follower')); });
+    await page.selectOption('#inference-follower-port', '/dev/mock-follower');
+    await page.click('#inference-connect-follower');
+    await page.waitForFunction(() => document.querySelector('#inference-serial-status').textContent.includes('从臂已连接'));
+    assert(serial.follower?.connected, 'Execution page must be able to reconnect without returning to another step');
     await page.click('.workflow [data-view="train"]'); await pause(400); assert.equal(prepares, 1);
     assert.equal(await page.locator('a[href^="star-arm-act:"]').count(), 0);
     const installer = await page.evaluate(async () => {
@@ -169,6 +180,7 @@ const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
       fiveSecondTransitions: true, noDuplicateLoader: true, corruptTemplateRejected: true, mobileFits: true,
       actStepPortsReleased: true, releaseFailureKeepsPage: true, consoleTabPortsReleased: true,
       recordingPreservedForReview: true, controlStoppedBeforeDisconnect: true,
+      executionPageCanReconnectFollower: true,
       idleSceneDoesNotRedraw: true, interactiveSceneStillDraws: true,
       nativeUbuntuInstallationTested: false, hardwareTested: false, pageErrors: errors, missingAssets: missing }, null, 2));
   } catch (error) {
