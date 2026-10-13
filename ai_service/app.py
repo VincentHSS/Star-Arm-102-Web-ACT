@@ -17,6 +17,7 @@ from .domain import ActWorkspace, DomainError
 from .episode_data import EpisodeDataStore
 from .inference_runtime import ActInferenceRuntime
 from .native_cameras import NativeCameraError, V4L2CameraManager
+from .windows_cameras import WindowsCameraManager
 from .devices import DeviceRegistry
 from .serial_connections import SerialConnectionManager
 from .store import JsonStore
@@ -87,8 +88,10 @@ class ApiServer(ThreadingHTTPServer):
         self.telemetry = TelemetryHub()
         self.teleop = EpisodeTeleopRuntime(self.serial_connections, self.telemetry,
                                            sample_sink=self.episode_data.append_sample)
-        self.native_cameras = self._inject.get("native_cameras") or V4L2CameraManager()
         self.training_environment = self._inject.get("training_environment") or TrainingEnvironmentManager(self.data_root)
+        self.native_cameras = self._inject.get("native_cameras") or (
+            WindowsCameraManager(lambda: self.training_environment.snapshot().get('ffmpeg_executable'))
+            if os.name == 'nt' else V4L2CameraManager())
         self.training_jobs = self._inject.get("training_jobs") or TrainingJobManager(self.data_root)
         self.training_dataset = self._inject.get("training_dataset") or TrainingDatasetAdapter(self.data_root, self.episode_data)
         self.inference = self._inject.get("inference") or ActInferenceRuntime(
@@ -132,6 +135,13 @@ class ApiServer(ThreadingHTTPServer):
 
 class Handler(SimpleHTTPRequestHandler):
     server_version = "StarArmACT/0.1.0"
+
+    def handle_one_request(self):
+        try:
+            return super().handle_one_request()
+        except ConnectionError:
+            # Windows browsers may abort a keep-alive socket while changing pages.
+            self.close_connection = True
 
     def log_message(self, format, *args):
         return
@@ -351,11 +361,17 @@ class Handler(SimpleHTTPRequestHandler):
             body = self._body(50_000_000 if camera_match else 1_000_000)
             ws = self.server.workspace
             if path == "/api/v1/training/environment/prepare":
+                if self.server.inference.snapshot().get('status') in {'loading', 'running', 'stopping'}:
+                    raise DomainError('请先停止推理，再重新配置运行环境', 'environment_in_use')
                 return self._json(202, self.server.training_environment.prepare(body.get("backend")))
             if path == "/api/v1/training/environment/retry":
+                if self.server.inference.snapshot().get('status') in {'loading', 'running', 'stopping'}:
+                    raise DomainError('请先停止推理，再重新配置运行环境', 'environment_in_use')
                 return self._json(202, self.server.training_environment.retry())
             if path == "/api/v1/training/jobs":
                 environment = self.server.training_environment.snapshot()
+                if environment.get('training_supported') is False:
+                    raise DomainError('Windows 当前用于模型执行；请在 Ubuntu 训练后导入完整模型包', 'training_platform_unsupported')
                 dataset = self.server.training_dataset.prepare(body.get("dataset_id"), environment)
                 return self._json(202, self.server.training_jobs.create(environment, dataset,
                                                                          body.get("parameters") or {}))
@@ -365,6 +381,8 @@ class Handler(SimpleHTTPRequestHandler):
             match = re.fullmatch(r"/api/v1/training/jobs/([^/]+)/resume", path)
             if match:
                 environment = self.server.training_environment.snapshot()
+                if environment.get('training_supported') is False:
+                    raise DomainError('请在 Ubuntu 恢复训练；Windows 用于已训练模型执行', 'training_platform_unsupported')
                 job = self.server.training_jobs.get(match.group(1))
                 dataset = self.server.training_dataset.prepare(job["dataset_id"], environment)
                 return self._json(202, self.server.training_jobs.resume(match.group(1), environment, dataset))
@@ -551,8 +569,8 @@ class Handler(SimpleHTTPRequestHandler):
         self.send_header("Content-Type", "text/event-stream; charset=utf-8")
         self.send_header("Cache-Control", "no-store")
         self.send_header("Connection", "keep-alive")
-        self.end_headers()
         try:
+            self.end_headers()
             self.wfile.write(b'event: status\ndata: {"state": "waiting"}\n\n')
             self.wfile.flush()
             while True:
@@ -563,7 +581,7 @@ class Handler(SimpleHTTPRequestHandler):
                     payload = json.dumps(sample, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
                     self.wfile.write(b"event: sample\ndata: " + payload + b"\n\n")
                 self.wfile.flush()
-        except (BrokenPipeError, ConnectionResetError, TimeoutError):
+        except (ConnectionError, TimeoutError):
             return
         finally:
             subscription.close()

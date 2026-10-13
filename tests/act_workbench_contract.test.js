@@ -75,8 +75,8 @@ test('validated idle inference remains startable until a real invalidation event
 
 test('runtime capability panel distinguishes GPU, managed runtime, and selected accelerator backend', () => {
   const js = fs.readFileSync(jsPath, 'utf8');
-  assert.match(js, /训练运行时/);
-  assert.match(js, /加速后端/);
+  assert.match(js, /ACT 运行时/);
+  assert.match(js, /计算后端/);
   assert.match(js, /caps\.torch\.installed/);
   assert.match(js, /caps\.torch\.backend/);
   assert.match(js, /caps\.act_runtime\.execution_available/);
@@ -275,7 +275,8 @@ test('camera controls expose automatic browser-to-Ubuntu-native fallback without
   const js = fs.readFileSync(jsPath, 'utf8');
   assert.match(html, /id=["']camera-backend["']/);
   for (const value of ['auto', 'browser', 'native']) assert.match(html, new RegExp(`value=["']${value}["']`));
-  assert.match(html, /Ubuntu 原生/);
+  assert.match(html, /本机原生/);
+  assert.match(html, /Ubuntu \/ Windows/);
   assert.match(js, /connectBrowserCameras/);
   assert.match(js, /connectNativeCameras/);
   assert.match(js, /\/cameras\/native\/connect/);

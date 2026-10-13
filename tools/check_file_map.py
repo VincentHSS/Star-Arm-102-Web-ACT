@@ -42,6 +42,8 @@ FRONTEND = {
     'version': '原控制台版本显示信息', 'workspace-switch': '控制台与 ACT 的全屏能量环切换、倒计时与取消',
 }
 BACKEND = {
+    'website_authorization': 'Windows 当前网站连接确认、限时单次令牌与确认界面',
+    'windows_cameras': 'Windows DirectShow 双相机枚举、模式和原生 JPEG 视频流',
     '__init__': 'Python 后台包入口', 'act_policy_worker': '独立进程加载 ACT 策略并产生预测动作',
     'action_schedule': '动作块队列、节拍调度与多次预测融合', 'app': '本机 HTTP API、静态页面与资源生命周期',
     'capabilities': '检测 Python、训练依赖、GPU 与运行阻碍', 'devices': '设备枚举与稳定标识、角色绑定',
@@ -98,6 +100,8 @@ DOCS = {
 }
 
 DOC_IMAGES = {
+    'windows-runtime-ready': 'Windows 实际 CPU 执行环境自检就绪界面（未连接硬件）',
+    'windows-website-connection': 'Windows 当前网站本机连接确认页（本机测试地址）',
     'console-overview': '控制台全景', 'console-device-panel': '控制台设备连接面板',
     'console-servo-setup': '控制台舵机设置页面', 'workspace-transition': '全屏工作区切换动画',
     'act-collect-overview': 'ACT 数据采集全景', 'act-device-panel': 'ACT 设备连接面板',
@@ -136,6 +140,7 @@ def purpose(path):
         test_names = {
             'api': 'HTTP API、数据集与轮次流程', 'api_client': '请求及响应体超时、取消与禁止自动重试', 'page_lifecycle': '停止和释放成功后切页、失败保留原页与重复点击合并', 'native_camera_api': '原生相机 HTTP API',
             'native_camera_manager': '原生双相机管理', 'native_cameras_streaming': '原生相机流与结束排空',
+            'windows_execution': 'Windows COM 官方驱动读写、双相机与固定目录 CPU 环境',
             'release_version_contract': '两系统启动脚本与整合服务入口',
             'piper_leader_contract': 'PiPER Mate 姿态源配置与显示约束',
             'piper_readback_zero': 'PiPER 实时角度、J3 多圈与夹爪中心线',

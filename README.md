@@ -2,9 +2,9 @@
 
 平台集成 Star Arm 102 控制台与 ACT 工作台，提供机械臂控制、三维可视化、双相机数据采集、模型训练、模型导入与实机执行功能。
 
-**完整 ACT 实机流程使用 Ubuntu。** 网站可以放在服务器上，机械臂、相机、数据和 GPU 仍在客户电脑上。服务器不连接机械臂，也不执行训练。
+**ACT 训练使用 Ubuntu；训练好的完整模型可在 Ubuntu 或 Windows 执行。** 网站可以放在服务器上，机械臂、相机、数据和 GPU 仍在客户电脑上。服务器不连接机械臂，也不执行训练。
 
-**第一次使用先看 [图文快速上手](docs/GETTING_STARTED.md)。** 教程包含 12 张实际界面截图，按按钮位置说明控制台连接、从臂校准、双相机、数据集创建、环境准备、模型导入和执行。截图为未连接硬件状态，不代表实机验证结果。
+**第一次使用先看 [图文快速上手](docs/GETTING_STARTED.md)。** 教程包含 14 张实际界面截图，按按钮位置说明控制台连接、从臂校准、双相机、数据集创建、环境准备、模型导入和执行。截图为未连接硬件状态，不代表实机验证结果。
 
 ![Star Arm 102 控制台](docs/images/console-overview.png)
 
@@ -16,7 +16,7 @@
 | 连接设备、三维查看、主从控制、舵机设置 | [控制台图文教程](docs/CONSOLE_GUIDE.md) |
 | 采集、校准、训练、导入完整模型、实机推理 | [ACT 四步骤图文教程](docs/ACT_GUIDE.md) |
 | 客户首次安装或 Ubuntu 本地源码启动 | [Ubuntu 详细教程](docs/UBUNTU.md) |
-| Windows 安装 Python、找到脚本并启动 | [Windows 详细教程](docs/WINDOWS.md) |
+| Windows 启动、准备环境并执行 Ubuntu 训练模型 | [Windows 详细教程](docs/WINDOWS.md) |
 | 把唯一交付包上传到服务器 | [服务器上传与验收教程](docs/DEPLOYMENT.md) |
 | 按钮、组件、相机、串口、校准或模型有问题 | [常见问题](docs/TROUBLESHOOTING.md) |
 
@@ -47,7 +47,7 @@ sh start_ubuntu.sh
 
 安装 Python 3.10～3.12，安装时勾选 **Add Python to PATH**。解压源码后双击根目录的 **`start_windows.bat`**，浏览器会自动打开控制台。
 
-Windows 支持控制台 Web Serial、界面预览以及数据集和模型管理。**当前完整 ACT 训练、Linux 原生双相机和实机执行需要 Ubuntu**；Windows 脚本不会将这些 Linux 功能变成 Windows 驱动。详见 [Windows 教程](docs/WINDOWS.md)。
+Windows 支持控制台和 **ACT 已训练模型的本机执行**。双击启动脚本后，第 2 步准备 Windows 运行环境，第 3 步导入 Ubuntu 导出的完整模型包，第 4 步连接 COM 从臂和本机原生双相机。运行支持 NVIDIA CUDA 或 CPU，CPU 的实际频率以测试为准；**模型训练仍使用 Ubuntu**。详见 [Windows 教程](docs/WINDOWS.md)。
 
 控制台子页面和 ACT 步骤切换时会自动停止当前控制并释放串口；在下一页操作机械臂前需重新连接。按钮处理中会显示状态，本机服务无响应时会提示超时。
 
@@ -62,4 +62,4 @@ Windows 支持控制台 Web Serial、界面预览以及数据集和模型管理�
 
 仓库不包含客户的模型权重、示教数据、校准文件、账号密钥或训练环境。3D STL / URDF 是页面显示所需资源，不能当作多余文件删除。
 
-本版提供软件检查和浏览器验证；Ubuntu 安装器的系统安装、登录自启动及机械臂实机效果仍需在目标 Ubuntu 电脑验收。
+本版提供软件检查和浏览器验证；Windows 相机与 COM、CUDA 加速、Ubuntu 系统安装及机械臂实际运动仍需在目标电脑验收。

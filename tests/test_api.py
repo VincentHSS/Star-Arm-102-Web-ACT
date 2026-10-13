@@ -398,7 +398,7 @@ class ApiTests(unittest.TestCase):
             "role": "leader", "port": "/dev/ttyUSB9", "leader_type": "HD",
         })
         self.assertEqual(status, 400)
-        self.assertEqual(error["error"]["code"], "serial_platform_unsupported" if os.name == "nt" else "unknown_serial_candidate")
+        self.assertEqual(error["error"]["code"], "unknown_serial_candidate")
         status, result = self.request("POST", "/api/v1/devices/serial/disconnect", {"role": "leader"})
         self.assertEqual(status, 200)
         self.assertFalse(result["connected"])

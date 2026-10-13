@@ -4,6 +4,11 @@
   "lerobot": "0.4.4",
   "packages": ["lerobot==0.4.4"],
   "backends": {
+    "cpu": {
+      "label": "CPU（Windows 模型执行）",
+      "torch_index": "https://download.pytorch.org/whl/cpu",
+      "torch_packages": ["torch>=2.7,<2.11", "torchvision>=0.22,<0.26"]
+    },
     "cuda": {
       "label": "NVIDIA CUDA",
       "torch_index": "https://download.pytorch.org/whl/cu128",

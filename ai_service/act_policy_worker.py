@@ -15,7 +15,7 @@ REQUIRED_CHECKPOINT_FILES = (
 
 class LocalActPolicy:
     def __init__(self, checkpoint_path, *, policy=None, preprocessor=None, postprocessor=None,
-                 observation_preparer=None, image_loader=None, state_factory=None):
+                 observation_preparer=None, image_loader=None, state_factory=None, device=None):
         self.checkpoint_path = Path(checkpoint_path).resolve()
         missing = [name for name in REQUIRED_CHECKPOINT_FILES if not (self.checkpoint_path / name).is_file()]
         if missing:
@@ -49,7 +49,9 @@ class LocalActPolicy:
 
             config = PreTrainedConfig.from_pretrained(self.checkpoint_path, local_files_only=True)
             import torch
-            if str(config.device).startswith("cuda") and not torch.cuda.is_available():
+            if device:
+                config.device = device
+            elif str(config.device).startswith("cuda") and not torch.cuda.is_available():
                 config.device = "cpu"
             # Full saved ACT weights already contain the image backbone.
             config.pretrained_backbone_weights = None
@@ -139,8 +141,8 @@ class LocalActPolicy:
         return result
 
 
-def serve(checkpoint_path):
-    adapter = LocalActPolicy(checkpoint_path)
+def serve(checkpoint_path, device=None):
+    adapter = LocalActPolicy(checkpoint_path, device=device)
     adapter.reset()
     print(json.dumps({"status": "ready", "protocol": "act-chunk-v1",
                       "chunk_size": adapter.policy.config.chunk_size}, ensure_ascii=False), flush=True)
@@ -170,8 +172,9 @@ def serve(checkpoint_path):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--checkpoint", required=True)
+    parser.add_argument('--device', choices=('cpu', 'cuda', 'xpu'))
     args = parser.parse_args()
-    serve(args.checkpoint)
+    serve(args.checkpoint, args.device)
 
 
 if __name__ == "__main__":

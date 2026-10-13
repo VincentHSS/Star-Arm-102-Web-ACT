@@ -9,7 +9,7 @@ from pathlib import Path
 from threading import Lock, RLock
 
 from .domain import DomainError
-from .native_act_driver import NativeActDriver, AttachedUart
+from .native_act_driver import NativeActDriver, AttachedUart, serial_module
 from .fashionstar_protocol import (
     SERVO_IDS,
     pack_sync_angle_command,
@@ -38,8 +38,6 @@ class SerialConnectionManager:
             }
 
     def connect(self, role, port, candidates, leader_type=None):
-        if termios is None:
-            raise DomainError("Windows 本机暂不支持此机械臂串口执行，请在 Ubuntu 启动完整实机服务", "serial_platform_unsupported")
         if role not in SERIAL_ROLES:
             raise DomainError("串口角色无效", "invalid_serial_role")
         if not port or port not in candidates:
@@ -56,22 +54,7 @@ class SerialConnectionManager:
                 self._close(current)
                 self._connections.pop(role, None)
             try:
-                fd = os.open(port, os.O_RDWR | os.O_NOCTTY | os.O_NONBLOCK)
-                attrs = termios.tcgetattr(fd)
-                speed = getattr(termios, "B1000000", None)
-                if speed is None:
-                    os.close(fd)
-                    raise OSError("当前系统不支持 1 Mbps 串口常量")
-                attrs[0] = 0
-                attrs[1] = 0
-                attrs[2] = termios.CS8 | termios.CLOCAL | termios.CREAD
-                attrs[3] = 0
-                attrs[4] = speed
-                attrs[5] = speed
-                attrs[6][termios.VMIN] = 0
-                attrs[6][termios.VTIME] = 1
-                termios.tcsetattr(fd, termios.TCSANOW, attrs)
-                termios.tcflush(fd, termios.TCIOFLUSH)
+                fd = self._open_transport(port)
             except OSError as error:
                 raise DomainError(f"无法打开串口：{error}", "serial_open_failed") from error
             connection = {
@@ -114,7 +97,10 @@ class SerialConnectionManager:
                 except OSError as error:
                     raise DomainError(str(error), "joint_read_timeout") from error
             try:
-                termios.tcflush(connection["fd"], termios.TCIFLUSH)
+                if hasattr(connection['fd'], 'read'):
+                    connection['fd'].reset_input_buffer()
+                else:
+                    termios.tcflush(connection["fd"], termios.TCIFLUSH)
                 self._write_all(connection["fd"], pack_sync_monitor_query(monitor_ids), timeout)
                 monitors = {}
                 buffer = b""
@@ -123,12 +109,21 @@ class SerialConnectionManager:
                     remaining = deadline - time.monotonic()
                     if remaining <= 0:
                         break
-                    readable, _, _ = select.select([connection["fd"]], [], [], remaining)
-                    if not readable:
-                        break
-                    chunk = os.read(connection["fd"], 4096)
-                    if not chunk:
-                        raise OSError("串口数据流已结束")
+                    transport = connection['fd']
+                    if hasattr(transport, 'read'):
+                        if not transport.is_open:
+                            raise OSError('串口已关闭')
+                        chunk = transport.read(max(1, min(4096, transport.in_waiting)))
+                        if not chunk:
+                            time.sleep(min(0.001, remaining))
+                            continue
+                    else:
+                        readable, _, _ = select.select([transport], [], [], remaining)
+                        if not readable:
+                            break
+                        chunk = os.read(transport, 4096)
+                        if not chunk:
+                            raise OSError("串口数据流已结束")
                     parsed, buffer = parse_monitor_frames(buffer + chunk)
                     for monitor in parsed:
                         if monitor["id"] in monitor_ids:
@@ -306,6 +301,28 @@ class SerialConnectionManager:
                 raise DomainError(f"{self._role_name(role)}连接已变化", "serial_connection_changed")
 
     @staticmethod
+    def _open_transport(port):
+        if termios is None:
+            return serial_module().Serial(port=port, baudrate=PRODUCT_BAUDRATE,
+                timeout=0, write_timeout=0.35, rtscts=False, dsrdtr=False)
+        fd = os.open(port, os.O_RDWR | os.O_NOCTTY | os.O_NONBLOCK)
+        try:
+            attrs = termios.tcgetattr(fd)
+            speed = getattr(termios, 'B1000000', None)
+            if speed is None:
+                raise OSError('当前系统不支持 1 Mbps 串口常量')
+            attrs[0] = attrs[1] = attrs[3] = 0
+            attrs[2] = termios.CS8 | termios.CLOCAL | termios.CREAD
+            attrs[4] = attrs[5] = speed
+            attrs[6][termios.VMIN], attrs[6][termios.VTIME] = 0, 1
+            termios.tcsetattr(fd, termios.TCSANOW, attrs)
+            termios.tcflush(fd, termios.TCIOFLUSH)
+            return fd
+        except Exception:
+            os.close(fd)
+            raise
+
+    @staticmethod
     def _write_all(fd, frame, timeout):
         view = memoryview(frame)
         deadline = time.monotonic() + timeout
@@ -313,10 +330,14 @@ class SerialConnectionManager:
             remaining = deadline - time.monotonic()
             if remaining <= 0:
                 raise OSError("串口写入超时")
-            _, writable, _ = select.select([], [fd], [], remaining)
-            if not writable:
-                raise OSError("串口写入超时")
-            written = os.write(fd, view)
+            if hasattr(fd, 'write'):
+                fd.write_timeout = remaining
+                written = fd.write(view)
+            else:
+                _, writable, _ = select.select([], [fd], [], remaining)
+                if not writable:
+                    raise OSError("串口写入超时")
+                written = os.write(fd, view)
             if written <= 0:
                 raise OSError("串口写入失败")
             view = view[written:]
@@ -334,7 +355,10 @@ class SerialConnectionManager:
     @staticmethod
     def _close(connection):
         try:
-            os.close(connection["fd"])
+            if hasattr(connection['fd'], 'close'):
+                connection['fd'].close()
+            else:
+                os.close(connection["fd"])
         except OSError:
             pass
 

@@ -1,3 +1,4 @@
+import os
 import re
 import shutil
 import subprocess
@@ -143,10 +144,11 @@ def probe_v4l2_modes(path, executable="v4l2-ctl"):
 
 class V4L2CameraManager:
     def __init__(self, device_probe=None, mode_probe=None, popen=None, startup_timeout=5.0,
-                 frame_stale_timeout=0.5):
+                 frame_stale_timeout=0.5, command_builder=None):
         self._device_probe = device_probe or probe_v4l2_devices
         self._mode_probe = mode_probe or probe_v4l2_modes
         self._popen = popen or subprocess.Popen
+        self._command_builder = command_builder or (lambda path, mode: build_stream_command(path, mode, shutil.which('v4l2-ctl') or 'v4l2-ctl'))
         self._startup_timeout = float(startup_timeout)
         self._frame_stale_timeout = max(0.001, float(frame_stale_timeout))
         self._lock = threading.RLock()
@@ -171,7 +173,7 @@ class V4L2CameraManager:
         devices = {item["stable_id"]: item for item in self._device_probe()}
         selected = {"wrist": devices.get(wrist_id), "world": devices.get(world_id)}
         if not all(selected.values()):
-            raise NativeCameraError("所选 Ubuntu 原生摄像头已离线，请重新检测")
+            raise NativeCameraError("所选本机原生摄像头已离线，请重新检测")
 
         with self._condition:
             self._status = "connecting"
@@ -179,12 +181,11 @@ class V4L2CameraManager:
         try:
             for role in ("wrist", "world"):
                 device = selected[role]
-                mode = choose_mjpeg_mode(self._mode_probe(device["path"]),
-                                         profile["width"], profile["height"], profile["fps"])
-                executable = shutil.which("v4l2-ctl") or "v4l2-ctl"
+                mode = self._choose_mode(self._mode_probe(device["path"]), profile)
                 process = self._popen(
-                    build_stream_command(device["path"], mode, executable),
+                    self._command_builder(device['path'], mode),
                     stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=0,
+                    **({'creationflags': subprocess.CREATE_NO_WINDOW} if os.name == 'nt' else {}),
                 )
                 session = {
                     "role": role, "device": device, "mode": mode, "process": process,
@@ -206,13 +207,16 @@ class V4L2CameraManager:
                         raise NativeCameraError(error)
                     remaining = deadline - time.monotonic()
                     if remaining <= 0:
-                        raise NativeCameraError("Ubuntu 原生双摄像头启动超时，未收到两路有效 MJPEG 画面")
+                        raise NativeCameraError("本机原生双摄像头启动超时，未收到两路有效 MJPEG 画面")
                     self._condition.wait(min(0.05, remaining))
                 self._status = "streaming"
                 return self.snapshot()
         except Exception:
             self.close()
             raise
+
+    def _choose_mode(self, modes, profile):
+        return choose_mjpeg_mode(modes, profile['width'], profile['height'], profile['fps'])
 
     def _read_stream(self, session):
         process = session["process"]
@@ -325,9 +329,9 @@ class V4L2CameraManager:
             raise NativeCameraError("原生相机录制参数无效")
         with self._condition:
             if self._status != "streaming" or not all(role in self._sessions for role in ("wrist", "world")):
-                raise NativeCameraError("Ubuntu 原生双摄像头尚未连接")
+                raise NativeCameraError("本机原生双摄像头尚未连接")
             if self._recording:
-                raise NativeCameraError("Ubuntu 原生相机已在录制")
+                raise NativeCameraError("本机原生相机已在录制")
             recording = {
                 "episode_id": str(episode_id), "fps": max(1, int(fps)), "sink": sink,
                 "stop": threading.Event(), "last_sequences": {"wrist": 0, "world": 0},

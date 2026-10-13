@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta http-equiv="Cache-Control" content="no-store">
   <title>Star Arm 102 · ACT 工作台 v0.1.0</title>
-  <link rel="stylesheet" href="src/act-workbench.css?v=2026-10-12-responsive-2">
-  <link rel="stylesheet" href="src/act-inference.css?v=2026-10-12-responsive-2">
-  <link rel="stylesheet" href="src/act-ui-refresh.css?v=2026-10-12-responsive-2">
-  <link rel="stylesheet" href="src/workspace-switch.css?v=2026-10-12-responsive-2">
+  <link rel="stylesheet" href="src/act-workbench.css?v=2026-10-13-windows-act-1">
+  <link rel="stylesheet" href="src/act-inference.css?v=2026-10-13-windows-act-1">
+  <link rel="stylesheet" href="src/act-ui-refresh.css?v=2026-10-13-windows-act-1">
+  <link rel="stylesheet" href="src/workspace-switch.css?v=2026-10-13-windows-act-1">
 <style>html,body{background:#0f1416}</style>
 <link rel="icon" href="assets/logo-icon.png">
 <link rel="stylesheet" href="src/interaction.css?v=responsive-1">
@@ -61,7 +61,7 @@
 
             <article class="device-card cameras-card">
               <div class="device-title"><span class="device-icon"><svg class="ui-inline-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 7 2-3h4l2 3M3 7h18v13H3V7Zm13 6a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z"/></svg></span><div><strong>双相机</strong><small id="camera-transport">末端视角 + 世界视角 · 30 FPS</small></div><span id="camera-badge" class="status-badge off">LOCKED</span></div>
-              <label>采集后端<select id="camera-backend"><option value="auto" selected>自动（优先本机相机，采集与推理通用）</option><option value="browser">浏览器</option><option value="native">Ubuntu 原生（ACT 推理推荐）</option></select></label>
+              <label>采集后端<select id="camera-backend"><option value="auto" selected>自动（优先本机相机，采集与推理通用）</option><option value="browser">浏览器</option><option value="native">本机原生（Ubuntu / Windows 推理）</option></select></label>
               <label><span id="wrist-role-label">末端视角相机</span><select id="wrist-camera-select" disabled><option value="">请先检测摄像头</option></select></label>
               <label><span id="world-role-label">世界视角相机</span><select id="world-camera-select" disabled><option value="">请先检测摄像头</option></select></label>
               <div class="device-actions camera-actions"><button id="detect-cameras" class="primary" type="button">检测摄像头</button><button id="connect-cameras" class="primary" type="button" disabled>连接两台摄像头</button><button id="disconnect-cameras" class="ghost" type="button" disabled>关闭预览</button></div>
@@ -225,6 +225,8 @@
           <section class="training-setup-bar">
             <div class="training-status"><div class="status-mark">ACT</div><div><h2 id="training-title">正在检查训练环境</h2><p id="training-reason">训练环境由页面自动管理。</p></div></div>
             <div id="training-environment-progress" class="training-progress hidden"><div><span id="training-stage">等待开始</span><b id="training-percent">0%</b></div><div class="environment-progress-rail"><progress id="training-progress" max="100" value="0"></progress><span class="environment-progress-glow" aria-hidden="true"></span></div></div>
+            <label id="windows-runtime-backend" class="hidden">模型运行方式<select id="runtime-backend"><option value="">自动选择</option><option value="cuda">NVIDIA GPU</option><option value="cpu">CPU（速度以实际测试为准）</option></select></label>
+            <p id="windows-runtime-note" class="notice hidden">当前电脑使用 Windows：这里准备模型执行环境。训练请在 Ubuntu 完成，再到第 3 步导入完整模型，第 4 步连接从臂和双相机。</p>
             <div class="training-actions"><button id="training-prepare" class="primary">自动配置环境</button><button id="training-retry" class="secondary hidden">重试准备</button></div>
             <section id="runtime-onboarding" class="runtime-onboarding motion-region" aria-label="ACT 首次环境配置" hidden>
               <div class="runtime-onboarding-head"><div><small>FIRST SETUP / 一次配置</small><h3>本机连接与环境准备</h3></div><span>Ubuntu 22.04 / 24.04</span></div>
@@ -301,7 +303,7 @@
               <p id="inference-serial-status" class="form-status" role="status">切换页面后串口已释放，请在这里连接从臂。</p>
               <button id="inference-camera-settings" class="secondary wide" type="button">相机设置 / 连接推理相机</button><p id="inference-camera-help" class="form-status" role="status">正在检查相机视频流…</p><div id="inference-gates" class="inference-gates">
                 <div><span>Checkpoint / Processor</span><b>等待验证</b></div>
-                <div><span>Ubuntu 原生双相机</span><b>等待连接</b></div>
+                <div><span>本机原生双相机</span><b>等待连接</b></div>
                 <div><span>真实 FL / J1–J7 限位</span><b>等待连接</b></div>
               </div>
             </section>
@@ -369,7 +371,7 @@
   <label><input id="calibration-same-arm-confirm" type="checkbox">当前连接的是生成此校准的同一台物理从臂</label>
   <div class="device-actions"><button id="calibration-apply" class="primary" disabled>用于当前导入模型</button><button id="calibration-download" class="secondary" disabled>下载校准 JSON</button><button id="calibration-close" class="ghost">关闭</button></div>
 </dialog>
-<script type="module" src="src/act-workbench.js?v=2026-10-12-responsive-2"></script>
-<script type="module" src="src/workspace-switch.js?v=2026-10-12-responsive-2"></script>
+<script type="module" src="src/act-workbench.js?v=2026-10-13-windows-act-1"></script>
+<script type="module" src="src/workspace-switch.js?v=2026-10-13-windows-act-1"></script>
 </body>
 </html>

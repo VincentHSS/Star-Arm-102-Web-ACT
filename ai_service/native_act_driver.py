@@ -25,6 +25,14 @@ def sdk_types():
     return PortHandler, SyncPositionControlOptions, UartServoManager
 
 
+def serial_module():
+    wheel = str(Path(__file__).with_name('vendor') / 'pyserial-3.5-py2.py3-none-any.whl')
+    if wheel not in sys.path:
+        sys.path.insert(0, wheel)
+    import serial
+    return serial
+
+
 class AttachedUart:
     def __init__(self, fd, write_all):
         self.fd, self.write_all = fd, write_all
@@ -35,6 +43,8 @@ class AttachedUart:
         return len(frame)
 
     def read(self, size):
+        if hasattr(self.fd, 'read'):
+            return self.fd.read(size)
         try:
             return os.read(self.fd, size)
         except BlockingIOError:
@@ -42,6 +52,8 @@ class AttachedUart:
 
     @property
     def in_waiting(self):
+        if hasattr(self.fd, 'read'):
+            return int(self.fd.in_waiting)
         import array
         import fcntl
         import termios

@@ -11,7 +11,7 @@ from urllib.request import urlopen
 
 ROOT = Path(__file__).resolve().parent
 PORT = 18765
-VERSION = '1.0.4'
+VERSION = '1.0.5'
 
 
 def normalize_origin(value):
@@ -96,6 +96,8 @@ def serve(directory, port=PORT, static_root=None):
     os.chdir(directory)
     app.CONFIG_FILE = directory / 'config.json'
     bridge_config = directory / 'websites.json'
+    from ai_service.website_authorization import WebsiteConsent, consent_page, page
+    consent = WebsiteConsent(normalize_origin)
     if not app._config_data_dir() and not os.environ.get('ACT_DATA_DIR'):
         app.write_config_data_dir(directory / 'data')
 
@@ -146,14 +148,51 @@ def serve(directory, port=PORT, static_root=None):
         def do_GET(self):
             if not self._allowed(health=self._health_path()):
                 return
+            if sys.platform == 'win32' and urlsplit(self.path).path == '/connect-website':
+                if self.headers.get('Origin') not in (None, *self._local_origins()):
+                    return self._json(403, {'error': {'message': '请在本机确认连接'}})
+                try:
+                    values = parse_qs(urlsplit(self.path).query)
+                    if set(values) != {'origin'} or len(values['origin']) != 1:
+                        raise ValueError('网站地址无效')
+                    origin, token = consent.issue(values['origin'][0])
+                    return self._consent_html(consent_page(origin, token))
+                except ValueError as error:
+                    return self._json(400, {'error': {'message': str(error)}})
             if self._health_path():
                 return self._json(200, {'status': 'ok', 'version': VERSION, 'browser_bridge': True,
                                        'authorized': self._origin_allowed(), 'platform': sys.platform})
             super().do_GET()
 
         def do_POST(self):
+            if sys.platform == 'win32' and urlsplit(self.path).path == '/api/v1/websites/authorize':
+                if not self._allowed():
+                    return
+                if self.headers.get('Origin') not in self._local_origins():
+                    return self._json(403, {'error': {'message': '请通过本机确认页面连接网站'}})
+                try:
+                    values = parse_qs(self._raw_body(4096).decode('utf-8'), strict_parsing=True)
+                    if set(values) != {'origin', 'token'} or any(len(v) != 1 for v in values.values()):
+                        raise ValueError('连接确认无效')
+                    origin = consent.consume(values['token'][0], values['origin'][0])
+                    config = read_config(bridge_config)
+                    config['origins'] = sorted(authorized_origins(bridge_config) | {origin})
+                    save_config(bridge_config, config)
+                    return self._consent_html(page('网页已连接', '<p>请关闭此页面，返回原网站。网页会自动检测连接并继续准备 ACT 环境。</p>'))
+                except (ValueError, app.DomainError) as error:
+                    return self._json(400, {'error': {'message': str(error)}})
             if self._allowed():
                 super().do_POST()
+
+        def _consent_html(self, body):
+            self.send_response(200)
+            self.send_header('Content-Type', 'text/html; charset=utf-8')
+            self.send_header('Content-Length', str(len(body)))
+            self.send_header('Cache-Control', 'no-store')
+            self.send_header('X-Frame-Options', 'DENY')
+            self.send_header('Content-Security-Policy', "default-src 'none'; style-src 'unsafe-inline'; form-action 'self'; frame-ancestors 'none'; base-uri 'none'")
+            self.end_headers()
+            self.wfile.write(body)
 
     data = Path(app.resolve_data_dir()).resolve()
     explicit = bool(app._config_data_dir() or os.environ.get('ACT_DATA_DIR'))

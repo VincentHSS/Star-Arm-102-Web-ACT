@@ -17,12 +17,14 @@ _clock = time.perf_counter  # High-resolution monotonic clock, including on Wind
 
 
 class PolicyWorkerClient:
-    def __init__(self, python, checkpoint_path, worker_path=None, startup_timeout=60):
+    def __init__(self, python, checkpoint_path, worker_path=None, startup_timeout=60, device=None):
         script = Path(worker_path or Path(__file__).with_name("act_policy_worker.py")).resolve()
         self._process = subprocess.Popen(
-            [str(python), str(script), "--checkpoint", str(checkpoint_path)],
+            [str(python), str(script), "--checkpoint", str(checkpoint_path), *(['--device', device] if device else [])],
             stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-            text=True, bufsize=1,
+            text=True, encoding='utf-8', errors='replace', bufsize=1,
+            env={**os.environ, 'PYTHONUTF8': '1'},
+            **({'creationflags': subprocess.CREATE_NO_WINDOW} if os.name == 'nt' else {}),
         )
         self._lock = threading.Lock()
         self._responses = queue.Queue()
@@ -135,7 +137,8 @@ class ActInferenceRuntime:
         self.telemetry = telemetry
         self.root = Path(data_root).resolve() / "inference"
         self.root.mkdir(parents=True, exist_ok=True)
-        self.worker_factory = worker_factory or (lambda python, checkpoint: PolicyWorkerClient(python, checkpoint))
+        self.worker_factory = worker_factory or (lambda python, checkpoint: PolicyWorkerClient(python, checkpoint,
+            device={'cpu': 'cpu', 'cuda': 'cuda', 'rocm': 'cuda', 'xpu': 'xpu'}.get(self._state.get('backend'))))
         self._interval_override = None if interval_ms is None else max(30, int(interval_ms))
         self.interval_ms = self._interval_override or 1000 / 30
         self.max_delta_degrees = max(0.1, float(max_delta_degrees))
@@ -206,7 +209,7 @@ class ActInferenceRuntime:
             if camera.get("status") == "fault" and camera.get("error"):
                 blockers.append(f"原生双相机故障：{camera['error']}，请重新连接双相机")
             else:
-                blockers.append("Ubuntu 原生双相机尚未连接")
+                blockers.append("本机原生双相机尚未连接")
         contract = (model or {}).get("camera_contract") or {}
         required_width = int(contract.get("width", 0))
         required_height = int(contract.get("height", 0))

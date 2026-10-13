@@ -24,7 +24,7 @@ def main():
     print(f'打开网页：{url}',flush=True)
     print(f'本机状态与数据目录：{directory}',flush=True)
     if os.name=='nt':
-        print('Windows：控制台、网页预览、数据集与模型管理可用；完整 ACT 训练和实机执行请使用 Ubuntu。',flush=True)
+        print('Windows：第 2 步准备模型执行环境，第 3 步导入 Ubuntu 训练好的模型，第 4 步连接 COM 从臂与双相机。训练使用 Ubuntu。',flush=True)
     else:
         print('Ubuntu：进入第 2 步自动准备隔离 ACT 环境；设备、模型和校准在网页中设置。',flush=True)
     if not args.no_browser:

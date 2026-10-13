@@ -12,3 +12,5 @@
 | STL、URDF 与品牌图像 | 保留原工程的模型和显示资产，需按各自原始授权使用；部分非执行模型资源用于兼容原有显示配置，不代表恢复了达妙驱动。 |
 
 wheel 校验值见 `ai_service/vendor/README.txt`。安装组件中同样保留相关许可和来源信息。
+
+Windows 相机通道使用 DirectShow，由客户运行环境中的 imageio-ffmpeg 提供 FFmpeg 可执行程序；该程序通过上游 Python 包安装，不随静态网站复制分发。imageio-ffmpeg 包与其 FFmpeg 二进制各自的上游许可适用，见安装环境的包许可及 [上游项目](https://github.com/imageio/imageio-ffmpeg)。

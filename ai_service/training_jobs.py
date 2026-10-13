@@ -134,6 +134,8 @@ class TrainingJobManager:
         return self._save(job)
 
     def create(self, environment, dataset, parameters):
+        if environment.get('training_supported') is False:
+            raise DomainError('Windows 用于模型执行，请在 Ubuntu 训练', 'training_platform_unsupported')
         with self._lock:
             if environment.get("status") != "ready" or not environment.get("executable"):
                 raise DomainError("训练环境尚未就绪", "training_environment_not_ready")
@@ -304,6 +306,8 @@ class TrainingJobManager:
             return self._save(job)
 
     def resume(self, job_id, environment, dataset):
+        if environment.get('training_supported') is False:
+            raise DomainError('请在 Ubuntu 恢复训练', 'training_platform_unsupported')
         with self._lock:
             job = self._load(job_id)
             if job["status"] not in {"stopped", "failed", "interrupted"}:

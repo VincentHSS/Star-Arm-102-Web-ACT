@@ -102,6 +102,7 @@ class NativeCameraApiTests(unittest.TestCase):
         self.assertGreaterEqual(self.cameras.closed, 1)
 
     def test_server_close_releases_native_camera_processes(self):
+        self.server.shutdown()
         before = self.cameras.closed
         self.server.server_close()
         self.assertGreater(self.cameras.closed, before)

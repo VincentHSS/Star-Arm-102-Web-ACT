@@ -7,6 +7,15 @@ import sys
 from pathlib import Path
 
 
+def serial_candidates():
+    if sys.platform == 'win32':
+        from .native_act_driver import serial_module
+        serial_module()
+        from serial.tools.list_ports import comports
+        return sorted(port.device for port in comports())
+    return sorted(glob.glob('/dev/ttyUSB*') + glob.glob('/dev/ttyACM*'))
+
+
 def _nvidia_gpu():
     command = shutil.which("nvidia-smi")
     if not command:
@@ -47,12 +56,13 @@ def detect_capabilities(training_environment=None):
                             "lerobot_version": environment.get("lerobot_version")},
             "training_environment": environment,
             "training_profile": environment.get("training_profile", {}),
-            "training_ready": training_ready,
+            "platform": sys.platform,
+            "training_ready": training_ready and environment.get('training_supported', True),
             "training_blocker": blockers[0] if blockers else None,
             "training_blockers": blockers,
             "cameras": camera_paths,
             "camera_devices": camera_devices,
-            "serial_ports": sorted(glob.glob("/dev/ttyUSB*") + glob.glob("/dev/ttyACM*")),
+            "serial_ports": serial_candidates(),
         }
     torch_installed = importlib.util.find_spec("torch") is not None
     cuda_ready = False
@@ -92,5 +102,5 @@ def detect_capabilities(training_environment=None):
         "training_blockers": blockers,
         "cameras": camera_paths,
         "camera_devices": camera_devices,
-        "serial_ports": sorted(glob.glob("/dev/ttyUSB*") + glob.glob("/dev/ttyACM*")),
+        "serial_ports": serial_candidates(),
     }

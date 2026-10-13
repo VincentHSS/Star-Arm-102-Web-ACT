@@ -25,7 +25,7 @@ class TrainingEnvironmentTests(unittest.TestCase):
         self.tmp.cleanup()
 
     def test_initial_state_and_missing_accelerator_failure(self):
-        manager = TrainingEnvironmentManager(self.root, runner=lambda *_a, **_k: Result(),
+        manager = TrainingEnvironmentManager(self.root, platform_name="linux", runner=lambda *_a, **_k: Result(),
                                              backend_detector=lambda: [])
         self.assertEqual(manager.snapshot()["status"], "not_prepared")
         result = manager.prepare()
@@ -40,7 +40,7 @@ class TrainingEnvironmentTests(unittest.TestCase):
                 release.wait(0.5)
             return Result()
 
-        manager = TrainingEnvironmentManager(self.root, runner=runner, backend_detector=lambda: ["cuda"])
+        manager = TrainingEnvironmentManager(self.root, platform_name="linux", runner=runner, backend_detector=lambda: ["cuda"])
         first = manager.prepare()
         second = manager.prepare()
         release.set()
@@ -61,7 +61,7 @@ class TrainingEnvironmentTests(unittest.TestCase):
                 )
             return Result(stdout='{"backend":"cuda"}')
 
-        manager = TrainingEnvironmentManager(self.root, runner=runner, backend_detector=lambda: ["cuda"])
+        manager = TrainingEnvironmentManager(self.root, platform_name="linux", runner=runner, backend_detector=lambda: ["cuda"])
         started = manager.prepare()
         manager.wait()
         ready = manager.job(started["job_id"])
@@ -88,7 +88,7 @@ class TrainingEnvironmentTests(unittest.TestCase):
                 )
             return Result(stdout='{"backend":"cuda"}')
 
-        manager = TrainingEnvironmentManager(self.root, runner=runner, backend_detector=lambda: ["cuda"])
+        manager = TrainingEnvironmentManager(self.root, platform_name="linux", runner=runner, backend_detector=lambda: ["cuda"])
         started = manager.prepare()
         manager.wait()
 
@@ -114,9 +114,7 @@ class TrainingEnvironmentTests(unittest.TestCase):
                 )
             return Result(stdout='{"backend":"cuda"}')
 
-        manager = TrainingEnvironmentManager(
-            self.root,
-            runner=runner,
+        manager = TrainingEnvironmentManager(self.root, platform_name="linux", runner=runner,
             backend_detector=lambda: ["cuda"],
             python_detector=lambda _constraint: supported_python,
         )
@@ -129,9 +127,7 @@ class TrainingEnvironmentTests(unittest.TestCase):
 
     def test_prepare_fails_before_install_when_supported_python_is_missing(self):
         commands = []
-        manager = TrainingEnvironmentManager(
-            self.root,
-            runner=lambda command, **_kwargs: commands.append(command) or Result(),
+        manager = TrainingEnvironmentManager(self.root, platform_name="linux", runner=lambda command, **_kwargs: commands.append(command) or Result(),
             backend_detector=lambda: ["cuda"],
             python_detector=lambda _constraint: None,
         )
@@ -145,7 +141,7 @@ class TrainingEnvironmentTests(unittest.TestCase):
         self.assertEqual(commands, [])
 
     def test_snapshot_repairs_relocated_training_entrypoint(self):
-        manager = TrainingEnvironmentManager(self.root, runner=lambda *_a, **_k: Result(),
+        manager = TrainingEnvironmentManager(self.root, platform_name="linux", runner=lambda *_a, **_k: Result(),
                                              backend_detector=lambda: ["cuda"])
         (manager.runtime / "bin").mkdir(parents=True)
         python = manager.runtime / "bin" / "python"
@@ -162,7 +158,7 @@ class TrainingEnvironmentTests(unittest.TestCase):
         self.assertEqual(executable.read_text().splitlines()[0], f"#!{python}")
 
     def test_snapshot_rejects_published_python_outside_manifest_range(self):
-        manager = TrainingEnvironmentManager(self.root, runner=lambda *_a, **_k: Result(),
+        manager = TrainingEnvironmentManager(self.root, platform_name="linux", runner=lambda *_a, **_k: Result(),
                                              backend_detector=lambda: ["cuda"])
         (manager.runtime / "bin").mkdir(parents=True)
         python = manager.runtime / "bin" / "python"
@@ -180,7 +176,7 @@ class TrainingEnvironmentTests(unittest.TestCase):
         self.assertIn("Python 3.10–3.12", rejected["error"])
 
     def test_snapshot_restores_execute_permission_lost_during_copy_or_extraction(self):
-        manager = TrainingEnvironmentManager(self.root, runner=lambda *_a, **_k: Result(),
+        manager = TrainingEnvironmentManager(self.root, platform_name="linux", runner=lambda *_a, **_k: Result(),
                                              backend_detector=lambda: ["cuda"])
         (manager.runtime / "bin").mkdir(parents=True)
         python = manager.runtime / "bin" / "python"
@@ -202,7 +198,7 @@ class TrainingEnvironmentTests(unittest.TestCase):
         previous = Path.cwd()
         try:
             os.chdir(self.root)
-            manager = TrainingEnvironmentManager("data", runner=lambda *_a, **_k: Result(),
+            manager = TrainingEnvironmentManager("data", platform_name="linux", runner=lambda *_a, **_k: Result(),
                                                  backend_detector=lambda: ["cuda"])
             (manager.runtime / "bin").mkdir(parents=True)
             python = manager.runtime / "bin" / "python"
@@ -224,7 +220,7 @@ class TrainingEnvironmentTests(unittest.TestCase):
             os.chdir(previous)
 
     def test_failed_reprepare_preserves_published_runtime(self):
-        manager = TrainingEnvironmentManager(self.root, runner=lambda *_a, **_k: Result(),
+        manager = TrainingEnvironmentManager(self.root, platform_name="linux", runner=lambda *_a, **_k: Result(),
                                              backend_detector=lambda: ["cuda"])
         runtime = manager.runtime
         (runtime / "bin").mkdir(parents=True)
@@ -248,7 +244,7 @@ class TrainingEnvironmentTests(unittest.TestCase):
                               stderr="ensurepip is not available\nFailing command: /tmp/x/bin/python3.10")
             return Result()
 
-        manager = TrainingEnvironmentManager(self.root, runner=runner, backend_detector=lambda: ["cuda"])
+        manager = TrainingEnvironmentManager(self.root, platform_name="linux", runner=runner, backend_detector=lambda: ["cuda"])
         started = manager.prepare()
         manager.wait()
         failed = manager.job(started["job_id"])

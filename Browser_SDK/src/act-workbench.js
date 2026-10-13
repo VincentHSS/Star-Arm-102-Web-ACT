@@ -1,6 +1,6 @@
 import { requestJson, fetchWithDeadline } from './api-client.js?v=responsive-1';
 import { createSingleFlight, createPageNavigator, withButtonFeedback, setInteractionStatus } from './page-lifecycle.js?v=responsive-1';
-import { getLocalApi, localFetch, ensureRuntime, renderRuntimeEnvironment, publicationConfigured } from './local-service.js?v=responsive-1';
+import { getLocalApi, localFetch, ensureRuntime, renderRuntimeEnvironment, publicationConfigured } from './local-service.js?v=windows-act-1';
 import { installWorkbenchMotion, switchWorkbenchView } from './act-motion.js?v=2026-10-12-motion-icons-13';
 import { effectiveCameraBackend, cameraConnectionSignature, nativeCameraReady, cameraRolePresentation } from './act-camera-state.js?v=2026-10-09-camera-ui-7';
 import { WaveformBuffer, WaveformChart } from './act-waveform.js?v=0.1.0-camera-reconnect-1';
@@ -97,7 +97,7 @@ function renderInferenceSerialState() {
     : '切换页面后串口已释放，请在这里连接从臂。';
 }
 
-function renderCapabilities(caps) { state.capabilities = caps; const ports = caps.serial_ports || []; const cameraCount = state.browserCameras.length; const backend = caps.torch.backend ? caps.torch.backend.toUpperCase() : '未准备'; $('#capability-list').innerHTML = [capabilityRow('GPU', caps.gpu.available ? caps.gpu.name : '等待后端检测', caps.gpu.available), capabilityRow('训练运行时', caps.torch.installed ? '已安装' : '未准备', caps.torch.installed), capabilityRow('加速后端', backend, Boolean(caps.torch.backend)), capabilityRow('ACT 执行链', caps.act_runtime.execution_available ? `LeRobot ${caps.act_runtime.lerobot_version || ''}`.trim() : '未准备', caps.act_runtime.execution_available), capabilityRow('ACT 训练', caps.training_ready ? '可用' : '不可用', caps.training_ready), capabilityRow('浏览器摄像头', cameraCount ? `${cameraCount} 台` : '等待授权', cameraCount >= 2), capabilityRow('机械臂串口', `${ports.length} 个设备`, ports.length >= 2)].join(''); populateSelect('#leader-port', ports, item => item, item => item); populateSelect('#follower-port', ports, item => item, item => item); populateSelect('#inference-follower-port', ports, item => item, item => item); if (!$('#inference-follower-port').value) $('#inference-follower-port').value = $('#follower-port').value; renderInferenceSerialState(); $('#bind-devices').disabled = !(state.serial.leader?.connected && state.serial.follower?.connected && $('#camera-badge').classList.contains('on')); updateNextAction(); }
+function renderCapabilities(caps) { state.capabilities = caps; const ports = caps.serial_ports || []; const cameraCount = state.browserCameras.length; const backend = caps.torch.backend ? caps.torch.backend.toUpperCase() : '未准备'; $('#capability-list').innerHTML = [capabilityRow('GPU', caps.gpu.available ? caps.gpu.name : '等待后端检测', caps.gpu.available), capabilityRow('ACT 运行时', caps.torch.installed ? '已安装' : '未准备', caps.torch.installed), capabilityRow('计算后端', backend, Boolean(caps.torch.backend)), capabilityRow('ACT 执行链', caps.act_runtime.execution_available ? `LeRobot ${caps.act_runtime.lerobot_version || ''}`.trim() : '未准备', caps.act_runtime.execution_available), capabilityRow('ACT 训练', caps.training_ready ? '可用' : '不可用', caps.training_ready), capabilityRow('浏览器摄像头', cameraCount ? `${cameraCount} 台` : '等待授权', cameraCount >= 2), capabilityRow('机械臂串口', `${ports.length} 个设备`, ports.length >= 2)].join(''); populateSelect('#leader-port', ports, item => item, item => item); populateSelect('#follower-port', ports, item => item, item => item); populateSelect('#inference-follower-port', ports, item => item, item => item); if (!$('#inference-follower-port').value) $('#inference-follower-port').value = $('#follower-port').value; renderInferenceSerialState(); $('#bind-devices').disabled = !(state.serial.leader?.connected && state.serial.follower?.connected && $('#camera-badge').classList.contains('on')); updateNextAction(); }
 
 function renderTrainingEnvironment(environment) {
   const wasReady = state.trainingEnvironment?.status === 'ready';
@@ -106,14 +106,22 @@ function renderTrainingEnvironment(environment) {
   const preparing = environment.status === 'preparing';
   const ready = environment.status === 'ready';
   const failed = environment.status === 'failed';
+  const executionOnly = environment.training_supported === false;
+  $('.training-setup-bar').classList.toggle('windows-runtime', executionOnly);
+  $('.training-page-head h2').textContent = executionOnly ? '模型运行环境' : '训练运行中心';
+  $('.training-page-head .kicker').textContent = executionOnly ? 'WINDOWS ACT RUNTIME' : 'LOCAL ACT TRAINING';
+  $('.training-page-head > div > p:last-child').textContent = executionOnly ? '准备本机环境，导入并执行 Ubuntu 训练好的模型' : '真实指标、日志与 Checkpoint 持续同步';
+  $('#windows-runtime-backend').classList.toggle('hidden', !executionOnly);
+  $('#windows-runtime-note').classList.toggle('hidden', !executionOnly);
+  $('#runtime-backend').disabled = preparing || inferenceIsActive();
   const runButton = $('#inference-prepare-runtime');
   runButton.classList.toggle('hidden', ready);
   runButton.disabled = preparing;
   runButton.textContent = preparing ? `正在准备运行环境 · ${environment.progress || 0}%` : failed ? '重新准备 ACT 运行环境' : '准备 ACT 运行环境';
   if (ready && !wasReady && state.selectedInferenceModelId) void validateInference();
-  $('#training-tag').textContent = ready ? 'ACT 训练可用' : preparing ? '正在准备' : failed ? '准备失败' : '尚未准备';
+  $('#training-tag').textContent = ready ? (executionOnly ? '模型执行可用' : 'ACT 训练可用') : preparing ? '正在准备' : failed ? '准备失败' : '尚未准备';
   $('#training-tag').className = `tag ${ready ? 'cyan' : preparing ? 'pending' : 'blocked'}`;
-  $('#training-title').textContent = ready ? '训练环境已就绪' : preparing ? '正在自动准备训练环境' : failed ? '训练环境准备失败' : '准备 ACT 训练环境';
+  $('#training-title').textContent = ready ? (executionOnly ? 'Windows 模型执行环境已就绪' : '训练环境已就绪') : preparing ? '正在自动准备 ACT 环境' : failed ? 'ACT 环境准备失败' : executionOnly ? '准备 Windows 模型执行环境' : '准备 ACT 训练环境';
   $('#training-reason').textContent = ready ? `已通过 ${String(environment.backend || '').toUpperCase()} 与 ACT 真实自检。` : failed ? environment.error : '点击一次即可自动安装隔离训练环境，无需终端、sudo 或系统 Python 配置。';
   $('#training-environment-progress').classList.toggle('hidden', !preparing);
   $('#training-stage').textContent = environment.stage_label || '等待开始';
@@ -123,13 +131,13 @@ function renderTrainingEnvironment(environment) {
   $('#training-progress').value = environment.progress || 0;
   $('#training-prepare').classList.toggle('hidden', preparing || ready || failed);
   $('#training-retry').classList.toggle('hidden', !failed);
-  $('#training-ready-controls').classList.toggle('hidden', !ready);
+  $('#training-ready-controls').classList.toggle('hidden', !ready || executionOnly);
   const profile = environment.training_profile || {};
   if (ready) {
     $('#training-batch-size').value = profile.batch_size || 1;
     $('#training-steps').value = profile.steps || 100000;
     $('#training-save-freq').value = profile.save_freq || 10000;
-    $('#training-start').disabled = !state.datasets.length || Boolean(state.trainingJob?.status === 'running');
+    $('#training-start').disabled = executionOnly || !state.datasets.length || Boolean(state.trainingJob?.status === 'running');
     $('#training-start').title = state.datasets.length ? '' : '请先创建并采集训练数据集';
   }
 }
@@ -326,7 +334,7 @@ function renderInferenceGate(gate = state.inferenceGate) {
   $('#inference-stop').disabled = !active;
   $('#inference-camera-help').textContent = nativeCameraReady(state.inference?.cameras)
     ? '两路画面已接入推理服务。请检查视角对应是否正确。'
-    : state.cameraBackend === 'browser' ? '浏览器画面已连接；ACT 需要本机相机通道。点击相机设置，选择 Ubuntu 原生并连接两台相机。'
+    : state.cameraBackend === 'browser' ? '浏览器画面已连接；ACT 需要本机相机通道。点击相机设置，选择 本机原生并连接两台相机。'
     : '点击相机设置，选择两台不同设备并连接；插入 USB 后仍需启动视频流。';
   const message = $('#inference-message');
   message.className = `form-status${blockers.length ? ' error' : ready ? ' success' : ''}`;
@@ -366,7 +374,7 @@ function renderInference(snapshot) {
   }
   if (terminalTransition) state.inferenceGate = null;
   if (snapshot.cameras?.status === 'fault' && state.cameraBackend === 'native') {
-    recoverNativeCameraFault(snapshot.cameras.error || 'Ubuntu 原生双摄像头视频流已停止');
+    recoverNativeCameraFault(snapshot.cameras.error || '本机原生双摄像头视频流已停止');
   }
   const labels = { idle: '等待验证', loading: '正在加载', running: '真实 FL 运行中', stopping: '正在停止并卸力', stopped: '已停止并卸力', fault: '故障 · 已卸力' };
   $('#inference-status').textContent = labels[snapshot.status] || snapshot.status;
@@ -700,13 +708,15 @@ async function prepareTrainingEnvironment(retry = false, allowLaunch = true) {
   try {
     if (!await ensureRuntime({ allowLaunch })) return;
     const current = await request('/training/environment');
-    if (['ready','preparing'].includes(current.status)) {
+    const backend = current.training_supported === false ? $('#runtime-backend').value : '';
+    const backendChanged = Boolean(backend && backend !== current.backend);
+    if (current.status === 'preparing' || (current.status === 'ready' && !backendChanged)) {
       renderTrainingEnvironment(current);await loadTrainingEnvironment();return;
     }
-    if (current.status === 'failed' && !retry) {
+    if (current.status === 'failed' && !retry && !backendChanged) {
       renderTrainingEnvironment(current);return;
     }
-    const environment = await request(retry && current.status === 'failed' ? '/training/environment/retry' : '/training/environment/prepare', { method: 'POST', body: '{}' });
+    const environment = await request(retry && current.status === 'failed' && !backendChanged ? '/training/environment/retry' : '/training/environment/prepare', { method: 'POST', body: JSON.stringify(backend ? { backend } : {}) });
     renderTrainingEnvironment(environment);
     await loadTrainingEnvironment();
   } catch (error) { $('#training-result').textContent = error.message; }
@@ -1060,7 +1070,7 @@ function populateCameraChoices() {
 function populateBrowserCameras(devices) { state.browserCameras = devices; populateCameraChoices(); }
 async function detectCameras() {
   const button = $('#detect-cameras');
-  button.disabled = true; button.textContent = '检测中…'; $('#camera-transport').textContent = '正在检测浏览器与 Ubuntu 原生摄像头';
+  button.disabled = true; button.textContent = '检测中…'; $('#camera-transport').textContent = '正在检测浏览器与 本机原生摄像头';
   try {
     const nativeResult = await request('/cameras/native');
     state.nativeCameras = nativeResult.devices || [];
@@ -1073,7 +1083,7 @@ async function detectCameras() {
     const count = Math.max(state.browserCameras.length, state.nativeCameras.length);
     if (count < 2) throw new Error(`本机只检测到 ${count} 台可用摄像头`);
     $('#camera-badge').textContent = `${count} FOUND`; $('#camera-badge').className = 'status-badge pending';
-    $('#camera-transport').textContent = `浏览器 ${state.browserCameras.length} 台 · Ubuntu 原生 ${state.nativeCameras.length} 台，请选择两个不同设备`;
+    $('#camera-transport').textContent = `浏览器 ${state.browserCameras.length} 台 · 本机原生 ${state.nativeCameras.length} 台，请选择两个不同设备`;
     toast(`已检测到 ${count} 台可用摄像头`);
   } catch (error) {
     state.browserCameras = []; state.nativeCameras = []; populateCameraChoices();
@@ -1199,7 +1209,7 @@ async function connectBrowserCameras(profile) {
 }
 async function connectNativeCameras(profile) {
   const result = await request('/cameras/native/connect', { method: 'POST', body: JSON.stringify({ wrist_camera_id: $('#wrist-camera-select').value, world_camera_id: $('#world-camera-select').value, width: profile.width, height: profile.height, fps: profile.fps }) });
-  for (const role of ['wrist', 'world']) { const camera = result.roles[role]; $(`#${role}-camera`).textContent = `Ubuntu 原生 · ${camera.device_name} · ${camera.mode.pixel_format} · ${camera.mode.width}×${camera.mode.height}@${camera.mode.fps}`; setNativePreview(role, true); }
+  for (const role of ['wrist', 'world']) { const camera = result.roles[role]; $(`#${role}-camera`).textContent = `本机原生 · ${camera.device_name} · ${camera.mode.pixel_format} · ${camera.mode.width}×${camera.mode.height}@${camera.mode.fps}`; setNativePreview(role, true); }
   const mode = result.roles.wrist.mode;
   if (mode) $('#capture-profile').value = `${mode.width},${mode.height}`;
   state.inference = { ...(state.inference || {}), cameras: result };
@@ -1214,13 +1224,13 @@ async function connectCameras() {
       try { await connectBrowserCameras(profile); }
       catch (error) {
         if (backend !== 'auto') throw error;
-        await disconnectCameras(false); toast(`浏览器双路协商失败，正在切换 Ubuntu 原生：${error.message}`);
+        await disconnectCameras(false); toast(`浏览器双路协商失败，正在切换 本机原生：${error.message}`);
         $('#camera-backend').value = 'native'; populateCameraChoices();
         await connectNativeCameras(profile);
       }
     }
     state.inferenceCameraSetup = false;
-    state.deviceBinding = null; $('#camera-badge').textContent = 'STREAMING'; $('#camera-badge').className = 'status-badge on'; $('#camera-transport').textContent = `${state.cameraBackend === 'native' ? 'Ubuntu 原生 MJPEG' : '浏览器'} 双路已连接 · 目标 ${profile.width}×${profile.height} / 30 FPS`; $('#detect-cameras').disabled = true; $('#connect-cameras').disabled = true; $('#disconnect-cameras').disabled = false; $('#wrist-camera-select').disabled = true; $('#world-camera-select').disabled = true; $('#capture-profile').disabled = true; $('#camera-backend').disabled = true; renderCapabilities(state.capabilities); toast(`${state.cameraBackend === 'native' ? 'Ubuntu 原生 MJPEG' : '浏览器'}双摄像头已连接`);
+    state.deviceBinding = null; $('#camera-badge').textContent = 'STREAMING'; $('#camera-badge').className = 'status-badge on'; $('#camera-transport').textContent = `${state.cameraBackend === 'native' ? '本机原生 MJPEG' : '浏览器'} 双路已连接 · 目标 ${profile.width}×${profile.height} / 30 FPS`; $('#detect-cameras').disabled = true; $('#connect-cameras').disabled = true; $('#disconnect-cameras').disabled = false; $('#wrist-camera-select').disabled = true; $('#world-camera-select').disabled = true; $('#capture-profile').disabled = true; $('#camera-backend').disabled = true; renderCapabilities(state.capabilities); toast(`${state.cameraBackend === 'native' ? '本机原生 MJPEG' : '浏览器'}双摄像头已连接`);
     renderInference(await request('/inference'));
     if (selectedInferenceModel()) await validateInference();
   } catch (error) { await disconnectCameras(false); toast(`摄像头连接失败：${error.message}`); }
@@ -1333,6 +1343,7 @@ $('#inference-disconnect-follower').addEventListener('click', () => withButtonFe
   await disconnectSerial('follower'); state.inferenceGate = null; renderInferenceGate();
 }, { label: '正在断开…', restore: () => renderSerialState(state.serial) }));
 $('#inference-refresh-ports').addEventListener('click', () => withButtonFeedback($('#inference-refresh-ports'), refreshAfterMutation));
+$('#runtime-backend').addEventListener('change', () => { if (state.trainingEnvironment?.status === 'ready' && $('#runtime-backend').value && $('#runtime-backend').value !== state.trainingEnvironment.backend) { $('#training-prepare').classList.remove('hidden'); $('#training-prepare').textContent = '按所选方式配置环境'; } else if (state.trainingEnvironment) renderTrainingEnvironment(state.trainingEnvironment); });
 $('#training-prepare').addEventListener('click', () => prepareTrainingEnvironment(false));
 $('#training-retry').addEventListener('click', () => prepareTrainingEnvironment(true));
 $('#training-start').addEventListener('click', startTraining);

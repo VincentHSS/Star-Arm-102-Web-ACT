@@ -32,6 +32,8 @@ async function freePort() {
     }
     browser = await chromium.launch({ headless: true, ...(process.env.PLAYWRIGHT_BROWSER_CHANNEL ? { channel: process.env.PLAYWRIGHT_BROWSER_CHANNEL } : {}) });
     const page = await browser.newPage({ viewport: { width: 1600, height: 1050 }, deviceScaleFactor: 1 });
+    // The standard guide screenshots show the Ubuntu onboarding route.
+    await page.addInitScript(() => Object.defineProperty(navigator, 'platform', { get: () => 'Linux x86_64' }));
     // A customer may already have the native component running. Do not contact it.
     await page.route('http://127.0.0.1:18765/**', route => route.abort());
     const errors = []; page.on('pageerror', error => errors.push(error.message));
