@@ -86,6 +86,7 @@ EXACT = {
     'tools/capture_docs.cjs': '阻断本机硬件 API，以真实未连接界面生成教程截图',
     'tools/check_distribution.py': '校验安装模板、源码一致性、换行、静态文件与资源路径',
     'tools/check_file_map.py': '逐文件用途清单生成与遗漏检查',
+    'tests/camera_navigation_smoke.cjs': '隔离端口与模拟双相机，验证步骤切换复用预览和过期状态处理',
     'tests/browser_smoke.cjs': '自动浏览器验证、临时本机服务与安装包生成检查',
 }
 DOCS = {

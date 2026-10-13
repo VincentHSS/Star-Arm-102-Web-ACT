@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta http-equiv="Cache-Control" content="no-store">
   <title>Star Arm 102 · ACT 工作台 v0.1.0</title>
-  <link rel="stylesheet" href="src/act-workbench.css?v=2026-10-13-windows-act-1">
-  <link rel="stylesheet" href="src/act-inference.css?v=2026-10-13-windows-act-1">
-  <link rel="stylesheet" href="src/act-ui-refresh.css?v=2026-10-13-windows-act-1">
-  <link rel="stylesheet" href="src/workspace-switch.css?v=2026-10-13-windows-act-1">
+  <link rel="stylesheet" href="src/act-workbench.css?v=2026-10-13-camera-handoff-1">
+  <link rel="stylesheet" href="src/act-inference.css?v=2026-10-13-camera-handoff-1">
+  <link rel="stylesheet" href="src/act-ui-refresh.css?v=2026-10-13-camera-handoff-1">
+  <link rel="stylesheet" href="src/workspace-switch.css?v=2026-10-13-camera-handoff-1">
 <style>html,body{background:#0f1416}</style>
 <link rel="icon" href="assets/logo-icon.png">
 <link rel="stylesheet" href="src/interaction.css?v=responsive-1">
@@ -326,8 +326,8 @@
         <main class="inference-stage">
           <section class="inference-cameras">
             <div class="camera-screen-toolbar"><span>双相机实时画面</span><button type="button" class="secondary" data-camera-exit data-ui-icon="minimize">返回工作台 / Esc</button></div>
-            <article class="inference-camera"><img id="inference-wrist-frame" class="native-preview active" alt="末端视角相机实时画面"><img id="inference-wrist-frame-buffer" class="native-preview" alt="" aria-hidden="true"><div class="inference-camera-empty"><span class="camera-placeholder-icon" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none"><rect x="8" y="14" width="32" height="24" rx="6"/><path d="m17 14 3-5h8l3 5"/><circle cx="24" cy="26" r="7"/><path d="M35 20h.01"/></svg></span><b>末端视角相机</b><small class="camera-placeholder-help">在相机设置中连接模型对应的两台设备</small><span class="camera-placeholder-tag">等待连接</span></div><footer><span id="inference-wrist-label">WRIST / 末端视角</span><b id="inference-wrist-status">未连接</b></footer></article>
-            <article class="inference-camera"><img id="inference-world-frame" class="native-preview active" alt="世界视角相机实时画面"><img id="inference-world-frame-buffer" class="native-preview" alt="" aria-hidden="true"><div class="inference-camera-empty"><span class="camera-placeholder-icon" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none"><rect x="8" y="14" width="32" height="24" rx="6"/><path d="m17 14 3-5h8l3 5"/><circle cx="24" cy="26" r="7"/><path d="M35 20h.01"/></svg></span><b>世界视角相机</b><small class="camera-placeholder-help">在相机设置中连接模型对应的两台设备</small><span class="camera-placeholder-tag">等待连接</span></div><footer><span id="inference-world-label">WORLD / 世界视角</span><b id="inference-world-status">未连接</b></footer></article>
+            <article class="inference-camera"><video id="inference-wrist-browser-preview" class="inference-browser-preview" muted playsinline></video><img id="inference-wrist-frame" class="native-preview active" alt="末端视角相机实时画面"><img id="inference-wrist-frame-buffer" class="native-preview" alt="" aria-hidden="true"><div class="inference-camera-empty"><span class="camera-placeholder-icon" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none"><rect x="8" y="14" width="32" height="24" rx="6"/><path d="m17 14 3-5h8l3 5"/><circle cx="24" cy="26" r="7"/><path d="M35 20h.01"/></svg></span><b>末端视角相机</b><small class="camera-placeholder-help">在相机设置中连接模型对应的两台设备</small><span class="camera-placeholder-tag">等待连接</span></div><footer><span id="inference-wrist-label">WRIST / 末端视角</span><b id="inference-wrist-status">未连接</b></footer></article>
+            <article class="inference-camera"><video id="inference-world-browser-preview" class="inference-browser-preview" muted playsinline></video><img id="inference-world-frame" class="native-preview active" alt="世界视角相机实时画面"><img id="inference-world-frame-buffer" class="native-preview" alt="" aria-hidden="true"><div class="inference-camera-empty"><span class="camera-placeholder-icon" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none"><rect x="8" y="14" width="32" height="24" rx="6"/><path d="m17 14 3-5h8l3 5"/><circle cx="24" cy="26" r="7"/><path d="M35 20h.01"/></svg></span><b>世界视角相机</b><small class="camera-placeholder-help">在相机设置中连接模型对应的两台设备</small><span class="camera-placeholder-tag">等待连接</span></div><footer><span id="inference-world-label">WORLD / 世界视角</span><b id="inference-world-status">未连接</b></footer></article>
           </section>
           <section class="inference-wave panel">
             <header class="panel-head"><div><p class="kicker">ACT OUTPUT / FL OBSERVATION</p><h2>J1–J7 实时执行时序</h2></div><span>安全 Action + Observation</span></header>
@@ -371,7 +371,7 @@
   <label><input id="calibration-same-arm-confirm" type="checkbox">当前连接的是生成此校准的同一台物理从臂</label>
   <div class="device-actions"><button id="calibration-apply" class="primary" disabled>用于当前导入模型</button><button id="calibration-download" class="secondary" disabled>下载校准 JSON</button><button id="calibration-close" class="ghost">关闭</button></div>
 </dialog>
-<script type="module" src="src/act-workbench.js?v=2026-10-13-windows-act-1"></script>
-<script type="module" src="src/workspace-switch.js?v=2026-10-13-windows-act-1"></script>
+<script type="module" src="src/act-workbench.js?v=2026-10-13-camera-handoff-1"></script>
+<script type="module" src="src/workspace-switch.js?v=2026-10-13-camera-handoff-1"></script>
 </body>
 </html>

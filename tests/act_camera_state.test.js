@@ -1,11 +1,16 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { effectiveCameraBackend, nativeCameraReady, cameraConnectionSignature, cameraRolePresentation } from '../Browser_SDK/src/act-camera-state.js';
+import { effectiveCameraBackend, nativeCameraReady, cameraConnectionSignature, cameraRolePresentation, browserCameraLive } from '../Browser_SDK/src/act-camera-state.js';
 const camera = () => ({status:'streaming',roles:{wrist:{device_id:'a',mode:{width:640,height:480,fps:30}},world:{device_id:'b',mode:{width:640,height:480,fps:30}}}});
 test('auto prefers native pair while explicit browser choice is preserved',()=>{
  assert.equal(effectiveCameraBackend('auto',[{},{}]),'native');
  assert.equal(effectiveCameraBackend('auto',[{}]),'browser');
  assert.equal(effectiveCameraBackend('browser',[{},{}]),'browser');
+});
+test('shared browser preview requires a live video track',()=>{
+ assert.equal(browserCameraLive(null),false);
+ assert.equal(browserCameraLive({getVideoTracks:()=>[{readyState:'ended'}]}),false);
+ assert.equal(browserCameraLive({getVideoTracks:()=>[{readyState:'live'}]}),true);
 });
 test('browser previews and incomplete or faulted native sessions cannot unlock ACT',()=>{
  assert.equal(nativeCameraReady(camera()),true);

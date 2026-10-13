@@ -2,7 +2,7 @@ import { requestJson, fetchWithDeadline } from './api-client.js?v=responsive-1';
 import { createSingleFlight, createPageNavigator, withButtonFeedback, setInteractionStatus } from './page-lifecycle.js?v=responsive-1';
 import { getLocalApi, localFetch, ensureRuntime, renderRuntimeEnvironment, publicationConfigured } from './local-service.js?v=windows-act-1';
 import { installWorkbenchMotion, switchWorkbenchView } from './act-motion.js?v=2026-10-12-motion-icons-13';
-import { effectiveCameraBackend, cameraConnectionSignature, nativeCameraReady, cameraRolePresentation } from './act-camera-state.js?v=2026-10-09-camera-ui-7';
+import { effectiveCameraBackend, cameraConnectionSignature, nativeCameraReady, cameraRolePresentation, browserCameraLive } from './act-camera-state.js?v=2026-10-13-camera-handoff-1';
 import { WaveformBuffer, WaveformChart } from './act-waveform.js?v=0.1.0-camera-reconnect-1';
 import { BrowserCameraController } from './act-cameras.js';
 import { CaptureQualityMonitor } from './act-capture-quality.js';
@@ -10,7 +10,7 @@ import { CameraFrameUploader, encodeFrozenFrame, freezeVideoFrame } from './act-
 import { CameraFrameEncoderWorkerClient } from './act-camera-frame-encoder-worker-client.js?v=0.1.0-camera-worker-6';
 
 const API = getLocalApi();
-const state = { navigationPending: false, deviceEpoch: 0, capabilities: null, trainingEnvironment: null, trainingPoll: null, trainingJob: null, trainingJobPoll: null, datasets: [], episodes: [], episode: null, selectedDatasetId: null, datasetStats: null, deviceBinding: null, serial: { leader: null, follower: null }, browserCameras: [], nativeCameras: [], cameraBackend: null, cameraFaultResetting: false, telemetryStream: null, completedRounds: 0, targetRounds: 20, cameraFrameCallbacks: { wrist: null, world: null }, cameraFrameSupport: { wrist: null, world: null }, frameDrain: null, models: [], selectedInferenceModelId: null, modelImporting: false, inference: null, inferenceGate: null, inferencePoll: null, inferenceStarting: false, inferenceStartError: null, inferenceLastActionCount: 0 };
+const state = { navigationPending: false, deviceEpoch: 0, cameraEpoch: 0, cameraConnecting: false, cameraDisconnecting: false, capabilities: null, trainingEnvironment: null, trainingPoll: null, trainingJob: null, trainingJobPoll: null, datasets: [], episodes: [], episode: null, selectedDatasetId: null, datasetStats: null, deviceBinding: null, serial: { leader: null, follower: null }, browserCameras: [], nativeCameras: [], cameraBackend: null, cameraFaultResetting: false, telemetryStream: null, completedRounds: 0, targetRounds: 20, cameraFrameCallbacks: { wrist: null, world: null }, cameraFrameSupport: { wrist: null, world: null }, frameDrain: null, models: [], selectedInferenceModelId: null, modelImporting: false, inference: null, inferenceGate: null, inferencePoll: null, inferenceStarting: false, inferenceStartError: null, inferenceLastActionCount: 0 };
 const $ = (selector) => document.querySelector(selector);
 const cameraController = navigator.mediaDevices ? new BrowserCameraController(navigator.mediaDevices) : null;
 const qualityMonitor = new CaptureQualityMonitor({ windowSize: 250 });
@@ -358,7 +358,8 @@ function renderInferenceJoints(snapshot) {
   $('#inference-joints').innerHTML = Array.from({ length: 7 }, (_, index) => `<div><b>J${index + 1}</b><span>OBS ${Array.isArray(observation_state) ? Number(observation_state[index]).toFixed(1) + '°' : '—'}</span><span>RAW ${Array.isArray(raw_action) ? Number(raw_action[index]).toFixed(1) + '°' : '—'}</span><strong>SAFE ${Array.isArray(safe_action) ? Number(safe_action[index]).toFixed(1) + '°' : '—'}</strong></div>`).join('');
 }
 
-function renderInference(snapshot) {
+function renderInference(snapshot, cameraEpoch = state.cameraEpoch, ownedCameraResult = false) {
+  if (cameraEpoch !== state.cameraEpoch || (!ownedCameraResult && (state.cameraConnecting || state.cameraDisconnecting))) return;
   const previousStatus = state.inference?.status;
   const terminalTransition = ['loading', 'running', 'stopping'].includes(previousStatus)
     && ['stopped', 'fault'].includes(snapshot.status);
@@ -424,9 +425,11 @@ function renderInference(snapshot) {
   for (const role of ['wrist', 'world']) {
     const roleState = snapshot.cameras?.roles?.[role];
     const image = $(`#inference-${role}-frame`);
-    image.closest('.inference-camera').classList.toggle('streaming', Boolean(roleState));
+    image.closest('.inference-camera').classList.toggle('streaming', Boolean(roleState) || browserCameraConnected(role));
     if (roleState) {
       $(`#inference-${role}-status`).textContent = `${roleState.device_name || roleState.device_id} · ${roleState.mode?.width || 0}×${roleState.mode?.height || 0}@${roleState.mode?.fps || 0} · ${Number(roleState.actual_fps || 0).toFixed(1)} FPS`;
+    } else if (browserCameraConnected(role)) {
+      $(`#inference-${role}-status`).textContent = `浏览器预览 · ${selectedCameraLabel(role)} · 尚未接入推理`;
     } else {
       image.removeAttribute('src');
       $(`#inference-${role}-status`).textContent = '未连接';
@@ -451,6 +454,7 @@ let inferenceValidationGeneration = 0;
 let inferenceDeviceSignature = null;
 function syncNativeCameraSession(cameras) {
   if (!nativeCameraReady(cameras) || state.cameraBackend === 'native') return;
+  if (state.cameraBackend === 'browser') { cameraController?.close(); detachBrowserPreviews(); }
   state.cameraBackend = 'native';
   $('#camera-backend').value = 'native';
   const mode = cameras.roles.wrist.mode;
@@ -489,7 +493,8 @@ async function validateInference() {
 function pollInference(delay = 500) {
   clearTimeout(state.inferencePoll);
   state.inferencePoll = window.setTimeout(async () => {
-    try { renderInference(await request('/inference')); }
+    const cameraEpoch = state.cameraEpoch;
+    try { if (!state.cameraConnecting && !state.cameraDisconnecting) renderInference(await request('/inference'), cameraEpoch); }
     catch (error) { $('#inference-message').textContent = `推理状态刷新失败：${error.message}`; }
     finally { pollInference(document.hidden ? 5000 : document.querySelector('#infer.view.active') || ['loading','running','stopping'].includes(state.inference?.status) ? 500 : 2500); }
   }, delay);
@@ -1015,6 +1020,8 @@ const refresh = createSingleFlight(async () => {
 function refreshAfterMutation() { refreshRevision++; return refresh(); }
 async function refreshState(revision) {
   const deviceEpoch = state.deviceEpoch;
+  const cameraEpoch = state.cameraEpoch;
+  const cameraMutationAtStart = state.cameraConnecting || state.cameraDisconnecting;
   try {
     const [health, caps, workspace, devices, trainingEnvironment, trainingJobs, models, inference] = await Promise.all([
       request('/health'), request('/capabilities'), request('/state'), request('/devices'),
@@ -1035,7 +1042,7 @@ async function refreshState(revision) {
     renderTrainingJob(latestJob);
     if (latestJob && ['running', 'stopping'].includes(latestJob.status)) pollTrainingJob(latestJob.id);
     await loadModels(models);
-    if (deviceEpoch === state.deviceEpoch) renderInference(inference);
+    if (deviceEpoch === state.deviceEpoch && !cameraMutationAtStart) renderInference(inference, cameraEpoch);
     if (deviceEpoch === state.deviceEpoch) renderDeviceBinding(devices.binding);
     renderJoints();
     maybeShowDataDirSetup();
@@ -1146,18 +1153,19 @@ function scheduleNativePreviewFrame(role, generation, delay = 0) {
   }, wait);
 }
 function swapNativePreviewFrame(role, image, generation) {
-  nativePreviewInFlight[role] = false;
-  if (generation !== nativePreviewGeneration || state.cameraBackend !== 'native' || image.dataset.previewGeneration !== String(generation)) return;
   const images = nativePreviewImages(role);
+  if (generation !== nativePreviewGeneration || state.cameraBackend !== 'native' || image.dataset.previewGeneration !== String(generation) || !images.includes(image)) return;
+  nativePreviewInFlight[role] = false;
   const next = images.indexOf(image);
   image.classList.add('frame-ready');
   image.classList.add('active');
   image.closest('article').classList.add('has-frame');
-  images[nativePreviewFront[role]].classList.remove('active');
+  if (next !== nativePreviewFront[role]) images[nativePreviewFront[role]].classList.remove('active');
   nativePreviewFront[role] = next;
   scheduleNativePreviewFrame(role, generation);
 }
-function retryNativePreviewFrame(role, generation) {
+function retryNativePreviewFrame(role, image, generation) {
+  if (generation !== nativePreviewGeneration || image.dataset.previewGeneration !== String(generation) || !nativePreviewImages(role).includes(image)) return;
   nativePreviewInFlight[role] = false;
   scheduleNativePreviewFrame(role, generation, 250);
 }
@@ -1173,8 +1181,9 @@ function startNativePreviewPolling() {
     images[0].classList.add('active');
     images[1].classList.remove('active');
     for (const image of images) {
+      image.dataset.previewGeneration = '';
       image.addEventListener('load', () => swapNativePreviewFrame(role, image, generation), { signal: nativePreviewAbort.signal });
-      image.addEventListener('error', () => { image.classList.remove('frame-ready'); retryNativePreviewFrame(role, generation); }, { signal: nativePreviewAbort.signal });
+      image.addEventListener('error', () => { image.classList.remove('frame-ready'); retryNativePreviewFrame(role, image, generation); }, { signal: nativePreviewAbort.signal });
     }
     setNativePreview(role, true);
     scheduleNativePreviewFrame(role, generation);
@@ -1196,6 +1205,51 @@ function stopNativePreviewPolling() {
 function restartNativePreviewForActiveView() {
   if (state.cameraBackend === 'native') startNativePreviewPolling();
 }
+async function restartCameraPreviewForActiveView() {
+  restartNativePreviewForActiveView();
+  if (state.cameraBackend === 'browser') await syncBrowserPreviewForActiveView();
+}
+function browserCameraConnected(role) {
+  return state.cameraBackend === 'browser' && browserCameraLive(cameraController?.streams[role]);
+}
+function detachBrowserPreviews() {
+  for (const role of ['wrist', 'world']) {
+    stopCameraFrameMonitor(role);
+    for (const id of [`${role}-preview`, `inference-${role}-browser-preview`]) {
+      const video = document.getElementById(id);
+      video.pause(); video.srcObject = null;
+      const card = video.closest('article');
+      if (card.classList.contains('browser-streaming')) card.classList.remove('browser-streaming', 'streaming', 'has-frame');
+    }
+  }
+}
+async function syncBrowserPreviewForActiveView({ strict = false } = {}) {
+  const cameraEpoch = state.cameraEpoch;
+  const owner = nativePreviewOwner();
+  detachBrowserPreviews();
+  if (!owner || state.cameraBackend !== 'browser') return;
+  for (const role of ['wrist', 'world']) {
+    const stream = cameraController?.streams[role];
+    if (!browserCameraLive(stream)) continue;
+    const video = owner === 'inference' ? $(`#inference-${role}-browser-preview`) : $(`#${role}-preview`);
+    video.srcObject = stream;
+    try {
+      await video.play();
+      await waitForValidVideoFrame(video, selectedCameraLabel(role));
+    } catch (error) {
+      if (cameraEpoch !== state.cameraEpoch || owner !== nativePreviewOwner()) return;
+      if (strict) throw error;
+      video.pause(); video.srcObject = null;
+      if (owner === 'inference') $(`#inference-${role}-status`).textContent = `预览暂不可用：${error.message}`;
+      toast(`相机预览恢复失败：${error.message}；相机连接保留，可返回后重试`);
+      continue;
+    }
+    if (cameraEpoch !== state.cameraEpoch || owner !== nativePreviewOwner()) return;
+    video.closest('article').classList.add('browser-streaming', 'streaming', 'has-frame');
+    if (owner === 'collection') startCameraFrameMonitor(role);
+    else $(`#inference-${role}-status`).textContent = `浏览器预览 · ${selectedCameraLabel(role)} · 尚未接入推理`;
+  }
+}
 async function connectBrowserCameras(profile) {
   if (!cameraController) throw new Error('当前浏览器不支持摄像头访问');
   const wristDeviceId = $('#wrist-camera-select').value; const worldDeviceId = $('#world-camera-select').value;
@@ -1206,6 +1260,7 @@ async function connectBrowserCameras(profile) {
     const camera = state.browserCameras.find(item => item.deviceId === deviceId); $(labelSelector).textContent = `浏览器 · ${cameraQualityLabel(camera, quality, video, profile)}`; startCameraFrameMonitor(role);
   }
   state.cameraBackend = 'browser';
+  await syncBrowserPreviewForActiveView({ strict: true });
 }
 async function connectNativeCameras(profile) {
   const result = await request('/cameras/native/connect', { method: 'POST', body: JSON.stringify({ wrist_camera_id: $('#wrist-camera-select').value, world_camera_id: $('#world-camera-select').value, width: profile.width, height: profile.height, fps: profile.fps }) });
@@ -1216,8 +1271,10 @@ async function connectNativeCameras(profile) {
   state.cameraBackend = 'native'; state.cameraFrameSupport.wrist = false; state.cameraFrameSupport.world = false; startNativePreviewPolling();
 }
 async function connectCameras() {
+  if (state.cameraConnecting || state.cameraDisconnecting) return;
+  state.cameraConnecting = true; state.cameraEpoch++;
   const backend = effectiveCameraBackend($('#camera-backend').value, state.nativeCameras); const profile = selectedCaptureProfile();
-  if ($('#wrist-camera-select').value === $('#world-camera-select').value) return toast('两路画面必须选择不同摄像头');
+  if (!$('#wrist-camera-select').value || !$('#world-camera-select').value || $('#wrist-camera-select').value === $('#world-camera-select').value) { state.cameraConnecting = false; return toast('请选择两台不同摄像头'); }
   try {
     if (backend === 'native') await connectNativeCameras(profile);
     else {
@@ -1231,15 +1288,19 @@ async function connectCameras() {
     }
     state.inferenceCameraSetup = false;
     state.deviceBinding = null; $('#camera-badge').textContent = 'STREAMING'; $('#camera-badge').className = 'status-badge on'; $('#camera-transport').textContent = `${state.cameraBackend === 'native' ? '本机原生 MJPEG' : '浏览器'} 双路已连接 · 目标 ${profile.width}×${profile.height} / 30 FPS`; $('#detect-cameras').disabled = true; $('#connect-cameras').disabled = true; $('#disconnect-cameras').disabled = false; $('#wrist-camera-select').disabled = true; $('#world-camera-select').disabled = true; $('#capture-profile').disabled = true; $('#camera-backend').disabled = true; renderCapabilities(state.capabilities); toast(`${state.cameraBackend === 'native' ? '本机原生 MJPEG' : '浏览器'}双摄像头已连接`);
-    renderInference(await request('/inference'));
+    const cameraEpoch = state.cameraEpoch;
+    renderInference(await request('/inference'), cameraEpoch, true);
     if (selectedInferenceModel()) await validateInference();
   } catch (error) { await disconnectCameras(false); toast(`摄像头连接失败：${error.message}`); }
+  finally { state.cameraConnecting = false; }
 }
 async function disconnectCameras(showToast = true) {
+  state.cameraDisconnecting = true; state.cameraEpoch++;
+  try {
   const wasRecording = state.episode?.status === 'recording';
   if (wasRecording) { if (frameUploader.snapshot().active) frameUploader.stopAndDrain().catch(() => {}); try { await request('/emergency-stop', { method: 'POST', body: JSON.stringify({ reason: 'camera_disconnected' }) }); } catch (error) { toast(`相机断开后的采集停止失败：${error.message}`); } }
   stopNativePreviewPolling(); if (state.cameraBackend === 'native') await request('/cameras/native/disconnect', { method: 'POST', body: JSON.stringify({}) }).catch(() => {});
-  cameraController?.close(); state.cameraBackend = null; state.deviceBinding = null;
+  cameraController?.close(); detachBrowserPreviews(); state.cameraBackend = null; state.deviceBinding = null;
   state.inferenceGate = null; inferenceValidationGeneration += 1;
   if (state.inference) state.inference.cameras = { status: 'idle', roles: {} };
   renderInferenceGate();
@@ -1249,6 +1310,7 @@ async function disconnectCameras(showToast = true) {
   $('#camera-badge').textContent = Math.max(state.browserCameras.length, state.nativeCameras.length) >= 2 ? 'FOUND' : 'LOCKED'; $('#camera-badge').className = `status-badge ${Math.max(state.browserCameras.length, state.nativeCameras.length) >= 2 ? 'pending' : 'off'}`; $('#camera-transport').textContent = '末端视角 + 世界视角 · 30 FPS'; $('#detect-cameras').disabled = false; $('#disconnect-cameras').disabled = true; $('#capture-profile').disabled = false; $('#camera-backend').disabled = false; $('#bind-devices').disabled = true; populateCameraChoices(); updateNextAction();
   if (wasRecording) await refreshAfterMutation();
   if (showToast) toast(wasRecording ? '相机已断开，Episode 已停止并保留待审核数据' : '相机预览已关闭');
+  } finally { state.cameraDisconnecting = false; }
 }
 async function recoverNativeCameraFault(error) {
   if (state.cameraFaultResetting) return;
@@ -1632,7 +1694,7 @@ $('#follower-calibration-dialog').addEventListener('close', () => {
 });
 
 $('#inference-camera-settings').addEventListener('click', async () => {
-  document.querySelector('.workflow [data-view="collect"]').click();
+  if (!await navigateActView('collect')) return;
   state.inferenceCameraSetup = true;
   const contract = selectedInferenceModel()?.camera_contract;
   if (contract?.width) toast(`推理相机将按模型使用 ${contract.width}×${contract.height}，请核对视角对应。`);
@@ -1671,7 +1733,7 @@ const releaseActSerialPorts = createSingleFlight(async () => {
   if (followerCalibrationBusy || ['recording', 'paused'].includes(followerCalibrationState?.status)) {
     throw new Error('请先保存或取消从臂校准，再切换页面。');
   }
-  if (state.modelImporting || state.frameDrain || state.inferenceStarting) {
+  if (state.modelImporting || state.frameDrain || state.inferenceStarting || state.cameraConnecting || state.cameraDisconnecting) {
     throw new Error('当前操作尚未完成，请稍后再切换页面。');
   }
   if (state.episode?.status === 'recording') {
@@ -1698,8 +1760,8 @@ const releaseActSerialPorts = createSingleFlight(async () => {
 
 const navigateActView = createPageNavigator({
   release: releaseActSerialPorts,
-  activate: id => {
-    switchWorkbenchView(id); restartNativePreviewForActiveView();
+  activate: async id => {
+    switchWorkbenchView(id); await restartCameraPreviewForActiveView();
     if (id === 'infer') pollInference(0);
     if (id === 'train' && !['ready', 'preparing', 'failed'].includes(state.trainingEnvironment?.status)) void prepareTrainingEnvironment(false, false);
   },

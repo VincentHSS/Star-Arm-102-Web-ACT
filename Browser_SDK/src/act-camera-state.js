@@ -4,6 +4,9 @@ export function effectiveCameraBackend(selection, nativeDevices = []) {
 export function nativeCameraReady(camera) {
   return camera?.status === 'streaming' && ['wrist', 'world'].every(role => Boolean(camera.roles?.[role]));
 }
+export function browserCameraLive(stream) {
+  return Boolean(stream?.getVideoTracks?.().some(track => track.readyState === 'live'));
+}
 // Frame counters/FPS must not revoke an already checked configuration each poll.
 export function cameraConnectionSignature(camera, serial) {
   return JSON.stringify([camera?.status, ...['wrist', 'world'].map(role => {

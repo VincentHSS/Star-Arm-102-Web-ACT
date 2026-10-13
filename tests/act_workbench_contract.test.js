@@ -157,7 +157,7 @@ test('native dual-camera preview targets 30 FPS without allowing overlapping req
   assert.match(js, /NATIVE_PREVIEW_INTERVAL_MS\s*=\s*33/);
   assert.match(js, /nativePreviewInFlight/);
   assert.match(js, /if \(nativePreviewInFlight\[role\]\) return/);
-  assert.match(js, /retryNativePreviewFrame\(role, generation\)/);
+  assert.match(js, /retryNativePreviewFrame\(role, image, generation\)/);
 });
 
 test('training checkpoint rendering defines HTML escaping before use and polling survives render failures', () => {
