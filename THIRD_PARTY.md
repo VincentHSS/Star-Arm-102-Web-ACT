@@ -14,3 +14,5 @@
 wheel 校验值见 `ai_service/vendor/README.txt`。安装组件中同样保留相关许可和来源信息。
 
 Windows 相机通道使用 DirectShow，由客户运行环境中的 imageio-ffmpeg 提供 FFmpeg 可执行程序；该程序通过上游 Python 包安装，不随静态网站复制分发。imageio-ffmpeg 包与其 FFmpeg 二进制各自的上游许可适用，见安装环境的包许可及 [上游项目](https://github.com/imageio/imageio-ffmpeg)。
+
+纯网页 ACT 使用自托管 ONNX Runtime Web 1.30.0（MIT）和 fflate（MIT），位于 `Browser_SDK/assets/vendor/onnxruntime-web/` 与 `fflate/`，分别保留 `LICENSE.txt` 和原 npm 包的版本、SHA-512 完整性信息。文件来自 npm 官方包并校验完整性；ONNX Runtime 模块仅将 `.mjs` 文件名/引用改为 `.js` 以适配普通静态服务器，计算实现未改。原始模型权重、训练数据和客户校准不随网站仓库发布。

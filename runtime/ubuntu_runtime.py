@@ -11,7 +11,7 @@ from urllib.request import urlopen
 
 ROOT = Path(__file__).resolve().parent
 PORT = 18765
-VERSION = '1.0.5'
+VERSION = '1.0.7'
 
 
 def normalize_origin(value):

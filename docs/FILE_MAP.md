@@ -16,6 +16,7 @@
 | [.gitattributes](../.gitattributes) | 固定 Linux 脚本 LF、Windows 脚本 CRLF 与二进制资源属性 |
 | [.github/workflows/ci.yml](../.github/workflows/ci.yml) | GitHub 自动软件测试、组件校验与文件说明检查 |
 | [.gitignore](../.gitignore) | 排除客户数据、模型、环境、缓存、日志和生成包 |
+| [Browser_SDK/act-browser.html](../Browser_SDK/act-browser.html) | 客户无需本机服务的 ACT 模型、双相机与串口执行网页 |
 | [Browser_SDK/act-workbench.html](../Browser_SDK/act-workbench.html) | ACT 采集、训练、模型和执行四步骤页面 |
 | [Browser_SDK/assets/icon.png](../Browser_SDK/assets/icon.png) | 网站图标 |
 | [Browser_SDK/assets/logo-full.png](../Browser_SDK/assets/logo-full.png) | 完整品牌图像 |
@@ -90,11 +91,24 @@
 | [Browser_SDK/assets/urdf/piper/parts.json](../Browser_SDK/assets/urdf/piper/parts.json) | piper 模型的 导出零件映射 |
 | [Browser_SDK/assets/vendor/OrbitControls.js](../Browser_SDK/assets/vendor/OrbitControls.js) | 3D 视角旋转、缩放与平移控件 |
 | [Browser_SDK/assets/vendor/STLLoader.js](../Browser_SDK/assets/vendor/STLLoader.js) | 加载机械臂 STL 三角网格 |
+| [Browser_SDK/assets/vendor/fflate/LICENSE.txt](../Browser_SDK/assets/vendor/fflate/LICENSE.txt) | fflate 的 MIT 许可证 |
+| [Browser_SDK/assets/vendor/fflate/browser.js](../Browser_SDK/assets/vendor/fflate/browser.js) | 网页模型 ZIP 解压库，运行在 Worker 中 |
+| [Browser_SDK/assets/vendor/fflate/package-version.json](../Browser_SDK/assets/vendor/fflate/package-version.json) | npm 原包版本和 SHA512 完整性信息 |
+| [Browser_SDK/assets/vendor/onnxruntime-web/LICENSE.txt](../Browser_SDK/assets/vendor/onnxruntime-web/LICENSE.txt) | ONNX Runtime Web 的 MIT 许可证 |
+| [Browser_SDK/assets/vendor/onnxruntime-web/ort-wasm-simd-threaded.asyncify.js](../Browser_SDK/assets/vendor/onnxruntime-web/ort-wasm-simd-threaded.asyncify.js) | WebGPU 引擎的异步 WASM 模块胶水代码 |
+| [Browser_SDK/assets/vendor/onnxruntime-web/ort-wasm-simd-threaded.asyncify.wasm](../Browser_SDK/assets/vendor/onnxruntime-web/ort-wasm-simd-threaded.asyncify.wasm) | 浏览器直接运行的 WebGPU / WASM 推理实现 |
+| [Browser_SDK/assets/vendor/onnxruntime-web/ort.webgpu.min.js](../Browser_SDK/assets/vendor/onnxruntime-web/ort.webgpu.min.js) | 自托管 ONNX Runtime WebGPU JavaScript 引擎入口 |
+| [Browser_SDK/assets/vendor/onnxruntime-web/package-version.json](../Browser_SDK/assets/vendor/onnxruntime-web/package-version.json) | npm 原包版本和 SHA512 完整性信息 |
 | [Browser_SDK/assets/vendor/three.core.js](../Browser_SDK/assets/vendor/three.core.js) | Three.js 几何、场景、材质与数学核心 |
 | [Browser_SDK/assets/vendor/three.module.js](../Browser_SDK/assets/vendor/three.module.js) | Three.js 模块入口与 WebGL 实现 |
 | [Browser_SDK/downloads/act-runtime-template.deb](../Browser_SDK/downloads/act-runtime-template.deb) | 通用 Ubuntu 组件模板，由网页绑定当前网站后下载 |
 | [Browser_SDK/index.html](../Browser_SDK/index.html) | Star Arm 102 控制台首页 |
 | [Browser_SDK/src/a1z_model_data.js](../Browser_SDK/src/a1z_model_data.js) | A1Z 3D 零件与关节数据 |
+| [Browser_SDK/src/act-browser-app.js](../Browser_SDK/src/act-browser-app.js) | Windows 纯网页模型导入、相机串口授权、校验与执行界面 |
+| [Browser_SDK/src/act-browser-core.js](../Browser_SDK/src/act-browser-core.js) | 网页模型合同、原版校准坐标转换、限位与时间索引动作调度 |
+| [Browser_SDK/src/act-browser-runtime.js](../Browser_SDK/src/act-browser-runtime.js) | 浏览器 Worker 推理与串口控制、实时反馈、停止和资源释放 |
+| [Browser_SDK/src/act-browser-worker.js](../Browser_SDK/src/act-browser-worker.js) | 隔离线程校验模型包，加载 WebGPU 引擎并计算完整 ACT 动作块 |
+| [Browser_SDK/src/act-browser.css](../Browser_SDK/src/act-browser.css) | 纯网页执行入口的布局、侧栏滚动与过渡样式（样式） |
 | [Browser_SDK/src/act-camera-frame-encoder-worker-client.js](../Browser_SDK/src/act-camera-frame-encoder-worker-client.js) | 管理相机编码 Worker 请求、超时与退出 |
 | [Browser_SDK/src/act-camera-frame-encoder-worker.js](../Browser_SDK/src/act-camera-frame-encoder-worker.js) | 在后台 Worker 中编码相机 JPEG，减少主界面阻塞 |
 | [Browser_SDK/src/act-camera-frame-uploader.js](../Browser_SDK/src/act-camera-frame-uploader.js) | 管理双相机帧上传队列、批次与结束排空 |
@@ -159,6 +173,8 @@
 | [ai_service/act_policy_worker.py](../ai_service/act_policy_worker.py) | 独立进程加载 ACT 策略并产生预测动作 |
 | [ai_service/action_schedule.py](../ai_service/action_schedule.py) | 动作块队列、节拍调度与多次预测融合 |
 | [ai_service/app.py](../ai_service/app.py) | 本机 HTTP API、静态页面与资源生命周期 |
+| [ai_service/browser_export_worker.py](../ai_service/browser_export_worker.py) | 将 ACT 和处理器导出浏览器图，三组输入比对原版后打包 |
+| [ai_service/browser_exports.py](../ai_service/browser_exports.py) | 训练端异步网页模型导出、依赖准备、状态与下载 |
 | [ai_service/capabilities.py](../ai_service/capabilities.py) | 检测 Python、训练依赖、GPU 与运行阻碍 |
 | [ai_service/devices.py](../ai_service/devices.py) | 设备枚举与稳定标识、角色绑定 |
 | [ai_service/domain.py](../ai_service/domain.py) | 数据集、轮次、设备绑定与业务错误规则 |
@@ -188,6 +204,7 @@
 | [ai_service/windows_cameras.py](../ai_service/windows_cameras.py) | Windows DirectShow 双相机枚举、模式和原生 JPEG 视频流 |
 | [docs/ACT_GUIDE.md](../docs/ACT_GUIDE.md) | 采集、校准、训练、完整模型导入与执行教程 |
 | [docs/ARCHITECTURE.md](../docs/ARCHITECTURE.md) | 服务器、浏览器、本机后台与虚拟环境职责说明 |
+| [docs/BROWSER_EXECUTION.md](../docs/BROWSER_EXECUTION.md) | Windows 纯网页客户执行与提供方一键导出模型图文教程 |
 | [docs/CONSOLE_GUIDE.md](../docs/CONSOLE_GUIDE.md) | 控制台连接、三维查看、控制和舵机设置图文教程 |
 | [docs/DEPLOYMENT.md](../docs/DEPLOYMENT.md) | 服务器只上传静态文件的发布教程 |
 | [docs/DEVELOPMENT.md](../docs/DEVELOPMENT.md) | 开发检查、打包、更新与持续集成教程 |
@@ -207,6 +224,7 @@
 | [docs/images/console-device-panel.png](../docs/images/console-device-panel.png) | 真实界面教程截图（硬件未连接）：控制台设备连接面板 |
 | [docs/images/console-overview.png](../docs/images/console-overview.png) | 真实界面教程截图（硬件未连接）：控制台全景 |
 | [docs/images/console-servo-setup.png](../docs/images/console-servo-setup.png) | 真实界面教程截图（硬件未连接）：控制台舵机设置页面 |
+| [docs/images/windows-browser-execution.png](../docs/images/windows-browser-execution.png) | 真实界面教程截图（硬件未连接）：Windows 纯网页执行全景，未连接硬件 |
 | [docs/images/windows-runtime-ready.png](../docs/images/windows-runtime-ready.png) | 真实界面教程截图（硬件未连接）：Windows 实际 CPU 执行环境自检就绪界面（未连接硬件） |
 | [docs/images/windows-website-connection.png](../docs/images/windows-website-connection.png) | 真实界面教程截图（硬件未连接）：Windows 当前网站本机连接确认页（本机测试地址） |
 | [docs/images/workspace-transition.png](../docs/images/workspace-transition.png) | 真实界面教程截图（硬件未连接）：全屏工作区切换动画 |
@@ -217,6 +235,8 @@
 | [runtime/ubuntu_runtime.py](../runtime/ubuntu_runtime.py) | 用户后台启动、网站授权、环回 API 与组件连接检测 |
 | [start_ubuntu.sh](../start_ubuntu.sh) | Ubuntu 一步启动本机网页与后台并打开浏览器 |
 | [start_windows.bat](../start_windows.bat) | Windows 自动选择 Python 启动同一网页与后台 |
+| [tests/act_browser_core.test.js](../tests/act_browser_core.test.js) | 软件测试：网页模型合同、原版校准坐标转换、限位与时间索引动作调度 |
+| [tests/act_browser_runtime.test.js](../tests/act_browser_runtime.test.js) | 软件测试：浏览器 Worker 推理与串口控制、实时反馈、停止和资源释放 |
 | [tests/act_camera_frame_encoder_worker_client.test.js](../tests/act_camera_frame_encoder_worker_client.test.js) | 软件测试：管理相机编码 Worker 请求、超时与退出 |
 | [tests/act_camera_frame_uploader.test.js](../tests/act_camera_frame_uploader.test.js) | 软件测试：管理双相机帧上传队列、批次与结束排空 |
 | [tests/act_camera_state.test.js](../tests/act_camera_state.test.js) | 软件测试：统一相机连接、采集和丢帧状态 |
@@ -225,6 +245,7 @@
 | [tests/act_waveform.test.js](../tests/act_waveform.test.js) | 软件测试：Action / State 多通道曲线、时间轴与绘制 |
 | [tests/act_workbench_contract.test.js](../tests/act_workbench_contract.test.js) | 软件测试：ACT 页面结构与流程约束 |
 | [tests/api_client.test.js](../tests/api_client.test.js) | 软件测试：请求及响应体超时、取消与禁止自动重试 |
+| [tests/browser_direct_smoke.cjs](../tests/browser_direct_smoke.cjs) | 无本机 API 的网页模型、相机、串口和停止流程；模拟硬件 |
 | [tests/browser_smoke.cjs](../tests/browser_smoke.cjs) | 自动浏览器验证、临时本机服务与安装包生成检查 |
 | [tests/camera_navigation_smoke.cjs](../tests/camera_navigation_smoke.cjs) | 隔离端口与模拟双相机，验证步骤切换复用预览和过期状态处理 |
 | [tests/follower_calibration_ui.test.js](../tests/follower_calibration_ui.test.js) | 软件测试：从臂校准与重试界面 |
@@ -246,6 +267,7 @@
 | [tests/test_act_policy_worker.py](../tests/test_act_policy_worker.py) | 软件测试：独立进程加载 ACT 策略并产生预测动作 |
 | [tests/test_action_schedule.py](../tests/test_action_schedule.py) | 软件测试：动作块队列、节拍调度与多次预测融合 |
 | [tests/test_api.py](../tests/test_api.py) | 软件测试：HTTP API、数据集与轮次流程 |
+| [tests/test_browser_exports.py](../tests/test_browser_exports.py) | 软件测试：训练端异步网页模型导出、依赖准备、状态与下载 |
 | [tests/test_capabilities.py](../tests/test_capabilities.py) | 软件测试：检测 Python、训练依赖、GPU 与运行阻碍 |
 | [tests/test_devices.py](../tests/test_devices.py) | 软件测试：设备枚举与稳定标识、角色绑定 |
 | [tests/test_domain.py](../tests/test_domain.py) | 软件测试：数据集、轮次、设备绑定与业务错误规则 |
@@ -274,5 +296,6 @@
 | [tools/capture_docs.cjs](../tools/capture_docs.cjs) | 阻断本机硬件 API，以真实未连接界面生成教程截图 |
 | [tools/check_distribution.py](../tools/check_distribution.py) | 校验安装模板、源码一致性、换行、静态文件与资源路径 |
 | [tools/check_file_map.py](../tools/check_file_map.py) | 逐文件用途清单生成与遗漏检查 |
+| [tools/export_browser_act.py](../tools/export_browser_act.py) | 提供方网页模型转换的命令行入口，客户不运行 |
 | [tools/package_site.py](../tools/package_site.py) | 生成含静态网站、图文教程和 SHA256 清单的单个交付 ZIP |
 | [tools/serve_local.py](../tools/serve_local.py) | 源码启动入口，检查版本并同端口提供完整网页与 API |

@@ -57,6 +57,11 @@ async function switchTo(link) {
   if (!names[target]) return;
   const url = new URL(link.href);
   if (url.origin !== location.origin) return;
+  const windows = /Win/i.test(navigator.userAgentData?.platform || navigator.platform || '');
+  if (target === 'act' && windows && url.pathname.endsWith('/act-workbench.html') && !link.hasAttribute('data-native-workbench')) {
+    url.pathname = url.pathname.replace(/act-workbench\.html$/, 'act-browser.html');
+  }
+  const browserExecution = target === 'act' && url.pathname.endsWith('/act-browser.html');
   const operation = ++generation;
   busy = true;cancelled = false;show(target);
   phase(0, '正在结束当前控制并释放设备连接…');
@@ -67,10 +72,10 @@ async function switchTo(link) {
     if (waits.length < expected) throw new Error('当前工作台还在初始化，请稍后再切换。');
     await Promise.all(waits);
     if (cancelled || operation !== generation) return;
-    phase(1, '正在载入工作台页面与本机服务…');
+    phase(1, browserExecution ? '正在载入网页执行页面与浏览器组件…' : '正在载入工作台页面与本机服务…');
     await response(url.href);
     // The static site can open the ACT setup page before the computer-side service is started.
-    if (target === 'act') void localFetch(`${getLocalApi()}/health`, { signal: AbortSignal.timeout(1800) }).catch(() => {});
+    if (target === 'act' && !browserExecution) void localFetch(`${getLocalApi()}/health`, { signal: AbortSignal.timeout(1800) }).catch(() => {});
     if (cancelled || operation !== generation) return;
     phase(2, '页面已准备，稍候进入工作台');
     await holdReady(operation);
@@ -97,3 +102,13 @@ overlay.addEventListener('keydown', event => {
 window.addEventListener('pageshow', event => { if (event.persisted) { cancelled = true;++generation;hide(); } });
 // Clear legacy handoff tickets without replaying the launch scene on the destination.
 try { sessionStorage.removeItem('star-arm-workspace-transition'); } catch {}
+
+// Keep copied/new-tab ACT links on the same Windows customer route.
+if (/Win/i.test(navigator.userAgentData?.platform || navigator.platform || '')) {
+  for (const link of document.querySelectorAll('[data-workspace-target="act"]:not([data-native-workbench])')) {
+    const url = new URL(link.href);
+    if (url.origin === location.origin && url.pathname.endsWith('/act-workbench.html')) {
+      url.pathname = url.pathname.replace(/act-workbench\.html$/, 'act-browser.html');link.href = url.href;
+    }
+  }
+}

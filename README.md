@@ -2,9 +2,11 @@
 
 平台集成 Star Arm 102 控制台与 ACT 工作台，提供机械臂控制、三维可视化、双相机数据采集、模型训练、模型导入与实机执行功能。
 
-**ACT 训练使用 Ubuntu；训练好的完整模型可在 Ubuntu 或 Windows 执行。** 网站可以放在服务器上，机械臂、相机、数据和 GPU 仍在客户电脑上。服务器不连接机械臂，也不执行训练。
+**ACT 训练使用 Ubuntu；Windows 客户支持纯网页执行转换好的模型，无需安装 Python、PyTorch 或本机服务。** 网站可以放在服务器上，机械臂、相机、数据和 GPU 仍在客户电脑上。服务器不连接机械臂，也不执行训练。
 
-**第一次使用先看 [图文快速上手](docs/GETTING_STARTED.md)。** 教程包含 14 张实际界面截图，按按钮位置说明控制台连接、从臂校准、双相机、数据集创建、环境准备、模型导入和执行。截图为未连接硬件状态，不代表实机验证结果。
+**Windows 客户直接执行：[纯网页图文教程](docs/BROWSER_EXECUTION.md)。** 打开网站中的 `act-browser.html`，导入网页执行模型、授权相机和串口、校验后执行。提供方在第 3 步点击“导出 Windows 网页模型”生成客户包；不是让客户把普通权重改名或安装运行环境。
+
+**第一次使用先看 [图文快速上手](docs/GETTING_STARTED.md)。** 教程包含实际界面截图，按按钮位置说明控制台连接、从臂校准、双相机、数据集创建、环境准备、模型导入和执行。截图为未连接硬件状态，不代表实机验证结果。
 
 ![Star Arm 102 控制台](docs/images/console-overview.png)
 
@@ -43,11 +45,11 @@ sh start_ubuntu.sh
 
 详见 [Ubuntu 教程](docs/UBUNTU.md)、[ACT 操作教程](docs/ACT_GUIDE.md)。
 
-## Windows 本地启动
+## Windows（可选本机源码方式） 本地启动
 
 安装 Python 3.10～3.12，安装时勾选 **Add Python to PATH**。解压源码后双击根目录的 **`start_windows.bat`**，浏览器会自动打开控制台。
 
-Windows 支持控制台和 **ACT 已训练模型的本机执行**。双击启动脚本后，第 2 步准备 Windows 运行环境，第 3 步导入 Ubuntu 导出的完整模型包，第 4 步连接 COM 从臂和本机原生双相机。运行支持 NVIDIA CUDA 或 CPU，CPU 的实际频率以测试为准；**模型训练仍使用 Ubuntu**。详见 [Windows 教程](docs/WINDOWS.md)。
+Windows 纯网页客户按上方教程操作。以下源码启动方式支持控制台和 **ACT 已训练模型的本机 LeRobot 执行**。双击启动脚本后，第 2 步准备 Windows 运行环境，第 3 步导入 Ubuntu 导出的完整模型包，第 4 步连接 COM 从臂和本机原生双相机。运行支持 NVIDIA CUDA 或 CPU，CPU 的实际频率以测试为准；**模型训练仍使用 Ubuntu**。详见 [Windows 教程](docs/WINDOWS.md)。
 
 控制台子页面和 ACT 步骤切换时会自动停止当前控制并释放串口；在下一页操作机械臂前需重新连接。ACT 步骤之间保留双相机连接，第 1、4 步共用预览；切回控制台时释放相机。按钮处理中会显示状态，本机服务无响应时会提示超时。
 

@@ -19,6 +19,11 @@ FRONTEND = {
     'act-installer': '验证模板并生成绑定当前网站的 Ubuntu 安装包',
     'act-motion': 'ACT 元素出现、退出和交互过渡', 'act-ui-refresh': 'ACT 面板布局、空相机状态与交互视觉样式',
     'act-waveform': 'Action / State 多通道曲线、时间轴与绘制',
+    'act-browser-app': 'Windows 纯网页模型导入、相机串口授权、校验与执行界面',
+    'act-browser-core': '网页模型合同、原版校准坐标转换、限位与时间索引动作调度',
+    'act-browser-runtime': '浏览器 Worker 推理与串口控制、实时反馈、停止和资源释放',
+    'act-browser-worker': '隔离线程校验模型包，加载 WebGPU 引擎并计算完整 ACT 动作块',
+    'act-browser': '纯网页执行入口的布局、侧栏滚动与过渡样式',
     'act-workbench': 'ACT 四步骤工作台的流程、API、采集、训练和模型执行交互',
     'app': '控制台入口：初始化 3D、机械臂、串口和界面事件',
     'browser_serial_utils': '浏览器串口超时、读取与可取消任务工具',
@@ -62,6 +67,8 @@ BACKEND = {
     'training_dataset': '训练数据准备、完整性检查与转换缓存',
     'training_environment': '独立 Python 环境准备、依赖安装与加速设备自检',
     'training_jobs': '训练子进程、日志、检查点、停止与恢复',
+    'browser_exports': '训练端异步网页模型导出、依赖准备、状态与下载',
+    'browser_export_worker': '将 ACT 和处理器导出浏览器图，三组输入比对原版后打包',
     'training_manifest': 'Python / LeRobot / PyTorch 版本及加速源清单',
 }
 EXACT = {
@@ -80,6 +87,9 @@ EXACT = {
     'runtime/ubuntu_runtime.py': '用户后台启动、网站授权、环回 API 与组件连接检测',
     'runtime/start_desktop_sessions.py': '安装后识别活动桌面用户并启动用户后台',
     'runtime/Browser_SDK/index.html': '安装组件自带的最小状态页面，完整界面在网站',
+    'Browser_SDK/act-browser.html': '客户无需本机服务的 ACT 模型、双相机与串口执行网页',
+    'tools/export_browser_act.py': '提供方网页模型转换的命令行入口，客户不运行',
+    'tests/browser_direct_smoke.cjs': '无本机 API 的网页模型、相机、串口和停止流程；模拟硬件',
     'tools/serve_local.py': '源码启动入口，检查版本并同端口提供完整网页与 API',
     'tools/build_runtime_package.py': '构建 Debian 模板、桌面自启动、udev 与浏览器校验值',
     'tools/package_site.py': '生成含静态网站、图文教程和 SHA256 清单的单个交付 ZIP',
@@ -90,6 +100,7 @@ EXACT = {
     'tests/browser_smoke.cjs': '自动浏览器验证、临时本机服务与安装包生成检查',
 }
 DOCS = {
+    'BROWSER_EXECUTION': 'Windows 纯网页客户执行与提供方一键导出模型图文教程',
     'GETTING_STARTED': '图文快速上手、下载选择与已有模型 / 自训练路线',
     'CONSOLE_GUIDE': '控制台连接、三维查看、控制和舵机设置图文教程',
     'UBUNTU': 'Ubuntu 首次安装、本地启动、环境与数据目录教程',
@@ -108,6 +119,7 @@ DOC_IMAGES = {
     'act-collect-overview': 'ACT 数据采集全景', 'act-device-panel': 'ACT 设备连接面板',
     'act-dataset-form': '数据集创建表单与未提交示例', 'act-calibration-dialog': '从臂校准窗口',
     'act-first-setup': 'Ubuntu 首次安装与环境配置入口', 'act-model-import': '模型管理与导入入口',
+    'windows-browser-execution': 'Windows 纯网页执行全景，未连接硬件',
     'act-execution-overview': 'ACT 实机推理全景', 'act-execution-connections': '第 4 步从臂连接与校验门槛',
 }
 
@@ -161,6 +173,14 @@ def purpose(path):
         kind = {'.urdf': '关节、坐标和连杆结构', '.csv': 'CAD 导出的关节配置表'}
         label = {'parts.json': '导出零件映射', 'export_report.json': '模型导出坐标与警告报告'}
         return f'{path.parent.name} 模型的 ' + label.get(path.name, kind.get(path.suffix, '未知'))
+    if relative.startswith('Browser_SDK/assets/vendor/onnxruntime-web/'):
+        return {'LICENSE.txt': 'ONNX Runtime Web 的 MIT 许可证', 'package-version.json': 'npm 原包版本和 SHA512 完整性信息',
+                'ort.webgpu.min.js': '自托管 ONNX Runtime WebGPU JavaScript 引擎入口',
+                'ort-wasm-simd-threaded.asyncify.js': 'WebGPU 引擎的异步 WASM 模块胶水代码',
+                'ort-wasm-simd-threaded.asyncify.wasm': '浏览器直接运行的 WebGPU / WASM 推理实现'}[path.name]
+    if relative.startswith('Browser_SDK/assets/vendor/fflate/'):
+        return {'LICENSE.txt': 'fflate 的 MIT 许可证', 'package-version.json': 'npm 原包版本和 SHA512 完整性信息',
+                'browser.js': '网页模型 ZIP 解压库，运行在 Worker 中'}[path.name]
     if relative.startswith('Browser_SDK/assets/vendor/'):
         return {'three.module.js': 'Three.js 模块入口与 WebGL 实现', 'three.core.js': 'Three.js 几何、场景、材质与数学核心',
                 'OrbitControls.js': '3D 视角旋转、缩放与平移控件', 'STLLoader.js': '加载机械臂 STL 三角网格'}[path.name]

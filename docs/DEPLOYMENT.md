@@ -99,3 +99,9 @@ Windows 客户首次执行模型时，需下载源码并双击 `start_windows.ba
 若自定义网站安全策略，需允许本机 `http://127.0.0.1:18765` 的连接和媒体请求；浏览器的本机网络授权仍按系统提示完成。不能通过把后台暴露到公网解决权限问题。
 
 不上传客户数据、模型权重、校准 JSON、日志或后台源码到公开静态目录。Ubuntu 系统安装与硬件验收需在目标电脑完成，软件测试和上述离线截图不能代替。
+
+## Windows 纯网页客户入口
+
+新增 `act-browser.html` 和随站点加载的 WebGPU/WASM 引擎，仍是静态托管。完整上传“服务器网页”内容，不遗漏 `assets/vendor/onnxruntime-web/` 和 `assets/vendor/fflate/`。代码模块使用 `.js` 文件名，兼容普通静态服务器的 JavaScript MIME 设置。
+
+将 `act-browser.html` 对应的 HTTPS 地址和提供方导出的网页模型 ZIP 发给客户即可。客户无需本机服务、Python 安装或网站授权桥接。图片和模型计算不会传到网页服务器；校准仍对应客户实际连接的从臂。训练和本机 LeRobot 路线继续按原教程配置。

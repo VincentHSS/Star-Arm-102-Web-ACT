@@ -1,8 +1,20 @@
-# Windows · 下载、启动与支持范围
+# Windows · 纯网页执行与可选本机服务
 
-Windows 可运行 Star Arm 102 控制台，并执行在 Ubuntu 训练、导出的完整 ACT 模型。第 2 步自动准备 Windows 环境，第 3 步导入模型，第 4 步使用 Windows COM 从臂和 DirectShow 原生双相机执行。**训练和恢复训练仍使用 Ubuntu。**
+**客户推荐使用纯网页 ACT：打开 HTTPS 网站的 `act-browser.html`，导入网页执行模型，授权双相机、选择从臂串口，再校验执行。无需安装 Python、PyTorch、LeRobot 或本机服务。**完整步骤、模型格式和截图见 [Windows 纯网页执行教程](BROWSER_EXECUTION.md)。训练和恢复训练仍使用 Ubuntu。
 
-## 1. 安装 Python
+## 1. 客户直接使用服务器网页
+
+从原工作台第 4 步点击 **Windows 网页直接执行**，或直接打开提供方发来的网页执行地址。模型必须是提供方转换好的网页包；普通 PyTorch checkpoint 不能直接由浏览器执行。浏览器引擎随网站加载，客户不需要下载 Ubuntu 组件或运行 `.bat`。
+
+![Windows 网页执行界面；未连接设备](images/windows-browser-execution.png)
+
+首次授权相机与串口后，按界面连接和校验。归一化模型仍使用本台从臂的校准参数。Chrome / Edge 需要可用的 WebGPU；显卡硬件加速关闭、USB 设备未被系统识别时，应先处理设备或浏览器设置。
+
+## 2. 可选：使用源码和本机 LeRobot 服务
+
+以下是另一条本机执行路线，供开发、模型管理或保留原 PyTorch 检查点的用户使用，**不是纯网页客户的必装步骤**。
+
+### 2.1 安装 Python
 
 1. 从 [Python 官方 Windows 发布页](https://www.python.org/downloads/windows/) 选择 Python 3.10～3.12 系列的可安装版本，本项目不使用更新主版本。
 2. 运行安装器，勾选 **Add Python to PATH**，保留 Python 启动器选项，按安装器流程完成安装。
@@ -10,7 +22,7 @@ Windows 可运行 Star Arm 102 控制台，并执行在 Ubuntu 训练、导出�
 
 普通客户不需要安装 Node.js、npm 或 Docker。
 
-## 2. 下载源码，找到启动脚本
+### 2.2 下载源码，找到启动脚本
 
 1. 打开 [GitHub 仓库](https://github.com/VincentHSS/Star-Arm-102-Web-ACT)，点击 **Code → Download ZIP**。
 2. 在文件管理器解压源码 ZIP，进入真正的源码根目录。Windows 隐藏扩展名时，可在“查看”中开启“文件扩展名”。
@@ -19,7 +31,7 @@ Windows 可运行 Star Arm 102 控制台，并执行在 Ubuntu 训练、导出�
 
 不要在压缩包预览窗口内直接运行，也不要下载 Release 的服务器静态包来找启动脚本。
 
-## 3. 打开并使用控制台
+### 2.3 打开并使用控制台
 
 正常启动会自动打开 `http://127.0.0.1:18765/`；没有自动打开时，在 Chrome / Edge 输入该地址。保持启动窗口打开，关闭它会结束源码后台。
 
@@ -27,7 +39,7 @@ Windows 可运行 Star Arm 102 控制台，并执行在 Ubuntu 训练、导出�
 
 按 [控制台图文教程](CONSOLE_GUIDE.md) 选择硬件和连接串口。浏览器弹出的设备选择框需用户选择端口；端口不存在时检查 USB 驱动、设备供电及其他程序是否占用。
 
-## 4. 执行 Ubuntu 训练好的模型
+### 2.4 执行 Ubuntu 训练好的模型
 
 1. 在 Ubuntu 的第 3 步对目标模型点击 **导出模型**，将完整 ZIP 复制到 Windows 电脑。保留归一化模型对应的同一台物理从臂校准 JSON。
 2. 在 Windows 双击 `start_windows.bat`，使用自动打开的本机网页。也可返回提供方服务器网站，在第 2 步点击 **允许当前网站连接**，到弹出的本机确认页点击 **允许连接这个网站**，然后返回原网页。以后复用该网站授权；Windows 不安装 Ubuntu `.deb`。
@@ -58,7 +70,7 @@ Windows 环境安装在固定版本目录，不会安装完成后移动 Python �
 
 Windows 页面只显示模型执行环境，不显示 Ubuntu 的开始训练表单。上图来自实际安装好的 CPU 环境；不代表已完成机械臂运动或 CUDA 验收。
 
-## 5. 哪些功能可以使用
+### 2.5 哪些功能可以使用
 
 | 功能 | Windows 当前支持情况 |
 | --- | --- |
@@ -70,7 +82,7 @@ Windows 页面只显示模型执行环境，不显示 Ubuntu 的开始训练表�
 | 本机原生双相机 | Windows 使用 DirectShow；Ubuntu 使用 V4L2 |
 | 网页下载的 `.deb` 组件 | 仅用于 Ubuntu，不能在 Windows 安装 |
 
-## 6. 退出和常见问题
+### 2.6 退出和常见问题
 
 先停止正在进行的控制或文件操作，再关闭启动窗口。页面切换会释放串口，进入目标页面后需重新连接。
 

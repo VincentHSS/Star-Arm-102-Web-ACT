@@ -18,6 +18,7 @@ from .episode_data import EpisodeDataStore
 from .inference_runtime import ActInferenceRuntime
 from .native_cameras import NativeCameraError, V4L2CameraManager
 from .windows_cameras import WindowsCameraManager
+from .browser_exports import BrowserExportManager
 from .devices import DeviceRegistry
 from .serial_connections import SerialConnectionManager
 from .store import JsonStore
@@ -93,6 +94,7 @@ class ApiServer(ThreadingHTTPServer):
             WindowsCameraManager(lambda: self.training_environment.snapshot().get('ffmpeg_executable'))
             if os.name == 'nt' else V4L2CameraManager())
         self.training_jobs = self._inject.get("training_jobs") or TrainingJobManager(self.data_root)
+        self.browser_exports = BrowserExportManager(self.data_root,self.training_jobs,self.training_environment)
         self.training_dataset = self._inject.get("training_dataset") or TrainingDatasetAdapter(self.data_root, self.episode_data)
         self.inference = self._inject.get("inference") or ActInferenceRuntime(
             self.serial_connections, self.native_cameras, self.telemetry, self.data_root
@@ -111,6 +113,8 @@ class ApiServer(ThreadingHTTPServer):
             raise DomainError("正在采集，不能切换数据目录", "data_dir_busy")
         if any(item.get("status") in {"running", "stopping"} for item in self.training_jobs.list()):
             raise DomainError("训练正在运行，不能切换数据目录", "data_dir_busy")
+        if self.browser_exports.active():
+            raise DomainError("网页模型正在导出，不能切换数据目录", "data_dir_busy")
         self.native_cameras.stop_recording()
         self.teleop.stop()
         self.serial_connections.close_all()
@@ -213,6 +217,11 @@ class Handler(SimpleHTTPRequestHandler):
             if path == "/api/v1/models":
                 dataset_id = parse_qs(parsed.query).get("dataset_id", [None])[0]
                 return self._json(200, {"items": self.server.training_jobs.list_models(dataset_id)})
+            match = re.fullmatch(r"/api/v1/browser-exports/([^/]+)(/download)?", path)
+            if match:
+                if match.group(2):
+                    return self._binary(200,self.server.browser_exports.download(match.group(1)),"application/zip","Star-Arm-102-ACT-BROWSER-MODEL.zip")
+                return self._json(200,self.server.browser_exports.snapshot(match.group(1)))
             match = re.fullmatch(r"/api/v1/models/([^/]+)/export", path)
             if match:
                 archive, model_name = self.server.training_jobs.export_model(match.group(1))
@@ -386,6 +395,11 @@ class Handler(SimpleHTTPRequestHandler):
                 job = self.server.training_jobs.get(match.group(1))
                 dataset = self.server.training_dataset.prepare(job["dataset_id"], environment)
                 return self._json(202, self.server.training_jobs.resume(match.group(1), environment, dataset))
+            match = re.fullmatch(r"/api/v1/models/([^/]+)/browser-export", path)
+            if match:
+                if self.server.inference.snapshot().get("status") in {"loading","running","stopping"}:
+                    raise DomainError("请先停止实机推理，再导出网页模型", "inference_active")
+                return self._json(202,self.server.browser_exports.start(match.group(1)))
             match = re.fullmatch(r"/api/v1/training/jobs/([^/]+)/register", path)
             if match:
                 return self._json(201, self.server.training_jobs.register(match.group(1)))

@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta http-equiv="Cache-Control" content="no-store">
   <title>Star Arm 102 · ACT 工作台 v0.1.0</title>
-  <link rel="stylesheet" href="src/act-workbench.css?v=2026-10-13-camera-handoff-1">
-  <link rel="stylesheet" href="src/act-inference.css?v=2026-10-13-camera-handoff-1">
-  <link rel="stylesheet" href="src/act-ui-refresh.css?v=2026-10-13-camera-handoff-1">
-  <link rel="stylesheet" href="src/workspace-switch.css?v=2026-10-13-camera-handoff-1">
+  <link rel="stylesheet" href="src/act-workbench.css?v=2026-10-13-camera-runtime-2">
+  <link rel="stylesheet" href="src/act-inference.css?v=2026-10-13-camera-runtime-2">
+  <link rel="stylesheet" href="src/act-ui-refresh.css?v=2026-10-13-camera-runtime-2">
+  <link rel="stylesheet" href="src/workspace-switch.css?v=2026-10-13-camera-runtime-2">
 <style>html,body{background:#0f1416}</style>
 <link rel="icon" href="assets/logo-icon.png">
 <link rel="stylesheet" href="src/interaction.css?v=responsive-1">
@@ -278,7 +278,7 @@
       <div class="inference-shell">
         <header class="inference-head">
           <div><p class="kicker">LEROBOT ACT / REAL FL</p><h2>实机推理运行中心</h2><p>真实双相机、J1–J7 Observation / Action 与执行性能</p></div>
-          <div class="inference-head-actions"><button class="ghost camera-enlarge" type="button" data-camera-enlarge="infer" data-ui-icon="maximize">放大视频</button><b id="inference-status" class="tag blocked">等待验证</b></div>
+          <div class="inference-head-actions"><a class="browser-execute-link" href="act-browser.html" data-workspace-target="act">Windows 网页直接执行</a><button class="ghost camera-enlarge" type="button" data-camera-enlarge="infer" data-ui-icon="maximize">放大视频</button><b id="inference-status" class="tag blocked">等待验证</b></div>
         </header>
         <aside class="inference-setup panel">
           <header class="panel-head"><div><p class="kicker">EXECUTION CONTRACT</p><h2>模型与任务</h2></div></header>
@@ -292,7 +292,6 @@
               <p id="inference-camera-instructions" class="form-status"></p>
               <button id="inference-model-import" class="secondary wide" type="button">导入模型并准备运行</button>
               <p id="inference-import-status" class="form-status">支持完整模型 ZIP / TAR.GZ，导入后自动选择模型和任务。</p>
-              <button id="inference-prepare-runtime" class="secondary wide hidden" type="button">准备 ACT 运行环境</button>
               <label>模型支持任务<select id="inference-task"><option value="">等待 ACT 模型</option></select></label>
               <button id="inference-validate" class="secondary wide" type="button" disabled>验证执行条件</button>
             </section>
@@ -301,6 +300,7 @@
               <label>从臂串口<select id="inference-follower-port"><option value="">未检测到串口</option></select></label>
               <div class="device-actions"><button id="inference-connect-follower" class="primary" type="button" data-ui-icon="link">连接从臂</button><button id="inference-disconnect-follower" class="ghost" type="button" disabled data-ui-icon="unlink">断开从臂</button><button id="inference-refresh-ports" class="ghost" type="button" data-ui-icon="refresh">刷新串口</button></div>
               <p id="inference-serial-status" class="form-status" role="status">切换页面后串口已释放，请在这里连接从臂。</p>
+              <button id="inference-prepare-runtime" class="secondary wide hidden" type="button">准备 ACT 运行环境</button>
               <button id="inference-camera-settings" class="secondary wide" type="button">相机设置 / 连接推理相机</button><p id="inference-camera-help" class="form-status" role="status">正在检查相机视频流…</p><div id="inference-gates" class="inference-gates">
                 <div><span>Checkpoint / Processor</span><b>等待验证</b></div>
                 <div><span>本机原生双相机</span><b>等待连接</b></div>
@@ -371,7 +371,7 @@
   <label><input id="calibration-same-arm-confirm" type="checkbox">当前连接的是生成此校准的同一台物理从臂</label>
   <div class="device-actions"><button id="calibration-apply" class="primary" disabled>用于当前导入模型</button><button id="calibration-download" class="secondary" disabled>下载校准 JSON</button><button id="calibration-close" class="ghost">关闭</button></div>
 </dialog>
-<script type="module" src="src/act-workbench.js?v=2026-10-13-camera-handoff-1"></script>
-<script type="module" src="src/workspace-switch.js?v=2026-10-13-camera-handoff-1"></script>
+<script type="module" src="src/act-workbench.js?v=2026-10-13-camera-runtime-2"></script>
+<script type="module" src="src/workspace-switch.js?v=browser-act-1"></script>
 </body>
 </html>
