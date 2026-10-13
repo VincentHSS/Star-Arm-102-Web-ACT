@@ -22,6 +22,10 @@ jobs:
           node-version: '22'
       - run: npm test
       - run: python -m unittest discover -s tests -p 'test_*.py'
+      - if: runner.os == 'Linux'
+        run: |
+          sh -n start_ubuntu.sh
+          apt-get -o DPkg::Lock::Timeout=1 -o Acquire::Retries=3 --no-remove --simulate install ffmpeg
       - run: python tools/build_runtime_package.py
       - run: python tools/check_distribution.py
       - run: python tools/check_file_map.py

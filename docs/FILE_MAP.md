@@ -224,6 +224,7 @@
 | [docs/images/console-device-panel.png](../docs/images/console-device-panel.png) | 真实界面教程截图（硬件未连接）：控制台设备连接面板 |
 | [docs/images/console-overview.png](../docs/images/console-overview.png) | 真实界面教程截图（硬件未连接）：控制台全景 |
 | [docs/images/console-servo-setup.png](../docs/images/console-servo-setup.png) | 真实界面教程截图（硬件未连接）：控制台舵机设置页面 |
+| [docs/images/ubuntu-install-recovery.png](../docs/images/ubuntu-install-recovery.png) | 真实界面教程截图（硬件未连接）：Ubuntu 安装故障帮助与重新检测入口（组件未连接） |
 | [docs/images/windows-browser-execution.png](../docs/images/windows-browser-execution.png) | 真实界面教程截图（硬件未连接）：Windows 纯网页执行全景，未连接硬件 |
 | [docs/images/windows-runtime-ready.png](../docs/images/windows-runtime-ready.png) | 真实界面教程截图（硬件未连接）：Windows 实际 CPU 执行环境自检就绪界面（未连接硬件） |
 | [docs/images/windows-website-connection.png](../docs/images/windows-website-connection.png) | 真实界面教程截图（硬件未连接）：Windows 当前网站本机连接确认页（本机测试地址） |
@@ -233,7 +234,7 @@
 | [runtime/Browser_SDK/index.html](../runtime/Browser_SDK/index.html) | 安装组件自带的最小状态页面，完整界面在网站 |
 | [runtime/start_desktop_sessions.py](../runtime/start_desktop_sessions.py) | 安装后识别活动桌面用户并启动用户后台 |
 | [runtime/ubuntu_runtime.py](../runtime/ubuntu_runtime.py) | 用户后台启动、网站授权、环回 API 与组件连接检测 |
-| [start_ubuntu.sh](../start_ubuntu.sh) | Ubuntu 一步启动本机网页与后台并打开浏览器 |
+| [start_ubuntu.sh](../start_ubuntu.sh) | Ubuntu 检查并补齐系统依赖，使用系统 Python 启动网页与后台 |
 | [start_windows.bat](../start_windows.bat) | Windows 自动选择 Python 启动同一网页与后台 |
 | [tests/act_browser_core.test.js](../tests/act_browser_core.test.js) | 软件测试：网页模型合同、原版校准坐标转换、限位与时间索引动作调度 |
 | [tests/act_browser_runtime.test.js](../tests/act_browser_runtime.test.js) | 软件测试：浏览器 Worker 推理与串口控制、实时反馈、停止和资源释放 |
@@ -290,6 +291,7 @@
 | [tests/test_training_dataset.py](../tests/test_training_dataset.py) | 软件测试：训练数据准备、完整性检查与转换缓存 |
 | [tests/test_training_environment.py](../tests/test_training_environment.py) | 软件测试：独立 Python 环境准备、依赖安装与加速设备自检 |
 | [tests/test_training_jobs.py](../tests/test_training_jobs.py) | 软件测试：训练子进程、日志、检查点、停止与恢复 |
+| [tests/test_ubuntu_setup.py](../tests/test_ubuntu_setup.py) | 软件测试：Ubuntu 授权、锁等待选项、安装失败提示、中断恢复与重复启动 |
 | [tests/test_website_authorization.py](../tests/test_website_authorization.py) | 软件测试：Windows 当前网站连接确认、限时单次令牌与确认界面 |
 | [tests/test_windows_execution.py](../tests/test_windows_execution.py) | 软件测试：Windows COM 官方驱动读写、双相机与固定目录 CPU 环境 |
 | [tools/build_runtime_package.py](../tools/build_runtime_package.py) | 构建 Debian 模板、桌面自启动、udev 与浏览器校验值 |
@@ -299,3 +301,4 @@
 | [tools/export_browser_act.py](../tools/export_browser_act.py) | 提供方网页模型转换的命令行入口，客户不运行 |
 | [tools/package_site.py](../tools/package_site.py) | 生成含静态网站、图文教程和 SHA256 清单的单个交付 ZIP |
 | [tools/serve_local.py](../tools/serve_local.py) | 源码启动入口，检查版本并同端口提供完整网页与 API |
+| [tools/ubuntu_setup.py](../tools/ubuntu_setup.py) | Ubuntu 系统依赖与组件安装，等待 dpkg 锁、重试下载并解释失败原因 |

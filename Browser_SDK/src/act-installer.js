@@ -1,7 +1,7 @@
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
 const MAX_TAR = 8 * 1024 * 1024;
-const TEMPLATE_SHA256 = 'd7a3027fde938fbd36c915930ae45af28ff4b11884e212f440f8e1fbb5180a4c';
+const TEMPLATE_SHA256 = 'b7cb731c2c56966c6c930269e768222e66328e73d0fd2726ecaf778f7c367c02';
 function text(bytes) { return decoder.decode(bytes).replace(/\0.*$/s, ''); }
 function concat(parts) { const output=new Uint8Array(parts.reduce((n,p)=>n+p.length,0));let position=0;for(const part of parts){output.set(part,position);position+=part.length;}return output; }
 function readAr(bytes) {
@@ -40,10 +40,10 @@ export async function createWebsiteInstaller(origin=location.origin){
   // validates the template; omit stale metadata after changing website.json.
   const filtered=controls.filter(file=>file.name!=='./md5sums');
   const control=filtered.find(file=>file.name==='./control');if(!control)throw Error('运行组件安装模板缺少包信息');
-  const version='1.0.7+site.'+new Date().toISOString().replace(/\D/g,'');
+  const version='1.0.8+site.'+new Date().toISOString().replace(/\D/g,'');
   const size=Math.ceil(data.reduce((sum,file)=>sum+file.data.length,0)/1024);
   control.data=encoder.encode(text(control.data).split('\n').map(line=>line.startsWith('Version: ')?'Version: '+version:line.startsWith('Installed-Size: ')?'Installed-Size: '+size:line).join('\n'));
   archive.set('data.tar.gz',await gzip(writeTar(data)));
   archive.set('control.tar.gz',await gzip(writeTar(filtered)));
-  return {blob:new Blob([writeAr(archive)],{type:'application/vnd.debian.binary-package'}),filename:'star-arm-act_1.0.7_all.deb',origin:site};
+  return {blob:new Blob([writeAr(archive)],{type:'application/vnd.debian.binary-package'}),filename:'star-arm-act_1.0.8_all.deb',origin:site};
 }

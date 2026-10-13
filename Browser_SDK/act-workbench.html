@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta http-equiv="Cache-Control" content="no-store">
   <title>Star Arm 102 · ACT 工作台 v0.1.0</title>
-  <link rel="stylesheet" href="src/act-workbench.css?v=2026-10-13-camera-runtime-2">
-  <link rel="stylesheet" href="src/act-inference.css?v=2026-10-13-camera-runtime-2">
-  <link rel="stylesheet" href="src/act-ui-refresh.css?v=2026-10-13-camera-runtime-2">
-  <link rel="stylesheet" href="src/workspace-switch.css?v=2026-10-13-camera-runtime-2">
+  <link rel="stylesheet" href="src/act-workbench.css?v=2026-10-13-ubuntu-recovery-1">
+  <link rel="stylesheet" href="src/act-inference.css?v=2026-10-13-ubuntu-recovery-1">
+  <link rel="stylesheet" href="src/act-ui-refresh.css?v=2026-10-13-ubuntu-recovery-1">
+  <link rel="stylesheet" href="src/workspace-switch.css?v=2026-10-13-ubuntu-recovery-1">
 <style>html,body{background:#0f1416}</style>
 <link rel="icon" href="assets/logo-icon.png">
 <link rel="stylesheet" href="src/interaction.css?v=responsive-1">
@@ -236,6 +236,14 @@
                 <li data-runtime-environment><span class="runtime-step-number">03</span><div><h4>自动配置运行环境</h4><p>连接成功后自动安装和检查 PyTorch／LeRobot，进度直接显示在当前页面。已有环境会复用，无需敲命令。</p></div></li>
               </ol>
               <p id="runtime-setup-status" class="runtime-setup-status" role="status" aria-live="polite">正在检测本机连接…</p>
+              <details class="runtime-recovery">
+                <summary>安装报错或网页仍未连接</summary>
+                <p><strong>安装锁被占用：</strong>系统更新或另一个安装器正在使用软件管理器。等其完成后重新打开安装文件；网页会继续检测，不需要反复下载，也不要删除锁文件。</p>
+                <p><strong>安装已中断或依赖失败：</strong>先在 Ubuntu 软件管理器完成或修复上次安装，再重新安装当前文件。网络或软件源异常时，先恢复网络。</p>
+                <p><strong>已安装，但这里仍未连接：</strong>允许浏览器访问本机网络；在 Ubuntu 应用菜单打开“Star Arm ACT 运行组件”，启动失败会显示具体错误。</p>
+                <p>网页检测的是本机组件连接，无法读取未安装电脑上的系统安装进度。</p>
+                <button type="button" class="secondary runtime-check">重新检测连接</button>
+              </details>
             </section>
             <div id="training-ready-controls" class="training-ready hidden"><label>训练数据集<select id="training-dataset"></select></label><div class="training-parameters"><label>Batch<input id="training-batch-size" type="number" min="1" max="256" value="1"></label><label>目标 Step<input id="training-steps" type="number" min="1" max="10000000" value="100000"></label><label>保存间隔<input id="training-save-freq" type="number" min="1" value="10000"></label></div><button id="training-start" class="primary">开始训练</button></div>
           </section>
@@ -371,7 +379,7 @@
   <label><input id="calibration-same-arm-confirm" type="checkbox">当前连接的是生成此校准的同一台物理从臂</label>
   <div class="device-actions"><button id="calibration-apply" class="primary" disabled>用于当前导入模型</button><button id="calibration-download" class="secondary" disabled>下载校准 JSON</button><button id="calibration-close" class="ghost">关闭</button></div>
 </dialog>
-<script type="module" src="src/act-workbench.js?v=2026-10-13-camera-runtime-2"></script>
-<script type="module" src="src/workspace-switch.js?v=browser-act-1"></script>
+<script type="module" src="src/act-workbench.js?v=2026-10-13-ubuntu-recovery-1"></script>
+<script type="module" src="src/workspace-switch.js?v=ubuntu-recovery-1"></script>
 </body>
 </html>

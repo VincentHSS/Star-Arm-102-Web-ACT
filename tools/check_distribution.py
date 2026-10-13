@@ -39,7 +39,7 @@ def main():
     assert hashlib.sha256(template).hexdigest() == expected, '模板与前端校验值不一致'
     ar = read_ar(template); assert ar['debian-binary'] == b'2.0\n'
     control = unpack(ar['control.tar.gz']); payload = unpack(ar['data.tar.gz'])
-    assert b'Version: 1.0.7\n' in control['control'][0]
+    assert b'Version: 1.0.8\n' in control['control'][0]
     assert control['postinst'][1] == 0o755 and control['postrm'][1] == 0o755
     assert payload['usr/bin/star-arm-act-launch'][1] == 0o755
     assert json.loads(payload['opt/star-arm-act/website.json'][0]) == {'origin': ''}
@@ -79,7 +79,7 @@ def main():
             else:
                 assert content == actual_content, name
         generated_control = unpack(generated['control.tar.gz'])
-        assert b'Version: 1.0.7+site.' in generated_control['control'][0]
+        assert b'Version: 1.0.8+site.' in generated_control['control'][0]
         assert 'md5sums' not in generated_control
         print('浏览器生成包的网站绑定、文件内容与权限校验通过')
     print(f'网站与 Ubuntu 模板校验通过：{len(payload)} 个安装文件')

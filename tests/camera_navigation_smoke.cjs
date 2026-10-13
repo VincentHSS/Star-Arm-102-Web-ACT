@@ -23,6 +23,39 @@ const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
     for(let i=0;i<80;i++){try{const r=await fetch(site+'/api/v1/health');ready=r.ok;await r.arrayBuffer();if(ready)break;}catch{}await pause(100);}
     assert(ready,'Temporary service failed to start');
     browser=await chromium.launch({headless:true,...(process.env.PLAYWRIGHT_BROWSER_CHANNEL?{channel:process.env.PLAYWRIGHT_BROWSER_CHANNEL}:{})});
+    // Installation recovery is UI-only. All requests stay on this test service.
+    {
+      const page=await browser.newPage({viewport:{width:1600,height:1050}});
+      let connected=false, prepares=0, readyEnvironment=false;
+      await page.addInitScript(()=>Object.defineProperty(navigator,'platform',{get:()=> 'Linux x86_64'}));
+      await page.route('**/src/local-service.js*',r=>r.fulfill({contentType:'text/javascript',
+        body:fs.readFileSync(path.join(ROOT,'Browser_SDK/src/local-service.js'),'utf8').replace('http://127.0.0.1:18765',site)}));
+      await page.route('http://127.0.0.1:18765/**',r=>r.abort());
+      await page.route('**/api/v1/health',r=>r.fulfill({json:connected?
+        {status:'ok',browser_bridge:true,authorized:true,platform:'linux'}:{status:'unavailable'}}));
+      const environment=()=>({status:readyEnvironment?'ready':'not_prepared',backend:'cuda',training_profile:{}});
+      await page.route('**/api/v1/training/environment',r=>r.fulfill({json:environment()}));
+      await page.route('**/api/v1/training/environment/prepare',r=>{prepares++;readyEnvironment=true;return r.fulfill({json:environment()});});
+      await page.goto(site+'/act-workbench.html');
+      await page.click('.workflow [data-view="train"]');
+      await page.waitForFunction(()=>!document.querySelector('#runtime-onboarding').hidden);
+      await page.click('.runtime-recovery summary');
+      assert(await page.locator('.runtime-recovery').innerText().then(text=>text.includes('不要删除锁文件')));
+      await page.click('.runtime-check');
+      await page.waitForFunction(()=>!document.querySelector('.runtime-check').disabled);
+      assert.equal(await page.locator('#runtime-onboarding').isVisible(),true,'Offline detection cannot claim successful installation');
+      assert.equal(prepares,0,'Uninstalled component cannot prepare a local environment');
+      fs.mkdirSync(path.join(ROOT,'dist'),{recursive:true});
+      await page.locator('#runtime-onboarding').screenshot({path:path.join(ROOT,'dist/ubuntu-install-recovery.png'),animations:'disabled'});
+      connected=true;
+      await page.click('.runtime-check');
+      await page.waitForFunction(()=>document.querySelector('#training-title').textContent.includes('已就绪'));
+      assert.equal(prepares,1,'Connecting after recovery continues the originally requested preparation once');
+      await page.waitForFunction(()=>document.querySelector('#runtime-onboarding').hidden);
+      await page.locator('#runtime-onboarding').waitFor({state:'hidden'});
+      await page.close();
+      console.log(JSON.stringify({ubuntuRecoveryPanel:true,offlineNeverClaimsInstalled:true,manualRedetectionContinuesPreparation:true}));
+    }
     for(const backend of ['browser','native']) {
       const page=await browser.newPage({viewport:{width:1440,height:1000}}), errors=[];
       await page.route('**/src/local-service.js*',r=>r.fulfill({contentType:'text/javascript',

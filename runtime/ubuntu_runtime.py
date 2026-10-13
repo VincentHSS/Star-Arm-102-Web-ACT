@@ -1,5 +1,7 @@
 """User-session ACT runtime for the installed Ubuntu desktop application."""
 import argparse
+import hashlib
+from http.client import HTTPException
 import json
 import os
 import subprocess
@@ -7,11 +9,11 @@ import sys
 import time
 from pathlib import Path
 from urllib.parse import parse_qs, urlsplit
-from urllib.request import urlopen
+from urllib.request import ProxyHandler, build_opener
 
 ROOT = Path(__file__).resolve().parent
 PORT = 18765
-VERSION = '1.0.7'
+VERSION = '1.0.8'
 
 
 def normalize_origin(value):
@@ -161,7 +163,9 @@ def serve(directory, port=PORT, static_root=None):
                     return self._json(400, {'error': {'message': str(error)}})
             if self._health_path():
                 return self._json(200, {'status': 'ok', 'version': VERSION, 'browser_bridge': True,
-                                       'authorized': self._origin_allowed(), 'platform': sys.platform})
+                                       'authorized': self._origin_allowed(), 'platform': sys.platform,
+                                       'static_workbench': bool(static_root),
+                                       'state_directory_id': state_directory_id(directory)})
             super().do_GET()
 
         def do_POST(self):
@@ -206,13 +210,24 @@ def serve(directory, port=PORT, static_root=None):
         server.server_close()
 
 
-def runtime_health():
+def state_directory_id(directory):
+    return hashlib.sha256(os.path.normcase(str(directory.resolve())).encode('utf-8')).hexdigest()
+
+
+def runtime_health_info():
     try:
-        with urlopen(f'http://127.0.0.1:{PORT}/api/v1/health', timeout=1) as response:
-            health = json.load(response)
-            return health.get('browser_bridge') is True and str(health.get('version', '')).startswith('1.')
-    except (OSError, ValueError):
-        return False
+        # Corporate/Conda proxies must never redirect this loopback request.
+        with build_opener(ProxyHandler({})).open(f'http://127.0.0.1:{PORT}/api/v1/health', timeout=1) as response:
+            health = json.loads(response.read(65536))
+            if isinstance(health, dict) and health.get('status') == 'ok' and health.get('browser_bridge') is True and str(health.get('version', '')).startswith('1.'):
+                return health
+    except (OSError, ValueError, HTTPException):
+        pass
+    return None
+
+
+def runtime_health():
+    return runtime_health_info() is not None
 
 
 def ensure_running(directory):
@@ -220,12 +235,14 @@ def ensure_running(directory):
         return
     directory.mkdir(parents=True, exist_ok=True)
     with (directory / 'runtime.log').open('ab') as log:
-        subprocess.Popen([sys.executable, str(ROOT / 'ubuntu_runtime.py'), '--serve'],
+        process = subprocess.Popen([sys.executable, str(ROOT / 'ubuntu_runtime.py'), '--serve'],
                          cwd=str(directory), stdin=subprocess.DEVNULL, stdout=log, stderr=log,
                          start_new_session=True)
     for _ in range(80):
         if runtime_health():
             return
+        if process.poll() not in (None, 0):
+            raise RuntimeError(f'ACT 后台启动时退出（退出码 {process.returncode}）。请查看 {directory / "runtime.log"}；若端口被其他程序占用，先关闭那个程序再重试。')
         time.sleep(.15)
     raise RuntimeError('ACT 未能启动。请关闭旧版 ACT 程序后重试；详细记录保存在本机 runtime.log。')
 

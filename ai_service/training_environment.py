@@ -84,6 +84,70 @@ def _supported_python_version(version):
     return (3, 10) <= tuple(version[:2]) < (3, 13)
 
 
+def _process_token(pid):
+    """Creation identity also distinguishes reused PIDs after a restart."""
+    try:
+        if os.name == 'nt':
+            import ctypes
+            kernel = ctypes.WinDLL('kernel32', use_last_error=True)
+            kernel.OpenProcess.restype = ctypes.c_void_p
+            kernel.CloseHandle.argtypes = [ctypes.c_void_p]
+            handle = kernel.OpenProcess(0x1000, False, pid)
+            if not handle:
+                return None
+            try:
+                times = [ctypes.c_ulonglong() for _ in range(4)]
+                if kernel.GetProcessTimes(ctypes.c_void_p(handle), *(ctypes.byref(value) for value in times)):
+                    return str(times[0].value)
+            finally:
+                kernel.CloseHandle(handle)
+        else:
+            fields = Path(f'/proc/{pid}/stat').read_text().rsplit(')', 1)[1].split()
+            boot = Path('/proc/sys/kernel/random/boot_id').read_text().strip()
+            return boot + ':' + fields[19]
+    except (OSError, ValueError, IndexError):
+        pass
+    return None
+
+
+def _process_alive(pid, expected_token=None):
+    if not isinstance(pid, int) or not 0 < pid <= 0xffffffff:
+        return False
+    if expected_token:
+        token = _process_token(pid)
+        if token and token != expected_token:
+            return False
+    if os.name == 'nt':
+        import ctypes
+        kernel = ctypes.WinDLL('kernel32', use_last_error=True)
+        kernel.OpenProcess.restype = ctypes.c_void_p
+        kernel.CloseHandle.argtypes = [ctypes.c_void_p]
+        handle = kernel.OpenProcess(0x1000, False, pid)
+        if not handle:
+            return ctypes.get_last_error() == 5  # Access denied is not a dead process.
+        try:
+            code = ctypes.c_ulong()
+            return bool(kernel.GetExitCodeProcess(ctypes.c_void_p(handle), ctypes.byref(code))) and code.value == 259
+        finally:
+            kernel.CloseHandle(handle)
+    try:
+        os.kill(pid, 0)  # Existence check only; no signal is delivered.
+        return True
+    except PermissionError:
+        return True
+    except OSError:
+        return False
+
+
+def _transient_download_error(text):
+    return any(marker in text.lower() for marker in (
+        'readtimeout', 'connecttimeout', 'connectionerror', 'connection reset',
+        'connection aborted', 'temporary failure in name resolution',
+        'temporary failure resolving', 'incompleteread', 'protocolerror',
+        'remote end closed', '503 server error', '502 server error', '504 server error',
+    ))
+
+
 def detect_supported_python(_constraint=None, which=shutil.which, runner=subprocess.run):
     candidates = [sys.executable, *(which(name) for name in ("python3.12", "python3.11", "python3.10", "python3"))]
     seen = set()
@@ -156,6 +220,12 @@ class TrainingEnvironmentManager:
         self._cancel = threading.Event()
         if not self.state_path.exists():
             self._save(self._initial_state())
+        else:
+            state = self._load()
+            if state.get('status') == 'preparing' and not _process_alive(state.get('owner_pid'), state.get('owner_started_at')):
+                state.update(status='failed', owner_pid=None,
+                             error='上次环境准备因服务退出而中断。点击“重试准备”即可继续安装，已有模型和数据会保留。')
+                self._save(state)
 
     def _initial_state(self):
         return {"status": "not_prepared", "job_id": None, "stage": None, "stage_label": "尚未准备",
@@ -182,6 +252,10 @@ class TrainingEnvironmentManager:
     def snapshot(self):
         with self._lock:
             state = self._load()
+            if state.get('status') == 'preparing' and not _process_alive(state.get('owner_pid'), state.get('owner_started_at')):
+                state.update(status='failed', owner_pid=None,
+                             error='上次环境准备因服务退出而中断。点击“重试准备”即可继续安装，已有模型和数据会保留。')
+                self._save(state)
             if self.platform == 'win32' and state.get('runtime_dir'):
                 directory = Path(state['runtime_dir']).resolve()
                 if directory.parent != self.root:
@@ -213,7 +287,7 @@ class TrainingEnvironmentManager:
     def prepare(self, backend=None):
         with self._lock:
             state = self._load()
-            if state["status"] == "preparing" and self._thread and self._thread.is_alive():
+            if state["status"] == "preparing" and ((self._thread and self._thread.is_alive()) or _process_alive(state.get('owner_pid'), state.get('owner_started_at'))):
                 return deepcopy(state)
             candidates = self._backend_detector()
             if self.platform == 'win32':
@@ -226,7 +300,8 @@ class TrainingEnvironmentManager:
                 return self._save(state)
             job_id = str(uuid.uuid4())
             state.update(status="preparing", job_id=job_id, stage="preflight", stage_label=STAGES[0][1],
-                         progress=0, error=None, backend=selected, fingerprint=None, executable=None)
+                         progress=0, error=None, backend=selected, fingerprint=None, executable=None,
+                         owner_pid=os.getpid(), owner_started_at=_process_token(os.getpid()), retry_attempt=0)
             self._save(state)
             self._cancel.clear()
             self._thread = threading.Thread(target=self._prepare, args=(job_id, selected),
@@ -254,18 +329,41 @@ class TrainingEnvironmentManager:
             state.update(changes)
             return self._save(state)
 
-    def _run(self, command, timeout=1800):
-        result = self._runner(command, capture_output=True, text=True, encoding='utf-8', errors='replace',
-                              timeout=timeout, check=False,
-                              **({'creationflags': subprocess.CREATE_NO_WINDOW} if os.name == 'nt' else {}))
-        if result.returncode != 0:
-            combined = (result.stderr or "").strip()
-            if result.stdout:
-                combined = f"{combined}\n{result.stdout.strip()}".strip()
+    def _run(self, command, timeout=1800, job_id=None):
+        download = command[1:4] == ['-m', 'pip', 'install']
+        if download:
+            command = [*command[:4], '--retries', '3', '--timeout', '30', '--disable-pip-version-check', *command[4:]]
+        label = self._load().get('stage_label', '') if job_id else ''
+        for attempt in range(1, 4 if download else 2):
+            if self._cancel.is_set():
+                raise RuntimeError('服务停止，环境准备已中断；重新启动后可点击重试')
+            try:
+                result = self._runner(command, capture_output=True, text=True, encoding='utf-8', errors='replace',
+                                      timeout=timeout, check=False,
+                                      **({'creationflags': subprocess.CREATE_NO_WINDOW} if os.name == 'nt' else {}))
+                combined = '\n'.join(value.strip() for value in (result.stderr, result.stdout) if value)
+                if result.returncode == 0:
+                    if job_id:
+                        self._update(job_id, stage_label=label, retry_attempt=0)
+                    return result.stdout
+                transient = _transient_download_error(combined)
+            except subprocess.TimeoutExpired:
+                combined = f'下载或检查超过 {timeout} 秒，请检查网络后重试'
+                transient = download
+                result = None
+            if download and transient and attempt < 3:
+                if job_id:
+                    self._update(job_id, stage_label=f'{label} · 网络暂时中断，自动重试 {attempt + 1}/3',
+                                 retry_attempt=attempt + 1)
+                if self._cancel.wait(2 if attempt == 1 else 5):
+                    raise RuntimeError('环境准备已中断；重新启动后可点击重试')
+                continue
             lines = [line.strip() for line in combined.splitlines() if line.strip()]
-            detail = " | ".join(lines[-12:]) if lines else f"状态码 {result.returncode}"
-            raise RuntimeError(f"退出码 {result.returncode}：{detail}"[:1500])
-        return result.stdout
+            detail = ' | '.join(lines[-12:]) if lines else f'状态码 {result.returncode}'
+            prefix = f'退出码 {result.returncode}' if result is not None else '任务超时'
+            if download and transient:
+                detail = '自动重试后网络仍不可用，请检查网络并点击“重试准备”。' + detail
+            raise RuntimeError(f'{prefix}：{detail}'[:1500])
 
     def _prepare(self, job_id, backend):
         staging = self.root / (f'runtime-{job_id}' if self.platform == 'win32' else f'.staging-{job_id}')
@@ -281,6 +379,8 @@ class TrainingEnvironmentManager:
                 raise RuntimeError("磁盘可用空间不足 8 GB")
             shutil.rmtree(staging, ignore_errors=True)
             for stage, label, progress in STAGES:
+                if self._cancel.is_set():
+                    raise RuntimeError('服务停止，环境准备已中断；重新启动后可点击重试')
                 stage_label = label
                 self._update(job_id, stage=stage, stage_label=label, progress=progress)
                 if stage == "create_environment":
@@ -288,12 +388,12 @@ class TrainingEnvironmentManager:
                 elif stage == "install_torch":
                     config = self.manifest["backends"][backend]
                     pip = self._python_path(staging)
-                    self._run([str(pip), "-m", "pip", "install", "--upgrade", "pip"], timeout=600)
+                    self._run([str(pip), "-m", "pip", "install", "--upgrade", "pip"], timeout=600, job_id=job_id)
                     self._run([str(pip), "-m", "pip", "install", *config["torch_packages"],
-                               "--index-url", config["torch_index"]])
+                               "--index-url", config["torch_index"]], job_id=job_id)
                 elif stage == "install_act":
                     pip = self._python_path(staging)
-                    self._run([str(pip), "-m", "pip", "install", *self.manifest["packages"]])
+                    self._run([str(pip), "-m", "pip", "install", *self.manifest["packages"]], job_id=job_id)
                 elif stage == "self_test":
                     python = self._python_path(staging)
                     probe_output = staging / ".training-config-self-test"
@@ -348,6 +448,7 @@ class TrainingEnvironmentManager:
             if self.platform != 'win32' and not _repair_entrypoint(executable, python):
                 raise RuntimeError("训练入口文件无效")
             self._update(job_id, status="ready", progress=100, error=None, fingerprint=fingerprint,
+                         owner_pid=None, retry_attempt=0,
                          executable=None if self.platform == 'win32' else str(executable), python=str(python),
                          ffmpeg_executable=str(self.runtime / ffmpeg_relative) if ffmpeg_relative else None,
                          runtime_dir=str(self.runtime) if self.platform == 'win32' else None,
@@ -360,6 +461,7 @@ class TrainingEnvironmentManager:
                         "然后在训练页面点击重试）")
             shutil.rmtree(staging, ignore_errors=True)
             self._update(job_id, status="failed",
+                         owner_pid=None,
                          error=f"训练环境准备失败（{stage_label}）：{error}{hint}")
 
     def close(self):

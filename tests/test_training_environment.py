@@ -4,6 +4,7 @@ import tempfile
 import threading
 import time
 import unittest
+from unittest.mock import patch
 from pathlib import Path
 
 from ai_service.training_environment import TrainingEnvironmentManager, recommended_profile
@@ -259,6 +260,69 @@ class TrainingEnvironmentTests(unittest.TestCase):
         self.assertEqual(recommended_profile(8192, "cuda")["batch_size"], 4)
         self.assertEqual(recommended_profile(24576, "cuda")["batch_size"], 16)
         self.assertNotIn("gpu_model", recommended_profile(8192, "cuda"))
+
+    def test_interrupted_prepare_recovers_to_retryable_state_without_removing_model(self):
+        manager = TrainingEnvironmentManager(self.root, platform_name='linux')
+        model = self.root / 'training' / 'models' / 'customer' / 'weights.safetensors'
+        model.parent.mkdir(parents=True)
+        model.write_bytes(b'customer model')
+        state = manager.snapshot()
+        state.update(status='preparing', owner_pid=5471, backend='cuda', progress=35)
+        manager._save(state)
+        with patch('ai_service.training_environment._process_alive', return_value=False):
+            restarted = TrainingEnvironmentManager(self.root, platform_name='linux')
+        self.assertEqual(restarted.snapshot()['status'], 'failed')
+        self.assertIn('重试准备', restarted.snapshot()['error'])
+        self.assertEqual(model.read_bytes(), b'customer model')
+
+    def test_live_owner_is_not_mistaken_for_interrupted_install(self):
+        manager = TrainingEnvironmentManager(self.root, platform_name='linux')
+        state = manager.snapshot()
+        state.update(status='preparing', owner_pid=os.getpid(), backend='cuda', progress=35)
+        manager._save(state)
+        second = TrainingEnvironmentManager(self.root, platform_name='linux')
+        self.assertEqual(second.prepare()['status'], 'preparing')
+        self.assertIsNone(second._thread)
+
+    def test_reused_pid_does_not_leave_old_job_stuck_preparing(self):
+        manager = TrainingEnvironmentManager(self.root, platform_name='linux')
+        state = manager.snapshot()
+        state.update(status='preparing', owner_pid=os.getpid(), owner_started_at='old-process-start')
+        manager._save(state)
+        with patch('ai_service.training_environment._process_token', return_value='new-process-start'):
+            restarted = TrainingEnvironmentManager(self.root, platform_name='linux')
+        self.assertEqual(restarted.snapshot()['status'], 'failed')
+
+    def test_transient_download_retries_and_resets_visible_retry_state(self):
+        responses = [Result(1, stderr='ReadTimeoutError: download interrupted'), Result(stdout='done')]
+        calls = []
+        def runner(command, **kwargs):
+            calls.append(command)
+            return responses.pop(0)
+        manager = TrainingEnvironmentManager(self.root, runner=runner)
+        state = manager.snapshot()
+        state.update(job_id='test', stage_label='安装 ACT')
+        manager._save(state)
+        with patch.object(manager._cancel, 'wait', return_value=False):
+            self.assertEqual(manager._run(['python', '-m', 'pip', 'install', 'lerobot'], job_id='test'), 'done')
+        self.assertEqual(len(calls), 2)
+        self.assertIn('--retries', calls[0])
+        self.assertEqual(manager.snapshot()['retry_attempt'], 0)
+        self.assertEqual(manager.snapshot()['stage_label'], '安装 ACT')
+
+    def test_permanent_dependency_error_is_not_retried(self):
+        calls = []
+        manager = TrainingEnvironmentManager(self.root, runner=lambda command, **kwargs: calls.append(command) or Result(1, stderr='ResolutionImpossible: incompatible requirements'))
+        with self.assertRaisesRegex(RuntimeError, 'ResolutionImpossible'):
+            manager._run(['python', '-m', 'pip', 'install', 'lerobot'])
+        self.assertEqual(len(calls), 1)
+
+    def test_download_retries_are_bounded_and_expose_next_action(self):
+        calls = []
+        manager = TrainingEnvironmentManager(self.root, runner=lambda command, **kwargs: calls.append(command) or Result(1, stderr='ConnectionError: connection reset'))
+        with patch.object(manager._cancel, 'wait', return_value=False), self.assertRaisesRegex(RuntimeError, '重试准备'):
+            manager._run(['python', '-m', 'pip', 'install', 'lerobot'])
+        self.assertEqual(len(calls), 3)
 
 
 if __name__ == "__main__":

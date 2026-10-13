@@ -1,4 +1,4 @@
-import { createWebsiteInstaller } from './act-installer.js?v=upload-only-1';
+import { createWebsiteInstaller } from './act-installer.js?v=ubuntu-recovery-1';
 const LOCAL_ORIGIN = 'http://127.0.0.1:18765';
 export function getLocalOrigin() { return LOCAL_ORIGIN; }
 export function getLocalApi() { return `${LOCAL_ORIGIN}/api/v1`; }
@@ -17,6 +17,8 @@ function render() {
   const install = panel.querySelector('[data-runtime-install]');
   const authorize = panel.querySelector('[data-runtime-authorize]');
   const download = panel.querySelector('.runtime-download');
+  const recovery = panel.querySelector('.runtime-recovery');
+  if (recovery) recovery.hidden = windows;
   if (windows) {
     panel.querySelector('.runtime-onboarding-head > span').textContent = 'Windows 模型执行';
     install.querySelector('h4').textContent = '启动本机工作台';
@@ -73,6 +75,13 @@ export function renderRuntimeEnvironment(value) {
   render();
 }
 if (panel) {
+  panel.querySelector('.runtime-check')?.addEventListener('click', async event => {
+    const button = event.currentTarget;
+    button.disabled = true; button.textContent = '正在检测…';
+    requested = true;
+    try { await detect(); }
+    finally { button.disabled = false; button.textContent = '重新检测连接'; }
+  });
   const download=panel.querySelector('.runtime-download');
   download.addEventListener('click',async event=>{
     event.preventDefault();if(buildingInstaller)return;

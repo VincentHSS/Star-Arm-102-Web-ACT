@@ -1,6 +1,6 @@
 import { requestJson, fetchWithDeadline } from './api-client.js?v=responsive-1';
 import { createSingleFlight, createPageNavigator, withButtonFeedback, setInteractionStatus } from './page-lifecycle.js?v=responsive-1';
-import { getLocalApi, localFetch, ensureRuntime, renderRuntimeEnvironment, publicationConfigured } from './local-service.js?v=windows-act-1';
+import { getLocalApi, localFetch, ensureRuntime, renderRuntimeEnvironment, publicationConfigured } from './local-service.js?v=ubuntu-recovery-1';
 import { installWorkbenchMotion, switchWorkbenchView } from './act-motion.js?v=2026-10-12-motion-icons-13';
 import { effectiveCameraBackend, cameraConnectionSignature, nativeCameraReady, cameraRolePresentation, browserCameraLive } from './act-camera-state.js?v=2026-10-13-camera-runtime-2';
 import { WaveformBuffer, WaveformChart } from './act-waveform.js?v=0.1.0-camera-reconnect-1';

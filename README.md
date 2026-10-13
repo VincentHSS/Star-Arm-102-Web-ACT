@@ -35,13 +35,13 @@
 适用于 Ubuntu 22.04 / 24.04，Python 3.10～3.12，Chrome / Edge。
 
 ```sh
-sudo apt update
-sudo apt install -y python3 python3-venv python3-dev python3-tk build-essential v4l-utils ffmpeg libgl1 libglib2.0-0
 cd Star-Arm-102-Web-ACT
 sh start_ubuntu.sh
 ```
 
-脚本会打开 `http://127.0.0.1:18765/`。进入 ACT，第 2 步会自动准备独立的 LeRobot / PyTorch 环境；采集、校准、训练和模型执行都通过网页操作。上述系统依赖只需在源码方式首次启动时准备。
+脚本先检查系统依赖，只安装缺失的项目，首次按 Ubuntu 弹窗完成安装授权即可。系统更新占用 dpkg 锁时等待最多 5 分钟，安装输出持续显示；已有服务会复用。使用系统 Python，避免已激活的 Conda 环境干扰。
+
+随后打开 `http://127.0.0.1:18765/`。进入 ACT，第 2 步自动准备独立的 LeRobot / PyTorch 环境；临时网络错误有限重试，服务中断后可点击“重试准备”。采集、校准、训练和模型执行都通过网页操作。
 
 详见 [Ubuntu 教程](docs/UBUNTU.md)、[ACT 操作教程](docs/ACT_GUIDE.md)。
 

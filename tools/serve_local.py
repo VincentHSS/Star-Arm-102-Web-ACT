@@ -18,13 +18,27 @@ def main():
     parser.add_argument('--no-browser',action='store_true')
     parser.add_argument('--state-dir',type=Path)
     args=parser.parse_args()
-    from runtime.ubuntu_runtime import serve,state_directory,PORT
+    from runtime.ubuntu_runtime import serve,state_directory,PORT,runtime_health_info,state_directory_id,VERSION
     directory=(args.state_dir or state_directory()).resolve()
     url=f'http://127.0.0.1:{PORT}/'
+    existing=runtime_health_info()
+    if existing:
+        existing_id=existing.get('state_directory_id')
+        if args.state_dir and existing_id != state_directory_id(directory):
+            print('已有 ACT 服务正在运行，不能同时改用另一个数据目录。请先正常关闭旧服务，再重新启动。',flush=True)
+            return 1
+        print(f'ACT 服务已经运行（版本 {existing.get("version")}），复用现有连接。',flush=True)
+        if existing.get('version') != VERSION:
+            print('运行中的是旧版本。请先结束当前采集、训练或执行，再正常关闭旧服务并重启。',flush=True)
+        if existing.get('static_workbench') is False:
+            print('已有安装组件在后台运行，请回到原服务器网站操作。',flush=True)
+        elif not args.no_browser:
+            webbrowser.open(url)
+        return 0
     print(f'打开网页：{url}',flush=True)
     print(f'本机状态与数据目录：{directory}',flush=True)
     if os.name=='nt':
-        print('Windows：第 2 步准备模型执行环境，第 3 步导入 Ubuntu 训练好的模型，第 4 步连接 COM 从臂与双相机。训练使用 Ubuntu。',flush=True)
+        print('Windows：可进入网页执行导入已转换的模型，无需安装 ACT 环境；采集和原生 LeRobot 执行使用本机工作台。训练使用 Ubuntu。',flush=True)
     else:
         print('Ubuntu：进入第 2 步自动准备隔离 ACT 环境；设备、模型和校准在网页中设置。',flush=True)
     if not args.no_browser:
