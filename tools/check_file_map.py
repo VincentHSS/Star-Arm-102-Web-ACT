@@ -6,6 +6,7 @@ ROOT = Path(__file__).resolve().parent.parent
 IGNORED = {'.git', '__pycache__', 'node_modules', 'dist', '.venv', '.local-state'}
 
 FRONTEND = {
+    'training-submission': '识别已提交训练任务与数据准备、训练、停止状态，避免超时后重复提交',
     'api-client': '本机 API 请求与响应体超时、错误反馈和取消管理',
     'page-lifecycle': '页面切换前停止控制、释放串口与按钮处理状态',
     'interaction': '按钮处理提示与页面切换状态样式',
@@ -157,6 +158,7 @@ def purpose(path):
     if relative.startswith('tests/'):
         stem = path.stem.removesuffix('.test').removeprefix('test_')
         test_names = {
+            'training_submission': '训练提交编号匹配、旧后台任务核对与准备阶段防重复提交',
             'api': 'HTTP API、数据集与轮次流程', 'api_client': '请求及响应体超时、取消与禁止自动重试', 'page_lifecycle': '停止和释放成功后切页、失败保留原页与重复点击合并', 'native_camera_api': '原生相机 HTTP API',
             'native_camera_manager': '原生双相机管理', 'native_cameras_streaming': '原生相机流与结束排空',
             'windows_execution': 'Windows COM 官方驱动读写、双相机与固定目录 CPU 环境',

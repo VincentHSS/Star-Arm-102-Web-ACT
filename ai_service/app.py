@@ -111,7 +111,7 @@ class ApiServer(ThreadingHTTPServer):
             raise DomainError("校准正在记录，不能切换数据目录", "calibration_active")
         if self.teleop.snapshot().get("episode_id"):
             raise DomainError("正在采集，不能切换数据目录", "data_dir_busy")
-        if any(item.get("status") in {"running", "stopping"} for item in self.training_jobs.list()):
+        if any(item.get("status") in {"preparing", "running", "stopping"} for item in self.training_jobs.list()):
             raise DomainError("训练正在运行，不能切换数据目录", "data_dir_busy")
         if self.browser_exports.active():
             raise DomainError("网页模型正在导出，不能切换数据目录", "data_dir_busy")
@@ -381,9 +381,9 @@ class Handler(SimpleHTTPRequestHandler):
                 environment = self.server.training_environment.snapshot()
                 if environment.get('training_supported') is False:
                     raise DomainError('Windows 当前用于模型执行；请在 Ubuntu 训练后导入完整模型包', 'training_platform_unsupported')
-                dataset = self.server.training_dataset.prepare(body.get("dataset_id"), environment)
-                return self._json(202, self.server.training_jobs.create(environment, dataset,
-                                                                         body.get("parameters") or {}))
+                return self._json(202, self.server.training_jobs.submit(
+                    environment, body.get('dataset_id'), body.get('parameters') or {},
+                    self.server.training_dataset.prepare, request_id=body.get('request_id')))
             match = re.fullmatch(r"/api/v1/training/jobs/([^/]+)/stop", path)
             if match:
                 return self._json(200, self.server.training_jobs.stop(match.group(1)))

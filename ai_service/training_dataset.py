@@ -83,7 +83,7 @@ class TrainingDatasetAdapter:
             "fps": int(capture["fps"]), "width": int(capture["width"]), "height": int(capture["height"]),
             "fingerprint": fingerprint, "episodes": episodes,
         }
-        manifest_path = staging.parent / f".{fingerprint}-manifest.json"
+        manifest_path = staging.with_name(staging.name + '-manifest.json')
         try:
             manifest_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
             command = [environment["python"], str(self.converter_path), "--manifest", str(manifest_path),

@@ -59,6 +59,41 @@ class ApiTests(unittest.TestCase):
         except HTTPError as error:
             return error.code, json.load(error)
 
+    def test_training_submission_returns_before_dataset_conversion(self):
+        from unittest.mock import Mock
+        from ai_service.training_jobs import TrainingJobManager
+        entered, release = threading.Event(), threading.Event()
+        environment = {'status': 'ready', 'training_supported': True, 'fingerprint': 'env-test', 'executable': '/test/lerobot-train'}
+        self.server.training_environment = Mock()
+        self.server.training_environment.snapshot.return_value = environment
+        manager = TrainingJobManager(self.tmp.name, launcher=Mock())
+        self.server.training_jobs.close()
+        self.server.training_jobs = manager
+        def prepare(*args):
+            entered.set(); release.wait(5)
+            return {'dataset_id': 'dataset-test', 'path': self.tmp.name, 'fingerprint': 'data-test'}
+        self.server.training_dataset = Mock()
+        self.server.training_dataset.prepare.side_effect = prepare
+        try:
+            body = {'dataset_id': 'dataset-test', 'request_id': 'http-request-123', 'parameters': {'steps': 100, 'save_freq': 10}}
+            status, job = self.request('POST', '/api/v1/training/jobs', body)
+            self.assertEqual(status, 202); self.assertEqual(job['status'], 'preparing')
+            self.assertTrue(entered.wait(1)); self.assertFalse(manager._launch.called)
+            status, duplicate = self.request('POST', '/api/v1/training/jobs', body)
+            self.assertEqual(status, 202); self.assertEqual(duplicate['id'], job['id'])
+            status, visible = self.request('GET', '/api/v1/training/jobs/' + job['id'])
+            self.assertEqual(visible['status'], 'preparing')
+            status, stopping = self.request('POST', '/api/v1/training/jobs/' + job['id'] + '/stop', {})
+            self.assertEqual(stopping['status'], 'stopping')
+            release.set()
+            import time
+            deadline = time.monotonic() + 2
+            while manager._preparations and time.monotonic() < deadline: time.sleep(.01)
+            self.assertEqual(manager.get(job['id'])['status'], 'stopped')
+            self.assertFalse(manager._launch.called)
+        finally:
+            release.set()
+
     def request_raw(self, method, path, body=b"", content_type="application/octet-stream"):
         req = Request(self.base + path, data=body, method=method, headers={"Content-Type": content_type})
         try:

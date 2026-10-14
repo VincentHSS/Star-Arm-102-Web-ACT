@@ -62,6 +62,58 @@ class TrainingJobManagerTests(unittest.TestCase):
         self.manager.close()
         self.tmp.cleanup()
 
+    def wait_for_status(self, job_id, expected):
+        deadline = time.monotonic() + 3
+        while time.monotonic() < deadline:
+            job = self.manager.get(job_id)
+            if job['status'] == expected and job_id not in self.manager._preparations:
+                return job
+            time.sleep(.01)
+        self.fail(f'Expected {expected}: {self.manager.get(job_id)}')
+
+    def test_submit_returns_preparing_before_conversion_and_deduplicates(self):
+        from threading import Event
+        entered, release = Event(), Event()
+        def prepare(*args):
+            entered.set(); release.wait(3); return self.dataset
+        try:
+            job = self.manager.submit(self.environment, 'dataset-1', {}, prepare, 'request-123')
+            self.assertEqual(job['status'], 'preparing')
+            self.assertTrue(entered.wait(1)); self.assertEqual(self.commands, [])
+            duplicate = self.manager.submit(self.environment, 'dataset-1', {}, prepare, 'request-123')
+            self.assertEqual(duplicate['id'], job['id'])
+            with self.assertRaises(DomainError):
+                self.manager.submit(self.environment, 'dataset-1', {}, prepare, 'request-other')
+            release.set()
+            running = self.wait_for_status(job['id'], 'running')
+            self.assertEqual(running['request_id'], 'request-123'); self.assertEqual(len(self.commands), 1)
+        finally:
+            release.set()
+
+    def test_preparing_cancel_never_launches_training(self):
+        from threading import Event
+        release = Event()
+        try:
+            job = self.manager.submit(self.environment, 'dataset-1', {}, lambda *args: (release.wait(3), self.dataset)[1])
+            self.assertEqual(self.manager.stop(job['id'])['status'], 'stopping')
+            release.set(); self.wait_for_status(job['id'], 'stopped')
+            self.assertEqual(self.commands, [])
+        finally:
+            release.set()
+
+    def test_preparation_error_is_persisted_for_polling(self):
+        def fail(*args):
+            raise DomainError('测试 Episode 缺少图像', 'training_episode_invalid')
+        job = self.manager.submit(self.environment, 'dataset-1', {}, fail)
+        failed = self.wait_for_status(job['id'], 'failed')
+        self.assertIn('缺少图像', failed['error']); self.assertEqual(self.commands, [])
+
+    def test_orphan_preparation_becomes_retryable_after_service_exit(self):
+        job_id = 'orphan-preparation'
+        self.manager._save({'id': job_id, 'status': 'preparing', 'preparation': True, 'parameters': {'steps': 100}, 'output_dir': str(self.root/'output')})
+        job = self.manager.get(job_id)
+        self.assertEqual(job['status'], 'interrupted'); self.assertIn('重新开始', job['error'])
+
     def test_create_persists_job_and_uses_argv_without_shell(self):
         job = self.manager.create(self.environment, self.dataset, {"steps": 1000, "save_freq": 100})
 

@@ -163,6 +163,7 @@
 | [Browser_SDK/src/tcp_drag_preview.js](../Browser_SDK/src/tcp_drag_preview.js) | 拖动末端时的目标预览 |
 | [Browser_SDK/src/tcp_translation_gizmo.js](../Browser_SDK/src/tcp_translation_gizmo.js) | 3D 末端平移操作控件 |
 | [Browser_SDK/src/teleop_controller.js](../Browser_SDK/src/teleop_controller.js) | 主从臂遥操作与周期控制 |
+| [Browser_SDK/src/training-submission.js](../Browser_SDK/src/training-submission.js) | 识别已提交训练任务与数据准备、训练、停止状态，避免超时后重复提交 |
 | [Browser_SDK/src/urdf_model_data.js](../Browser_SDK/src/urdf_model_data.js) | 原始机械臂 URDF 转换后的显示数据 |
 | [Browser_SDK/src/version.js](../Browser_SDK/src/version.js) | 原控制台版本显示信息 |
 | [Browser_SDK/src/workspace-switch.css](../Browser_SDK/src/workspace-switch.css) | 控制台与 ACT 的全屏能量环切换、倒计时与取消（样式） |
@@ -296,6 +297,7 @@
 | [tests/test_ubuntu_setup.py](../tests/test_ubuntu_setup.py) | 软件测试：Ubuntu 授权、锁等待选项、安装失败提示、中断恢复与重复启动 |
 | [tests/test_website_authorization.py](../tests/test_website_authorization.py) | 软件测试：Windows 当前网站连接确认、限时单次令牌与确认界面 |
 | [tests/test_windows_execution.py](../tests/test_windows_execution.py) | 软件测试：Windows COM 官方驱动读写、双相机与固定目录 CPU 环境 |
+| [tests/training_submission.test.js](../tests/training_submission.test.js) | 软件测试：训练提交编号匹配、旧后台任务核对与准备阶段防重复提交 |
 | [tools/build_runtime_package.py](../tools/build_runtime_package.py) | 构建 Debian 模板、桌面自启动、udev 与浏览器校验值 |
 | [tools/capture_docs.cjs](../tools/capture_docs.cjs) | 阻断本机硬件 API，以真实未连接界面生成教程截图 |
 | [tools/check_distribution.py](../tools/check_distribution.py) | 校验安装模板、源码一致性、换行、静态文件与资源路径 |

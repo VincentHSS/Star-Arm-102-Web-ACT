@@ -36,6 +36,7 @@ const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
     assert(ready, logs || 'Runtime did not become ready');
     browser = await chromium.launch({ headless: true, ...(process.env.PLAYWRIGHT_BROWSER_CHANNEL ? { channel: process.env.PLAYWRIGHT_BROWSER_CHANNEL } : {}) });
     page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
+    await page.addInitScript(()=>{Object.defineProperty(navigator,'platform',{get:()=> 'Linux x86_64'});Object.defineProperty(navigator,'userAgentData',{value:{platform:'Linux'}});});
     page.on('pageerror', e => errors.push(e.message));
     page.on('response', r => { if (r.status() >= 400 && !r.url().includes('/api/')) missing.push(r.url()); });
     let environment = 'not_prepared', prepares = 0;
@@ -99,6 +100,21 @@ const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
     assert.equal(prepares, 1);
     environment = 'ready';
     await page.waitForFunction(() => document.querySelector('#training-title').textContent.includes('已就绪'));
+    let training = null, trainingPosts = 0;
+    await page.route('**/api/v1/training/jobs', async r => {
+      if(r.request().method()==='GET')return r.fulfill({json:{items:training?[training]:[]}});
+      trainingPosts++;const payload=r.request().postDataJSON();
+      training={id:'browser-training',dataset_id:payload.dataset_id,request_id:payload.request_id,created_at_ms:Date.now(),parameters:payload.parameters,status:'preparing',preparation:true,stage:'正在校验并转换训练数据',step:0};
+      await pause(16500);try{await r.fulfill({status:202,json:training});}catch{}
+    });
+    await page.route('**/api/v1/training/jobs/browser-training',r=>r.fulfill({json:training}));
+    await page.click('#training-start');
+    await page.waitForFunction(()=>document.querySelector('#training-job-status').textContent==='正在准备数据',null,{timeout:25000});
+    assert.equal(trainingPosts,1);assert(await page.locator('#training-start').isDisabled());
+    await page.reload();await page.waitForFunction(()=>document.querySelector('#training-job-status').textContent==='正在准备数据');
+    assert(await page.locator('#training-start').isDisabled());assert.equal(trainingPosts,1);
+    training={...training,status:'failed',stage:'数据准备失败',error:'模拟转换错误用于验证状态刷新'};
+    await page.waitForFunction(()=>document.querySelector('#training-failure-message').textContent.includes('模拟转换错误'));
     await page.click('.workflow [data-view="models"]');
     await page.waitForFunction(() => document.querySelector('#models').classList.contains('active'));
     assert(await page.locator('#models').isVisible());
@@ -176,7 +192,7 @@ const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
     await page.screenshot({ path: path.join(output, 'browser-check.png') });
     assert.deepEqual(errors, []); assert.deepEqual(missing, []);
     console.log(JSON.stringify({ localStartup: true, datasetCreated: true, environmentAutomaticallyPrepared: true,
-      readyEnvironmentReused: true, modelView: true, installerGenerated: true, unauthorizedOriginBlocked: true,
+      readyEnvironmentReused: true, trainingTimeoutReconciled: true, trainingPreparationSurvivesReload: true, modelView: true, installerGenerated: true, unauthorizedOriginBlocked: true,
       fiveSecondTransitions: true, noDuplicateLoader: true, corruptTemplateRejected: true, mobileFits: true,
       actStepPortsReleased: true, releaseFailureKeepsPage: true, consoleTabPortsReleased: true,
       recordingPreservedForReview: true, controlStoppedBeforeDisconnect: true,

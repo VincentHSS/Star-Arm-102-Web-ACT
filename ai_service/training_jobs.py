@@ -10,7 +10,7 @@ import uuid
 import zipfile
 from copy import deepcopy
 from pathlib import Path
-from threading import RLock
+from threading import RLock, Thread
 
 from .domain import DomainError
 
@@ -37,6 +37,8 @@ class TrainingJobManager:
         self._launch = launcher or subprocess.Popen
         self._lock = RLock()
         self._processes = {}
+        self._preparations = set()
+        self._closing = False
 
     def _job_dir(self, job_id):
         return self.root / str(job_id)
@@ -133,19 +135,90 @@ class TrainingJobManager:
                    started_at_ms=int(time.time() * 1000), stopped_at_ms=None)
         return self._save(job)
 
-    def create(self, environment, dataset, parameters):
+    def submit(self, environment, dataset_id, parameters, prepare, request_id=None):
+        """Persist an observable job before slow dataset hashing/conversion."""
+        if environment.get('training_supported') is False:
+            raise DomainError('Windows 用于模型执行，请在 Ubuntu 训练', 'training_platform_unsupported')
+        if environment.get('status') != 'ready' or not environment.get('executable'):
+            raise DomainError('训练环境尚未就绪', 'training_environment_not_ready')
+        if not isinstance(dataset_id, str) or not dataset_id:
+            raise DomainError('请选择训练数据集', 'invalid_training_parameters')
+        if request_id is not None and (not isinstance(request_id, str) or not re.fullmatch(r'[a-zA-Z0-9-]{8,128}', request_id)):
+            raise DomainError('训练请求编号无效', 'invalid_training_parameters')
+        parameters = self._validate_parameters(parameters, environment.get('training_profile', {}))
+        with self._lock:
+            jobs = self.list()
+            if request_id:
+                existing = next((job for job in jobs if job.get('request_id') == request_id), None)
+                if existing:
+                    if existing['dataset_id'] != dataset_id or existing['parameters'] != parameters:
+                        raise DomainError('同一请求编号不能用于不同训练参数', 'training_request_conflict')
+                    return existing
+            if self._closing or any(job['status'] in {'preparing', 'running', 'stopping'} for job in jobs):
+                raise DomainError('已有训练任务正在准备或运行，请先查看当前任务', 'training_job_active')
+            job_id = str(uuid.uuid4())
+            job = {'id': job_id, 'request_id': request_id, 'dataset_id': dataset_id,
+                   'parameters': parameters, 'environment_fingerprint': environment.get('fingerprint'),
+                   'backend': environment.get('backend'), 'status': 'preparing', 'preparation': True,
+                   'stage': '正在校验完整性并转换训练数据，完成后自动启动训练器',
+                   'output_dir': str(self._job_dir(job_id) / 'output'), 'checkpoint': None,
+                   'step': 0, 'loss': None, 'error': None, 'created_at_ms': int(time.time() * 1000)}
+            self._preparations.add(job_id)
+            try:
+                snapshot = self._save(job)
+                Thread(target=self._prepare_and_start, args=(job_id, deepcopy(environment), prepare), daemon=True).start()
+                return snapshot
+            except Exception:
+                self._preparations.discard(job_id)
+                job.update(status='failed', error='数据准备任务未能启动，请重新提交')
+                self._save(job)
+                raise
+
+    def _prepare_and_start(self, job_id, environment, prepare):
+        try:
+            with self._lock:
+                job = self._load(job_id)
+                if self._closing or job['status'] != 'preparing':
+                    job.update(status='stopped', stage='已取消启动训练', stopped_at_ms=int(time.time() * 1000))
+                    self._save(job)
+                    return
+                dataset_id = job['dataset_id']
+            dataset = prepare(dataset_id, environment)
+            with self._lock:
+                job = self._load(job_id)
+                if self._closing or job['status'] != 'preparing':
+                    job.update(status='stopped', stage='已取消启动训练', stopped_at_ms=int(time.time() * 1000))
+                    self._save(job)
+                    return
+                self.create(environment, dataset, job['parameters'], _job_id=job_id)
+        except Exception as error:
+            with self._lock:
+                job = self._load(job_id)
+                cancelled = self._closing or job['status'] in {'stopping', 'stopped'}
+                job.update(status='stopped' if cancelled else 'failed',
+                           error=None if cancelled else f'数据准备或训练启动失败：{str(error)[:500]}',
+                           stage='已取消启动训练' if cancelled else '数据准备或训练启动失败',
+                           stopped_at_ms=int(time.time() * 1000))
+                self._save(job)
+        finally:
+            with self._lock:
+                self._preparations.discard(job_id)
+
+    def create(self, environment, dataset, parameters, _job_id=None):
         if environment.get('training_supported') is False:
             raise DomainError('Windows 用于模型执行，请在 Ubuntu 训练', 'training_platform_unsupported')
         with self._lock:
             if environment.get("status") != "ready" or not environment.get("executable"):
                 raise DomainError("训练环境尚未就绪", "training_environment_not_ready")
-            if any(item["status"] in {"running", "stopping"} for item in self.list()):
+            if self._closing or any(item['id'] != _job_id and item["status"] in {"preparing", "running", "stopping"} for item in self.list()):
                 raise DomainError("已有训练任务正在运行", "training_job_active")
-            job_id = str(uuid.uuid4())
+            job_id = _job_id or str(uuid.uuid4())
+            submitted = self._load(job_id) if _job_id else {}
             output_dir = self._job_dir(job_id) / "output"
             dataset_path = str(Path(dataset["path"]).resolve())
             job = {
                 "id": job_id,
+                "request_id": submitted.get('request_id'),
                 "dataset_id": dataset["dataset_id"],
                 "dataset_path": dataset_path,
                 "dataset_fingerprint": dataset["fingerprint"],
@@ -161,7 +234,7 @@ class TrainingJobManager:
                 "step": 0,
                 "loss": None,
                 "error": None,
-                "created_at_ms": int(time.time() * 1000),
+                "created_at_ms": submitted.get('created_at_ms', int(time.time() * 1000)),
             }
             self._save(job)
             try:
@@ -187,7 +260,9 @@ class TrainingJobManager:
         content = ""
         if log_path.is_file():
             try:
-                content = log_path.read_bytes()[-1_000_000:].decode("utf-8", errors="ignore")
+                with log_path.open('rb') as handle:
+                    handle.seek(max(0, log_path.stat().st_size - 1_000_000))
+                    content = handle.read(1_000_000).decode('utf-8', errors='ignore')
             except OSError:
                 content = ""
         content = re.sub(r"\x1b\[[0-9;]*m", "", content)
@@ -217,7 +292,7 @@ class TrainingJobManager:
             changes["step_rate"] = round(speed_matches[-1], 4)
         job.update(**changes)
         target_steps = max(1, int(job.get("parameters", {}).get("steps", DEFAULT_STEPS)))
-        started = job.get("started_at_ms")
+        started = job.get("started_at_ms") or (job.get('created_at_ms') if job.get('preparation') else None)
         end = job.get("stopped_at_ms") or int(time.time() * 1000)
         elapsed_ms = max(0, end - started) if started else 0
         checkpoints = []
@@ -244,6 +319,9 @@ class TrainingJobManager:
 
     def _refresh(self, job):
         job = self._read_metrics(job)
+        if job.get('preparation') and job['status'] in {'preparing', 'stopping'} and job['id'] not in self._preparations:
+            job.update(status='interrupted', error='服务退出后数据准备已中断，请重新开始训练；已有数据和模型已保留')
+            return self._save(job)
         active = self._processes.get(job["id"])
         if job["status"] == "running" and not active:
             job.update(status="interrupted", checkpoint=self._find_checkpoint(job),
@@ -290,6 +368,9 @@ class TrainingJobManager:
         with self._lock:
             job = self._load(job_id)
             active = self._processes.get(job_id)
+            if job_id in self._preparations and job['status'] in {'preparing', 'stopping'}:
+                job.update(status='stopping', stage='已请求取消；当前数据转换结束后不会启动训练器')
+                return self._save(job)
             if not active:
                 raise DomainError("训练任务未在运行", "training_job_not_running")
             process = active["process"]
@@ -437,6 +518,10 @@ class TrainingJobManager:
 
     def close(self):
         with self._lock:
+            self._closing = True
+            for job_id in list(self._preparations):
+                if self._load(job_id)['status'] in {'preparing', 'stopping'}:
+                    self.stop(job_id)
             running = list(self._processes)
         for job_id in running:
             try:

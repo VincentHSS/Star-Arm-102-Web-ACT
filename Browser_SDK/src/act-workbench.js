@@ -1,4 +1,5 @@
 import { requestJson, fetchWithDeadline } from './api-client.js?v=responsive-1';
+import { activeTraining, findTrainingSubmission } from './training-submission.js';
 import { createSingleFlight, createPageNavigator, withButtonFeedback, setInteractionStatus } from './page-lifecycle.js?v=responsive-1';
 import { getLocalApi, localFetch, ensureRuntime, renderRuntimeEnvironment, publicationConfigured } from './local-service.js?v=ubuntu-recovery-1';
 import { installWorkbenchMotion, switchWorkbenchView } from './act-motion.js?v=2026-10-12-motion-icons-13';
@@ -12,6 +13,16 @@ import { CameraFrameEncoderWorkerClient } from './act-camera-frame-encoder-worke
 const API = getLocalApi();
 const state = { navigationPending: false, deviceEpoch: 0, cameraEpoch: 0, cameraConnecting: false, cameraDisconnecting: false, capabilities: null, trainingEnvironment: null, trainingPoll: null, trainingJob: null, trainingJobPoll: null, datasets: [], episodes: [], episode: null, selectedDatasetId: null, datasetStats: null, deviceBinding: null, serial: { leader: null, follower: null }, browserCameras: [], nativeCameras: [], cameraBackend: null, cameraFaultResetting: false, telemetryStream: null, completedRounds: 0, targetRounds: 20, cameraFrameCallbacks: { wrist: null, world: null }, cameraFrameOwners: { wrist: null, world: null }, cameraFrameSupport: { wrist: null, world: null }, frameDrain: null, models: [], selectedInferenceModelId: null, modelImporting: false, modelExporting: false, inference: null, inferenceGate: null, inferencePoll: null, inferenceStarting: false, inferenceStartError: null, inferenceLastActionCount: 0 };
 const $ = (selector) => document.querySelector(selector);
+let pendingTrainingSubmission = null;
+try {
+  const saved = JSON.parse(sessionStorage.getItem('star-arm-training-submission') || 'null');
+  if (saved && typeof saved.dataset_id === 'string' && typeof saved.request_id === 'string' && Number.isFinite(saved.started_at_ms)) pendingTrainingSubmission = saved;
+} catch {}
+state.trainingSubmitting = Boolean(pendingTrainingSubmission);
+function rememberTrainingSubmission(value) {
+  pendingTrainingSubmission = value; state.trainingSubmitting = Boolean(value);
+  try { if (value) sessionStorage.setItem('star-arm-training-submission', JSON.stringify(value)); else sessionStorage.removeItem('star-arm-training-submission'); } catch {}
+}
 const cameraController = navigator.mediaDevices ? new BrowserCameraController(navigator.mediaDevices) : null;
 const qualityMonitor = new CaptureQualityMonitor({ windowSize: 250 });
 const frameEncoder = new CameraFrameEncoderWorkerClient();
@@ -137,7 +148,7 @@ function renderTrainingEnvironment(environment) {
     $('#training-batch-size').value = profile.batch_size || 1;
     $('#training-steps').value = profile.steps || 100000;
     $('#training-save-freq').value = profile.save_freq || 10000;
-    $('#training-start').disabled = executionOnly || !state.datasets.length || Boolean(state.trainingJob?.status === 'running');
+    $('#training-start').disabled = executionOnly || !state.datasets.length || state.trainingSubmitting || activeTraining(state.trainingJob);
     $('#training-start').title = state.datasets.length ? '' : '请先创建并采集训练数据集';
   }
   renderInferenceGate();
@@ -205,10 +216,10 @@ function drawTrainingLoss(metrics = []) {
 
 function renderTrainingJob(job) {
   state.trainingJob = job;
-  const active = job && ['running', 'stopping'].includes(job.status);
+  const active = activeTraining(job);
   $('#training-job').classList.toggle('hidden', !job);
   if (!job) return;
-  const statuses = { running: '训练中', stopping: '正在停止', stopped: '已停止', failed: '失败', interrupted: '已中断', completed: '已完成' };
+  const statuses = { preparing: '正在准备数据', running: '训练中', stopping: '正在停止', stopped: '已停止', failed: '失败', interrupted: '已中断', completed: '已完成' };
   const targetSteps = Number(job.parameters?.steps || 0);
   const step = Number(job.step || 0);
   const progress = Number(job.progress_percent || 0);
@@ -220,7 +231,7 @@ function renderTrainingJob(job) {
   $('#training-job-status').textContent = statuses[job.status] || job.status;
   $('#training-job-status').className = `training-state ${failed ? 'failed' : active ? 'running' : job.status === 'completed' ? 'completed' : ''}`;
   $('#training-live-dot').className = `training-live-dot${active ? ' active' : failed ? ' failed' : ''}`;
-  $('#training-phase').textContent = failed ? (beforeMetrics ? '启动阶段失败' : '训练循环异常退出') : active ? (beforeMetrics ? '正在启动训练器' : '正在优化模型') : job.status === 'completed' ? '训练与保存完成' : '任务未运行';
+  $('#training-phase').textContent = job.preparation ? job.stage || '正在准备训练数据' : failed ? (beforeMetrics ? '启动阶段失败' : '训练循环异常退出') : active ? (beforeMetrics ? '正在启动训练器' : '正在优化模型') : job.status === 'completed' ? '训练与保存完成' : '任务未运行';
   $('#training-job-step').textContent = `${step.toLocaleString()} / ${targetSteps.toLocaleString()}`;
   $('#training-step-rate').textContent = job.step_rate == null ? '等待训练速度' : `${Number(job.step_rate).toFixed(2)} step/s`;
   $('#training-job-loss').textContent = job.loss == null ? '—' : Number(job.loss).toFixed(6);
@@ -232,7 +243,7 @@ function renderTrainingJob(job) {
   $('#training-overall-progress').value = progress;
   $('#training-overall-label').textContent = `${progress.toFixed(1)}%`;
   $('#training-progress-copy').textContent = beforeMetrics
-    ? '训练器尚未输出 Step；请查看下方启动日志'
+    ? job.preparation ? job.stage || '正在准备训练数据，完成后自动启动训练器' : '训练器尚未输出 Step；请查看下方启动日志'
     : `Step ${step.toLocaleString()} / ${targetSteps.toLocaleString()}${job.loss == null ? '，等待真实 Loss 指标' : `，Loss ${Number(job.loss).toFixed(6)}`}`;
   $('#training-metric-count').textContent = `${metrics.length} 个指标`;
   drawTrainingLoss(metrics);
@@ -247,7 +258,7 @@ function renderTrainingJob(job) {
   $('#training-failure-message').textContent = job.error || '训练任务异常退出，请查看实时日志。';
   $('#training-stop').disabled = !active;
   $('#training-resume').classList.toggle('hidden', !['stopped', 'failed', 'interrupted'].includes(job.status) || !job.checkpoint);
-  $('#training-start').disabled = active || !state.datasets.length;
+  $('#training-start').disabled = active || state.trainingSubmitting || !state.datasets.length;
   if (job.status === 'completed') {
     $('#training-result').textContent = job.model_id
       ? '训练完成，ACT 模型已自动注册并可在实机推理中使用。'
@@ -679,7 +690,7 @@ function pollTrainingJob(jobId) {
     try {
       const job = await request(`/training/jobs/${jobId}`);
       renderTrainingJob(job);
-      continuePolling = ['running', 'stopping'].includes(job.status);
+      continuePolling = activeTraining(job);
       if (job.status === 'completed') await loadModels();
     } catch (error) {
       $('#training-result').textContent = `训练状态刷新失败：${error.message}；正在重试…`;
@@ -690,19 +701,45 @@ function pollTrainingJob(jobId) {
   state.trainingJobPoll = window.setTimeout(poll, 500);
 }
 
+function pollTrainingSubmission() {
+  if (state.trainingJobPoll) clearTimeout(state.trainingJobPoll);
+  const poll = async () => {
+    if (!pendingTrainingSubmission) return;
+    try {
+      const result = await request('/training/jobs');
+      const job = findTrainingSubmission(result.items || [], pendingTrainingSubmission);
+      if (job) {
+        rememberTrainingSubmission(null); $('#training-result').textContent = '';
+        renderTrainingJob(job); if (activeTraining(job)) pollTrainingJob(job.id);
+        return;
+      }
+      $('#training-result').textContent = '提交结果尚未确认，正在查询任务状态；请勿重复开始训练。旧版本服务可能仍在转换数据。';
+    } catch (error) { $('#training-result').textContent = `正在核对已提交任务：${error.message}；恢复连接后继续查询，请勿重复提交。`; }
+    state.trainingJobPoll = setTimeout(poll, 1500);
+  };
+  void poll();
+}
+
 async function startTraining() {
+  if (state.trainingSubmitting || activeTraining(state.trainingJob)) return;
   const datasetId = $('#training-dataset').value;
   if (!datasetId) return toast('请先选择包含成功 Episode 的数据集');
   const button = $('#training-start'); button.disabled = true;
+  const submission = { request_id: crypto.randomUUID(), dataset_id: datasetId, started_at_ms: Date.now() };
+  rememberTrainingSubmission(submission);
   $('#training-result').textContent = '正在校验并转换训练数据…';
   try {
     const job = await request('/training/jobs', { method: 'POST', body: JSON.stringify({
-      dataset_id: datasetId,
+      dataset_id: datasetId, request_id: submission.request_id,
       parameters: { batch_size: Number($('#training-batch-size').value), steps: Number($('#training-steps').value), save_freq: Number($('#training-save-freq').value) },
     }) });
-    $('#training-result').textContent = '';
+    rememberTrainingSubmission(null); $('#training-result').textContent = '';
     renderTrainingJob(job); pollTrainingJob(job.id);
-  } catch (error) { $('#training-result').textContent = [error.message, ...(error.details || [])].join('\n'); button.disabled = false; }
+  } catch (error) {
+    if (error.code === 'request_timeout' || !error.code) { pollTrainingSubmission(); return; }
+    rememberTrainingSubmission(null);
+    $('#training-result').textContent = [error.message, ...(error.details || [])].join('\n'); button.disabled = activeTraining(state.trainingJob);
+  }
 }
 
 async function stopTraining() {
@@ -1079,7 +1116,8 @@ async function refreshState(revision) {
     if (trainingEnvironment.status === 'preparing') await loadTrainingEnvironment();
     const latestJob = (trainingJobs.items || []).slice().sort((left, right) => (right.created_at_ms || 0) - (left.created_at_ms || 0))[0] || null;
     renderTrainingJob(latestJob);
-    if (latestJob && ['running', 'stopping'].includes(latestJob.status)) pollTrainingJob(latestJob.id);
+    if (pendingTrainingSubmission) pollTrainingSubmission();
+    else if (activeTraining(latestJob)) pollTrainingJob(latestJob.id);
     await loadModels(models);
     if (deviceEpoch === state.deviceEpoch && !cameraMutationAtStart) renderInference(inference, cameraEpoch);
     if (deviceEpoch === state.deviceEpoch) renderDeviceBinding(devices.binding);
