@@ -33,3 +33,50 @@ test('stop during first prediction never sends lock or position after the late r
     for(let i=0;i<7;i++){const packet=batch.slice(i*9,i*9+9);assert.equal(packet[2],24);assert.equal(packet[4],i);assert.equal(packet[5],0x10);assert.equal(packet.at(-1),packet.slice(0,-1).reduce((a,b)=>a+b,0)&255);}
   }finally{globalThis.document=oldDocument;}
 });
+
+test('stop publishes its cause before waiting for an outstanding control read',async()=>{
+  const r=fixture();let finish,notice;
+  r.running=true;r.control=new Promise(resolve=>finish=resolve);r.onChange=()=>notice=r.lastStop?.reason;
+  r.bus={connected:false};
+  const stopping=r.stop('相机超过 500 ms 未更新',{error:true});
+  assert.equal(notice,'相机超过 500 ms 未更新');assert.equal(r.running,false);assert.equal(r.lastStop.error,true);
+  finish();await stopping;
+});
+
+test('camera snapshots transfer VideoFrames and overlapping predictions are rejected',async()=>{
+  const original=globalThis.VideoFrame;let captures=0,closed=0,resolve;
+  globalThis.VideoFrame=class{constructor(){captures++;}close(){closed++;}};
+  try{
+    const r=fixture();r.videos=[{},{}];r.model={coordinate_contract:'degrees',chunk_size:2};r.camerasReady=()=>true;
+    r.request=async(operation,data,transfer)=>{assert.equal(transfer.length,2);assert.equal(data.frames,transfer);await new Promise(r=>resolve=r);data.frames.forEach(f=>f.close());return {actions:new Float32Array(14),latency:5,totalLatency:9};};
+    const pending=r.predict(Array(7).fill(0));
+    await assert.rejects(r.predict(Array(7).fill(0)),/尚未完成/);
+    assert.equal(captures,2);resolve();await pending;assert.equal(closed,2);assert.equal(r.metrics.policy,9);assert.equal(r.inferencePending,null);
+  }finally{globalThis.VideoFrame=original;}
+});
+
+test('worker reuses image buffers and releases captured frames before GPU work',async()=>{
+  const {readFile}=await import('node:fs/promises'),{runInNewContext}=await import('node:vm');
+  const source=(await readFile(new URL('../Browser_SDK/src/act-browser-worker.js',import.meta.url),'utf8')).replace(/^import .*;\r?\n/gm,'').replaceAll('import.meta.url',"'https://example.test/src/act-browser-worker.js'");
+  let canvases=0,disposed=0,closed=0,runs=0,firstFeeds;
+  class Tensor{constructor(type,data,dims){this.data=data;this.dims=dims;}dispose(){disposed++;}}
+  const session={inputNames:['state','image_0','image_1'],outputNames:['actions'],async release(){},async run(feeds){
+    assert.equal(closed,(runs+1)*2,'Camera buffers must be released before inference');
+    if(firstFeeds){assert.equal(feeds.image_0,firstFeeds.image_0);assert.equal(feeds.image_1,firstFeeds.image_1);}else firstFeeds=feeds;
+    assert.deepEqual(Array.from(feeds.image_0.data),[1,1,0,0,0,0]);
+    runs++;return {actions:new Tensor('float32',new Float32Array(14),[1,2,7])};
+  }};
+  const ort={env:{wasm:{}},Tensor,InferenceSession:{create:async()=>session}};
+  class Canvas{constructor(){canvases++;}getContext(){return {drawImage(){},getImageData(){return {data:Uint8Array.from([255,0,0,255,255,0,0,255])};}};}}
+  const messages=[],self={postMessage:message=>messages.push(message)},manifest={model_sha256:'a'.repeat(64),chunk_size:2,inputs:{cameras:[0,1].map(()=>({shape:[1,3,1,2]}))}};
+  runInNewContext(source,{ort,unzipSync(){},validateWebManifest(){},OffscreenCanvas:Canvas,self,navigator:{gpu:{requestAdapter:async()=>({})}},crypto:{subtle:{digest:async()=>new Uint8Array(32).fill(170)}},URL,performance,Uint8Array,Float32Array});
+  await self.onmessage({data:{id:1,operation:'load',buffer:new ArrayBuffer(1),manifest}});
+  assert(!messages.at(-1).error);
+  for(let i=0;i<200;i++){
+    await self.onmessage({data:{id:i+2,operation:'infer',state:Array(7).fill(0),frames:[0,1].map(()=>({displayWidth:2,displayHeight:1,close(){closed++;}}))}});
+    assert(!messages.at(-1).error,messages.at(-1).error);
+  }
+  assert.equal(canvases,2);assert.equal(runs,200);assert.equal(disposed,400);
+  await self.onmessage({data:{id:999,operation:'load',buffer:new ArrayBuffer(1),manifest}});
+  assert.equal(disposed,402,'Reload must release the retained image tensors');
+});

@@ -209,3 +209,11 @@ test('close stops both camera streams', async () => {
   assert.equal(opened.wrist.track.stopped, true);
   assert.equal(opened.world.track.stopped, true);
 });
+
+test('strict model cameras never silently fall back to 15 FPS', async () => {
+  const calls=[];
+  const controller=new BrowserCameraController({async getUserMedia(c){calls.push(c);throw Object.assign(Error('unsupported'),{name:'OverconstrainedError'});}});
+  await assert.rejects(controller.openPair('a','b',{width:640,height:480,frameRate:30,strict:true}),/30 FPS/);
+  assert.equal(calls.length,1);
+  assert.deepEqual(calls[0].video.frameRate,{exact:30});
+});

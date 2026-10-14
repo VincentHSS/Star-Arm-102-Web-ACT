@@ -1,7 +1,8 @@
 import * as ort from '../assets/vendor/onnxruntime-web/ort.webgpu.min.js';
 import { unzipSync } from '../assets/vendor/fflate/browser.js';
 import { validateWebManifest } from './act-browser-core.js';
-let session=null,model=null,busy=false;
+let session=null,model=null,busy=false,imageInputs=[];
+function releaseImages(){for(const input of imageInputs)input.tensor.dispose();imageInputs=[];}
 ort.env.wasm.numThreads=1;
 ort.env.wasm.wasmPaths={mjs:new URL('../assets/vendor/onnxruntime-web/ort-wasm-simd-threaded.asyncify.js',import.meta.url).href,wasm:new URL('../assets/vendor/onnxruntime-web/ort-wasm-simd-threaded.asyncify.wasm',import.meta.url).href};
 const sha=async bytes=>Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes)),b=>b.toString(16).padStart(2,'0')).join('');
@@ -9,7 +10,7 @@ async function initialize(bytes,manifest){
   validateWebManifest(manifest);
   if(await sha(bytes)!==manifest.model_sha256)throw Error('模型权重 SHA-256 校验失败');
   if(!await navigator.gpu?.requestAdapter())throw Error('浏览器 WebGPU 不可用，请启用 Chrome / Edge 硬件加速并检查显卡驱动');
-  if(session)await session.release();session=null;model=null;
+  if(session)await session.release();session=null;model=null;releaseImages();
   const next=await ort.InferenceSession.create(bytes,{executionProviders:['webgpu']});
   if(next.inputNames.join()!==['state','image_0','image_1'].join()||next.outputNames.join()!=='actions'){await next.release();throw Error('模型输入输出接口不匹配');}
   session=next;model=manifest;
@@ -28,21 +29,27 @@ async function loadZip(buffer){
   await initialize(weights,manifest);return {manifest,weights};
 }
 async function infer(state,frames){
-  if(!session)throw Error('网页模型未加载');
-  const feeds={state:new ort.Tensor('float32',Float32Array.from(state),[1,7])};
+  const started=performance.now(),feeds={};let output;
   try{
+    if(!session)throw Error('网页模型未加载');
+    feeds.state=new ort.Tensor('float32',Float32Array.from(state),[1,7]);
     for(let i=0;i<2;i++){
       const bitmap=frames[i],shape=model.inputs.cameras[i].shape,[,,,width]=shape,height=shape[2];
-      if(bitmap.width!==width||bitmap.height!==height)throw Error('真实相机分辨率与模型不一致');
-      const canvas=new OffscreenCanvas(width,height),ctx=canvas.getContext('2d',{willReadFrequently:true});ctx.drawImage(bitmap,0,0);
-      const rgba=ctx.getImageData(0,0,width,height).data,pixels=width*height,rgb=new Float32Array(pixels*3);
+      if((bitmap.displayWidth??bitmap.width)!==width||(bitmap.displayHeight??bitmap.height)!==height)throw Error('真实相机分辨率与模型不一致');
+      if(!imageInputs[i]){
+        const canvas=new OffscreenCanvas(width,height),rgb=new Float32Array(width*height*3);
+        imageInputs[i]={ctx:canvas.getContext('2d',{willReadFrequently:true}),rgb,tensor:new ort.Tensor('float32',rgb,shape)};
+      }
+      const {ctx,rgb,tensor}=imageInputs[i];ctx.drawImage(bitmap,0,0);
+      bitmap.close();frames[i]=null; // Return camera buffers before waiting for GPU inference.
+      const rgba=ctx.getImageData(0,0,width,height).data,pixels=width*height;
       for(let j=0;j<pixels;j++){rgb[j]=rgba[j*4]/255;rgb[pixels+j]=rgba[j*4+1]/255;rgb[2*pixels+j]=rgba[j*4+2]/255;}
-      feeds[`image_${i}`]=new ort.Tensor('float32',rgb,shape);
+      feeds[`image_${i}`]=tensor;
     }
-    const start=performance.now(),result=await session.run(feeds),output=result.actions;
+    const start=performance.now(),result=await session.run(feeds);output=result.actions;
     if(output.dims.join()!==[1,model.chunk_size,7].join()||!output.data.every(Number.isFinite))throw Error('模型返回了无效动作');
-    const actions=Float32Array.from(output.data);output.dispose();return {actions,latency:performance.now()-start};
-  }finally{frames.forEach(f=>f?.close());Object.values(feeds).forEach(t=>t.dispose());}
+    return {actions:Float32Array.from(output.data),latency:performance.now()-start,totalLatency:performance.now()-started};
+  }finally{frames.forEach(f=>f?.close());feeds.state?.dispose();output?.dispose();}
 }
 self.onmessage=async({data})=>{
   const {id,operation}=data;

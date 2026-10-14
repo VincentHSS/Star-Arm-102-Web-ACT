@@ -10,10 +10,10 @@ export class BrowserActRunner {
     this.camera=new BrowserCameraController(navigator.mediaDevices);this.cameraInfo=[null,null];this.callbacks=[null,null];
     this.model=null;this.calibration=null;this.validated=false;this.running=false;this.generation=0;this.busy=false;
     this.observation=null;this.raw=null;this.safe=null;this.metrics={executed:0,missed:0,policy:0,control:0,remaining:0};
-    this.bus=new SerialServoBus('ACT 从臂',{serial,onLost:e=>void this.stop(`从臂断开：${e.message}`),onStateChange:()=>this.onChange()});
+    this.bus=new SerialServoBus('ACT 从臂',{serial,onLost:e=>void this.stop(`从臂断开：${e.message}`,{error:true}),onStateChange:()=>this.onChange()});
     this.bus.pushRaw=()=>{}; // This channel only consumes decoded monitor packets.
     this.worker.onmessage=({data})=>{const p=this.pending.get(data.id);if(!p)return;this.pending.delete(data.id);clearTimeout(p.timer);data.error?p.reject(Error(data.error)):p.resolve(data.result);};
-    this.worker.onerror=e=>{for(const p of this.pending.values()){clearTimeout(p.timer);p.reject(Error(e.message||'网页推理线程异常'));}this.pending.clear();this.model=null;void this.stop('网页推理线程异常，请重新打开页面');};
+    this.worker.onerror=e=>{for(const p of this.pending.values()){clearTimeout(p.timer);p.reject(Error(e.message||'网页推理线程异常'));}this.pending.clear();this.model=null;void this.stop('网页推理线程异常，请重新打开页面',{error:true});};
   }
   request(operation,data={},transfer=[],timeout=120000){
     const id=++this.nextId;return new Promise((resolve,reject)=>{
@@ -38,7 +38,7 @@ export class BrowserActRunner {
     if(!this.model)throw Error('请先导入网页执行模型');if(this.running)throw Error('请先停止执行');this.closeCameras();
     const shape=this.model.inputs.cameras[0].shape,height=shape[2],width=shape[3];
     try{
-      const streams=await this.camera.openPair(first,second,{width,height,frameRate:30});
+      const streams=await this.camera.openPair(first,second,{width,height,frameRate:30,strict:true});
       for(const [i,role] of ['wrist','world'].entries()){
         const video=this.videos[i];video.srcObject=streams[role];await video.play();
         const deadline=performance.now()+5000;while(!video.videoWidth&&performance.now()<deadline)await sleep(25);
@@ -68,7 +68,7 @@ export class BrowserActRunner {
   feedbackFresh(){return this.bus.connected&&!this.feedbackError&&this.observation&&performance.now()-this.observationTime<500;}
   async _readState(){
     if(!this.bus.connected)throw Error('请先在浏览器中连接从臂串口');
-    this.bus.clearPackets();const requests=Array.from({length:7},(_,id)=>this.bus.waitForPacket(p=>parseMonitorPacket(p)?.id===id,150));
+    this.bus.clearPackets();const requests=Array.from({length:7},(_,id)=>this.bus.waitForPacket(p=>parseMonitorPacket(p)?.id===id,150).catch(e=>{throw Error(`从臂 J${id+1} / ID ${id} 反馈失败：${e.message}`);}));
     // Register all waits before writing. Missing ID never falls back to cached angles.
     const replies=Promise.all(requests);
     replies.catch(()=>{});
@@ -78,20 +78,31 @@ export class BrowserActRunner {
     if(result.length!==7||!result.every(v=>Number.isFinite(v)&&Math.abs(v)<=3600))throw Error('从臂反馈不包含七个有效角度');
     this.observation=result;this.observationTime=performance.now();this.feedbackError=null;return result;
   }
-  async predict(observation){
+  predict(observation){
+    if(this.inferencePending)return Promise.reject(Error('上一轮模型预测尚未完成，请稍候重新校验'));
+    this.inferencePending=this._predict(observation).finally(()=>this.inferencePending=null);
+    return this.inferencePending;
+  }
+  async _predict(observation){
     if(!this.camerasReady())throw Error('相机画面缺失或超过 500 ms 未更新，执行已停止');
     const frames=[];
     try{
-      for(const video of this.videos)frames.push(await createImageBitmap(video));
+      if(typeof VideoFrame==='function'){
+        const timestamp=Math.round(performance.now()*1000);
+        for(const video of this.videos)frames.push(new VideoFrame(video,{timestamp}));
+      }else{
+        for(const video of this.videos)frames.push(await createImageBitmap(video));
+      }
       const state=observationCoordinates(observation,this.model.coordinate_contract==='degrees'?null:this.calibration);
       const result=await this.request('infer',{state,frames},frames,30000);
       const actions=Array.from({length:this.model.chunk_size},(_,i)=>actionCoordinates(Array.from(result.actions.slice(i*7,i*7+7)),this.model.coordinate_contract==='degrees'?null:this.calibration));
-      this.metrics.policy=result.latency;return actions;
+      this.metrics.policy=result.totalLatency??result.latency;this.metrics.gpu=result.latency;return actions;
     }catch(e){frames.forEach(f=>f.close());throw e;}
   }
   async validate(){
     this.validated=false;if(!this.model)throw Error('请导入网页执行模型');if(this.model.coordinate_contract!=='degrees'&&!this.calibration)throw Error('请导入同一台从臂的 LeRobot 校准 JSON');
     if(!this.camerasReady())throw Error('请连接双相机并等待实时画面');
+    if(this.inferencePending)await this.inferencePending.catch(()=>{});
     const generation=this.generation,state=await this.readState();
     // Warm-up and validate actual model input/output without actuator commands.
     await this.predict(state);const actions=await this.predict(await this.readState());
@@ -119,9 +130,10 @@ export class BrowserActRunner {
       if(generation!==this.generation)return;
       const predictor=async()=>{
         while(this.running&&generation===this.generation){
+          const predictionStarted=performance.now();
           const start=Math.max(tick,Math.floor((performance.now()-epoch)/period)),obs=this.observation.slice();
           try{const actions=await this.predict(obs);if(generation!==this.generation)return;schedule.add(start,actions,tick);lastPrediction=performance.now();}
-          catch(e){predictionError=e;return;}await sleep(20);
+          catch(e){predictionError=e;return;}await sleep(Math.max(0,period-(performance.now()-predictionStarted)));
         }
       };void predictor();
       const control=async()=>{
@@ -131,7 +143,8 @@ export class BrowserActRunner {
           const readStart=performance.now(),observation=await this.readState();
           if(generation!==this.generation)break;
           const current=Math.max(tick,Math.floor((performance.now()-epoch)/period));this.metrics.missed+=current-tick;tick=current;
-          if(document.hidden||!this.camerasReady())throw Error('页面已进入后台或相机停止更新');
+          if(document.hidden)throw Error('页面已进入后台，已停止执行');
+          if(!this.camerasReady())throw Error('相机超过 500 ms 未更新或已断开，执行已停止');
           if(predictionError)throw predictionError;
           if(performance.now()-lastPrediction>2500)throw Error('网页预测超过 2.5 秒未更新');
           const raw=schedule.action(tick);if(!raw)throw Error('动作缓冲耗尽，预测速度不足');
@@ -143,11 +156,15 @@ export class BrowserActRunner {
         }
       };
       this.control=control();await this.control;
-    }catch(e){await this.stop(e.message);}
+    }catch(e){await this.stop(e.message,{error:true});}
     finally{if(generation===this.generation)await this.stop();}
   }
-  async stop(reason='已停止执行并请求卸力'){
+  async stop(reason='已停止执行并请求卸力',{error=false}={}){
+    if(this.running||error){
+      this.lastStop={reason,error,time:new Date().toISOString(),metrics:{...this.metrics},cameras:this.cameraInfo.map(c=>c?{...c,ageMs:performance.now()-c.lastFrame}:null)};
+    }
     this.running=false;this.validated=false;++this.generation;
+    this.message=reason;this.onChange();
     let releaseError=null;
     if(this.bus.connected){
       const frames=Array.from({length:7},(_,id)=>ServoProtocol.releaseTorque(id));
@@ -156,6 +173,10 @@ export class BrowserActRunner {
     }
     if(this.control){const control=this.control;this.control=null;await control.catch(()=>{});}
     this.message=releaseError?`${reason}；卸力发送失败：${releaseError.message}，请检查设备供电和急停`:reason;this.onChange();return !releaseError;
+  }
+  diagnostics(){
+    return {time:new Date().toISOString(),browser:navigator.userAgent,model:this.model?.name??null,running:this.running,serialConnected:this.bus.connected,
+      metrics:{...this.metrics},cameras:this.cameraInfo.map((c,i)=>c?{...c,ageMs:performance.now()-c.lastFrame,settings:this.videos[i].srcObject?.getVideoTracks()[0]?.getSettings?.()}:null),lastStop:this.lastStop??null};
   }
   async release(){await this.stop();await this.bus.disconnect();this.closeCameras();}
 }

@@ -2,7 +2,7 @@ import { BrowserActRunner,modelStore } from './act-browser-runtime.js';
 import { WaveformBuffer,WaveformChart } from './act-waveform.js';
 const $=id=>document.getElementById(id),videos=[$('web-video-0'),$('web-video-1')];
 let busy=false,saved=null,feedbackBusy=false;
-const waveform=new WaveformBuffer({limit:600}),chart=new WaveformChart($('web-waveform'),waveform);
+const waveform=new WaveformBuffer({limit:600}),chart=new WaveformChart($('web-waveform'),waveform,{maxDrawHz:10});
 const runner=new BrowserActRunner({videos,onChange:()=>draw(),onSample:sample=>{waveform.append(sample);chart.setCursor(sample.timestamp_ms);}});
 const label=feature=>({up:'固定俯视 / UP',front:'固定正面 / FRONT',wrist:'末端视角 / WRIST',world:'世界视角 / WORLD'}[feature]||feature);
 function message(text,error=false){$('web-message').textContent=text;$('web-message').classList.toggle('error',error);}
@@ -12,6 +12,10 @@ function draw(){
   const locked=busy||running;
   if(runner.validated&&!locked&&(!connected||!cameras||!runner.feedbackFresh())){runner.validated=false;$('web-confirm').checked=false;}
   $('web-state').textContent=running?'正在执行':busy?'正在处理':runner.validated?'校验通过':model?'模型已加载':'等待模型';
+  const notice=$('web-execution-notice'),stopped=runner.lastStop;
+  notice.hidden=running||!stopped;
+  notice.textContent=stopped?`上次停止：${stopped.reason}`:'';
+  notice.classList.toggle('error',Boolean(stopped?.error));
   $('web-model-name').textContent=model?.name||'尚未选择模型';
   $('web-model-detail').textContent=model?`${model.chunk_size} 步动作块 · WebGPU · ${model.inputs.cameras[0].shape[3]}×${model.inputs.cameras[0].shape[2]}`:'网页执行模型包含 web-act.json 和 model.onnx';
   $('web-calibration-status').textContent=!model?'导入模型后检查关节坐标与校准要求':model.coordinate_contract==='degrees'?'此模型使用角度坐标，不需要 LeRobot 归一化校准':runner.calibration?'校准已载入；仍需确认属于当前物理从臂':'此模型需要同一台从臂的 LeRobot 校准 JSON';
@@ -35,7 +39,8 @@ function draw(){
   $('web-joints').replaceChildren(...Array.from({length:7},(_,i)=>{const d=document.createElement('div'),b=document.createElement('b'),s=document.createElement('span'),a=document.createElement('strong');b.textContent=`J${i+1}`;s.textContent=`OBS ${runner.observation?.[i]?.toFixed(1)??'—'}°`;a.textContent=`ACT ${runner.safe?.[i]?.toFixed(1)??'—'}°`;d.append(b,s,a);return d;}));
   for(let i=0;i<2;i++){
     videos[i].closest('article').classList.toggle('streaming',Boolean(videos[i].srcObject));
-    const camera=runner.cameraInfo[i];$('web-video-status-'+i).textContent=camera?`${camera.width}×${camera.height} · ${camera.fps==null?'计算中':camera.fps.toFixed(1)+' FPS'}`:'未连接';
+    const camera=runner.cameraInfo[i],age=camera?performance.now()-camera.lastFrame:0;
+    $('web-video-status-'+i).textContent=camera?`${camera.width}×${camera.height} · ${camera.fps==null?'计算中':camera.fps.toFixed(1)+' FPS'}${age>500?' · 画面停滞':camera.fps!=null&&camera.fps<24?' · 帧率偏低':''}`:'未连接';
     if(model){const role=label(model.inputs.cameras[i].feature);$('web-camera-label-'+i).textContent=role;$('web-video-label-'+i).textContent=role;}
   }
   if(runner.message){message(runner.message);runner.message=null;}
@@ -80,6 +85,10 @@ $('web-validate').onclick=()=>void action(async()=>{message('使用真实图像�
 $('web-confirm').onchange=draw;
 $('web-start').onclick=()=>void action(async()=>{const confirmed=$('web-confirm').checked;message('正在准备连续动作…');waveform.clear();await runner.start(confirmed);$('web-confirm').checked=false;});
 $('web-stop').onclick=()=>{void runner.stop('用户停止执行并请求卸力');$('web-confirm').checked=false;draw();};
+$('web-download-diagnostics').onclick=()=>{
+  const url=URL.createObjectURL(new Blob([JSON.stringify(runner.diagnostics(),null,2)],{type:'application/json'})),link=document.createElement('a');
+  link.href=url;link.download='star-arm-browser-diagnostics.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+};
 window.addEventListener('workbench:before-switch',e=>{e.detail.waits.push(runner.release());});
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&runner.running)void runner.stop('页面进入后台，已停止执行并请求卸力');});
 window.addEventListener('pagehide',()=>{void runner.release();});

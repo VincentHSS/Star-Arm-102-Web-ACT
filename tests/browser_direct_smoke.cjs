@@ -24,7 +24,7 @@ const ROOT=path.resolve(__dirname,'..'),pause=ms=>new Promise(r=>setTimeout(r,ms
    Object.defineProperty(navigator,'serial',{value:{requestPort:async()=>port,addEventListener(){},removeEventListener(){}}});
    Object.defineProperty(navigator,'mediaDevices',{value:{
     enumerateDevices:async()=>['a','b'].map(id=>({kind:'videoinput',deviceId:id,label:'Software camera '+id})),
-    getUserMedia:async request=>{state.cameraOpens++;const canvas=document.createElement('canvas');canvas.width=640;canvas.height=480;const ctx=canvas.getContext('2d');ctx.fillStyle=request.video?.deviceId?.exact==='b'?'rgb(96,128,192)':'rgb(32,64,96)';ctx.fillRect(0,0,640,480);const stream=canvas.captureStream(30);const timer=setInterval(()=>{if(stream.getVideoTracks()[0].readyState==='ended')clearInterval(timer);else ctx.fillRect(0,0,640,480);},33);return stream;}
+    getUserMedia:async request=>{state.cameraOpens++;const canvas=document.createElement('canvas');canvas.width=640;canvas.height=480;const ctx=canvas.getContext('2d');ctx.fillStyle=request.video?.deviceId?.exact==='b'?'rgb(96,128,192)':'rgb(32,64,96)';ctx.fillRect(0,0,640,480);const stream=canvas.captureStream(30);const timer=setInterval(()=>{if(stream.getVideoTracks()[0].readyState==='ended')clearInterval(timer);else if(!state.freezeCameras)ctx.fillRect(0,0,640,480);},33);return stream;}
    }});
   });
   await page.goto(`http://127.0.0.1:${port}/act-browser.html`);await page.waitForFunction(()=>!document.getElementById('web-model-import').disabled);
@@ -44,12 +44,26 @@ const ROOT=path.resolve(__dirname,'..'),pause=ms=>new Promise(r=>setTimeout(r,ms
   assert.equal(await page.evaluate(()=>__browserActTest.frames.some(f=>f[2]===25&&f[4]===14)),false,'Read-only validation must never send a Goal_Position');
   await page.check('#web-confirm');await page.click('#web-start');
   await page.waitForFunction(()=>__browserActTest.frames.filter(f=>f[2]===25&&f[4]===14).length>=5,null,{timeout:30000});
+  const beforeRun=await page.evaluate(()=>__browserActTest.frames.filter(f=>f[2]===25&&f[4]===14).length);
+  await pause(Number(process.env.BROWSER_ACT_RUN_MS||20000));
+  assert.equal(await page.locator('#web-stop').isDisabled(),false,'Execution must remain active during a sustained run');
+  assert(await page.evaluate(()=>__browserActTest.frames.filter(f=>f[2]===25&&f[4]===14).length)>beforeRun+20);
   await page.click('#web-stop');await page.waitForFunction(()=>document.getElementById('web-stop').disabled&&!document.getElementById('web-close-arm').disabled);
   const stopped=await page.evaluate(()=>__browserActTest.frames.filter(f=>f[2]===25&&f[4]===14).length);await pause(800);
   assert.equal(await page.evaluate(()=>__browserActTest.frames.filter(f=>f[2]===25&&f[4]===14).length),stopped,'Stopped predictions must not resume motor writes');
+  assert((await page.locator('#web-execution-notice').textContent()).includes('用户停止'));
+  await page.click('#web-validate');await page.waitForFunction(()=>!document.getElementById('web-confirm').disabled,null,{timeout:120000});
+  await page.check('#web-confirm');await page.click('#web-start');
+  await page.waitForFunction(()=>!document.getElementById('web-stop').disabled);
+  await page.evaluate(()=>__browserActTest.freezeCameras=true);
+  await page.waitForFunction(()=>document.getElementById('web-stop').disabled&&!document.getElementById('web-close-arm').disabled);
+  assert((await page.locator('#web-execution-notice').textContent()).includes('相机'));
+  const halted=await page.evaluate(()=>__browserActTest.frames.filter(f=>f[2]===25&&f[4]===14).length);await pause(700);
+  assert.equal(await page.evaluate(()=>__browserActTest.frames.filter(f=>f[2]===25&&f[4]===14).length),halted);
+  const download=page.waitForEvent('download');await page.click('#web-download-diagnostics');assert.equal((await download).suggestedFilename(),'star-arm-browser-diagnostics.json');
   await page.click('#web-close-arm');await page.waitForFunction(()=>!document.getElementById('web-connect-arm').disabled);
   assert.equal(await page.evaluate(()=>__browserActTest.portCloses),1);
   assert.equal(backendCalls,0,'Browser execution must not need the local Python/LeRobot service');assert.deepEqual(errors,[]);
-  console.log(JSON.stringify({browserOnly:true,localServiceRequests:backendCalls,readOnlyValidation:true,executedCommands:stopped,realModel:Boolean(process.env.BROWSER_ACT_REAL_MODEL),physicalHardware:false}));
+  console.log(JSON.stringify({browserOnly:true,localServiceRequests:backendCalls,readOnlyValidation:true,sustainedRun:true,cameraStallStopped:true,diagnosticsDownload:true,executedCommands:stopped,realModel:Boolean(process.env.BROWSER_ACT_REAL_MODEL),physicalHardware:false}));
  }finally{if(browser)await browser.close();service.kill();}
 })().catch(e=>{console.error(e);process.exitCode=1;});

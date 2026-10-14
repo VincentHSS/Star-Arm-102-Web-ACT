@@ -14,6 +14,7 @@ function streamQuality(stream) {
 const MIN_PREVIEW = { width: 640, height: 360 };
 
 function cameraModes(profile) {
+  if (profile.strict) return [[profile.width, profile.height, profile.frameRate]];
   const modes = [
     [profile.width, profile.height, profile.frameRate],
     [profile.width, profile.height, 15],
@@ -85,17 +86,19 @@ export class BrowserCameraController {
             deviceId: { exact: deviceId },
             width: { exact: width },
             height: { exact: height },
-            frameRate: { ideal: frameRate },
+            frameRate: profile.strict ? { exact: frameRate } : { ideal: frameRate },
           },
           audio: false,
         });
         lastQuality = streamQuality(stream);
-        if (meetsMinimum(lastQuality)) return stream;
+        if (meetsMinimum(lastQuality) && (!profile.strict || (lastQuality.width === profile.width && lastQuality.height === profile.height && Math.abs(lastQuality.frameRate - profile.frameRate) < 0.1))) return stream;
         stopStream(stream);
       } catch (error) {
         if (!['OverconstrainedError', 'ConstraintNotSatisfiedError'].includes(error.name)) throw error;
       }
     }
+
+    if (profile.strict) throw new Error(`${label}无法提供模型要求的 ${profile.width}×${profile.height} / ${profile.frameRate} FPS；请检查相机设置、USB 连接及其他占用相机的软件`);
 
     const bootstrap = await this.mediaDevices.getUserMedia({
       video: { deviceId: { exact: deviceId } },
