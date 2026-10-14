@@ -108,6 +108,20 @@ class WindowsSerialTests(unittest.TestCase):
 
 
 class WindowsCameraTests(unittest.TestCase):
+    def test_system_camera_tool_works_before_training_environment_exists(self):
+        with tempfile.TemporaryDirectory() as temp:
+            ffmpeg = Path(temp) / 'ffmpeg.exe'; ffmpeg.write_bytes(b'camera tool')
+            with patch('ai_service.windows_cameras.shutil.which', return_value=str(ffmpeg)):
+                manager = WindowsCameraManager(lambda: None)
+                self.assertTrue(manager.available())
+                self.assertEqual(manager._executable(), str(ffmpeg))
+
+    def test_missing_camera_tool_recommends_browser_capture_without_training(self):
+        with patch('ai_service.windows_cameras.shutil.which', return_value=None):
+            manager = WindowsCameraManager(lambda: None)
+            self.assertFalse(manager.available())
+            with self.assertRaisesRegex(Exception, '浏览器.*无需先安装训练环境'):
+                manager._executable()
     def test_identically_named_cameras_keep_distinct_device_paths_and_ignore_microphone(self):
         text = '\n'.join(['[dshow] "USB Camera" (video)', '[dshow] Alternative name "@device_camera_a"',
             '[dshow] "USB Camera" (video)', '[dshow] Alternative name "@device_camera_b"',

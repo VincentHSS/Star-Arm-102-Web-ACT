@@ -13,7 +13,7 @@ from urllib.request import ProxyHandler, build_opener
 
 ROOT = Path(__file__).resolve().parent
 PORT = 18765
-VERSION = '1.0.14'
+VERSION = '1.0.15'
 
 
 def normalize_origin(value):
@@ -289,7 +289,7 @@ def main(argv=None):
         if not args.uri:
             configure_publisher(directory)
             ensure_running(directory)
-            messagebox.showinfo('ACT 已连接', '本机组件已准备，网页会自动连接。请返回网站第 2 步继续配置环境。')
+            messagebox.showinfo('ACT 已连接', '本机设备服务已准备，网页会自动连接。请返回第 1 步采集；需要训练时再到第 2 步准备训练环境。')
             return 0
         origin = origin_from_uri(args.uri)
         path = directory / 'websites.json'

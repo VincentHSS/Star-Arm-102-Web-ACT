@@ -108,6 +108,7 @@ EXACT = {
     'tests/camera_navigation_smoke.cjs': '隔离端口与模拟双相机，验证步骤切换复用预览和过期状态处理',
     'tests/browser_smoke.cjs': '自动浏览器验证、临时本机服务与安装包生成检查',
     'tests/console_serial_smoke.cjs': '模拟控制台 LD/HD/FL 串口、首轮反馈、共享超时、补读与重新连接',
+    'tests/act_workflow_smoke.cjs': 'Windows 四步骤默认入口、第 1 步服务配置、无训练依赖采集与多分辨率预览布局',
 }
 DOCS = {
     'BROWSER_EXECUTION': 'Windows 纯网页客户执行与提供方一键导出模型图文教程',
@@ -127,6 +128,8 @@ DOC_IMAGES = {
     'console-overview': '控制台全景', 'console-device-panel': '控制台设备连接面板',
     'console-servo-setup': '控制台舵机设置页面', 'workspace-transition': '全屏工作区切换动画',
     'act-collect-overview': 'ACT 数据采集全景', 'act-device-panel': 'ACT 设备连接面板',
+    'act-collection-entry': '第 1 步采集连接与大画面入口（隔离服务、硬件未连接）',
+    'act-inference-large-preview': '第 4 步双相机大预览与同屏曲线（硬件未连接）',
     'ubuntu-install-recovery': 'Ubuntu 安装故障帮助与重新检测入口（组件未连接）',
     'act-dataset-form': '数据集创建表单与未提交示例', 'act-calibration-dialog': '从臂校准窗口',
     'act-first-setup': 'Ubuntu 首次安装与环境配置入口', 'act-model-import': '模型管理与导入入口',

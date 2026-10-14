@@ -1,5 +1,6 @@
 """DirectShow camera input, sharing the existing JPEG/age/recording lifecycle."""
 import os
+import shutil
 import re
 import subprocess
 from pathlib import Path
@@ -61,10 +62,10 @@ class WindowsCameraManager(V4L2CameraManager):
                          command_builder=lambda path, mode: build_dshow_command(path, mode, self._executable()), **kwargs)
 
     def _executable(self):
-        value = self._executable_resolver()
-        if not value or not Path(value).is_file():
-            raise NativeCameraError('Windows 相机环境尚未准备，请先在第 2 步准备运行环境')
-        return str(value)
+        for value in (self._executable_resolver(), shutil.which('ffmpeg')):
+            if value and Path(value).is_file():
+                return str(value)
+        raise NativeCameraError('未找到 Windows 原生相机工具。采集可选择“浏览器”后端，无需先安装训练环境；也可使用系统已安装的 FFmpeg。')
 
     def available(self):
         try:

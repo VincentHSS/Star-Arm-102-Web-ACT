@@ -234,6 +234,7 @@ class ApiTests(unittest.TestCase):
         self.assertEqual(created["capture"], {"width": 640, "height": 480, "fps": 30})
 
     def test_episode_lifecycle_and_training_gate(self):
+        self.assertEqual(self.server.training_environment.snapshot()['status'], 'not_prepared')
         _, dataset = self.request("POST", "/api/v1/datasets", {
             "task_name": "放置", "slug": "place-v1", "width": 640, "height": 360, "fps": 30
         })
@@ -257,7 +258,9 @@ class ApiTests(unittest.TestCase):
         original = self.server.teleop
         self.server.teleop = Runtime()
         self.addCleanup(setattr, self.server, "teleop", original)
-        status, episode = self.request("POST", "/api/v1/episodes", {"dataset_id": dataset["id"]})
+        with patch.object(self.server.training_environment, 'prepare', side_effect=AssertionError('Capture must not install training dependencies')) as prepare:
+            status, episode = self.request("POST", "/api/v1/episodes", {"dataset_id": dataset["id"]})
+            prepare.assert_not_called()
         self.assertEqual(status, 201)
         self.assertEqual(episode["runtime"]["status"], "running")
         for index in range(12):
@@ -271,6 +274,7 @@ class ApiTests(unittest.TestCase):
         self.assertEqual(status, 200)
         self.assertEqual(stopped["status"], "review")
         self.assertEqual(stopped["valid_frames"], 12)
+        self.assertEqual(self.server.training_environment.snapshot()['status'], 'not_prepared')
         status, gate = self.request("POST", "/api/v1/training/check", {"dataset_id": dataset["id"]})
         self.assertEqual(status, 409)
         self.assertIn("待审核", " ".join(gate["error"]["details"]))

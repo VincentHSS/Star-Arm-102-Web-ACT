@@ -217,11 +217,13 @@
 | [docs/WINDOWS.md](../docs/WINDOWS.md) | Windows 启动与功能支持范围教程 |
 | [docs/images/act-calibration-dialog.png](../docs/images/act-calibration-dialog.png) | 真实界面教程截图（硬件未连接）：从臂校准窗口 |
 | [docs/images/act-collect-overview.png](../docs/images/act-collect-overview.png) | 真实界面教程截图（硬件未连接）：ACT 数据采集全景 |
+| [docs/images/act-collection-entry.png](../docs/images/act-collection-entry.png) | 真实界面教程截图（硬件未连接）：第 1 步采集连接与大画面入口（隔离服务、硬件未连接） |
 | [docs/images/act-dataset-form.png](../docs/images/act-dataset-form.png) | 真实界面教程截图（硬件未连接）：数据集创建表单与未提交示例 |
 | [docs/images/act-device-panel.png](../docs/images/act-device-panel.png) | 真实界面教程截图（硬件未连接）：ACT 设备连接面板 |
 | [docs/images/act-execution-connections.png](../docs/images/act-execution-connections.png) | 真实界面教程截图（硬件未连接）：第 4 步从臂连接与校验门槛 |
 | [docs/images/act-execution-overview.png](../docs/images/act-execution-overview.png) | 真实界面教程截图（硬件未连接）：ACT 实机推理全景 |
 | [docs/images/act-first-setup.png](../docs/images/act-first-setup.png) | 真实界面教程截图（硬件未连接）：Ubuntu 首次安装与环境配置入口 |
+| [docs/images/act-inference-large-preview.png](../docs/images/act-inference-large-preview.png) | 真实界面教程截图（硬件未连接）：第 4 步双相机大预览与同屏曲线（硬件未连接） |
 | [docs/images/act-model-import.png](../docs/images/act-model-import.png) | 真实界面教程截图（硬件未连接）：模型管理与导入入口 |
 | [docs/images/console-device-panel.png](../docs/images/console-device-panel.png) | 真实界面教程截图（硬件未连接）：控制台设备连接面板 |
 | [docs/images/console-overview.png](../docs/images/console-overview.png) | 真实界面教程截图（硬件未连接）：控制台全景 |
@@ -249,6 +251,7 @@
 | [tests/act_capture_quality.test.js](../tests/act_capture_quality.test.js) | 软件测试：采集同步质量和帧率统计 |
 | [tests/act_waveform.test.js](../tests/act_waveform.test.js) | 软件测试：Action / State 多通道曲线、时间轴与绘制 |
 | [tests/act_workbench_contract.test.js](../tests/act_workbench_contract.test.js) | 软件测试：ACT 页面结构与流程约束 |
+| [tests/act_workflow_smoke.cjs](../tests/act_workflow_smoke.cjs) | Windows 四步骤默认入口、第 1 步服务配置、无训练依赖采集与多分辨率预览布局 |
 | [tests/api_client.test.js](../tests/api_client.test.js) | 软件测试：请求及响应体超时、取消与禁止自动重试 |
 | [tests/browser_direct_smoke.cjs](../tests/browser_direct_smoke.cjs) | 无本机 API 的网页模型、相机、串口和停止流程；模拟硬件 |
 | [tests/browser_smoke.cjs](../tests/browser_smoke.cjs) | 自动浏览器验证、临时本机服务与安装包生成检查 |

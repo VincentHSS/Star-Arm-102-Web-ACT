@@ -20,7 +20,7 @@
       <img src="assets/logo-icon.png" alt="" aria-hidden="true">
       <div><strong>Star Arm 102</strong><small>采集 · 训练 · 模型 · 实机运行</small></div>
     </div>
-    <nav class="product-tabs" aria-label="产品功能"><span class="active">ACT 工作台</span></nav>
+    <nav class="product-tabs" aria-label="产品功能"><span class="active">ACT 工作台</span><a href="act-browser.html" data-workspace-target="act">网页执行</a></nav>
     <div class="top-state"><a href="index.html" class="workspace-launch" data-workspace-target="piper">控制台</a>
       <div id="service-state" class="service-state pending"><i></i><span>连接本机服务</span></div>
       <span class="version">LeRobot 官方驱动版</span>
@@ -43,6 +43,9 @@
   <main>
     <section id="collect" class="view active capture-grid">
       <aside class="capture-setup">
+        <section class="panel capture-service-card">
+          <div class="panel-body"><div class="capture-service-title"><b>采集连接</b><span id="capture-service-status" class="status-badge pending">检测中</span></div><p id="capture-service-detail">数据采集只需本机设备服务，不必先安装训练环境。</p><button id="capture-service-setup" class="secondary wide" type="button">配置采集连接</button></div>
+        </section>
         <section class="panel device-panel">
           <header class="panel-head"><div><p class="kicker">PHYSICAL DEVICES</p><h2>设备连接</h2></div><button id="refresh" class="icon-button" type="button" title="重新检测" aria-label="重新检测" data-ui-icon="refresh"></button></header>
           <div class="panel-body device-stack">
@@ -379,7 +382,12 @@
   <label><input id="calibration-same-arm-confirm" type="checkbox">当前连接的是生成此校准的同一台物理从臂</label>
   <div class="device-actions"><button id="calibration-apply" class="primary" disabled>用于当前导入模型</button><button id="calibration-download" class="secondary" disabled>下载校准 JSON</button><button id="calibration-close" class="ghost">关闭</button></div>
 </dialog>
-<script type="module" src="src/act-workbench.js?v=2026-10-15-serial-connect-1"></script>
-<script type="module" src="src/workspace-switch.js?v=serial-connect-1"></script>
+<dialog id="capture-service-dialog" class="capture-service-dialog" aria-labelledby="capture-service-title">
+  <header><div><p class="kicker">CAPTURE CONNECTION</p><h2 id="capture-service-title">配置本机采集连接</h2></div><button id="capture-service-close" type="button" class="ghost">关闭</button></header>
+  <p>连接本机设备服务后，即可在第 1 步创建数据集、连接主从臂与双相机并采集。PyTorch / LeRobot 在第 2 步训练时再准备。</p>
+  <p id="capture-service-dialog-status" role="status" aria-live="polite"></p><div id="capture-runtime-host"></div><button id="capture-service-recheck" type="button" class="secondary">重新检测采集连接</button>
+</dialog>
+<script type="module" src="src/act-workbench.js?v=2026-10-15-capture-flow-1"></script>
+<script type="module" src="src/workspace-switch.js?v=capture-flow-1"></script>
 </body>
 </html>

@@ -1,7 +1,7 @@
 import { requestJson, fetchWithDeadline } from './api-client.js?v=responsive-1';
 import { activeTraining, findTrainingSubmission } from './training-submission.js';
 import { createSingleFlight, createPageNavigator, withButtonFeedback, setInteractionStatus } from './page-lifecycle.js?v=responsive-1';
-import { getLocalApi, localFetch, ensureRuntime, renderRuntimeEnvironment, publicationConfigured } from './local-service.js?v=serial-connect-1';
+import { getLocalApi, localFetch, ensureRuntime, renderRuntimeEnvironment, publicationConfigured } from './local-service.js?v=capture-flow-1';
 import { installWorkbenchMotion, switchWorkbenchView } from './act-motion.js?v=2026-10-12-motion-icons-13';
 import { effectiveCameraBackend, cameraConnectionSignature, nativeCameraReady, cameraRolePresentation, browserCameraLive } from './act-camera-state.js?v=2026-10-13-camera-runtime-2';
 import { WaveformBuffer, WaveformChart } from './act-waveform.js?v=0.1.0-camera-reconnect-1';
@@ -1125,8 +1125,8 @@ async function refreshState(revision) {
     maybeShowDataDirSetup();
   } catch (error) {
     $('#service-state').className = 'service-state error';
-    $('#service-state span').textContent = state.capabilities ? 'ACT 连接已中断' : '请到第 2 步配置环境';
-    toast(state.capabilities ? error.message : '首次环境配置已合并到第 2 步，按页面提示完成系统安装与授权后，会自动准备运行环境。');
+    $('#service-state span').textContent = state.capabilities ? '采集服务连接已中断' : '请在第 1 步配置采集连接';
+    toast(state.capabilities ? error.message : '请点击第 1 步“配置采集连接”。连接本机设备服务即可采集，训练环境在第 2 步准备。');
   }
 }
 async function connectSerial(role, selectedPort = null) { if (state.navigationPending) return toast('正在切换页面，请稍候。'); state.deviceEpoch++; const prefix = role === 'leader' ? 'leader' : 'follower'; const port = selectedPort ?? $(`#${prefix}-port`).value; if (!port) return toast(`请先选择${role === 'leader' ? ' Leader' : '真实 FL'}串口`); try { const result = await request('/devices/serial/connect', { method: 'POST', body: JSON.stringify({ role, port, leader_type: $('#leader-type').value }) }); state.serial[role] = result; state.deviceBinding = null; setDeviceCard(role, true, `${result.port} · ${result.baudrate / 1000} kbps`, result.verification); $(`#${role}-state`).textContent = result.port; toast(`${role === 'leader' ? 'Leader' : '真实 FL'}串口已连接；J1–J7 实时样本尚未接入`); renderCapabilities(state.capabilities); } catch (error) { toast(error.message); } }
@@ -1448,6 +1448,7 @@ $('#dataset-form').addEventListener('submit', async event => {
   const slug = String(form.get('slug') || '').trim();
   if (!taskName) { setDatasetFormStatus('请输入任务名称。', 'error'); formElement.querySelector('[name="task_name"]').focus(); return; }
   if (!/^[a-z0-9][a-z0-9-]{2,47}$/.test(slug)) { setDatasetFormStatus('数据集标识需为 3–48 位小写字母、数字或连字符，并以字母或数字开头。', 'error'); formElement.querySelector('[name="slug"]').focus(); return; }
+  if (!state.capabilities && !await ensureRuntime({ purpose: 'capture' })) { setDatasetFormStatus('连接本机采集服务后，再次点击创建；已填写内容会保留。', 'pending');return; }
   const submit = formElement.querySelector('[type="submit"]');
   submit.disabled = true;
   setDatasetFormStatus('正在创建数据集…', 'pending');
@@ -1486,6 +1487,10 @@ $('#inference-disconnect-follower').addEventListener('click', () => withButtonFe
 $('#inference-refresh-ports').addEventListener('click', () => withButtonFeedback($('#inference-refresh-ports'), refreshAfterMutation));
 $('#runtime-backend').addEventListener('change', () => { if (state.trainingEnvironment?.status === 'ready' && $('#runtime-backend').value && $('#runtime-backend').value !== state.trainingEnvironment.backend) { $('#training-prepare').classList.remove('hidden'); $('#training-prepare').textContent = '按所选方式配置环境'; } else if (state.trainingEnvironment) renderTrainingEnvironment(state.trainingEnvironment); });
 $('#training-prepare').addEventListener('click', () => prepareTrainingEnvironment(false));
+$('#capture-service-setup').addEventListener('click', () => withButtonFeedback($('#capture-service-setup'), async () => {
+  if (await ensureRuntime({ purpose: 'capture' })) { await refreshAfterMutation();toast('采集服务已连接，无需先安装训练环境。'); }
+}, { label: '正在检测…' }));
+$('#capture-service-close').addEventListener('click', () => $('#capture-service-dialog').close());
 $('#training-retry').addEventListener('click', () => prepareTrainingEnvironment(true));
 $('#training-start').addEventListener('click', startTraining);
 $('#training-stop').addEventListener('click', stopTraining);
@@ -1622,7 +1627,10 @@ $('#data-dir-save').addEventListener('click', async () => {
     $('#data-dir-save').disabled = false;
   }
 });
-window.addEventListener('act:runtime-connected', () => { connectTelemetryStream(); refresh(); });
+window.addEventListener('act:runtime-connected', () => {
+  if (state.telemetryStream && state.telemetryStream.readyState !== EventSource.OPEN) { state.telemetryStream.close();state.telemetryStream = null; }
+  connectTelemetryStream(); refresh();
+});
 window.addEventListener('act:runtime-auto-prepare', () => { if (!environmentConfigurationBusy) void prepareTrainingEnvironment(false, false); });
 renderJoints(); renderRoundProgress(); renderCaptureQuality(); waveformChart.draw(); inferenceWaveformChart = new WaveformChart($('#inference-waveform'), inferenceWaveformBuffer); inferenceWaveformChart.draw(); connectTelemetryStream(); refresh(); pollInference();
 

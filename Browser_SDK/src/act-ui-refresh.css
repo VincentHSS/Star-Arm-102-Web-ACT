@@ -165,3 +165,20 @@ progress{display:block;width:100%;height:9px;border:1px solid #354c58;border-rad
 .runtime-recovery[open] p { animation: runtime-recovery-appear .22s ease both; }
 @keyframes runtime-recovery-appear { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
 @media (prefers-reduced-motion: reduce) { .runtime-recovery[open] p { animation: none; } }
+
+/* Capture setup belongs to step 1; the model/training environment stays in step 2. */
+.capture-service-title{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.capture-service-title b{font-size:14px;font-weight:600}.capture-service-card p{font-size:12px;line-height:1.75;color:var(--muted);margin:10px 0 0}
+.capture-service-dialog{width:min(960px,calc(100vw - 36px));max-height:calc(100dvh - 40px);overflow:auto;padding:24px;border:1px solid #52606c;border-radius:16px;background:#192329;color:#e1ebef;box-shadow:0 24px 90px #0008}
+.capture-service-dialog::backdrop{background:#071016ac;backdrop-filter:blur(7px)}
+.capture-service-dialog>header{display:flex;align-items:center;justify-content:space-between;gap:16px}.capture-service-dialog h2{margin:0;font-size:20px}.capture-service-dialog>p{font-size:13px;line-height:1.8;color:#a8bdc8;margin:18px 0}.capture-service-dialog .runtime-onboarding{padding-top:18px}.capture-service-dialog .runtime-setup-steps{grid-template-columns:repeat(2,minmax(0,1fr))}.runtime-setup-steps>[hidden]{display:none!important}
+#capture-service-dialog-status{color:#81d9cb}.capture-service-dialog[open]{animation:runtime-recovery-appear .2s ease both}
+@media(max-width:650px){.capture-service-dialog{padding:18px}.capture-service-dialog .runtime-setup-steps{grid-template-columns:1fr}}
+/* Give the image pair more of the viewport, with captions overlaid on full frames. */
+@media(min-width:901px) and (min-height:681px){
+ .capture-stage{grid-template-rows:auto minmax(250px,1.6fr) minmax(220px,1fr)}
+ .inference-stage{grid-template-rows:minmax(250px,1.6fr) minmax(220px,1fr)}
+ .capture-stage .camera-view video,.capture-stage .camera-view .native-preview,.inference-stage .inference-camera .native-preview{height:100%;object-fit:contain}
+ .capture-stage .camera-view footer,.inference-stage .inference-camera footer{z-index:3;background:linear-gradient(transparent,#081014d9);pointer-events:none}
+}
+@media(min-width:901px) and (min-height:681px) and (max-height:760px){.capture-stage{grid-template-rows:auto minmax(230px,1.6fr) minmax(190px,1fr)}.inference-stage{grid-template-rows:minmax(230px,1.6fr) minmax(190px,1fr)}}

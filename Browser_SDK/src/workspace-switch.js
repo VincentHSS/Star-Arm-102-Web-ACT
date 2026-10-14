@@ -1,4 +1,4 @@
-import { getLocalApi, localFetch } from './local-service.js?v=serial-connect-1';
+import { getLocalApi, localFetch } from './local-service.js?v=capture-flow-1';
 const names = { act: 'ACT 工作台', piper: '控制台' };
 const overlay = document.createElement('section');
 overlay.id = 'workspace-switch-screen';
@@ -57,10 +57,6 @@ async function switchTo(link) {
   if (!names[target]) return;
   const url = new URL(link.href);
   if (url.origin !== location.origin) return;
-  const windows = /Win/i.test(navigator.userAgentData?.platform || navigator.platform || '');
-  if (target === 'act' && windows && url.pathname.endsWith('/act-workbench.html') && !link.hasAttribute('data-native-workbench')) {
-    url.pathname = url.pathname.replace(/act-workbench\.html$/, 'act-browser.html');
-  }
   const browserExecution = target === 'act' && url.pathname.endsWith('/act-browser.html');
   const operation = ++generation;
   busy = true;cancelled = false;show(target);
@@ -102,13 +98,3 @@ overlay.addEventListener('keydown', event => {
 window.addEventListener('pageshow', event => { if (event.persisted) { cancelled = true;++generation;hide(); } });
 // Clear legacy handoff tickets without replaying the launch scene on the destination.
 try { sessionStorage.removeItem('star-arm-workspace-transition'); } catch {}
-
-// Keep copied/new-tab ACT links on the same Windows customer route.
-if (/Win/i.test(navigator.userAgentData?.platform || navigator.platform || '')) {
-  for (const link of document.querySelectorAll('[data-workspace-target="act"]:not([data-native-workbench])')) {
-    const url = new URL(link.href);
-    if (url.origin === location.origin && url.pathname.endsWith('/act-workbench.html')) {
-      url.pathname = url.pathname.replace(/act-workbench\.html$/, 'act-browser.html');link.href = url.href;
-    }
-  }
-}
