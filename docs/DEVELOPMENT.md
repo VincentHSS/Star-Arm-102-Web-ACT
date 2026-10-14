@@ -25,6 +25,8 @@ npm run test:browser
 
 仅检查相机步骤切换时，可运行 `node tests/camera_navigation_smoke.cjs`。它使用随机回环端口与模拟视频流，并阻断客户服务 18765；覆盖浏览器与原生预览在 1↔4↔3 多次切换时保留连接、过期状态不能关闭新相机，以及浏览器预览不能自行满足真实执行门槛。不会连接物理相机或串口。
 
+仅检查控制台串口连接时，运行 `node tests/console_serial_smoke.cjs`。使用随机端口的静态服务和模拟 Web Serial，验证 LD、HD、FL、即时/乱序回包、仅补读缺失 ID、失败关闭串口和重新连接。阻断客户 18765，未接触物理机械臂。`servo_readback.test.js` 以模拟时钟验证多个缺失 ID 共用每轮超时，避免依赖机器速度的计时断言。
+
 修改 `ai_service/`、`runtime/` 或安装组件内容后，运行 `build_runtime_package.py`。它重建网站内的 `.deb` 模板并更新浏览器模板校验值；不能只更新其中一份。修改文件结构后使用 `python tools/check_file_map.py --write` 重建逐文件说明，再检查。
 
 `package_site.py` 只生成一个交付 ZIP 到 `dist/`：静态资源在 `服务器网页`，图文教程与截图在 `使用教程`。教程不参与网站加载。不打入后台源码、临时日志、测试、模型、校准、示教数据或开发依赖。客户运行源码时从 GitHub 下载源码 ZIP，服务器发布使用 Release 的网站 ZIP。

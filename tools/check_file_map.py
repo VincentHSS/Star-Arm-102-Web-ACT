@@ -41,6 +41,7 @@ FRONTEND = {
     'reset_origin': '机械臂回零与原点重置', 'robot_model_configs': '可选显示模型、关节与资源配置',
     'robot_model': '创建 3D 关节树并应用实际关节角度', 'robot_profiles': '主从臂型号、关节范围和控制配置',
     'runtime_integration': '控制台运行状态与设备控制的集成', 'serial_servo_bus': '舵机总线串口收发与响应管理',
+    'servo_readback': '控制台按 ID 收集回包、每轮统一超时、仅补读缺失关节与清理等待',
     'servo_setup_flow': '舵机 ID 和参数设置的读写校验流程', 'servo_setup': '舵机设置界面与设备操作',
     'settings': '控制台用户设置与持久化', 'styles': '控制台主题、响应式布局和通用控件样式',
     'target_execution_ownership': '确保运动目标同一时间由一个执行者持有', 'tcp_drag_preview': '拖动末端时的目标预览',
@@ -106,6 +107,7 @@ EXACT = {
     'tools/check_file_map.py': '逐文件用途清单生成与遗漏检查',
     'tests/camera_navigation_smoke.cjs': '隔离端口与模拟双相机，验证步骤切换复用预览和过期状态处理',
     'tests/browser_smoke.cjs': '自动浏览器验证、临时本机服务与安装包生成检查',
+    'tests/console_serial_smoke.cjs': '模拟控制台 LD/HD/FL 串口、首轮反馈、共享超时、补读与重新连接',
 }
 DOCS = {
     'BROWSER_EXECUTION': 'Windows 纯网页客户执行与提供方一键导出模型图文教程',

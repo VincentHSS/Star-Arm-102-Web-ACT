@@ -155,6 +155,7 @@
 | [Browser_SDK/src/robot_profiles.js](../Browser_SDK/src/robot_profiles.js) | 主从臂型号、关节范围和控制配置 |
 | [Browser_SDK/src/runtime_integration.js](../Browser_SDK/src/runtime_integration.js) | 控制台运行状态与设备控制的集成 |
 | [Browser_SDK/src/serial_servo_bus.js](../Browser_SDK/src/serial_servo_bus.js) | 舵机总线串口收发与响应管理 |
+| [Browser_SDK/src/servo_readback.js](../Browser_SDK/src/servo_readback.js) | 控制台按 ID 收集回包、每轮统一超时、仅补读缺失关节与清理等待 |
 | [Browser_SDK/src/servo_setup.js](../Browser_SDK/src/servo_setup.js) | 舵机设置界面与设备操作 |
 | [Browser_SDK/src/servo_setup_flow.js](../Browser_SDK/src/servo_setup_flow.js) | 舵机 ID 和参数设置的读写校验流程 |
 | [Browser_SDK/src/settings.js](../Browser_SDK/src/settings.js) | 控制台用户设置与持久化 |
@@ -252,6 +253,7 @@
 | [tests/browser_direct_smoke.cjs](../tests/browser_direct_smoke.cjs) | 无本机 API 的网页模型、相机、串口和停止流程；模拟硬件 |
 | [tests/browser_smoke.cjs](../tests/browser_smoke.cjs) | 自动浏览器验证、临时本机服务与安装包生成检查 |
 | [tests/camera_navigation_smoke.cjs](../tests/camera_navigation_smoke.cjs) | 隔离端口与模拟双相机，验证步骤切换复用预览和过期状态处理 |
+| [tests/console_serial_smoke.cjs](../tests/console_serial_smoke.cjs) | 模拟控制台 LD/HD/FL 串口、首轮反馈、共享超时、补读与重新连接 |
 | [tests/follower_calibration_ui.test.js](../tests/follower_calibration_ui.test.js) | 软件测试：从臂校准与重试界面 |
 | [tests/model_import_ui.test.js](../tests/model_import_ui.test.js) | 软件测试：完整模型导入界面 |
 | [tests/page_lifecycle.test.js](../tests/page_lifecycle.test.js) | 软件测试：停止和释放成功后切页、失败保留原页与重复点击合并 |
@@ -268,6 +270,7 @@
 | [tests/piper/release_version_contract.test.js](../tests/piper/release_version_contract.test.js) | 软件测试：两系统启动脚本与整合服务入口 |
 | [tests/piper/servo_setup_flow.test.js](../tests/piper/servo_setup_flow.test.js) | 软件测试：舵机 ID 和参数设置的读写校验流程 |
 | [tests/piper/servo_setup_ui_contract.test.js](../tests/piper/servo_setup_ui_contract.test.js) | 软件测试：舵机设置界面与读写错误显示 |
+| [tests/servo_readback.test.js](../tests/servo_readback.test.js) | 软件测试：控制台按 ID 收集回包、每轮统一超时、仅补读缺失关节与清理等待 |
 | [tests/test_act_policy_worker.py](../tests/test_act_policy_worker.py) | 软件测试：独立进程加载 ACT 策略并产生预测动作 |
 | [tests/test_action_schedule.py](../tests/test_action_schedule.py) | 软件测试：动作块队列、节拍调度与多次预测融合 |
 | [tests/test_api.py](../tests/test_api.py) | 软件测试：HTTP API、数据集与轮次流程 |

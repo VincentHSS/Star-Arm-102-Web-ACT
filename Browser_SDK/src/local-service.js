@@ -1,4 +1,4 @@
-import { createWebsiteInstaller } from './act-installer.js?v=ubuntu-recovery-1';
+import { createWebsiteInstaller } from './act-installer.js?v=serial-connect-1';
 const LOCAL_ORIGIN = 'http://127.0.0.1:18765';
 export function getLocalOrigin() { return LOCAL_ORIGIN; }
 export function getLocalApi() { return `${LOCAL_ORIGIN}/api/v1`; }

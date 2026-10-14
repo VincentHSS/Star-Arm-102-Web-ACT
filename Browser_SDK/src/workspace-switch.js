@@ -1,4 +1,4 @@
-import { getLocalApi, localFetch } from './local-service.js?v=ubuntu-recovery-1';
+import { getLocalApi, localFetch } from './local-service.js?v=serial-connect-1';
 const names = { act: 'ACT 工作台', piper: '控制台' };
 const overlay = document.createElement('section');
 overlay.id = 'workspace-switch-screen';

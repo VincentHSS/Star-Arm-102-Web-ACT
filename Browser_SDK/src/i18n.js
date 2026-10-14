@@ -371,6 +371,10 @@ const translations = {
 
     // Dynamic Status / 动态状态
     'status.leader-connected-hd': 'HD Leader 已连接，当前为阻尼手摇并持续回读',
+    'status.serial-reading-first': '{name} 串口已打开，正在读取 J1–J7…',
+    'log.serial-connect-timing': '{name} 连接耗时：打开串口 {open} ms，首次回读 {feedback} ms',
+    'status.serial-retrying-first': '{name} 等待 ID {ids} 回包（第 {attempt}/3 次）',
+    'error.serial-first-feedback-missing': '{name} 串口已打开，但舵机 ID {ids} 未返回有效角度。请检查机械臂电源、所选串口和接线后重试。',
     'status.leader-connected-ld': 'LD Leader 已连接（持续只读，不发送控制帧）',
     'status.virtual-fl-connected': '虚拟 FL 已连接',
     'status.follower-serial-connected': 'Follower 串口已连接',
@@ -1462,6 +1466,10 @@ const translations = {
 
     // Dynamic Status
     'status.leader-connected-hd': 'HD Leader connected, damping with continuous readback',
+    'status.serial-reading-first': '{name} port open; reading J1–J7…',
+    'log.serial-connect-timing': '{name} connection: port open {open} ms, first feedback {feedback} ms',
+    'status.serial-retrying-first': '{name} waiting for ID {ids} (attempt {attempt}/3)',
+    'error.serial-first-feedback-missing': '{name} port opened, but servo ID {ids} returned no valid angle. Check arm power, selected port, and wiring, then retry.',
     'status.leader-connected-ld': 'LD Leader connected (read-only, no control frames)',
     'status.virtual-fl-connected': 'Virtual FL connected',
     'status.follower-serial-connected': 'Follower serial connected',

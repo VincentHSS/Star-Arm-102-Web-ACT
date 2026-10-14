@@ -9,7 +9,7 @@ export class PendingPacketQueue {
     const waiterIndex = this.waiters.findIndex((waiter) => waiter.predicate(packet));
     if (waiterIndex >= 0) {
       const [waiter] = this.waiters.splice(waiterIndex, 1);
-      clearTimeout(waiter.timer);
+      waiter.cleanup();
       waiter.resolve(packet);
       return;
     }
@@ -23,7 +23,8 @@ export class PendingPacketQueue {
     this.packets = [];
   }
 
-  waitFor(predicate, timeoutMs = 300, timeoutMessage = '等待舵机响应超时') {
+  waitFor(predicate, timeoutMs = 300, timeoutMessage = '等待舵机响应超时', { signal } = {}) {
+    if (signal?.aborted) return Promise.reject(signal.reason ?? new Error('串口读取已取消'));
     const packetIndex = this.packets.findIndex(predicate);
     if (packetIndex >= 0) {
       const [packet] = this.packets.splice(packetIndex, 1);
@@ -31,22 +32,26 @@ export class PendingPacketQueue {
     }
 
     return new Promise((resolve, reject) => {
-      const waiter = {
-        predicate,
-        resolve,
-        reject,
-        timer: setTimeout(() => {
-          this.waiters = this.waiters.filter((item) => item !== waiter);
-          reject(new Error(timeoutMessage));
-        }, timeoutMs),
+      const remove = () => { this.waiters = this.waiters.filter((item) => item !== waiter); };
+      const abort = () => {
+        remove(); waiter.cleanup();
+        reject(signal.reason ?? new Error('串口读取已取消'));
       };
+      const waiter = { predicate, resolve, reject, timer: null,
+        cleanup: () => { clearTimeout(waiter.timer); signal?.removeEventListener('abort', abort); } };
+      waiter.timer = setTimeout(() => {
+        remove(); waiter.cleanup();
+        const error = new Error(timeoutMessage); error.code = 'serial_response_timeout';
+        reject(error);
+      }, timeoutMs);
       this.waiters.push(waiter);
+      signal?.addEventListener('abort', abort, { once: true });
     });
   }
 
   rejectAll(error) {
     for (const waiter of this.waiters) {
-      clearTimeout(waiter.timer);
+      waiter.cleanup();
       waiter.reject(error);
     }
     this.waiters = [];

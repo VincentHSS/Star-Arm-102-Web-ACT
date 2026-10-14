@@ -16,6 +16,7 @@ import { loadSettings, saveSettings, normalizeControlSettings } from './settings
 import { TeleopController } from './teleop_controller.js';
 import { initLanguage, setLanguage, getLanguage, t, tWithVars, autoTranslatePage } from './i18n.js';
 import { SerialServoBus } from './serial_servo_bus.js';
+import { readServoFeedback } from './servo_readback.js';
 import { ControlGeneration, connectInitializedBus, executeConfirmedTarget } from './control_safety.js';
 import { TcpDragPreviewCoordinator, freezeTcpDragForExecution } from './tcp_drag_preview.js';
 import { matrixToQuaternion } from './tcp_translation_gizmo.js';
@@ -200,6 +201,8 @@ class BrowserTeleopController {
     if (this.leader.connected) throw new Error(t('error.leader-serial-connected'));
     const leaderType = getLeaderProfileCode();
     const operation = this.leaderConnectionLock.begin(leaderType);
+    this.latestAngles.leader = null;
+    this.lastLeaderMonitors = {};
     let session = null;
     let profile = null;
     const connectionId = nextConnectionId('leader');
@@ -212,11 +215,14 @@ class BrowserTeleopController {
       });
       this.leaderConnectionLock.assertCurrent(operation, getLeaderProfileCode());
       session = this.createManualSession('leader', !profile.canCommand);
+      const feedbackStarted = performance.now();
       await session.connect();
       this.leaderConnectionLock.assertCurrent(operation, getLeaderProfileCode());
       this.manualSessions.leader = session;
       this.connectedLeaderProfile = profile;
       this.leaderConnectionId = connectionId;
+      log(tWithVars('log.serial-connect-timing', { name: this.leader.name,
+        open: Math.round(this.leader.connectionTiming?.openMs ?? 0), feedback: Math.round(performance.now() - feedbackStarted) }));
     } catch (error) {
       this.manualSessions.leader = null;
       this.connectedLeaderProfile = null;
@@ -235,6 +241,7 @@ class BrowserTeleopController {
     const targetType = this.followerTarget.type;
     if (this.followerConnected()) throw new Error(targetType === FOLLOWER_TARGET_VIRTUAL ? t('status.virtual-fl-connected') : t('status.follower-serial-connected'));
     const operation = this.followerConnectionLock.begin(targetType);
+    this.latestAngles.follower = null;
     let session = null;
     let connectionId = null;
     let follower = null;
@@ -257,10 +264,13 @@ class BrowserTeleopController {
       });
       this.followerConnectionLock.assertCurrent(operation, this.followerTarget.type);
       session = this.createManualSession('follower', false);
+      const feedbackStarted = performance.now();
       await session.connect();
       this.followerConnectionLock.assertCurrent(operation, this.followerTarget.type);
       this.manualSessions.follower = session;
       this.followerConnectionId = connectionId;
+      log(tWithVars('log.serial-connect-timing', { name: follower.name,
+        open: Math.round(follower.connectionTiming?.openMs ?? 0), feedback: Math.round(performance.now() - feedbackStarted) }));
       log(t('status.follower-connected'));
     } catch (error) {
       this.manualSessions.follower = null;
@@ -817,59 +827,30 @@ class BrowserTeleopController {
     const bus = role === 'leader' ? this.leader : this.follower;
     if (!bus) throw new Error(tWithVars('error.serial-not-connected', { role: role === 'leader' ? 'Leader' : 'Follower' }));
     const monitorIds = [...SERVO_IDS, ...extraServoIds.filter((id) => !SERVO_IDS.includes(id))];
-    // 半双工总线上某个舵机偶发停答一帧就会让“必须凑齐全部 ID”的等待超时。
-    // 这里做少量重试，并在最终仍缺失时“容忍缺失”：缺失舵机沿用上次角度，采集循环继续，
-    // 避免单次丢包把整个姿态源循环打成 fault（其他工具能一直读正是因为它跳过缺失、继续读）。
-    const maxAttempts = 3;
-    for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
-      const snapshot = await this.readMonitorSnapshot(bus, monitorIds, role);
-      if (snapshot.missingIds.length === 0) return snapshot.angles;
-      if (attempt === maxAttempts - 1) {
-        this.applyFallbackAngles(snapshot.angles, snapshot.missingIds, role);
-        log(tWithVars('log.leader-read-partial', {
-          name: bus.name,
-          ids: snapshot.missingIds.join(', '),
-        }));
-        return snapshot.angles;
-      }
-      await delay(30);
-    }
-    // 理论不可达：保持与历史一致的回报
-    return new Array(SERVO_IDS.length).fill(0);
-  }
-
-  async readMonitorSnapshot(bus, monitorIds, role) {
-    // 丢弃上一轮残留的未消费回包，避免旧包被本轮误匹配
-    bus.clearPackets();
-    const request = ServoProtocol.syncServoMonitor(monitorIds);
-    if (isRawLogEnabled()) log(tWithVars('log.tx-read-monitor', { name: bus.name, hex: toHex(request) }));
-    await bus.write(request);
-    await delay(8);
-    const packets = [];
-    const missingIds = [];
-    for (const id of monitorIds) {
-      try {
-        const packet = await bus.waitForPacket((candidate) => {
-          const monitor = parseMonitorPacket(candidate);
-          return monitor && monitorIds.includes(monitor.id) && !packets.some((item) => parseMonitorPacket(item)?.id === monitor.id);
-        }, getResponseTimeoutMs());
-        packets.push(packet);
-      } catch (error) {
-        if (isDeviceLostError(error)) throw error;
-        missingIds.push(id);
-      }
+    const initial = !this.latestAngles[role];
+    const { monitors, missingIds } = await readServoFeedback({
+      bus, servoIds: monitorIds, timeoutMs: getResponseTimeoutMs(),
+      onRequest: request => { if (isRawLogEnabled()) log(tWithVars('log.tx-read-monitor', { name: bus.name, hex: toHex(request) })); },
+      onAttempt: initial ? ({ attempt, missingIds }) => {
+        const message = attempt === 1 ? tWithVars('status.serial-reading-first', { name: bus.name })
+          : tWithVars('status.serial-retrying-first', { name: bus.name, ids: missingIds.join(', '), attempt });
+        (role === 'leader' ? els.leaderStatus : els.followerStatus).textContent = message;
+      } : undefined,
+    });
+    if (initial && missingIds.some(id => SERVO_IDS.includes(id))) {
+      throw new Error(tWithVars('error.serial-first-feedback-missing', { name: bus.name, ids: missingIds.filter(id => SERVO_IDS.includes(id)).join(', ') }));
     }
     const angles = new Array(SERVO_IDS.length).fill(0);
-    const monitors = {};
-    for (const packet of packets) {
-      const monitor = parseMonitorPacket(packet);
-      if (!monitor) continue;
-      monitors[monitor.id] = monitor;
+    for (const monitor of Object.values(monitors)) {
       if (SERVO_IDS.includes(monitor.id)) angles[monitor.id] = monitor.angle;
     }
     angles[angles.length - 1] = clampGripperAngle(angles[angles.length - 1]);
     if (role === 'leader') this.lastLeaderMonitors = monitors;
-    return { angles, missingIds };
+    if (missingIds.length) {
+      this.applyFallbackAngles(angles, missingIds, role);
+      log(tWithVars('log.leader-read-partial', { name: bus.name, ids: missingIds.join(', ') }));
+    }
+    return angles;
   }
 
   applyFallbackAngles(angles, missingIds, role) {
@@ -878,7 +859,6 @@ class BrowserTeleopController {
     for (const id of missingIds) {
       if (SERVO_IDS.includes(id) && Number.isFinite(last[id])) angles[id] = last[id];
     }
-    angles[angles.length - 1] = clampGripperAngle(angles[angles.length - 1]);
   }
 
   async readLeaderAngles(extraServoIds = []) {
@@ -2088,7 +2068,8 @@ function getLeaderProfileCode() {
 }
 
 function getResponseTimeoutMs() {
-  return Math.max(100, Number(els.responseTimeout.value || 800));
+  const value = Number(els.responseTimeout.value || 800);
+  return Number.isFinite(value) ? Math.min(2000, Math.max(100, value)) : 800;
 }
 
 function isRawLogEnabled() {

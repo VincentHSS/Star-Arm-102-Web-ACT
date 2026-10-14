@@ -23,6 +23,7 @@ export class SerialServoBus {
     this.lost = false;
     this.disconnecting = false;
     this.connectionEpoch = 0;
+    this.connectionTiming = null;
     this.disconnectListener = (event) => {
       if (event.target === this.port) this.markLost(new Error(`${this.name} 串口设备已断开`), { force: true });
     };
@@ -39,8 +40,10 @@ export class SerialServoBus {
     this.port = port ?? await this.serial.requestPort();
     this.lost = false;
     this.disconnecting = false;
+    const openStarted = performance.now();
     try {
       await this.port.open({ baudRate: 1000000, dataBits: 8, stopBits: 1, parity: 'none', flowControl: 'none', ...openOptions });
+      this.connectionTiming = { openMs: performance.now() - openStarted };
       this.writer = this.port.writable.getWriter();
       this.reader = this.port.readable.getReader();
       this.reading = true;
@@ -65,6 +68,7 @@ export class SerialServoBus {
     this.reader = null;
     this.writer = null;
     this.port = null;
+    this.connectionTiming = null;
     if (reader) {
       try { await reader.cancel(); } catch (_) {}
       try { reader.releaseLock(); } catch (_) {}
@@ -132,8 +136,8 @@ export class SerialServoBus {
     });
   }
 
-  waitForPacket(predicate, timeoutMs = 300) {
-    return this.packetQueue.waitFor(predicate, timeoutMs, `${this.name} 等待舵机响应超时`);
+  waitForPacket(predicate, timeoutMs = 300, options) {
+    return this.packetQueue.waitFor(predicate, timeoutMs, `${this.name} 等待舵机响应超时`, options);
   }
 
   /** 丢弃尚未被消费的残留回包（每轮采样开始前调用，避免旧包误匹配当前轮）。 */
