@@ -17,6 +17,22 @@ PACKAGE_NAME = 'act-runtime-template.deb'
 def tar_bytes(files):
     buffer = io.BytesIO()
     with tarfile.open(fileobj=buffer, mode='w', format=tarfile.GNU_FORMAT) as archive:
+        # dpkg needs explicit parent entries, even though tar extraction tools
+        # often create missing directories implicitly.
+        directories = set()
+        for name, _, _ in files:
+            parent = Path(name).parent
+            while parent != Path('.'):
+                directories.add(parent.as_posix())
+                parent = parent.parent
+        for name in sorted(directories):
+            item = tarfile.TarInfo('./' + name + '/')
+            item.type = tarfile.DIRTYPE
+            item.mode = 0o755
+            item.uid = item.gid = 0
+            item.uname = item.gname = 'root'
+            item.mtime = 1791753600
+            archive.addfile(item)
         for name, content, mode in sorted(files):
             item = tarfile.TarInfo('./' + name)
             item.size = len(content)
@@ -81,7 +97,7 @@ def build_deb(origin=None):
     files.append(('usr/share/doc/star-arm-act/copyright', copyright_text.encode('utf-8'), 0o644))
     md5sums = '\n'.join(f'{hashlib.md5(content).hexdigest()}  {name}' for name, content, _ in sorted(files)) + '\n'
     installed_size = (sum(len(content) for _, content, _ in files) + 1023) // 1024
-    control = f'Package: star-arm-act\nVersion: 1.0.8\nArchitecture: all\nMaintainer: Star Arm Delivery <noreply@localhost>\nSection: science\nPriority: optional\nInstalled-Size: {installed_size}\nDepends: python3 (>= 3.10), python3 (<< 3.13), python3-venv, python3-dev, python3-tk, build-essential, v4l-utils, ffmpeg, libgl1, libglib2.0-0 | libglib2.0-0t64, desktop-file-utils, xdg-utils, udev, util-linux, systemd\nDescription: Local ACT execution for the Star Arm browser workbench\n Installs the Ubuntu user-session runtime, publisher website binding and automatic desktop startup.\n The browser configures the isolated LeRobot and PyTorch environment.\n'
+    control = f'Package: star-arm-act\nVersion: 1.0.9\nArchitecture: all\nMaintainer: Star Arm Delivery <noreply@localhost>\nSection: science\nPriority: optional\nInstalled-Size: {installed_size}\nDepends: python3 (>= 3.10), python3 (<< 3.13), python3-venv, python3-dev, python3-tk, build-essential, v4l-utils, ffmpeg, libgl1, libglib2.0-0 | libglib2.0-0t64, desktop-file-utils, xdg-utils, udev, util-linux, systemd\nDescription: Local ACT execution for the Star Arm browser workbench\n Installs the Ubuntu user-session runtime, publisher website binding and automatic desktop startup.\n The browser configures the isolated LeRobot and PyTorch environment.\n'
     postinst = '#!/bin/sh\nset -e\nif [ "$1" = configure ]; then\n update-desktop-database -q /usr/share/applications || true\n udevadm control --reload-rules || true\n udevadm trigger --subsystem-match=tty --action=change || true\n /usr/bin/python3 /opt/star-arm-act/start_desktop_sessions.py || true\nfi\nexit 0\n'
     postrm = '#!/bin/sh\nset -e\nif [ "$1" = remove ] || [ "$1" = purge ]; then\n update-desktop-database -q /usr/share/applications || true\n udevadm control --reload-rules || true\nfi\nexit 0\n'
     control_tar = tar_bytes([('control', control.encode('utf-8'), 0o644), ('md5sums', md5sums.encode('ascii'), 0o644), ('postinst', postinst.encode('ascii'), 0o755), ('postrm', postrm.encode('ascii'), 0o755)])

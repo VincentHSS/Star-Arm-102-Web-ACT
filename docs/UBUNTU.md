@@ -37,10 +37,16 @@
 系统安装器仍立即报告锁占用时，维护人员可以在“下载”目录使用 APT 的等待方式安装。文件名需对应实际下载文件：
 
 ```sh
-sudo apt-get -o DPkg::Lock::Timeout=300 -o Acquire::Retries=3 --no-remove install ./star-arm-act_1.0.8_all.deb
+sudo apt-get -o DPkg::Lock::Timeout=300 -o Acquire::Retries=3 --no-remove install ./star-arm-act_1.0.9_all.deb
 ```
 
 使用源码的维护人员也可运行 `/usr/bin/python3 tools/ubuntu_setup.py --package /完整路径/组件.deb`，使用同样的等待和授权逻辑。以上是安装器报错时的替代方式，日常网页客户仍按系统安装器操作。
+
+### 解包提示无法创建 Browser_SDK/index.html.dpkg-new
+
+若同时提示“没有那个文件或目录”，请更新服务器网页，刷新后从原网站重新下载当前安装文件并安装。安装包应包含 `/opt/star-arm-act/Browser_SDK` 等父目录。
+
+维护人员临时恢复旧包时，可先执行 `sudo mkdir -p /opt/star-arm-act/Browser_SDK`，再用上述 APT 命令安装实际下载的 `.deb`。若仍出现其他缺失目录，请使用当前安装包。无需删除原有模型、数据或系统锁文件。
 
 ### 自动准备环境
 

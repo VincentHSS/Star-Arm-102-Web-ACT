@@ -28,6 +28,14 @@ jobs:
           apt-get -o DPkg::Lock::Timeout=1 -o Acquire::Retries=3 --no-remove --simulate install ffmpeg
       - run: python tools/build_runtime_package.py
       - run: python tools/check_distribution.py
+      - if: runner.os == 'Linux'
+        name: Unpack Ubuntu template into an empty root
+        run: |
+          root=$(mktemp -d)
+          sudo mkdir -p "$root/var/lib/dpkg"
+          sudo touch "$root/var/lib/dpkg/status"
+          sudo dpkg --root="$root" --unpack Browser_SDK/downloads/act-runtime-template.deb
+          test -f "$root/opt/star-arm-act/Browser_SDK/index.html"
       - run: python tools/check_file_map.py
   browser-check:
     runs-on: ubuntu-latest
@@ -46,3 +54,10 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - run: npm run test:browser
       - run: python tools/check_distribution.py --generated dist/browser-generated.deb
+      - name: Unpack browser installer into an empty root
+        run: |
+          root=$(mktemp -d)
+          sudo mkdir -p "$root/var/lib/dpkg"
+          sudo touch "$root/var/lib/dpkg/status"
+          sudo dpkg --root="$root" --unpack dist/browser-generated.deb
+          test -f "$root/opt/star-arm-act/Browser_SDK/index.html"
