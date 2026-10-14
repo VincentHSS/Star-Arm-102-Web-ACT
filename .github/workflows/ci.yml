@@ -37,6 +37,8 @@ jobs:
           sudo dpkg --root="$root" --unpack Browser_SDK/downloads/act-runtime-template.deb
           test -f "$root/opt/star-arm-act/Browser_SDK/index.html"
       - run: python tools/check_file_map.py
+      - if: runner.os == 'Windows'
+        run: python tools/package_browser_local.py
   browser-check:
     runs-on: ubuntu-latest
     env:

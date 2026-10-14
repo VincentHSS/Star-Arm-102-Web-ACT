@@ -236,6 +236,7 @@
 | [runtime/ubuntu_runtime.py](../runtime/ubuntu_runtime.py) | 用户后台启动、网站授权、环回 API 与组件连接检测 |
 | [start_ubuntu.sh](../start_ubuntu.sh) | Ubuntu 检查并补齐系统依赖，使用系统 Python 启动网页与后台 |
 | [start_windows.bat](../start_windows.bat) | Windows 自动选择 Python 启动同一网页与后台 |
+| [start_windows_browser.bat](../start_windows_browser.bat) | Windows 双击启动本地纯网页测试，不安装 Python 或设备后台 |
 | [tests/act_browser_core.test.js](../tests/act_browser_core.test.js) | 软件测试：网页模型合同、原版校准坐标转换、限位与时间索引动作调度 |
 | [tests/act_browser_runtime.test.js](../tests/act_browser_runtime.test.js) | 软件测试：浏览器 Worker 推理与串口控制、实时反馈、停止和资源释放 |
 | [tests/act_camera_frame_encoder_worker_client.test.js](../tests/act_camera_frame_encoder_worker_client.test.js) | 软件测试：管理相机编码 Worker 请求、超时与退出 |
@@ -269,6 +270,7 @@
 | [tests/test_action_schedule.py](../tests/test_action_schedule.py) | 软件测试：动作块队列、节拍调度与多次预测融合 |
 | [tests/test_api.py](../tests/test_api.py) | 软件测试：HTTP API、数据集与轮次流程 |
 | [tests/test_browser_exports.py](../tests/test_browser_exports.py) | 软件测试：训练端异步网页模型导出、依赖准备、状态与下载 |
+| [tests/test_browser_local.py](../tests/test_browser_local.py) | 软件测试：本地静态启动、模块与 WASM 类型、并发及请求边界 |
 | [tests/test_capabilities.py](../tests/test_capabilities.py) | 软件测试：检测 Python、训练依赖、GPU 与运行阻碍 |
 | [tests/test_devices.py](../tests/test_devices.py) | 软件测试：设备枚举与稳定标识、角色绑定 |
 | [tests/test_domain.py](../tests/test_domain.py) | 软件测试：数据集、轮次、设备绑定与业务错误规则 |
@@ -299,6 +301,8 @@
 | [tools/check_distribution.py](../tools/check_distribution.py) | 校验安装模板、源码一致性、换行、静态文件与资源路径 |
 | [tools/check_file_map.py](../tools/check_file_map.py) | 逐文件用途清单生成与遗漏检查 |
 | [tools/export_browser_act.py](../tools/export_browser_act.py) | 提供方网页模型转换的命令行入口，客户不运行 |
+| [tools/package_browser_local.py](../tools/package_browser_local.py) | 生成 Windows 本地纯网页测试 ZIP，不包含训练后台或客户模型 |
 | [tools/package_site.py](../tools/package_site.py) | 生成含静态网站、图文教程和 SHA256 清单的单个交付 ZIP |
 | [tools/serve_local.py](../tools/serve_local.py) | 源码启动入口，检查版本并同端口提供完整网页与 API |
+| [tools/start_browser_local.ps1](../tools/start_browser_local.ps1) | 使用 Windows 自带 .NET，仅在环回地址提供静态网页与推理资源 |
 | [tools/ubuntu_setup.py](../tools/ubuntu_setup.py) | Ubuntu 系统依赖与组件安装，等待 dpkg 锁、重试下载并解释失败原因 |

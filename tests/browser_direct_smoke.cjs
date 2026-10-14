@@ -3,10 +3,15 @@ const {chromium}=require('playwright'),{spawn}=require('node:child_process'),net
 const ROOT=path.resolve(__dirname,'..'),pause=ms=>new Promise(r=>setTimeout(r,ms));
 (async()=>{
  const socket=net.createServer();await new Promise(r=>socket.listen(0,'127.0.0.1',r));const port=socket.address().port;await new Promise(r=>socket.close(r));
- const service=spawn(process.env.PYTHON||'python',['-X','utf8','-m','http.server',String(port),'--bind','127.0.0.1','--directory',path.join(ROOT,'Browser_SDK')],{windowsHide:true,stdio:'ignore'});
+ const localLauncher=process.env.BROWSER_ACT_STATIC_SERVER==='powershell';
+ const service=localLauncher
+  ?spawn('powershell.exe',['-NoLogo','-NoProfile','-ExecutionPolicy','Bypass','-File',path.join(ROOT,'tools/start_browser_local.ps1'),'-NoBrowser','-Port',String(port),'-WebRoot',path.join(ROOT,'Browser_SDK')],{windowsHide:true,stdio:'ignore'})
+  :spawn(process.env.PYTHON||'python',['-X','utf8','-m','http.server',String(port),'--bind','127.0.0.1','--directory',path.join(ROOT,'Browser_SDK')],{windowsHide:true,stdio:'ignore'});
  let browser;
  try{
-  await pause(600);browser=await chromium.launch({headless:true,args:['--enable-unsafe-webgpu'],...(process.env.PLAYWRIGHT_BROWSER_CHANNEL?{channel:process.env.PLAYWRIGHT_BROWSER_CHANNEL}:{})});
+  let ready=false;for(let i=0;i<100;i++){try{if((await fetch(`http://127.0.0.1:${port}/act-browser.html`)).ok){ready=true;break;}}catch{}await pause(200);}
+  assert(ready,'Static webpage server did not start');
+  browser=await chromium.launch({headless:true,args:['--enable-unsafe-webgpu'],...(process.env.PLAYWRIGHT_BROWSER_CHANNEL?{channel:process.env.PLAYWRIGHT_BROWSER_CHANNEL}:{})});
   const page=await browser.newPage({viewport:{width:1600,height:1000}}),errors=[];let backendCalls=0;
   page.on('pageerror',e=>errors.push(e.message));await page.route('http://127.0.0.1:18765/**',r=>{backendCalls++;return r.abort();});
   if(!process.env.BROWSER_ACT_REAL_MODEL)await page.route('**/src/act-browser-worker.js',r=>r.fulfill({contentType:'text/javascript',body:`
@@ -64,6 +69,6 @@ const ROOT=path.resolve(__dirname,'..'),pause=ms=>new Promise(r=>setTimeout(r,ms
   await page.click('#web-close-arm');await page.waitForFunction(()=>!document.getElementById('web-connect-arm').disabled);
   assert.equal(await page.evaluate(()=>__browserActTest.portCloses),1);
   assert.equal(backendCalls,0,'Browser execution must not need the local Python/LeRobot service');assert.deepEqual(errors,[]);
-  console.log(JSON.stringify({browserOnly:true,localServiceRequests:backendCalls,readOnlyValidation:true,sustainedRun:true,cameraStallStopped:true,diagnosticsDownload:true,executedCommands:stopped,realModel:Boolean(process.env.BROWSER_ACT_REAL_MODEL),physicalHardware:false}));
+  console.log(JSON.stringify({browserOnly:true,windowsStaticLauncher:localLauncher,localServiceRequests:backendCalls,readOnlyValidation:true,sustainedRun:true,cameraStallStopped:true,diagnosticsDownload:true,executedCommands:stopped,realModel:Boolean(process.env.BROWSER_ACT_REAL_MODEL),physicalHardware:false}));
  }finally{if(browser)await browser.close();service.kill();}
 })().catch(e=>{console.error(e);process.exitCode=1;});
