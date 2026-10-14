@@ -39,8 +39,10 @@ function draw(){
   $('web-joints').replaceChildren(...Array.from({length:7},(_,i)=>{const d=document.createElement('div'),b=document.createElement('b'),s=document.createElement('span'),a=document.createElement('strong');b.textContent=`J${i+1}`;s.textContent=`OBS ${runner.observation?.[i]?.toFixed(1)??'—'}°`;a.textContent=`ACT ${runner.safe?.[i]?.toFixed(1)??'—'}°`;d.append(b,s,a);return d;}));
   for(let i=0;i<2;i++){
     videos[i].closest('article').classList.toggle('streaming',Boolean(videos[i].srcObject));
-    const camera=runner.cameraInfo[i],age=camera?performance.now()-camera.lastFrame:0;
-    $('web-video-status-'+i).textContent=camera?`${camera.width}×${camera.height} · ${camera.fps==null?'计算中':camera.fps.toFixed(1)+' FPS'}${age>500?' · 画面停滞':camera.fps!=null&&camera.fps<24?' · 帧率偏低':''}`:'未连接';
+    const camera=runner.cameraInfo[i],age=camera?.lastFrame?performance.now()-camera.lastFrame:0;
+    const fps=camera?.fps==null?'计算中':camera.fps.toFixed(1)+' FPS';
+    const preview=camera?.source==='track'?` · 显示 ${!camera.lastPreview||performance.now()-camera.lastPreview>500?'暂停':camera.previewFps==null?'计算中':camera.previewFps.toFixed(1)+' FPS'}`:'';
+    $('web-video-status-'+i).textContent=camera?`${camera.width}×${camera.height} · ${camera.source==='track'?'采集 ':''}${fps}${preview}${camera.error?' · 采集异常':age>500?' · 采集停滞':camera.fps!=null&&camera.fps<24?' · 帧率偏低':''}`:'未连接';
     if(model){const role=label(model.inputs.cameras[i].feature);$('web-camera-label-'+i).textContent=role;$('web-video-label-'+i).textContent=role;}
   }
   if(runner.message){message(runner.message);runner.message=null;}

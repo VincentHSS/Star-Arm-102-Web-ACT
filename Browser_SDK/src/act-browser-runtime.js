@@ -8,6 +8,7 @@ export class BrowserActRunner {
   constructor({videos,onChange=()=>{},onSample=()=>{},workerFactory=()=>new Worker(new URL('./act-browser-worker.js',import.meta.url),{type:'module'}),serial}={}){
     this.videos=videos;this.onChange=onChange;this.onSample=onSample;this.worker=workerFactory();this.nextId=0;this.pending=new Map();
     this.camera=new BrowserCameraController(navigator.mediaDevices);this.cameraInfo=[null,null];this.callbacks=[null,null];
+    this.frameReaders=[null,null];this.latestFrames=[null,null];
     this.model=null;this.calibration=null;this.validated=false;this.running=false;this.generation=0;this.busy=false;
     this.observation=null;this.raw=null;this.safe=null;this.metrics={executed:0,missed:0,policy:0,control:0,remaining:0};
     this.bus=new SerialServoBus('ACT 从臂',{serial,onLost:e=>void this.stop(`从臂断开：${e.message}`,{error:true}),onStateChange:()=>this.onChange()});
@@ -44,23 +45,62 @@ export class BrowserActRunner {
         const deadline=performance.now()+5000;while(!video.videoWidth&&performance.now()<deadline)await sleep(25);
         if(video.videoWidth!==width||video.videoHeight!==height)throw Error(`第 ${i+1} 路相机实际 ${video.videoWidth}×${video.videoHeight}，模型要求 ${width}×${height}`);
         if(typeof video.requestVideoFrameCallback!=='function')throw Error('请使用支持真实视频帧回调的新版 Chrome / Edge');
-        const frames=[];this.cameraInfo[i]={lastFrame:0,fps:null,width,height};
+        const frames=[];this.cameraInfo[i]={lastFrame:0,fps:null,previewFps:null,width,height,source:'preview',received:0};
+        if(typeof MediaStreamTrackProcessor==='function'){
+          try{
+            const processor=new MediaStreamTrackProcessor({track:streams[role].getVideoTracks()[0],maxBufferSize:1});
+            const reader=processor.readable.getReader();this.frameReaders[i]=reader;this.cameraInfo[i].source='track';
+            void this.consumeCamera(i,video,streams[role],reader);
+          }catch(e){this.cameraInfo[i].captureWarning=e.message;}
+        }
         const onFrame=(now,metadata)=>{
           if(video.srcObject!==streams[role])return;
           frames.push({now,count:metadata.presentedFrames});while(frames.length>1&&now-frames[0].now>2000)frames.shift();
-          const firstFrame=frames[0];this.cameraInfo[i]={lastFrame:now,fps:now>firstFrame.now?(metadata.presentedFrames-firstFrame.count)*1000/(now-firstFrame.now):null,width,height};
+          const firstFrame=frames[0],fps=now>firstFrame.now?(metadata.presentedFrames-firstFrame.count)*1000/(now-firstFrame.now):null;
+          this.cameraInfo[i].previewFps=fps;this.cameraInfo[i].lastPreview=now;
+          if(this.cameraInfo[i].source==='preview')Object.assign(this.cameraInfo[i],{lastFrame:now,fps,received:metadata.presentedFrames});
           this.callbacks[i]=video.requestVideoFrameCallback(onFrame);
         };this.callbacks[i]=video.requestVideoFrameCallback(onFrame);
       }
       this.validated=false;
     }catch(e){this.closeCameras();throw e;}
   }
+  async consumeCamera(i,video,stream,reader){
+    const samples=[];let timestamp=null;
+    try{
+      while(video.srcObject===stream){
+        const {value,done}=await reader.read();
+        if(video.srcObject!==stream){value?.close();break;}
+        if(done){this.cameraInfo[i].error='相机采集数据流已结束';break;}
+        if(value.timestamp===timestamp){value.close();continue;}timestamp=value.timestamp;
+        this.latestFrames[i]?.close();this.latestFrames[i]=value;
+        const now=performance.now(),info=this.cameraInfo[i];info.received++;
+        samples.push({now,count:info.received});while(samples.length>1&&now-samples[0].now>2000)samples.shift();
+        const first=samples[0];Object.assign(info,{lastFrame:now,fps:now>first.now?(info.received-first.count)*1000/(now-first.now):null});
+      }
+    }catch(e){if(video.srcObject===stream)this.cameraInfo[i].error=e.message;}
+    finally{try{reader.releaseLock();}catch{}}
+  }
   closeCameras(){
     if(this.running)throw Error('请先停止执行');
     this.videos.forEach((v,i)=>{if(this.callbacks[i]!=null)v.cancelVideoFrameCallback?.(this.callbacks[i]);v.pause();v.srcObject=null;});
+    this.frameReaders.forEach(reader=>{if(reader)void reader.cancel().catch(()=>{});});
+    this.latestFrames.forEach(frame=>frame?.close());this.frameReaders=[null,null];this.latestFrames=[null,null];
     this.camera.close();this.cameraInfo=[null,null];this.callbacks=[null,null];this.validated=false;
   }
-  camerasReady(){return this.cameraInfo.every((c,i)=>c&&performance.now()-c.lastFrame<500&&this.videos[i].srcObject?.getVideoTracks().some(t=>t.readyState==='live'));}
+  cameraIssue(){
+    for(let i=0;i<2;i++){
+      const c=this.cameraInfo[i],role=this.model?.inputs?.cameras?.[i]?.feature??String(i+1),prefix=`第 ${i+1} 路相机 ${role.toUpperCase()}`;
+      if(!c)return `${prefix} 尚未收到新图像`;
+      if(c.error)return `${prefix} 采集失败：${c.error}`;
+      if(!c.lastFrame)return `${prefix} 尚未收到新图像`;
+      if(!this.videos[i].srcObject?.getVideoTracks().some(t=>t.readyState==='live'))return `${prefix} 已断开`;
+      const age=performance.now()-c.lastFrame;
+      if(age>=500)return `${prefix} 超过 500 ms 未收到新图像（已 ${age.toFixed(0)} ms），执行已停止`;
+    }
+    return null;
+  }
+  camerasReady(){return this.cameraIssue()===null;}
   readState(){
     if(this.readPending)return this.readPending;
     this.readPending=this._readState().catch(e=>{this.feedbackError=e.message;throw e;}).finally(()=>this.readPending=null);return this.readPending;
@@ -84,14 +124,14 @@ export class BrowserActRunner {
     return this.inferencePending;
   }
   async _predict(observation){
-    if(!this.camerasReady())throw Error('相机画面缺失或超过 500 ms 未更新，执行已停止');
+    if(!this.camerasReady())throw Error(this.cameraIssue());
     const frames=[];
     try{
-      if(typeof VideoFrame==='function'){
-        const timestamp=Math.round(performance.now()*1000);
-        for(const video of this.videos)frames.push(new VideoFrame(video,{timestamp}));
-      }else{
-        for(const video of this.videos)frames.push(await createImageBitmap(video));
+      const timestamp=Math.round(performance.now()*1000);
+      for(let i=0;i<this.videos.length;i++){
+        if(this.cameraInfo[i]?.source==='track')frames.push(this.latestFrames[i].clone());
+        else if(typeof VideoFrame==='function')frames.push(new VideoFrame(this.videos[i],{timestamp}));
+        else frames.push(await createImageBitmap(this.videos[i]));
       }
       const state=observationCoordinates(observation,this.model.coordinate_contract==='degrees'?null:this.calibration);
       const result=await this.request('infer',{state,frames},frames,30000);
@@ -144,7 +184,7 @@ export class BrowserActRunner {
           if(generation!==this.generation)break;
           const current=Math.max(tick,Math.floor((performance.now()-epoch)/period));this.metrics.missed+=current-tick;tick=current;
           if(document.hidden)throw Error('页面已进入后台，已停止执行');
-          if(!this.camerasReady())throw Error('相机超过 500 ms 未更新或已断开，执行已停止');
+          if(!this.camerasReady())throw Error(this.cameraIssue());
           if(predictionError)throw predictionError;
           if(performance.now()-lastPrediction>2500)throw Error('网页预测超过 2.5 秒未更新');
           const raw=schedule.action(tick);if(!raw)throw Error('动作缓冲耗尽，预测速度不足');

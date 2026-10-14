@@ -80,3 +80,26 @@ test('worker reuses image buffers and releases captured frames before GPU work',
   await self.onmessage({data:{id:999,operation:'load',buffer:new ArrayBuffer(1),manifest}});
   assert.equal(disposed,402,'Reload must release the retained image tensors');
 });
+
+test('fresh capture remains usable even when preview callbacks stop',async()=>{
+  const r=fixture();r.videos=[0,1].map(()=>({srcObject:{getVideoTracks:()=>[{readyState:'live'}]}}));
+  r.model={coordinate_contract:'degrees',chunk_size:2,inputs:{cameras:[{feature:'up'},{feature:'front'}]}};
+  r.cameraInfo=[0,1].map(()=>({source:'track',lastFrame:performance.now(),lastPreview:performance.now()-1000}));
+  let clones=0;r.latestFrames=[0,1].map(()=>({clone(){clones++;return {close(){}};}}));
+  r.request=async(operation,data)=>({actions:new Float32Array(14),latency:1});
+  assert(r.camerasReady());await r.predict(Array(7).fill(0));assert.equal(clones,2);
+  r.cameraInfo[1].lastFrame=performance.now()-600;
+  assert(!r.camerasReady());assert.match(r.cameraIssue(),/第 2 路相机 FRONT.*500 ms/);
+  await assert.rejects(r.predict(Array(7).fill(0)),/FRONT/);
+});
+
+test('camera pump retains only the newest frame and closes all frames on release',async()=>{
+  const r=fixture(),stream={};let reads=0,closed=0,finish;
+  const video={srcObject:stream,pause(){}};r.videos=[video];
+  r.cameraInfo[0]={received:0,source:'track',lastFrame:0};
+  const reader={read(){reads++;return reads<=2?Promise.resolve({done:false,value:{timestamp:reads*33333,close(){closed++;}}}):new Promise(resolve=>finish=resolve);},async cancel(){finish({done:true});},releaseLock(){}};
+  r.frameReaders[0]=reader;const pumping=r.consumeCamera(0,video,stream,reader);
+  await new Promise(resolve=>setTimeout(resolve,0));
+  assert.equal(closed,1);assert.equal(r.cameraInfo[0].received,2);assert(r.cameraInfo[0].lastFrame>0);
+  r.closeCameras();await pumping;assert.equal(closed,2);assert.equal(r.latestFrames[0],null);
+});
