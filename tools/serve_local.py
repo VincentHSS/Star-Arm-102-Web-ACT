@@ -17,14 +17,21 @@ def main():
     parser=argparse.ArgumentParser(description='启动 Star Arm 控制台与 ACT 本地工作台')
     parser.add_argument('--no-browser',action='store_true')
     parser.add_argument('--state-dir',type=Path)
+    parser.add_argument('--require-local-version',action='store_true',help='本地测试时拒绝旧版本或仅提供 API 的后台')
+    parser.add_argument('--act-workbench',action='store_true',help='直接打开本地 ACT 工作台')
     args=parser.parse_args()
     from runtime.ubuntu_runtime import serve,state_directory,PORT,runtime_health_info,state_directory_id,VERSION
     directory=(args.state_dir or state_directory()).resolve()
-    url=f'http://127.0.0.1:{PORT}/'
+    url=f'http://127.0.0.1:{PORT}/' + ('act-workbench.html' if args.act_workbench else '')
     existing=runtime_health_info()
     if existing:
+        if args.require_local_version and (existing.get('version') != VERSION or existing.get('static_workbench') is not True):
+            print(f'本地测试需要 {VERSION} 的完整本地后台；当前 18765 端口运行的是 {existing.get("version")}。',flush=True)
+            print('没有启动第二个后台，也没有结束旧服务。先确认原网页没有采集、转换、训练或执行任务。',flush=True)
+            print('若旧服务有启动终端，请正常退出该终端中的服务；安装组件后台可在 Ubuntu 系统监视器中查找 ubuntu_runtime.py --serve，确认空闲后正常结束，再运行本启动器。',flush=True)
+            return 1
         existing_id=existing.get('state_directory_id')
-        if args.state_dir and existing_id != state_directory_id(directory):
+        if (args.state_dir or args.require_local_version) and existing_id != state_directory_id(directory):
             print('已有 ACT 服务正在运行，不能同时改用另一个数据目录。请先正常关闭旧服务，再重新启动。',flush=True)
             return 1
         print(f'ACT 服务已经运行（版本 {existing.get("version")}），复用现有连接。',flush=True)

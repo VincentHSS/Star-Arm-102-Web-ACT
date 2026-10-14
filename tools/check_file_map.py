@@ -81,6 +81,8 @@ EXACT = {
     'package.json': 'ES module 配置、前端测试命令和 Playwright 开发依赖',
     'package-lock.json': '固定 Node 开发依赖解析版本',
     'start_ubuntu.sh': 'Ubuntu 检查并补齐系统依赖，使用系统 Python 启动网页与后台',
+    'start_ubuntu_training_test.sh': 'Ubuntu 本地训练测试入口，拒绝复用旧版或仅有 API 的组件后台',
+    'tools/package_training_local.py': '打包包含网页、训练后台与启动器的 Ubuntu 本地测试源码',
     'start_windows.bat': 'Windows 自动选择 Python 启动同一网页与后台',
     'start_windows_browser.bat': 'Windows 双击启动本地纯网页测试，不安装 Python 或设备后台',
     'tools/start_browser_local.ps1': '使用 Windows 自带 .NET，仅在环回地址提供静态网页与推理资源',

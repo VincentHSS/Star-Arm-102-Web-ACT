@@ -12,6 +12,34 @@ from runtime import ubuntu_runtime
 
 
 class UbuntuSetupTests(unittest.TestCase):
+    def test_training_test_refuses_old_or_api_only_services_without_starting_another(self):
+        for health in ({'version':'1.0.9','static_workbench':True},
+                       {'version':ubuntu_runtime.VERSION,'static_workbench':False}):
+            with self.subTest(health=health), patch.object(ubuntu_runtime,'runtime_health_info',return_value=health), \
+                 patch.object(ubuntu_runtime,'serve') as serve, patch.object(serve_local.webbrowser,'open') as browser, \
+                 patch.object(serve_local.sys,'argv',['serve_local.py','--require-local-version','--act-workbench']), \
+                 contextlib.redirect_stdout(io.StringIO()):
+                self.assertEqual(serve_local.main(),1)
+                serve.assert_not_called(); browser.assert_not_called()
+
+    def test_training_test_reuses_matching_local_workbench_and_original_state_directory(self):
+        health={'version':ubuntu_runtime.VERSION,'static_workbench':True,
+                'state_directory_id':ubuntu_runtime.state_directory_id(ubuntu_runtime.state_directory())}
+        with patch.object(ubuntu_runtime,'runtime_health_info',return_value=health), \
+             patch.object(ubuntu_runtime,'serve') as serve, patch.object(serve_local.webbrowser,'open') as browser, \
+             patch.object(serve_local.sys,'argv',['serve_local.py','--require-local-version','--act-workbench']), \
+             contextlib.redirect_stdout(io.StringIO()):
+            self.assertEqual(serve_local.main(),0)
+            serve.assert_not_called(); browser.assert_called_once_with('http://127.0.0.1:18765/act-workbench.html')
+
+    def test_training_test_starts_source_with_same_default_state_when_no_service_is_running(self):
+        with patch.object(ubuntu_runtime,'runtime_health_info',return_value=None), \
+             patch.object(ubuntu_runtime,'serve') as serve, \
+             patch.object(serve_local.sys,'argv',['serve_local.py','--require-local-version','--act-workbench','--no-browser']), \
+             contextlib.redirect_stdout(io.StringIO()):
+            self.assertEqual(serve_local.main(),0)
+            serve.assert_called_once_with(ubuntu_runtime.state_directory().resolve(),18765,serve_local.ROOT/'Browser_SDK')
+
     def test_missing_dependencies_accepts_ubuntu_24_glib_replacement(self):
         def runner(command, **kwargs):
             ready = command[-1] not in ('ffmpeg', 'libglib2.0-0')

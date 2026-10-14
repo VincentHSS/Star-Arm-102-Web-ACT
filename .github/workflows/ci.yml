@@ -25,6 +25,7 @@ jobs:
       - if: runner.os == 'Linux'
         run: |
           sh -n start_ubuntu.sh
+          sh -n start_ubuntu_training_test.sh
           apt-get -o DPkg::Lock::Timeout=1 -o Acquire::Retries=3 --no-remove --simulate install ffmpeg
       - run: python tools/build_runtime_package.py
       - run: python tools/check_distribution.py
@@ -39,6 +40,8 @@ jobs:
       - run: python tools/check_file_map.py
       - if: runner.os == 'Windows'
         run: python tools/package_browser_local.py
+      - if: runner.os == 'Linux'
+        run: python tools/package_training_local.py
   browser-check:
     runs-on: ubuntu-latest
     env:
