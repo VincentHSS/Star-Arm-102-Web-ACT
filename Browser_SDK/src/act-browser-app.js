@@ -12,10 +12,14 @@ function draw(){
   const locked=busy||running;
   if(runner.validated&&!locked&&(!connected||!cameras||!runner.feedbackFresh())){runner.validated=false;$('web-confirm').checked=false;}
   $('web-state').textContent=running?'正在执行':busy?'正在处理':runner.validated?'校验通过':model?'模型已加载':'等待模型';
-  const notice=$('web-execution-notice'),stopped=runner.lastStop;
-  notice.hidden=running||!stopped;
-  notice.textContent=stopped?`上次停止：${stopped.reason}`:'';
-  notice.classList.toggle('error',Boolean(stopped?.error));
+  const notice=$('web-execution-notice'),stopped=runner.lastStop,connection=runner.cameraConnection,cameraError=connection?.state==='error';
+  notice.hidden=running||(!stopped&&!cameraError);
+  notice.textContent=cameraError?connection.message:stopped?`上次停止：${stopped.reason}`:'';
+  notice.classList.toggle('error',Boolean(cameraError||stopped?.error));
+  $('web-camera-connection').hidden=!connection;
+  $('web-camera-connection').textContent=connection?.message||'';
+  $('web-camera-connection').classList.toggle('error',cameraError);
+  $('web-connect-cameras').textContent=connection?.state==='connecting'?'正在连接…':'连接双相机';
   $('web-model-name').textContent=model?.name||'尚未选择模型';
   $('web-model-detail').textContent=model?`${model.chunk_size} 步动作块 · WebGPU · ${model.inputs.cameras[0].shape[3]}×${model.inputs.cameras[0].shape[2]}`:'网页执行模型包含 web-act.json 和 model.onnx';
   $('web-calibration-status').textContent=!model?'导入模型后检查关节坐标与校准要求':model.coordinate_contract==='degrees'?'此模型使用角度坐标，不需要 LeRobot 归一化校准':runner.calibration?'校准已载入；仍需确认属于当前物理从臂':'此模型需要同一台从臂的 LeRobot 校准 JSON';

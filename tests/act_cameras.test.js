@@ -217,3 +217,11 @@ test('strict model cameras never silently fall back to 15 FPS', async () => {
   assert.equal(calls.length,1);
   assert.deepEqual(calls[0].video.frameRate,{exact:30});
 });
+
+test('camera open timeout releases a stream that arrives after the timeout',async()=>{
+  let finish;const late=stream('late',{width:640,height:480,frameRate:30});
+  const controller=new BrowserCameraController({getUserMedia:()=>new Promise(resolve=>finish=resolve)});
+  await assert.rejects(controller.openPair('a','b',{width:640,height:480,frameRate:30,strict:true,timeoutMs:15}),/打开超过/);
+  finish(late);await new Promise(resolve=>setTimeout(resolve,0));
+  assert.equal(late.track.stopped,true);assert.equal(controller.streams.wrist,null);
+});

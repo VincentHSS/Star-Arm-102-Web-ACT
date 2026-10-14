@@ -77,7 +77,14 @@ const ROOT=path.resolve(__dirname,'..'),pause=ms=>new Promise(r=>setTimeout(r,ms
   const download=page.waitForEvent('download');await page.click('#web-download-diagnostics');const file=await download;assert.equal(file.suggestedFilename(),'star-arm-browser-diagnostics.json');const diagnostic=JSON.parse(fs.readFileSync(await file.path(),'utf8'));assert(diagnostic.cameras[0].ageMs<500);assert(diagnostic.cameras[1].ageMs>=500);assert(diagnostic.lastStop.reason.includes('FRONT'));
   await page.click('#web-close-arm');await page.waitForFunction(()=>!document.getElementById('web-connect-arm').disabled);
   assert.equal(await page.evaluate(()=>__browserActTest.portCloses),1);
+  await page.click('#web-close-cameras');
+  await page.evaluate(()=>{const original=navigator.mediaDevices.getUserMedia;navigator.mediaDevices.getUserMedia=async request=>{if(request.video?.deviceId?.exact==='b')throw new DOMException('TEST camera occupied','NotReadableError');return original(request);};});
+  await page.click('#web-connect-cameras');
+  await page.waitForFunction(()=>document.getElementById('web-camera-connection').textContent.includes('FRONT')&&document.getElementById('web-camera-connection').classList.contains('error')&&!document.getElementById('web-connect-cameras').disabled);
+  assert((await page.locator('#web-camera-connection').textContent()).includes('NotReadableError'));
+  assert((await page.locator('#web-execution-notice').textContent()).includes('FRONT'));
+  assert(await page.evaluate(()=>[...document.querySelectorAll('.browser-act-cameras video')].every(v=>!v.srcObject)));
   assert.equal(backendCalls,0,'Browser execution must not need the local Python/LeRobot service');assert.deepEqual(errors,[]);
-  console.log(JSON.stringify({browserOnly:true,windowsStaticLauncher:localLauncher,localServiceRequests:backendCalls,readOnlyValidation:true,sustainedRun:true,cameraStallStopped:true,singleCameraIdentified:true,previewIndependent:true,largeUncroppedPreview:true,diagnosticsDownload:true,executedCommands:stopped,realModel:Boolean(process.env.BROWSER_ACT_REAL_MODEL),physicalHardware:false}));
+  console.log(JSON.stringify({browserOnly:true,windowsStaticLauncher:localLauncher,localServiceRequests:backendCalls,readOnlyValidation:true,sustainedRun:true,cameraStallStopped:true,singleCameraIdentified:true,previewIndependent:true,largeUncroppedPreview:true,cameraOpenFailureVisible:true,diagnosticsDownload:true,executedCommands:stopped,realModel:Boolean(process.env.BROWSER_ACT_REAL_MODEL),physicalHardware:false}));
  }finally{if(browser)await browser.close();service.kill();}
 })().catch(e=>{console.error(e);process.exitCode=1;});

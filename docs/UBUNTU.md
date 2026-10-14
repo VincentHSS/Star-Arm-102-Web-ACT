@@ -37,7 +37,7 @@
 系统安装器仍立即报告锁占用时，维护人员可以在“下载”目录使用 APT 的等待方式安装。文件名需对应实际下载文件：
 
 ```sh
-sudo apt-get -o DPkg::Lock::Timeout=300 -o Acquire::Retries=3 --no-remove install ./star-arm-act_1.0.11_all.deb
+sudo apt-get -o DPkg::Lock::Timeout=300 -o Acquire::Retries=3 --no-remove install ./star-arm-act_1.0.12_all.deb
 ```
 
 使用源码的维护人员也可运行 `/usr/bin/python3 tools/ubuntu_setup.py --package /完整路径/组件.deb`，使用同样的等待和授权逻辑。以上是安装器报错时的替代方式，日常网页客户仍按系统安装器操作。

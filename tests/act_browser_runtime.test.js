@@ -103,3 +103,14 @@ test('camera pump retains only the newest frame and closes all frames on release
   assert.equal(closed,1);assert.equal(r.cameraInfo[0].received,2);assert(r.cameraInfo[0].lastFrame>0);
   r.closeCameras();await pumping;assert.equal(closed,2);assert.equal(r.latestFrames[0],null);
 });
+
+test('camera preview becomes visible before play and failures remain beside the camera controls',async()=>{
+  const r=fixture();let visible=false,closed=0;
+  r.model={inputs:{cameras:['up','front'].map(feature=>({feature,shape:[1,3,480,640]}))}};
+  const video=()=>({srcObject:null,pause(){},closest:()=>({classList:{add(){visible=true;},remove(){visible=false;}}}),play(){assert(visible,'play must not wait on a display:none video');throw Object.assign(Error('test permission failure'),{name:'NotAllowedError'});}});
+  r.videos=[video(),video()];
+  r.camera={close(){closed++;},async openPair(a,b,profile){profile.onProgress(profile.labels[0]);return {wrist:{},world:{}};}};
+  await assert.rejects(r.connectCameras('a','b'),/第 1 路相机 UP.*相机权限被拒绝/);
+  assert.equal(r.cameraConnection.state,'error');assert.match(r.cameraConnection.message,/NotAllowedError/);
+  assert(r.videos.every(v=>v.srcObject===null));assert(closed>=2);
+});

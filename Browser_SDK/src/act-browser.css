@@ -11,3 +11,5 @@
 .browser-act-stage>.browser-act-wave{height:300px;min-height:260px}
 .browser-act-cameras footer{flex-wrap:wrap;font-size:10px;background:#0c141bf2}
 @media(max-width:760px){.browser-act-cameras{grid-template-columns:1fr}.browser-act-stage{overflow:visible}.browser-act-cameras article{min-height:200px}}
+
+.browser-act-page #web-camera-connection.error{color:#f0a4ac;border:1px solid #a96972}#web-camera-connection[hidden]{display:none}

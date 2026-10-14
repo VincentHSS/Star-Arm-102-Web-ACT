@@ -4,6 +4,10 @@ import { BrowserCameraController } from './act-cameras.js';
 import { BrowserActionSchedule,ServoProtocol,validateWebManifest,validateWebCalibration,observationCoordinates,actionCoordinates,safeBrowserAction,packBrowserActCommand } from './act-browser-core.js';
 
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+async function cameraWait(promise,ms,message){
+  let timer;try{return await Promise.race([promise,new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error(message)),ms);})]);}
+  finally{clearTimeout(timer);}
+}
 export class BrowserActRunner {
   constructor({videos,onChange=()=>{},onSample=()=>{},workerFactory=()=>new Worker(new URL('./act-browser-worker.js',import.meta.url),{type:'module'}),serial}={}){
     this.videos=videos;this.onChange=onChange;this.onSample=onSample;this.worker=workerFactory();this.nextId=0;this.pending=new Map();
@@ -38,10 +42,16 @@ export class BrowserActRunner {
   async connectCameras(first,second){
     if(!this.model)throw Error('请先导入网页执行模型');if(this.running)throw Error('请先停止执行');this.closeCameras();
     const shape=this.model.inputs.cameras[0].shape,height=shape[2],width=shape[3];
+    let phase='双相机';
+    const progress=text=>{this.cameraConnection={state:'connecting',message:text};this.onChange();};
+    progress('正在请求双相机，请留意浏览器的相机权限提示…');
     try{
-      const streams=await this.camera.openPair(first,second,{width,height,frameRate:30,strict:true});
+      const labels=this.model.inputs.cameras.map((c,i)=>`第 ${i+1} 路相机 ${c.feature.toUpperCase()}`);
+      const streams=await this.camera.openPair(first,second,{width,height,frameRate:30,strict:true,timeoutMs:12000,labels,onProgress:label=>{phase=label;progress(`正在打开${label}（${width}×${height} / 30 FPS）…`);}});
       for(const [i,role] of ['wrist','world'].entries()){
-        const video=this.videos[i];video.srcObject=streams[role];await video.play();
+        phase=labels[i];progress(`正在启动${phase}的画面…`);
+        const video=this.videos[i];video.srcObject=streams[role];video.closest?.('article')?.classList.add('streaming');
+        await cameraWait(video.play(),5000,`${phase}播放启动超过 5 秒，请关闭其他相机软件后重试`);
         const deadline=performance.now()+5000;while(!video.videoWidth&&performance.now()<deadline)await sleep(25);
         if(video.videoWidth!==width||video.videoHeight!==height)throw Error(`第 ${i+1} 路相机实际 ${video.videoWidth}×${video.videoHeight}，模型要求 ${width}×${height}`);
         if(typeof video.requestVideoFrameCallback!=='function')throw Error('请使用支持真实视频帧回调的新版 Chrome / Edge');
@@ -63,7 +73,12 @@ export class BrowserActRunner {
         };this.callbacks[i]=video.requestVideoFrameCallback(onFrame);
       }
       this.validated=false;
-    }catch(e){this.closeCameras();throw e;}
+      this.cameraConnection={state:'connected',message:'双相机已连接；请查看两路采集 FPS，等待首帧后再校验。'};this.onChange();
+    }catch(e){
+      const hints={NotAllowedError:'相机权限被拒绝，请在浏览器地址栏的网站权限中允许相机',NotReadableError:'相机无法读取，可能被其他程序占用或 USB 连接异常',NotFoundError:'所选相机不存在，请重新检测设备',OverconstrainedError:'相机不支持请求的分辨率或帧率',AbortError:'相机启动已中断，请重新连接'};
+      const detail=`${phase}连接失败：${hints[e.name]||e.message}${hints[e.name]?`；${e.name}: ${e.message}`:''}`;
+      this.closeCameras();this.cameraConnection={state:'error',message:detail};this.onChange();throw Error(detail);
+    }
   }
   async consumeCamera(i,video,stream,reader){
     const samples=[];let timestamp=null;
@@ -83,7 +98,8 @@ export class BrowserActRunner {
   }
   closeCameras(){
     if(this.running)throw Error('请先停止执行');
-    this.videos.forEach((v,i)=>{if(this.callbacks[i]!=null)v.cancelVideoFrameCallback?.(this.callbacks[i]);v.pause();v.srcObject=null;});
+    this.cameraConnection=null;
+    this.videos.forEach((v,i)=>{if(this.callbacks[i]!=null)v.cancelVideoFrameCallback?.(this.callbacks[i]);v.pause();v.srcObject=null;v.closest?.('article')?.classList.remove('streaming');});
     this.frameReaders.forEach(reader=>{if(reader)void reader.cancel().catch(()=>{});});
     this.latestFrames.forEach(frame=>frame?.close());this.frameReaders=[null,null];this.latestFrames=[null,null];
     this.camera.close();this.cameraInfo=[null,null];this.callbacks=[null,null];this.validated=false;
@@ -215,7 +231,7 @@ export class BrowserActRunner {
     this.message=releaseError?`${reason}；卸力发送失败：${releaseError.message}，请检查设备供电和急停`:reason;this.onChange();return !releaseError;
   }
   diagnostics(){
-    return {time:new Date().toISOString(),browser:navigator.userAgent,model:this.model?.name??null,running:this.running,serialConnected:this.bus.connected,
+    return {time:new Date().toISOString(),browser:navigator.userAgent,model:this.model?.name??null,running:this.running,serialConnected:this.bus.connected,cameraConnection:this.cameraConnection??null,
       metrics:{...this.metrics},cameras:this.cameraInfo.map((c,i)=>c?{...c,ageMs:performance.now()-c.lastFrame,settings:this.videos[i].srcObject?.getVideoTracks()[0]?.getSettings?.()}:null),lastStop:this.lastStop??null};
   }
   async release(){await this.stop();await this.bus.disconnect();this.closeCameras();}
