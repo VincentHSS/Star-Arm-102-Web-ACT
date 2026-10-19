@@ -1,4 +1,4 @@
-param([switch]$NoBrowser, [int]$Port = 18766, [string]$WebRoot = '')
+param([switch]$NoBrowser, [int]$Port = 18766, [string]$WebRoot = '', [ValidateSet('act-browser.html', 'urdf-preview.html')][string]$StartPage = 'act-browser.html')
 $ErrorActionPreference = 'Stop'
 if (!$WebRoot) { $WebRoot = Join-Path $PSScriptRoot '..\Browser_SDK' }
 $WebRoot = (Resolve-Path -LiteralPath $WebRoot).Path
@@ -91,7 +91,7 @@ public sealed class StarArmBrowserFiles {
 $server = New-Object StarArmBrowserFiles
 try {
     $actualPort = $server.Start($WebRoot, $Port)
-    $url = "http://127.0.0.1:$actualPort/act-browser.html"
+    $url = "http://127.0.0.1:$actualPort/$StartPage"
     Write-Host "ACT_BROWSER_LOCAL_URL=$url"
     Write-Host 'Star Arm 102 browser test is ready. Keep this window open.'
     Write-Host 'Use the browser buttons to import your model, calibration, cameras and follower.'

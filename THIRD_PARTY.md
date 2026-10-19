@@ -1,5 +1,7 @@
 # 第三方来源与许可
 
+新增 URDF 预览资源：`assets/urdf/fl-v3/` 来自用户提供的 `URDF.zip`（LumosTouch / FastTouchV3.SLDASM）；`assets/urdf/ld-touch/` 来自 [Touch R1 Leader Arm](https://github.com/servodevelop/touch-r1-leader-arm/tree/2b07a1a74b7b0ae5a6a4915ccd58a055cfde4597/hardware/robot-description) 的 URDF 包。保留原始 `source.urdf`；`model.urdf` 仅将网格引用改为相对路径。网格未修改；LD 全部 21 份视觉网格按原连杆归属加载。上游 LD 的 continuous 关节用于预览，不作为实机无限旋转或编码器零点的依据。相关资产沿用各自来源授权，本工程不另行授予模型资产许可。
+
 本平台基于 Star Arm 102 浏览器控制台与 ACT 工程。原工程参考：<https://github.com/servodevelop/Star-Arm-102>。本仓库未为全部原始资产擅自添加新的统一开源许可证；公开可下载并不等于所有品牌和模型资产都被重新授权。
 
 | 组件 | 位置与说明 |

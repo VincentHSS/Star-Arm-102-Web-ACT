@@ -74,6 +74,13 @@ BACKEND = {
     'training_manifest': 'Python / LeRobot / PyTorch 版本及加速源清单',
 }
 EXACT = {
+    'start_windows_urdf.bat': 'Windows 双击启动 FL 与 LD URDF 本地模型预览，不连接硬件',
+    'Browser_SDK/urdf-preview.html': '用户提供的 FL 与 Touch R1 LD 模型切换和逐轴姿态预览',
+    'Browser_SDK/src/urdf-preview.js': '独立 URDF 预览状态、旋转与平移关节滑块，不连接硬件',
+    'Browser_SDK/src/urdf-preview.css': 'URDF 模型大画布、关节侧栏及移动端布局',
+    'Browser_SDK/src/supplied_urdf_models.js': '用户 FL 与 Touch R1 LD 原始关节树、视觉材质与网格引用',
+    'docs/URDF_MODELS.md': '新增 FL 和 LD 模型预览入口、来源和坐标说明',
+    'tests/supplied_urdf_models.test.js': '软件测试：新增 URDF 连接树、网格、夹爪与原控制映射隔离',
     '.gitattributes': '固定 Linux 脚本 LF、Windows 脚本 CRLF 与二进制资源属性',
     '.gitignore': '排除客户数据、模型、环境、缓存、日志和生成包',
     '.github/workflows/ci.yml': 'GitHub 自动软件测试、组件校验与文件说明检查',
@@ -186,7 +193,7 @@ def purpose(path):
     if relative.startswith('Browser_SDK/assets/models/'):
         return f'{path.parent.name} 模型的 {path.stem} 零件三角网格，用于 3D 显示'
     if relative.startswith('Browser_SDK/assets/urdf/'):
-        kind = {'.urdf': '关节、坐标和连杆结构', '.csv': 'CAD 导出的关节配置表'}
+        kind = {'.stl': '原始三角网格', '.STL': '原始三角网格', '.urdf': '关节、坐标和连杆结构', '.csv': 'CAD 导出的关节配置表'}
         label = {'parts.json': '导出零件映射', 'export_report.json': '模型导出坐标与警告报告'}
         return f'{path.parent.name} 模型的 ' + label.get(path.name, kind.get(path.suffix, '未知'))
     if relative.startswith('Browser_SDK/assets/vendor/onnxruntime-web/'):

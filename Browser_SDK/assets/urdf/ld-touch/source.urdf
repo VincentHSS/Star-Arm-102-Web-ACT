@@ -1,0 +1,243 @@
+<?xml version='1.0' encoding='utf-8'?>
+<robot name="touch_r1_leader_arm_preview">
+  <!--运动学预览草案：continuous 仅为无已知限位时的可视化表示；不是实机无限旋转声明。未提供惯量、碰撞模型或控制接口。-->
+  <link name="base_link">
+    <visual name="base_link_structure">
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="../meshes/base_link-structure.stl" />
+      </geometry>
+      <material name="structure">
+        <color rgba="0.82 0.86 0.88 1" />
+      </material>
+    </visual>
+    <visual name="base_link_servo">
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="../meshes/base_link-servo.stl" />
+      </geometry>
+      <material name="servo">
+        <color rgba="0.18 0.23 0.28 1" />
+      </material>
+    </visual>
+    <visual name="base_link_hardware">
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="../meshes/base_link-hardware.stl" />
+      </geometry>
+      <material name="hardware">
+        <color rgba="0.38 0.43 0.48 1" />
+      </material>
+    </visual>
+  </link>
+  <link name="link_1">
+    <visual name="link_1_structure">
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="../meshes/link_1-structure.stl" />
+      </geometry>
+      <material name="structure">
+        <color rgba="0.82 0.86 0.88 1" />
+      </material>
+    </visual>
+    <visual name="link_1_servo">
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="../meshes/link_1-servo.stl" />
+      </geometry>
+      <material name="servo">
+        <color rgba="0.18 0.23 0.28 1" />
+      </material>
+    </visual>
+    <visual name="link_1_horn">
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="../meshes/link_1-horn.stl" />
+      </geometry>
+      <material name="horn">
+        <color rgba="0.62 0.68 0.73 1" />
+      </material>
+    </visual>
+  </link>
+  <link name="link_2">
+    <visual name="link_2_structure">
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="../meshes/link_2-structure.stl" />
+      </geometry>
+      <material name="structure">
+        <color rgba="0.82 0.86 0.88 1" />
+      </material>
+    </visual>
+    <visual name="link_2_servo">
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="../meshes/link_2-servo.stl" />
+      </geometry>
+      <material name="servo">
+        <color rgba="0.18 0.23 0.28 1" />
+      </material>
+    </visual>
+    <visual name="link_2_horn">
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="../meshes/link_2-horn.stl" />
+      </geometry>
+      <material name="horn">
+        <color rgba="0.62 0.68 0.73 1" />
+      </material>
+    </visual>
+  </link>
+  <link name="link_3">
+    <visual name="link_3_structure">
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="../meshes/link_3-structure.stl" />
+      </geometry>
+      <material name="structure">
+        <color rgba="0.82 0.86 0.88 1" />
+      </material>
+    </visual>
+    <visual name="link_3_servo">
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="../meshes/link_3-servo.stl" />
+      </geometry>
+      <material name="servo">
+        <color rgba="0.18 0.23 0.28 1" />
+      </material>
+    </visual>
+    <visual name="link_3_horn">
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="../meshes/link_3-horn.stl" />
+      </geometry>
+      <material name="horn">
+        <color rgba="0.62 0.68 0.73 1" />
+      </material>
+    </visual>
+  </link>
+  <link name="link_4">
+    <visual name="link_4_structure">
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="../meshes/link_4-structure.stl" />
+      </geometry>
+      <material name="structure">
+        <color rgba="0.82 0.86 0.88 1" />
+      </material>
+    </visual>
+    <visual name="link_4_servo">
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="../meshes/link_4-servo.stl" />
+      </geometry>
+      <material name="servo">
+        <color rgba="0.18 0.23 0.28 1" />
+      </material>
+    </visual>
+    <visual name="link_4_horn">
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="../meshes/link_4-horn.stl" />
+      </geometry>
+      <material name="horn">
+        <color rgba="0.62 0.68 0.73 1" />
+      </material>
+    </visual>
+  </link>
+  <link name="link_5">
+    <visual name="link_5_structure">
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="../meshes/link_5-structure.stl" />
+      </geometry>
+      <material name="structure">
+        <color rgba="0.82 0.86 0.88 1" />
+      </material>
+    </visual>
+    <visual name="link_5_servo">
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="../meshes/link_5-servo.stl" />
+      </geometry>
+      <material name="servo">
+        <color rgba="0.18 0.23 0.28 1" />
+      </material>
+    </visual>
+    <visual name="link_5_horn">
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="../meshes/link_5-horn.stl" />
+      </geometry>
+      <material name="horn">
+        <color rgba="0.62 0.68 0.73 1" />
+      </material>
+    </visual>
+    <visual name="link_5_hardware">
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="../meshes/link_5-hardware.stl" />
+      </geometry>
+      <material name="hardware">
+        <color rgba="0.38 0.43 0.48 1" />
+      </material>
+    </visual>
+  </link>
+  <link name="link_6">
+    <visual name="link_6_structure">
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="../meshes/link_6-structure.stl" />
+      </geometry>
+      <material name="structure">
+        <color rgba="0.82 0.86 0.88 1" />
+      </material>
+    </visual>
+    <visual name="link_6_horn">
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="../meshes/link_6-horn.stl" />
+      </geometry>
+      <material name="horn">
+        <color rgba="0.62 0.68 0.73 1" />
+      </material>
+    </visual>
+  </link>
+  <joint name="joint_1" type="continuous">
+    <parent link="base_link" />
+    <child link="link_1" />
+    <origin xyz="-0 -5e-06 0.053656545" rpy="0 0 0" />
+    <axis xyz="-0 0 1" />
+  </joint>
+  <joint name="joint_2" type="continuous">
+    <parent link="link_1" />
+    <child link="link_2" />
+    <origin xyz="-0.0001311964 0.0149401465 0.0371079012" rpy="0 0 0" />
+    <axis xyz="1 0 -0" />
+  </joint>
+  <joint name="joint_3" type="continuous">
+    <parent link="link_2" />
+    <child link="link_3" />
+    <origin xyz="-9.99997e-05 -0.165625 0" rpy="0 0 0" />
+    <axis xyz="1 2.2e-09 0" />
+  </joint>
+  <joint name="joint_4" type="continuous">
+    <parent link="link_3" />
+    <child link="link_4" />
+    <origin xyz="0.0003623925 0.165625 0.03875" rpy="0 0 0" />
+    <axis xyz="1 2.2e-09 0" />
+  </joint>
+  <joint name="joint_5" type="continuous">
+    <parent link="link_4" />
+    <child link="link_5" />
+    <origin xyz="-0.0002311965 0.048745 0.019343455" rpy="0 0 0" />
+    <axis xyz="-0 0 1" />
+  </joint>
+  <joint name="joint_6" type="continuous">
+    <parent link="link_5" />
+    <child link="link_6" />
+    <origin xyz="-0 0.015046545 -0.020098455" rpy="0 0 0" />
+    <axis xyz="2.2e-09 -1 0" />
+  </joint>
+</robot>

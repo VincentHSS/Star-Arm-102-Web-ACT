@@ -85,6 +85,40 @@
 | [Browser_SDK/assets/urdf/b601/reBot-DevArm_fixend.csv](../Browser_SDK/assets/urdf/b601/reBot-DevArm_fixend.csv) | b601 模型的 CAD 导出的关节配置表 |
 | [Browser_SDK/assets/urdf/b601/reBot-DevArm_fixend.urdf](../Browser_SDK/assets/urdf/b601/reBot-DevArm_fixend.urdf) | b601 模型的 关节、坐标和连杆结构 |
 | [Browser_SDK/assets/urdf/b601/reBot_B601_DM_with_gripper.urdf](../Browser_SDK/assets/urdf/b601/reBot_B601_DM_with_gripper.urdf) | b601 模型的 关节、坐标和连杆结构 |
+| [Browser_SDK/assets/urdf/fl-v3/meshes/base_link.STL](../Browser_SDK/assets/urdf/fl-v3/meshes/base_link.STL) | meshes 模型的 原始三角网格 |
+| [Browser_SDK/assets/urdf/fl-v3/meshes/gripper_base.STL](../Browser_SDK/assets/urdf/fl-v3/meshes/gripper_base.STL) | meshes 模型的 原始三角网格 |
+| [Browser_SDK/assets/urdf/fl-v3/meshes/gripper_link1.STL](../Browser_SDK/assets/urdf/fl-v3/meshes/gripper_link1.STL) | meshes 模型的 原始三角网格 |
+| [Browser_SDK/assets/urdf/fl-v3/meshes/gripper_link2.STL](../Browser_SDK/assets/urdf/fl-v3/meshes/gripper_link2.STL) | meshes 模型的 原始三角网格 |
+| [Browser_SDK/assets/urdf/fl-v3/meshes/link1.STL](../Browser_SDK/assets/urdf/fl-v3/meshes/link1.STL) | meshes 模型的 原始三角网格 |
+| [Browser_SDK/assets/urdf/fl-v3/meshes/link2.STL](../Browser_SDK/assets/urdf/fl-v3/meshes/link2.STL) | meshes 模型的 原始三角网格 |
+| [Browser_SDK/assets/urdf/fl-v3/meshes/link3.STL](../Browser_SDK/assets/urdf/fl-v3/meshes/link3.STL) | meshes 模型的 原始三角网格 |
+| [Browser_SDK/assets/urdf/fl-v3/meshes/link4.STL](../Browser_SDK/assets/urdf/fl-v3/meshes/link4.STL) | meshes 模型的 原始三角网格 |
+| [Browser_SDK/assets/urdf/fl-v3/meshes/link5.STL](../Browser_SDK/assets/urdf/fl-v3/meshes/link5.STL) | meshes 模型的 原始三角网格 |
+| [Browser_SDK/assets/urdf/fl-v3/model.urdf](../Browser_SDK/assets/urdf/fl-v3/model.urdf) | fl-v3 模型的 关节、坐标和连杆结构 |
+| [Browser_SDK/assets/urdf/fl-v3/source.urdf](../Browser_SDK/assets/urdf/fl-v3/source.urdf) | fl-v3 模型的 关节、坐标和连杆结构 |
+| [Browser_SDK/assets/urdf/ld-touch/meshes/base_link-hardware.stl](../Browser_SDK/assets/urdf/ld-touch/meshes/base_link-hardware.stl) | meshes 模型的 原始三角网格 |
+| [Browser_SDK/assets/urdf/ld-touch/meshes/base_link-servo.stl](../Browser_SDK/assets/urdf/ld-touch/meshes/base_link-servo.stl) | meshes 模型的 原始三角网格 |
+| [Browser_SDK/assets/urdf/ld-touch/meshes/base_link-structure.stl](../Browser_SDK/assets/urdf/ld-touch/meshes/base_link-structure.stl) | meshes 模型的 原始三角网格 |
+| [Browser_SDK/assets/urdf/ld-touch/meshes/link_1-horn.stl](../Browser_SDK/assets/urdf/ld-touch/meshes/link_1-horn.stl) | meshes 模型的 原始三角网格 |
+| [Browser_SDK/assets/urdf/ld-touch/meshes/link_1-servo.stl](../Browser_SDK/assets/urdf/ld-touch/meshes/link_1-servo.stl) | meshes 模型的 原始三角网格 |
+| [Browser_SDK/assets/urdf/ld-touch/meshes/link_1-structure.stl](../Browser_SDK/assets/urdf/ld-touch/meshes/link_1-structure.stl) | meshes 模型的 原始三角网格 |
+| [Browser_SDK/assets/urdf/ld-touch/meshes/link_2-horn.stl](../Browser_SDK/assets/urdf/ld-touch/meshes/link_2-horn.stl) | meshes 模型的 原始三角网格 |
+| [Browser_SDK/assets/urdf/ld-touch/meshes/link_2-servo.stl](../Browser_SDK/assets/urdf/ld-touch/meshes/link_2-servo.stl) | meshes 模型的 原始三角网格 |
+| [Browser_SDK/assets/urdf/ld-touch/meshes/link_2-structure.stl](../Browser_SDK/assets/urdf/ld-touch/meshes/link_2-structure.stl) | meshes 模型的 原始三角网格 |
+| [Browser_SDK/assets/urdf/ld-touch/meshes/link_3-horn.stl](../Browser_SDK/assets/urdf/ld-touch/meshes/link_3-horn.stl) | meshes 模型的 原始三角网格 |
+| [Browser_SDK/assets/urdf/ld-touch/meshes/link_3-servo.stl](../Browser_SDK/assets/urdf/ld-touch/meshes/link_3-servo.stl) | meshes 模型的 原始三角网格 |
+| [Browser_SDK/assets/urdf/ld-touch/meshes/link_3-structure.stl](../Browser_SDK/assets/urdf/ld-touch/meshes/link_3-structure.stl) | meshes 模型的 原始三角网格 |
+| [Browser_SDK/assets/urdf/ld-touch/meshes/link_4-horn.stl](../Browser_SDK/assets/urdf/ld-touch/meshes/link_4-horn.stl) | meshes 模型的 原始三角网格 |
+| [Browser_SDK/assets/urdf/ld-touch/meshes/link_4-servo.stl](../Browser_SDK/assets/urdf/ld-touch/meshes/link_4-servo.stl) | meshes 模型的 原始三角网格 |
+| [Browser_SDK/assets/urdf/ld-touch/meshes/link_4-structure.stl](../Browser_SDK/assets/urdf/ld-touch/meshes/link_4-structure.stl) | meshes 模型的 原始三角网格 |
+| [Browser_SDK/assets/urdf/ld-touch/meshes/link_5-hardware.stl](../Browser_SDK/assets/urdf/ld-touch/meshes/link_5-hardware.stl) | meshes 模型的 原始三角网格 |
+| [Browser_SDK/assets/urdf/ld-touch/meshes/link_5-horn.stl](../Browser_SDK/assets/urdf/ld-touch/meshes/link_5-horn.stl) | meshes 模型的 原始三角网格 |
+| [Browser_SDK/assets/urdf/ld-touch/meshes/link_5-servo.stl](../Browser_SDK/assets/urdf/ld-touch/meshes/link_5-servo.stl) | meshes 模型的 原始三角网格 |
+| [Browser_SDK/assets/urdf/ld-touch/meshes/link_5-structure.stl](../Browser_SDK/assets/urdf/ld-touch/meshes/link_5-structure.stl) | meshes 模型的 原始三角网格 |
+| [Browser_SDK/assets/urdf/ld-touch/meshes/link_6-horn.stl](../Browser_SDK/assets/urdf/ld-touch/meshes/link_6-horn.stl) | meshes 模型的 原始三角网格 |
+| [Browser_SDK/assets/urdf/ld-touch/meshes/link_6-structure.stl](../Browser_SDK/assets/urdf/ld-touch/meshes/link_6-structure.stl) | meshes 模型的 原始三角网格 |
+| [Browser_SDK/assets/urdf/ld-touch/model.urdf](../Browser_SDK/assets/urdf/ld-touch/model.urdf) | ld-touch 模型的 关节、坐标和连杆结构 |
+| [Browser_SDK/assets/urdf/ld-touch/source.urdf](../Browser_SDK/assets/urdf/ld-touch/source.urdf) | ld-touch 模型的 关节、坐标和连杆结构 |
 | [Browser_SDK/assets/urdf/ld/model.urdf](../Browser_SDK/assets/urdf/ld/model.urdf) | ld 模型的 关节、坐标和连杆结构 |
 | [Browser_SDK/assets/urdf/piper/export_report.json](../Browser_SDK/assets/urdf/piper/export_report.json) | piper 模型的 模型导出坐标与警告报告 |
 | [Browser_SDK/assets/urdf/piper/model.urdf](../Browser_SDK/assets/urdf/piper/model.urdf) | piper 模型的 关节、坐标和连杆结构 |
@@ -160,15 +194,19 @@
 | [Browser_SDK/src/servo_setup_flow.js](../Browser_SDK/src/servo_setup_flow.js) | 舵机 ID 和参数设置的读写校验流程 |
 | [Browser_SDK/src/settings.js](../Browser_SDK/src/settings.js) | 控制台用户设置与持久化 |
 | [Browser_SDK/src/styles.css](../Browser_SDK/src/styles.css) | 控制台主题、响应式布局和通用控件样式（样式） |
+| [Browser_SDK/src/supplied_urdf_models.js](../Browser_SDK/src/supplied_urdf_models.js) | 用户 FL 与 Touch R1 LD 原始关节树、视觉材质与网格引用 |
 | [Browser_SDK/src/target_execution_ownership.js](../Browser_SDK/src/target_execution_ownership.js) | 确保运动目标同一时间由一个执行者持有 |
 | [Browser_SDK/src/tcp_drag_preview.js](../Browser_SDK/src/tcp_drag_preview.js) | 拖动末端时的目标预览 |
 | [Browser_SDK/src/tcp_translation_gizmo.js](../Browser_SDK/src/tcp_translation_gizmo.js) | 3D 末端平移操作控件 |
 | [Browser_SDK/src/teleop_controller.js](../Browser_SDK/src/teleop_controller.js) | 主从臂遥操作与周期控制 |
 | [Browser_SDK/src/training-submission.js](../Browser_SDK/src/training-submission.js) | 识别已提交训练任务与数据准备、训练、停止状态，避免超时后重复提交 |
+| [Browser_SDK/src/urdf-preview.css](../Browser_SDK/src/urdf-preview.css) | URDF 模型大画布、关节侧栏及移动端布局 |
+| [Browser_SDK/src/urdf-preview.js](../Browser_SDK/src/urdf-preview.js) | 独立 URDF 预览状态、旋转与平移关节滑块，不连接硬件 |
 | [Browser_SDK/src/urdf_model_data.js](../Browser_SDK/src/urdf_model_data.js) | 原始机械臂 URDF 转换后的显示数据 |
 | [Browser_SDK/src/version.js](../Browser_SDK/src/version.js) | 原控制台版本显示信息 |
 | [Browser_SDK/src/workspace-switch.css](../Browser_SDK/src/workspace-switch.css) | 控制台与 ACT 的全屏能量环切换、倒计时与取消（样式） |
 | [Browser_SDK/src/workspace-switch.js](../Browser_SDK/src/workspace-switch.js) | 控制台与 ACT 的全屏能量环切换、倒计时与取消 |
+| [Browser_SDK/urdf-preview.html](../Browser_SDK/urdf-preview.html) | 用户提供的 FL 与 Touch R1 LD 模型切换和逐轴姿态预览 |
 | [README.md](../README.md) | 客户入口、下载选择、两系统启动与教程索引 |
 | [THIRD_PARTY.md](../THIRD_PARTY.md) | 第三方组件来源、许可位置与资产说明 |
 | [ai_service/__init__.py](../ai_service/__init__.py) | Python 后台包入口 |
@@ -214,6 +252,7 @@
 | [docs/GETTING_STARTED.md](../docs/GETTING_STARTED.md) | 图文快速上手、下载选择与已有模型 / 自训练路线 |
 | [docs/TROUBLESHOOTING.md](../docs/TROUBLESHOOTING.md) | 启动、环境、设备、相机与导入问题排查 |
 | [docs/UBUNTU.md](../docs/UBUNTU.md) | Ubuntu 首次安装、本地启动、环境与数据目录教程 |
+| [docs/URDF_MODELS.md](../docs/URDF_MODELS.md) | 新增 FL 和 LD 模型预览入口、来源和坐标说明 |
 | [docs/WINDOWS.md](../docs/WINDOWS.md) | Windows 启动与功能支持范围教程 |
 | [docs/images/act-calibration-dialog.png](../docs/images/act-calibration-dialog.png) | 真实界面教程截图（硬件未连接）：从臂校准窗口 |
 | [docs/images/act-collect-overview.png](../docs/images/act-collect-overview.png) | 真实界面教程截图（硬件未连接）：ACT 数据采集全景 |
@@ -242,6 +281,7 @@
 | [start_ubuntu_training_test.sh](../start_ubuntu_training_test.sh) | Ubuntu 本地训练测试入口，拒绝复用旧版或仅有 API 的组件后台 |
 | [start_windows.bat](../start_windows.bat) | Windows 自动选择 Python 启动同一网页与后台 |
 | [start_windows_browser.bat](../start_windows_browser.bat) | Windows 双击启动本地纯网页测试，不安装 Python 或设备后台 |
+| [start_windows_urdf.bat](../start_windows_urdf.bat) | Windows 双击启动 FL 与 LD URDF 本地模型预览，不连接硬件 |
 | [tests/act_browser_core.test.js](../tests/act_browser_core.test.js) | 软件测试：网页模型合同、原版校准坐标转换、限位与时间索引动作调度 |
 | [tests/act_browser_runtime.test.js](../tests/act_browser_runtime.test.js) | 软件测试：浏览器 Worker 推理与串口控制、实时反馈、停止和资源释放 |
 | [tests/act_camera_frame_encoder_worker_client.test.js](../tests/act_camera_frame_encoder_worker_client.test.js) | 软件测试：管理相机编码 Worker 请求、超时与退出 |
@@ -274,6 +314,7 @@
 | [tests/piper/servo_setup_flow.test.js](../tests/piper/servo_setup_flow.test.js) | 软件测试：舵机 ID 和参数设置的读写校验流程 |
 | [tests/piper/servo_setup_ui_contract.test.js](../tests/piper/servo_setup_ui_contract.test.js) | 软件测试：舵机设置界面与读写错误显示 |
 | [tests/servo_readback.test.js](../tests/servo_readback.test.js) | 软件测试：控制台按 ID 收集回包、每轮统一超时、仅补读缺失关节与清理等待 |
+| [tests/supplied_urdf_models.test.js](../tests/supplied_urdf_models.test.js) | 软件测试：新增 URDF 连接树、网格、夹爪与原控制映射隔离 |
 | [tests/test_act_policy_worker.py](../tests/test_act_policy_worker.py) | 软件测试：独立进程加载 ACT 策略并产生预测动作 |
 | [tests/test_action_schedule.py](../tests/test_action_schedule.py) | 软件测试：动作块队列、节拍调度与多次预测融合 |
 | [tests/test_api.py](../tests/test_api.py) | 软件测试：HTTP API、数据集与轮次流程 |

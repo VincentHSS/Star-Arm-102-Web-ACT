@@ -661,21 +661,27 @@ export function createRobotModel({
         for (const { geometry } of geometries) geometry.dispose();
         return api;
       }
-      for (const { link, geometry } of geometries) {
+      for (const { link, geometry, origin, scale, color } of geometries) {
         await new Promise(resolve => setTimeout(resolve, 0));
         if (destroyed || generation !== loadGeneration) {
           for (const part of geometries) part.geometry.dispose();
           return api;
         }
         geometry.computeVertexNormals();
-        const actualMaterial = new THREE.MeshStandardMaterial({ color: 0xd8dde5, metalness: 0.35, roughness: 0.42 });
-        actualLinks.get(link).add(new THREE.Mesh(geometry, actualMaterial));
+        const actualMaterial = new THREE.MeshStandardMaterial({ color: color ? new THREE.Color(...color) : 0xd8dde5, metalness: 0.35, roughness: 0.42 });
+        const actualMesh = new THREE.Mesh(geometry, actualMaterial);
+        if (origin) applyUrdfOrigin(actualMesh, origin);
+        if (scale) actualMesh.scale.fromArray(scale);
+        actualLinks.get(link).add(actualMesh);
         // Both meshes can share immutable vertex data; material and transforms remain independent.
         const previewGeometry = geometry;
         const previewMaterial = new THREE.MeshStandardMaterial({
           color: 0x1be7e2, transparent: true, opacity: 0.28, depthWrite: false, wireframe: true,
         });
-        previewLinks.get(link).add(new THREE.Mesh(previewGeometry, previewMaterial));
+        const previewMesh = new THREE.Mesh(previewGeometry, previewMaterial);
+        if (origin) applyUrdfOrigin(previewMesh, origin);
+        if (scale) previewMesh.scale.fromArray(scale);
+        previewLinks.get(link).add(previewMesh);
       }
       geometryLoaded = true;
       setStatus(`${config.name} STL 模型已加载`, 'ready');
