@@ -3,9 +3,18 @@ export const FOLLOWER_TARGET_VIRTUAL = 'virtual';
 export const VIRTUAL_MODEL_STAR_ARM_FL = 'star-arm-102-fl';
 export const VIRTUAL_MODEL_REBOT_B601 = 'rebot-b601';
 export const VIRTUAL_MODEL_GALAXEA_A1Z = 'galaxea-a1z';
+export const VIRTUAL_MODEL_LUMOS_FL = 'fl-v3';
+export const VIRTUAL_MODEL_TOUCH_LD = 'ld-touch';
+export const VIRTUAL_MODEL_CONFIG_KEYS = Object.freeze({
+  [VIRTUAL_MODEL_STAR_ARM_FL]: 'fl',
+  [VIRTUAL_MODEL_REBOT_B601]: 'b601',
+  [VIRTUAL_MODEL_GALAXEA_A1Z]: 'a1z',
+  [VIRTUAL_MODEL_LUMOS_FL]: 'fl-v3',
+  [VIRTUAL_MODEL_TOUCH_LD]: 'ld-touch',
+});
 
 function validateVirtualModel(model) {
-  if (![VIRTUAL_MODEL_STAR_ARM_FL, VIRTUAL_MODEL_REBOT_B601, VIRTUAL_MODEL_GALAXEA_A1Z].includes(model)) {
+  if (!Object.hasOwn(VIRTUAL_MODEL_CONFIG_KEYS, model)) {
     throw new RangeError(`未知虚拟型号：${model}`);
   }
   return model;
@@ -28,7 +37,7 @@ export function createFollowerTargetState(initialType = FOLLOWER_TARGET_PHYSICAL
     get virtualConnected() { return virtualConnected; },
     get virtualModel() { return virtualModel; },
     setType(nextType) {
-      if (virtualConnected) throw new Error('请先断开虚拟 FL，再切换 Follower 类型');
+      if (virtualConnected) throw new Error('请先断开虚拟手臂，再切换 Follower 类型');
       type = validateFollowerTargetType(nextType);
     },
     setVirtualModel(nextModel) {
@@ -36,7 +45,7 @@ export function createFollowerTargetState(initialType = FOLLOWER_TARGET_PHYSICAL
       virtualModel = validateVirtualModel(nextModel);
     },
     connectVirtual() {
-      if (type !== FOLLOWER_TARGET_VIRTUAL) throw new Error('当前 Follower 类型不是虚拟 FL');
+      if (type !== FOLLOWER_TARGET_VIRTUAL) throw new Error('当前 Follower 类型不是虚拟手臂');
       virtualConnected = true;
     },
     disconnectVirtual() { virtualConnected = false; },

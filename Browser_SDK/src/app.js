@@ -8,6 +8,7 @@ import { createRobotModel } from './robot_model.js?v=1.1.2-responsive-1';
 import { MODEL_CONFIGS, resolveDisplayModelKey, isDisplayOnlyModelKey, PIPER_MODEL_KEY, LEADER_TYPE_PIPER } from './robot_model_configs.js';
 import { mapLeaderAnglesToB601 } from './b601_model_data.js';
 import { mapLeaderAnglesToA1Z } from './a1z_model_data.js';
+import { isSuppliedVirtualModel, mapSuppliedVirtualAngles } from './supplied_urdf_mapping.js';
 import { modelToServoAngles, servoToModelAngles, validateJointTargets } from './joint_mapper.js';
 import { solveInverseKinematics, forwardKinematics } from './ik_solver.js';
 import { CommandExecutionController } from './command_execution.js';
@@ -32,6 +33,7 @@ import {
   VIRTUAL_MODEL_REBOT_B601,
   VIRTUAL_MODEL_GALAXEA_A1Z,
   VIRTUAL_MODEL_STAR_ARM_FL,
+  VIRTUAL_MODEL_CONFIG_KEYS,
   createFollowerTargetState,
   createTeleopOutputOptions,
 } from './follower_target.js';
@@ -340,7 +342,7 @@ class BrowserTeleopController {
         for (const result of results) if (result.status === 'rejected') errors.push(result.reason);
       };
       collectErrors(await Promise.allSettled([
-        connectionId ? trajectoryWorkspace.handleDisconnect({ connectionId }) : null,
+        connectionId ? trajectoryWorkspace.handleDisconnect(connectionId) : null,
         this.stop({ resume: false }),
       ]));
       collectErrors(await Promise.allSettled(
@@ -919,6 +921,7 @@ const trajectoryWorkspace = createFlTrajectoryWorkspace({
       els.followerType.value = FOLLOWER_TARGET_PHYSICAL;
       syncFollowerTypeSwitch();
       controller.followerTarget.setType(FOLLOWER_TARGET_PHYSICAL);
+      syncDisplayedModel(t('status.follower-type-changed'));
       await controller.connectFollower();
     },
     disconnect: () => controller.disconnectFollower(),
@@ -1070,7 +1073,7 @@ els.followerTypeVirtual.addEventListener('click', () => selectFollowerType(FOLLO
 els.followerType.addEventListener('change', () => {
   if (!controller.running && !controller.followerConnected() && !controller.followerConnectionLock.active) {
     controller.followerTarget.setType(els.followerType.value);
-    invalidateTargetPreview(t('status.follower-type-changed'));
+    syncDisplayedModel(t('status.follower-type-changed'));
     renderConnectionState();
     renderRunState();
     renderManualControlState();
@@ -1312,6 +1315,7 @@ function renderVersion() {
 function renderConnectionState() {
   const virtualFollower = controller.followerTarget.type === FOLLOWER_TARGET_VIRTUAL;
   const virtualB601 = virtualFollower && controller.followerTarget.virtualModel === VIRTUAL_MODEL_REBOT_B601;
+  const virtualModelName = MODEL_CONFIGS[VIRTUAL_MODEL_CONFIG_KEYS[controller.followerTarget.virtualModel]].name;
   const followerConnected = controller.followerConnected();
   const leaderConnecting = controller.leaderConnectionLock.active;
   const followerConnecting = controller.followerConnectionLock.active;
@@ -1322,8 +1326,8 @@ function renderConnectionState() {
     ? (virtualFollower ? t('status.virtual-fl-connecting') : t('status.physical-fl-connecting'))
     : virtualFollower
       ? (followerConnected
-        ? (virtualB601 ? t('status.connected-virtual-b601') : t('status.connected-virtual-fl'))
-        : (virtualB601 ? t('status.not-connected-virtual-b601') : t('status.not-connected-virtual-fl')))
+        ? tWithVars('status.connected-virtual-model', { name: virtualModelName })
+        : tWithVars('status.not-connected-virtual-model', { name: virtualModelName }))
       : (controller.follower?.connected ? t('status.physical-fl-connected') : t('status.physical-fl-not-connected'));
   els.connectFollower.textContent = virtualFollower ? t('btn.connect-virtual-fl') : t('btn.connect-follower');
   els.virtualFollowerNotice.hidden = controller.followerTarget.type !== FOLLOWER_TARGET_VIRTUAL;
@@ -1346,9 +1350,7 @@ function renderRunState() {
   const disconnecting = Boolean(controller.disconnectPromise);
   els.runStatus.textContent = controller.running
     ? (controller.followerTarget.type === FOLLOWER_TARGET_VIRTUAL
-      ? (controller.followerTarget.virtualModel === VIRTUAL_MODEL_REBOT_B601
-        ? t('status.leader-to-virtual-b601')
-        : t('status.leader-to-virtual-fl-running'))
+      ? tWithVars('status.running-virtual-model', { name: MODEL_CONFIGS[VIRTUAL_MODEL_CONFIG_KEYS[controller.followerTarget.virtualModel]].name })
       : t('status.leader-to-physical-fl-running'))
     : (controller.leaderReadRunning ? t('status.readonly-testing') : t('status.not-started'));
   els.start.disabled = disconnecting || controller.running || followerConnecting || controller.leaderReadRunning || controller.resetBus.connected || controller.factoryBus.connected || !controller.leader.connected || !followerConnected;
@@ -1374,16 +1376,14 @@ function selectedManualSession() {
 }
 
 function selectedDisplayModelKey() {
-  if (selectedPoseRole() === 'follower'
-    && controller.followerTarget.type === FOLLOWER_TARGET_VIRTUAL
-    && controller.followerTarget.virtualModel === VIRTUAL_MODEL_REBOT_B601) return MODEL_CONFIGS.b601.key;
-  if (selectedPoseRole() === 'follower'
-    && controller.followerTarget.type === FOLLOWER_TARGET_VIRTUAL
-    && controller.followerTarget.virtualModel === VIRTUAL_MODEL_GALAXEA_A1Z) return MODEL_CONFIGS.a1z.key;
+  if (selectedPoseRole() === 'follower' && controller.followerTarget.type === FOLLOWER_TARGET_VIRTUAL) {
+    return VIRTUAL_MODEL_CONFIG_KEYS[controller.followerTarget.virtualModel];
+  }
   return resolveDisplayModelKey({ role: selectedPoseRole(), leaderType: getLeaderType() });
 }
 
 function selectedDisplayModelName() {
+  if (isSuppliedVirtualModel(selectedDisplayModelKey())) return MODEL_CONFIGS[selectedDisplayModelKey()].name;
   if (selectedPoseRole() === 'follower') {
     return controller.followerTarget.type === FOLLOWER_TARGET_VIRTUAL
       && controller.followerTarget.virtualModel === VIRTUAL_MODEL_REBOT_B601
@@ -1399,6 +1399,10 @@ function selectedDisplayModelName() {
 }
 
 function selectedDisplayProfile() {
+  if (isSuppliedVirtualModel(selectedDisplayModelKey())) {
+    return { code: 'VIRTUAL_URDF', name: selectedDisplayModelName(), role: 'follower', canCommand: false,
+      permissionNote: t('notice.supplied-virtual') };
+  }
   if (selectedDisplayModelKey() === MODEL_CONFIGS.b601.key) {
     return {
       code: 'B601',
@@ -1424,7 +1428,7 @@ function selectedRoleMatchesModel() {
   const profile = selectedDisplayProfile();
   return (selectedPoseRole() === 'leader' && profile.code === 'HD')
     || (selectedPoseRole() === 'leader' && profile.code === 'LD')
-    || (selectedPoseRole() === 'follower' && ['FL', 'B601', 'A1Z'].includes(profile.code));
+    || (selectedPoseRole() === 'follower' && ['FL', 'B601', 'A1Z', 'VIRTUAL_URDF'].includes(profile.code));
 }
 
 async function enterSelectedSliderControl() {
@@ -1626,6 +1630,9 @@ function initializeTargetInput() {
 
 function modelAngleRecord(angles, gripperRadians = angles[6] ?? currentServoAngles[6] * Math.PI / 180) {
   const displayKey = selectedDisplayModelKey();
+  if (isSuppliedVirtualModel(displayKey)) {
+    return mapSuppliedVirtualAngles(displayKey, [...angles.slice(0, 6), gripperRadians]).modelAngles;
+  }
   const a1z = displayKey === MODEL_CONFIGS.a1z.key;
   const b601 = displayKey === MODEL_CONFIGS.b601.key;
 
@@ -2012,7 +2019,11 @@ function renderAngles(angles, role = selectedPoseRole()) {
   const piper = modelKey === PIPER_MODEL_KEY;
 
   let mapped;
-  if (piper) {
+  const supplied = isSuppliedVirtualModel(modelKey)
+    ? mapSuppliedVirtualAngles(modelKey, angles.map(angle => angle * Math.PI / 180)) : null;
+  if (supplied) {
+    mapped = supplied.modelAngles;
+  } else if (piper) {
     // PiPER Mate 为姿态源：按真实手臂关节角跟随（映射到 piper 模型关节；方向/零点为占位，待实机校准）
     mapped = servoToModelAngles('PIPER', angles);
   } else if (b601) {
@@ -2030,7 +2041,10 @@ function renderAngles(angles, role = selectedPoseRole()) {
   // 提取 6 个关节角 + J7
   let jointAngles;
   let gripperAngle;
-  if (a1z) {
+  if (supplied) {
+    jointAngles = supplied.displayAngles.slice(0, 6);
+    gripperAngle = supplied.displayAngles[6];
+  } else if (a1z) {
     jointAngles = [mapped.arm_joint1, mapped.arm_joint2, mapped.arm_joint3, mapped.arm_joint4, mapped.arm_joint5, mapped.arm_joint6];
     // A1Z 夹爪位移转换为等效角度显示（0..48mm 映射为 0..90°）
     const gripperTravel = mapped.gripper_finger_left_joint ?? 0;

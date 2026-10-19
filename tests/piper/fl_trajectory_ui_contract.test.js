@@ -65,7 +65,7 @@ test('application integrates the FL-only workspace and versioned modules', async
   assert.match(workspace, /async function run\(action\)[\s\S]*try \{ return await action\(\); \}[\s\S]*catch \(error\)[\s\S]*try \{ showStatus[\s\S]*catch \(_\) \{\}[\s\S]*finally[\s\S]*try \{ renderControls\(\); \}[\s\S]*catch \(_\) \{\}/);
   assert.match(workspace, /void run\(initialize\)/);
   assert.match(controller, /result\.limitReached \|\| elapsed >= FL_TRAJECTORY_MAX_DURATION_MS[\s\S]*void this\.stopRecording[\s\S]*\.catch\(\(error\) => \{[\s\S]*try \{ this\.setState\('fault', error\); \}[\s\S]*catch \(_\) \{\}/);
-  assert.match(app, /async performDisconnectAll\(\)[\s\S]*const connectionId = this\.followerConnectionId[\s\S]*trajectoryWorkspace\.handleDisconnect\(\{ connectionId \}\)[\s\S]*Promise\.allSettled[\s\S]*throw new AggregateError/);
+  assert.match(app, /async performDisconnectAll\(\)[\s\S]*const connectionId = this\.followerConnectionId[\s\S]*trajectoryWorkspace\.handleDisconnect\(connectionId\)[\s\S]*Promise\.allSettled[\s\S]*throw new AggregateError/);
   assert.match(app, /async function activateTab\(name\)[\s\S]*if \(name !== 'trajectory' && document\.querySelector\('#trajectoryView'\)\.classList\.contains\('active'\)\)[\s\S]*await trajectoryWorkspace\.stop\(\)[\s\S]*applyTab\(name\)/);
   assert.match(app, /for \(const tab of els\.tabs\) tab\.addEventListener\('click',[\s\S]*navigateConsoleTab\(tab\.dataset\.tab\)/);
   assert.doesNotMatch(html, /DIGITAL TWIN WORKSPACE · v\d+\.\d+\.\d+/);

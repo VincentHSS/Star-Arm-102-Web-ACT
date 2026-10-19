@@ -1,4 +1,4 @@
-param([switch]$NoBrowser, [int]$Port = 18766, [string]$WebRoot = '', [ValidateSet('act-browser.html', 'urdf-preview.html')][string]$StartPage = 'act-browser.html')
+param([switch]$NoBrowser, [int]$Port = 18766, [string]$WebRoot = '', [ValidateSet('act-browser.html', 'urdf-preview.html', 'index.html')][string]$StartPage = 'act-browser.html')
 $ErrorActionPreference = 'Stop'
 if (!$WebRoot) { $WebRoot = Join-Path $PSScriptRoot '..\Browser_SDK' }
 $WebRoot = (Resolve-Path -LiteralPath $WebRoot).Path

@@ -2,6 +2,7 @@ import { ALL_JOINTS } from './urdf_model_data.js';
 import { B601_JOINTS } from './b601_model_data.js';
 import { A1Z_JOINTS } from './a1z_model_data.js';
 import { PIPER_JOINTS } from './piper_model_data.js';
+import { SUPPLIED_URDF_MODELS } from './supplied_urdf_models.js';
 
 const linkNames = Object.freeze([
   'base_link', 'link1', 'link2', 'link3', 'link4', 'link5', 'link6', 'link7_left', 'link7_right',
@@ -69,6 +70,7 @@ export const LD_JOINTS = Object.freeze([
 ]);
 
 export const MODEL_CONFIGS = Object.freeze({
+  ...SUPPLIED_URDF_MODELS,
   ld: Object.freeze({
     key: 'ld',
     name: 'Star Arm 102-LD',

@@ -74,7 +74,8 @@ BACKEND = {
     'training_manifest': 'Python / LeRobot / PyTorch 版本及加速源清单',
 }
 EXACT = {
-    'start_windows_urdf.bat': 'Windows 双击启动 FL 与 LD URDF 本地模型预览，不连接硬件',
+    'start_windows_urdf.bat': 'Windows 双击打开控制台，测试虚拟型号中的新 FL 和 LD 模型',
+    'Browser_SDK/src/supplied_urdf_mapping.js': '新增虚拟 FL 与 LD 的六轴顺序跟随及 FL 双夹指位移映射',
     'Browser_SDK/urdf-preview.html': '用户提供的 FL 与 Touch R1 LD 模型切换和逐轴姿态预览',
     'Browser_SDK/src/urdf-preview.js': '独立 URDF 预览状态、旋转与平移关节滑块，不连接硬件',
     'Browser_SDK/src/urdf-preview.css': 'URDF 模型大画布、关节侧栏及移动端布局',

@@ -194,6 +194,7 @@
 | [Browser_SDK/src/servo_setup_flow.js](../Browser_SDK/src/servo_setup_flow.js) | 舵机 ID 和参数设置的读写校验流程 |
 | [Browser_SDK/src/settings.js](../Browser_SDK/src/settings.js) | 控制台用户设置与持久化 |
 | [Browser_SDK/src/styles.css](../Browser_SDK/src/styles.css) | 控制台主题、响应式布局和通用控件样式（样式） |
+| [Browser_SDK/src/supplied_urdf_mapping.js](../Browser_SDK/src/supplied_urdf_mapping.js) | 新增虚拟 FL 与 LD 的六轴顺序跟随及 FL 双夹指位移映射 |
 | [Browser_SDK/src/supplied_urdf_models.js](../Browser_SDK/src/supplied_urdf_models.js) | 用户 FL 与 Touch R1 LD 原始关节树、视觉材质与网格引用 |
 | [Browser_SDK/src/target_execution_ownership.js](../Browser_SDK/src/target_execution_ownership.js) | 确保运动目标同一时间由一个执行者持有 |
 | [Browser_SDK/src/tcp_drag_preview.js](../Browser_SDK/src/tcp_drag_preview.js) | 拖动末端时的目标预览 |
@@ -281,7 +282,7 @@
 | [start_ubuntu_training_test.sh](../start_ubuntu_training_test.sh) | Ubuntu 本地训练测试入口，拒绝复用旧版或仅有 API 的组件后台 |
 | [start_windows.bat](../start_windows.bat) | Windows 自动选择 Python 启动同一网页与后台 |
 | [start_windows_browser.bat](../start_windows_browser.bat) | Windows 双击启动本地纯网页测试，不安装 Python 或设备后台 |
-| [start_windows_urdf.bat](../start_windows_urdf.bat) | Windows 双击启动 FL 与 LD URDF 本地模型预览，不连接硬件 |
+| [start_windows_urdf.bat](../start_windows_urdf.bat) | Windows 双击打开控制台，测试虚拟型号中的新 FL 和 LD 模型 |
 | [tests/act_browser_core.test.js](../tests/act_browser_core.test.js) | 软件测试：网页模型合同、原版校准坐标转换、限位与时间索引动作调度 |
 | [tests/act_browser_runtime.test.js](../tests/act_browser_runtime.test.js) | 软件测试：浏览器 Worker 推理与串口控制、实时反馈、停止和资源释放 |
 | [tests/act_camera_frame_encoder_worker_client.test.js](../tests/act_camera_frame_encoder_worker_client.test.js) | 软件测试：管理相机编码 Worker 请求、超时与退出 |

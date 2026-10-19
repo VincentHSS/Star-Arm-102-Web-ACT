@@ -28,7 +28,7 @@
         <button class="tab" data-tab="factory-restore" aria-selected="false"><span data-i18n="nav.factory-restore">恢复出厂参数</span></button>
         <button class="tab" data-tab="servo-setup" aria-selected="false"><span data-i18n="nav.servo-setup">舵机配置</span></button>
       </nav>
-      <div class="top-state"><a class="workspace-launch" href="urdf-preview.html" target="_blank" rel="noopener">FL / LD 模型</a><a class="workspace-launch" href="act-workbench.html" data-workspace-target="act"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z"/></svg><span>ACT 工作台</span></a>
+      <div class="top-state"><a class="workspace-launch" href="act-workbench.html" data-workspace-target="act"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z"/></svg><span>ACT 工作台</span></a>
         <span class="connection-light"></span>
         <span id="runStatus" data-i18n="status.not-started">未启动</span>
         <span id="appVersion" class="version-badge">v1.1.2</span>
@@ -60,11 +60,11 @@
             <input id="followerType" type="hidden" value="physical">
             <div id="followerTypeSwitch" class="follower-type-switch" data-follower-type="physical" role="group" data-i18n-aria="label.follower-type">
               <button id="followerTypePhysical" class="follower-type-option" type="button" data-follower-type-option="physical" aria-pressed="true" data-i18n="device.physical-fl">真实 FL</button>
-              <button id="followerTypeVirtual" class="follower-type-option" type="button" data-follower-type-option="virtual" aria-pressed="false" data-i18n="device.virtual-fl-short">虚拟 FL</button>
+              <button id="followerTypeVirtual" class="follower-type-option" type="button" data-follower-type-option="virtual" aria-pressed="false" data-i18n="device.virtual-fl-short">虚拟手臂</button>
             </div>
           </div>
           <label id="virtualFollowerModelField" class="follower-target-field" hidden><span data-i18n="label.virtual-model">虚拟型号</span>
-            <select id="virtualFollowerModel"><option value="star-arm-102-fl" selected>Star Arm 102-FL</option><option value="rebot-b601">reBot Arm B601</option><option value="galaxea-a1z" data-i18n="model.a1z">星海图 A1Z（带平移夹爪）</option></select>
+            <select id="virtualFollowerModel"><option value="star-arm-102-fl" selected>Star Arm 102-FL</option><option value="fl-v3">FL · LumosTouch V3</option><option value="ld-touch">LD · Touch R1</option><option value="rebot-b601">reBot Arm B601</option><option value="galaxea-a1z" data-i18n="model.a1z">星海图 A1Z（带平移夹爪）</option></select>
           </label>
           <p id="virtualFollowerNotice" class="virtual-follower-notice" role="status" hidden data-i18n="notice.virtual-follower">仅驱动三维模型，不发送 Follower 串口指令</p>
           <p id="b601VirtualNotice" class="virtual-follower-notice" role="status" hidden data-i18n="notice.b601-virtual">B601 仅跟随 J1–J6，不发送硬件命令</p>
@@ -258,7 +258,7 @@
     </dialog>
   <script type="importmap">{"imports":{"./src/serial_servo_bus.js":"./src/serial_servo_bus.js?v=serial-connect-1","./src/browser_serial_utils.js":"./src/browser_serial_utils.js?v=serial-connect-1","./src/i18n.js":"./src/i18n.js?v=serial-connect-1"}}</script>
   <script type="module" src="./src/servo_setup.js?v=1.1.2-merged-piper-1"></script>
-  <script type="module" src="./src/app.js?v=1.1.2-serial-connect-1"></script>
+  <script type="module" src="./src/app.js?v=1.1.2-virtual-urdf-20261020"></script>
   <script type="module" src="./src/workspace-switch.js?v=capture-flow-1"></script>
 </body>
 </html>
