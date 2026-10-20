@@ -13,7 +13,7 @@ import {
   FOLLOWER_TARGET_PHYSICAL, FOLLOWER_TARGET_VIRTUAL, VIRTUAL_MODEL_CONFIG_KEYS,
 } from '../Browser_SDK/src/follower_target.js';
 
-for (const [key, partCount, jointCount] of [['fl-v3', 9, 8], ['ld-touch', 22, 6]]) {
+for (const [key, partCount, jointCount] of [['fl-v3', 9, 8], ['ld-touch', 25, 8]]) {
   test(`${key}: complete connected tree and nonempty binary STL assets`, () => {
     const config = SUPPLIED_URDF_MODELS[key];
     assert.equal(config.parts.length, partCount);
@@ -39,67 +39,33 @@ const touchAsset = name => new URL(`../Browser_SDK/assets/urdf/ld-touch/${name}`
 const sha256 = bytes => createHash('sha256').update(bytes).digest('hex');
 const readJson = url => JSON.parse(readFileSync(url, 'utf8'));
 
-function stlComponents(bytes) {
-  const triangleCount = bytes.readUInt32LE(80);
-  const parents = Array.from({ length: triangleCount }, (_, index) => index);
-  const vertexOwners = new Map();
-  const root = index => {
-    while (parents[index] !== index) {
-      parents[index] = parents[parents[index]];
-      index = parents[index];
-    }
-    return index;
-  };
-  for (let triangle = 0; triangle < triangleCount; triangle++) {
-    for (let vertex = 0; vertex < 3; vertex++) {
-      // Old CAD seams share coordinates at micrometre precision.
-      const point = [0, 1, 2].map(axis => Math.round(
-        bytes.readFloatLE(84 + triangle * 50 + 12 + vertex * 12 + axis * 4) * 1e6));
-      const key = point.join(',');
-      if (vertexOwners.has(key)) parents[root(triangle)] = root(vertexOwners.get(key));
-      else vertexOwners.set(key, triangle);
-    }
-  }
-  const components = new Map();
-  for (let triangle = 0; triangle < triangleCount; triangle++) {
-    const component = root(triangle);
-    if (!components.has(component)) components.set(component, []);
-    components.get(component).push(triangle);
-  }
-  return [...components.values()].sort((a, b) => b.length - a.length);
-}
-
-test('Touch R1 retains its upstream meshes and six joints with one fixed seventh-servo visual', () => {
+test('Touch R1 V3.2 preserves the complete upstream geometry, seven servos and native finger tree', () => {
   const source = readJson(touchAsset('SOURCE.json'));
   const original = readFileSync(touchAsset('source.urdf'), 'utf8');
   const display = readFileSync(touchAsset('model.urdf'), 'utf8');
   const config = SUPPLIED_URDF_MODELS['ld-touch'];
-  assert.equal(source.commit, '7c6811913e0928b04a2ad69d6ab25b7f22217ee5');
-  assert.equal(sha256(Buffer.from(original)),
-    '4a00fe0f6c66861168be23ab6e021c5c289d8954387dd29b902b7251ffdd0499');
-  const upstreamMeshes = Object.entries(source.sha256)
-    .filter(([name]) => name.startsWith('meshes/') && name !== 'meshes/link_6-gripper-servo.stl')
-    .sort(([a], [b]) => a < b ? -1 : a > b ? 1 : 0);
-  assert.equal(upstreamMeshes.length, 21);
-  assert.equal(sha256(JSON.stringify(upstreamMeshes)),
-    '88a6f421c33b9757abfe09d6c4232bbd4d8cde5ab76d78eb77e376d1f648a0b5');
-  for (const [name, expectedHash] of upstreamMeshes) {
+  assert.equal(source.commit, 'e264ed0dc7bd209fdf63c11bc2f6061e2598fc05');
+  assert.equal(sha256(Buffer.from(original)), 'a90ce584e474b6d4ab540ff13127f7fa5bb81a2937e8b5bdbb06adbe211e9663');
+  assert.equal(display, original.replaceAll('filename="../meshes/', 'filename="meshes/'));
+  for (const [name, expectedHash] of Object.entries(source.sha256)) {
     assert.equal(sha256(readFileSync(touchAsset(name))), expectedHash, name);
+  }
+  const meshes = Object.keys(source.sha256).filter(name => name.startsWith('meshes/'));
+  assert.equal(meshes.length, 25);
+  assert.equal(config.parts.filter(part => /-servo\.stl(?:\?|$)/.test(part.url)).length, 7);
+  assert.equal(config.parts.filter(part => part.url.includes('gripper-servo')).length, 0);
+  assert.equal(config.parts.find(part => part.url.includes('link_6-servo.stl')).link, 'link_6');
+  assert.equal(config.parts.find(part => part.url.includes('right_finger-horn.stl')).link, 'right_finger');
+  assert.equal(config.parts.find(part => part.url.includes('left_finger-finger.stl')).link, 'left_finger');
+  for (const name of meshes) {
     assert.equal(config.parts.filter(part => new URL(part.url, new URL('../Browser_SDK/src/', import.meta.url))
       .pathname.endsWith('/ld-touch/' + name)).length, 1, name + ' must be displayed once');
   }
-  const jointBlocks = urdf => [...urdf.matchAll(/<joint\b[\s\S]*?<\/joint>/g)]
-    .map(match => match[0].replace(/\s+/g, ' ').trim());
-  assert.equal(jointBlocks(original).length, 6);
-  assert.deepEqual(jointBlocks(display), jointBlocks(original));
-  assert.equal([...original.matchAll(/<visual\b/g)].length, 21);
-  assert.equal([...display.matchAll(/<visual\b/g)].length, 22);
-  assert.deepEqual(config.joints.map(joint => joint.name),
-    ['joint_1', 'joint_2', 'joint_3', 'joint_4', 'joint_5', 'joint_6']);
-  const attribute = (block, tag, name) => block.match(
-    new RegExp(`<${tag}\\b[^>]*\\b${name}="([^"]*)"`))?.[1];
-  const vector = text => text.trim().split(/\s+/).map(Number);
-  for (const block of jointBlocks(original)) {
+  const jointBlocks = [...original.matchAll(/<joint\b[\s\S]*?<\/joint>/g)].map(match => match[0]);
+  const attribute = (block, tag, name) => block.match(new RegExp(`<${tag}\\b[^>]*\\b${name}="([^"]*)"`))?.[1];
+  const vector = value => value.trim().split(/\s+/).map(Number);
+  assert.equal(jointBlocks.length, 8);
+  for (const block of jointBlocks) {
     const joint = config.joints.find(candidate => candidate.name === attribute(block, 'joint', 'name'));
     assert.ok(joint);
     assert.equal(joint.type, attribute(block, 'joint', 'type'));
@@ -110,79 +76,49 @@ test('Touch R1 retains its upstream meshes and six joints with one fixed seventh
     assert.deepEqual(joint.axis, vector(attribute(block, 'axis', 'xyz')));
     assert.equal(joint.clampToLimits, false);
     assert.equal(joint.displayAxisDirection, 1);
-  }
-  const servoVisuals = config.parts.filter(part => /-servo\.stl(?:\?|$)/.test(part.url));
-  assert.equal(servoVisuals.length, 7);
-  const added = config.parts.filter(part => /\/link_6-gripper-servo\.stl(?:\?|$)/.test(part.url));
-  assert.equal(added.length, 1);
-  assert.equal(added[0].link, 'link_6');
-  assert.deepEqual(added[0].origin, { xyz: [0, 0, 0], rpy: [0, 0, 0] });
-  assert.deepEqual(added[0].scale, [1, 1, 1]);
-  const link6 = display.match(/<link name="link_6">([\s\S]*?)<\/link>/)?.[1];
-  assert.ok(link6?.includes('meshes/link_6-gripper-servo.stl'));
-  const tree = buildJointTree(config.joints);
-  assert.equal(tree.links.get(added[0].link).parentJoint, 'joint_6');
-  assert.deepEqual(tree.links.get(added[0].link).children, []);
-  assert.equal(tree.joints.size, 6, 'fixed casing geometry must not create a seventh motion axis');
-  assert.equal(source.validation.meshes, 22);
-  assert.equal(source.validation.upstreamMeshes, 21);
-  assert.equal(source.validation.upstreamTriangles, 182708);
-  assert.equal(source.validation.triangles, 182708 + 9820);
-  assert.equal(source.supplement.kind, 'fixed-gripper-servo-visual');
-  assert.equal(source.supplement.link, 'link_6');
-  assert.equal(source.supplement.report, 'gripper-servo.json');
-  assert.equal(source.supplement.hardwareMappingChanged, false);
-});
-
-test('Touch R1 gripper visual contains only the transformed old LD motor, without its grip structure', () => {
-  const report = readJson(touchAsset('gripper-servo.json'));
-  assert.equal(report.schemaVersion, 1);
-  assert.equal(report.source.path, 'Browser_SDK/assets/models/ld/link6.STL');
-  const oldMesh = readFileSync(new URL('../Browser_SDK/assets/models/ld/link6.STL', import.meta.url));
-  const servoMesh = readFileSync(touchAsset('meshes/link_6-gripper-servo.stl'));
-  assert.equal(report.source.sha256, sha256(oldMesh));
-  assert.equal(report.target.sha256, sha256(servoMesh));
-  assert.equal(report.source.triangles, 15022);
-  assert.equal(oldMesh.readUInt32LE(80), report.source.triangles);
-  assert.equal(report.target.link, 'link_6');
-  assert.equal(report.target.mesh, 'meshes/link_6-gripper-servo.stl');
-  assert.equal(report.target.triangles, 9820);
-  assert.equal(servoMesh.readUInt32LE(80), report.target.triangles);
-  assert.equal(servoMesh.length, 84 + 50 * report.target.triangles);
-  const components = stlComponents(oldMesh);
-  assert.deepEqual(components.map(component => component.length),
-    [5202, 4792, 1968, 1370, 1182, 60, 60, 60, 60, 60, 60, 60, 44, 44]);
-  assert.equal(report.source.components, components.length);
-  assert.equal(report.extraction.excludedStructureTriangles, 5202);
-  assert.equal(report.extraction.servoComponents, 13);
-  assert.equal(report.extraction.servoTriangles, 9820);
-  const excludedGrip = new Set(components[0]);
-  const selected = Array.from({ length: report.source.triangles }, (_, index) => index)
-    .filter(index => !excludedGrip.has(index));
-  assert.equal(selected.length, report.target.triangles);
-  const rotation = report.registration.rotationOldLdToTouch;
-  const translation = report.registration.translationMeters;
-  assert.equal(rotation.length, 3);
-  assert.ok(rotation.every(row => row.length === 3 && row.every(Number.isFinite)));
-  assert.equal(translation.length, 3);
-  assert.ok(translation.every(Number.isFinite));
-  let maximumVertexError = 0;
-  for (const [targetTriangle, sourceTriangle] of selected.entries()) {
-    for (let vertex = 0; vertex < 3; vertex++) {
-      const sourcePoint = [0, 1, 2].map(axis =>
-        oldMesh.readFloatLE(84 + sourceTriangle * 50 + 12 + vertex * 12 + axis * 4));
-      for (let axis = 0; axis < 3; axis++) {
-        const expected = rotation[axis].reduce((sum, value, column) =>
-          sum + value * sourcePoint[column], translation[axis]);
-        const actual = servoMesh.readFloatLE(84 + targetTriangle * 50 + 12 + vertex * 12 + axis * 4);
-        maximumVertexError = Math.max(maximumVertexError, Math.abs(actual - expected));
-      }
+    if (joint.mimic) {
+      assert.deepEqual(joint.mimic, { joint: attribute(block, 'mimic', 'joint'),
+        multiplier: Number(attribute(block, 'mimic', 'multiplier')), offset: Number(attribute(block, 'mimic', 'offset')) });
     }
   }
-  assert.ok(maximumVertexError < 2e-8,
-    `STL must contain the 13 source motor components alone, transformed in metres (${maximumVertexError})`);
-  assert.ok(report.registration.maxHoleAxisResidualMm < 0.001);
-  assert.equal(report.validation.physicalHardwareVerified, false);
+  assert.equal(source.validation.independentJoints, 7);
+  assert.equal(source.validation.mimicJoints, 1);
+  assert.equal(source.validation.triangles, 214230);
+  assert.equal(source.validation.hardwareMappingChanged, false);
+  assert.equal(source.validation.physicalHardwareVerified, false);
+});
+
+test('Touch R1 J7 moves both CAD finger branches while the motor casing stays attached to the handle', () => {
+  const config = SUPPLIED_URDF_MODELS['ld-touch'];
+  const tree = buildJointTree(config.joints);
+  assert.deepEqual(tree.links.get('link_6').children, ['right_finger', 'left_finger']);
+  assert.equal(tree.links.get('right_finger').parentJoint, 'joint_7');
+  assert.equal(tree.links.get('left_finger').parentJoint, 'left_finger_joint');
+  const originalOrigins = config.joints.map(joint => structuredClone(joint.origin));
+  for (const angle of [0, 25 * Math.PI / 180, -0.2, 4]) {
+    applyModelJointAngles(tree, { joint_6: 0.35, joint_7: angle, left_finger_joint: 99 });
+    assert.equal(tree.joints.get('joint_7').angle, angle);
+    assert.equal(tree.joints.get('left_finger_joint').angle, -angle || 0);
+    assert.equal(tree.joints.get('joint_6').angle, 0.35);
+    assert.deepEqual([...tree.joints.values()].map(joint => joint.origin), originalOrigins);
+  }
+  applyModelJointAngles(tree, { joint_1: 0.5 });
+  assert.equal(tree.joints.get('left_finger_joint').angle, -4, 'unrelated axis updates preserve the grip pose');
+});
+
+test('URDF mimic resolves chains and offsets and rejects incomplete or cyclic model descriptions', () => {
+  const base = SUPPLIED_URDF_MODELS['ld-touch'].joints;
+  const chained = structuredClone(base);
+  chained[6].mimic = { joint: 'joint_1', multiplier: 2, offset: 0.1 };
+  const tree = buildJointTree(chained);
+  applyModelJointAngles(tree, { joint_1: 0.2 });
+  assert.equal(tree.joints.get('joint_7').angle, 0.5);
+  assert.equal(tree.joints.get('left_finger_joint').angle, -0.5);
+  for (const mimic of [{ joint: 'missing' }, { joint: 'joint_1', multiplier: NaN }, { joint: 'left_finger_joint' }]) {
+    const invalid = structuredClone(base);
+    invalid[6].mimic = mimic;
+    assert.throws(() => buildJointTree(invalid), /从动关节/);
+  }
 });
 
 test('FL parallel fingers translate in metres and obey the supplied bounds', () => {
@@ -274,15 +210,16 @@ test('supplied FL maps six display axes with URDF limits and J7 to opposing 42.5
   }
 });
 
-test('supplied LD maps joint_1 through joint_6 continuously and has no J7 model channel', () => {
+test('supplied LD displays all seven raw model angles and derives the left finger from URDF mimic', () => {
   const input = [4, -4, 0.3, -0.4, 0.5, -0.6, Math.PI / 2];
   const { modelAngles, displayAngles } = mapSuppliedVirtualAngles('ld-touch', input);
-  assert.deepEqual(modelAngles, { joint_1: 4, joint_2: -4, joint_3: 0.3, joint_4: -0.4, joint_5: 0.5, joint_6: -0.6 });
-  assert.deepEqual(displayAngles, [...input.slice(0, 6), 0]);
-  assert.deepEqual(mapSuppliedVirtualAngles('ld-touch', [...input.slice(0, 6), 0]).modelAngles, modelAngles);
+  assert.deepEqual(modelAngles, { joint_1: 4, joint_2: -4, joint_3: 0.3, joint_4: -0.4, joint_5: 0.5, joint_6: -0.6, joint_7: Math.PI / 2 });
+  assert.deepEqual(displayAngles, input);
   const tree = applyModelJointAngles(buildJointTree(SUPPLIED_URDF_MODELS['ld-touch'].joints), modelAngles);
   assert.equal(tree.joints.get('joint_1').angle, 4);
   assert.equal(tree.joints.get('joint_2').angle, -4);
+  assert.equal(tree.joints.get('joint_7').angle, Math.PI / 2);
+  assert.equal(tree.joints.get('left_finger_joint').angle, -Math.PI / 2);
   assert.throws(() => mapSuppliedVirtualAngles('unknown', input), /未知虚拟模型/);
   assert.throws(() => mapSuppliedVirtualAngles('ld-touch', input.slice(0, 6)), /七个有限/);
   assert.throws(() => mapSuppliedVirtualAngles('fl-v3', [...input.slice(0, 6), NaN]), /七个有限/);

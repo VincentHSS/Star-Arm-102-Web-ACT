@@ -194,6 +194,15 @@
         <color rgba="0.82 0.86 0.88 1" />
       </material>
     </visual>
+    <visual name="link_6_servo">
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="../meshes/link_6-servo.stl" />
+      </geometry>
+      <material name="servo">
+        <color rgba="0.18 0.23 0.28 1" />
+      </material>
+    </visual>
     <visual name="link_6_horn">
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
@@ -201,6 +210,37 @@
       </geometry>
       <material name="horn">
         <color rgba="0.62 0.68 0.73 1" />
+      </material>
+    </visual>
+  </link>
+  <link name="right_finger">
+    <visual name="right_finger_horn">
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="../meshes/right_finger-horn.stl" />
+      </geometry>
+      <material name="horn">
+        <color rgba="0.62 0.68 0.73 1" />
+      </material>
+    </visual>
+    <visual name="right_finger_finger">
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="../meshes/right_finger-finger.stl" />
+      </geometry>
+      <material name="finger">
+        <color rgba="0.93 0.57 0.20 1" />
+      </material>
+    </visual>
+  </link>
+  <link name="left_finger">
+    <visual name="left_finger_finger">
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="../meshes/left_finger-finger.stl" />
+      </geometry>
+      <material name="finger">
+        <color rgba="0.93 0.57 0.20 1" />
       </material>
     </visual>
   </link>
@@ -219,25 +259,38 @@
   <joint name="joint_3" type="continuous">
     <parent link="link_2" />
     <child link="link_3" />
-    <origin xyz="-9.99997e-05 -0.165625 0" rpy="0 0 0" />
-    <axis xyz="1 2.2e-09 0" />
+    <origin xyz="-0.0001 -0.165625 0" rpy="0 0 0" />
+    <axis xyz="1 0 0" />
   </joint>
   <joint name="joint_4" type="continuous">
     <parent link="link_3" />
     <child link="link_4" />
-    <origin xyz="0.0003623925 0.165625 0.03875" rpy="0 0 0" />
-    <axis xyz="1 2.2e-09 0" />
+    <origin xyz="0.0003623929 0.165625 0.03875" rpy="0 0 0" />
+    <axis xyz="1 0 0" />
   </joint>
   <joint name="joint_5" type="continuous">
     <parent link="link_4" />
     <child link="link_5" />
-    <origin xyz="-0.0002311965 0.048745 0.019343455" rpy="0 0 0" />
+    <origin xyz="-0.0002311964 0.048745 0.019343455" rpy="0 0 0" />
     <axis xyz="-0 0 1" />
   </joint>
   <joint name="joint_6" type="continuous">
     <parent link="link_5" />
     <child link="link_6" />
     <origin xyz="-0 0.015046545 -0.020098455" rpy="0 0 0" />
-    <axis xyz="2.2e-09 -1 0" />
+    <axis xyz="-0 -1 0" />
+  </joint>
+  <joint name="joint_7" type="continuous">
+    <parent link="link_6" />
+    <child link="right_finger" />
+    <origin xyz="0.006675 0.0541 0.00235" rpy="0 0 0" />
+    <axis xyz="-0 -1 0" />
+  </joint>
+  <joint name="left_finger_joint" type="continuous">
+    <parent link="link_6" />
+    <child link="left_finger" />
+    <origin xyz="-0.015325 0.0541 0.00235" rpy="0 0 0" />
+    <axis xyz="0 -1 0" />
+    <mimic joint="joint_7" multiplier="-1.0" offset="0.0" />
   </joint>
 </robot>

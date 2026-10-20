@@ -2,13 +2,13 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { loadModelAssets } from '../Browser_SDK/src/model_asset_loader.js';
 
-const parts = Array.from({ length: 21 }, (_, index) => ({
-  link: `link_${index}`, url: `../assets/urdf/ld-touch/meshes/part-${index}.stl?v=7c681191`,
+const parts = Array.from({ length: 25 }, (_, index) => ({
+  link: `link_${index}`, url: `../assets/urdf/ld-touch/meshes/part-${index}.stl?v=e264ed0d`,
 }));
 const baseUrl = 'https://example.test/wiki/robot/Browser_SDK/src/robot_model.js?v=current';
 const tick = () => new Promise(resolve => setTimeout(resolve, 0));
 
-test('all 21 mesh URLs preserve a nested website path and query, with four downloads at most', async () => {
+test('all 25 mesh URLs preserve a nested website path and query, with four downloads at most', async () => {
   let active = 0, maximum = 0;
   const urls = [];
   const result = await loadModelAssets(parts, {
@@ -22,10 +22,10 @@ test('all 21 mesh URLs preserve a nested website path and query, with four downl
     },
   });
   assert.equal(maximum, 4);
-  assert.equal(result.length, 21);
+  assert.equal(result.length, 25);
   assert.deepEqual(result.map(item => item.link), parts.map(item => item.link));
   assert.ok(urls.every(url => url.startsWith('https://example.test/wiki/robot/Browser_SDK/assets/urdf/ld-touch/meshes/')));
-  assert.ok(urls.every(url => url.endsWith('?v=7c681191')));
+  assert.ok(urls.every(url => url.endsWith('?v=e264ed0d')));
 });
 
 test('one transient fetch failure is retried, but persistent network failure reports the exact resource', async () => {
@@ -39,7 +39,7 @@ test('one transient fetch failure is retried, but persistent network failure rep
   calls = 0;
   await assert.rejects(loadModelAssets(parts.slice(0, 1), {
     ...options, load: async () => { calls++; throw new TypeError('Failed to fetch'); },
-  }), error => error.assetUrl.endsWith('part-0.stl?v=7c681191') && /part-0\.stl/.test(error.message));
+  }), error => error.assetUrl.endsWith('part-0.stl?v=e264ed0d') && /part-0\.stl/.test(error.message));
   assert.equal(calls, 2);
 });
 

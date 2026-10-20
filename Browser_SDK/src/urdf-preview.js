@@ -14,7 +14,7 @@ function controls() {
   pose = {};
   $('jointControls').replaceChildren();
   for (const joint of config.joints) {
-    if (joint.type === 'fixed') continue;
+    if (joint.type === 'fixed' || joint.mimic) continue;
     const linear = joint.type === 'prismatic';
     const factor = linear ? 1000 : 180 / Math.PI;
     const label = document.createElement('label');
@@ -24,8 +24,9 @@ function controls() {
     const output = document.createElement('output');
     const input = document.createElement('input');
     input.type = 'range';
-    input.min = String(Math.ceil(joint.limit.lower * factor * 10) / 10);
-    input.max = String(Math.floor(joint.limit.upper * factor * 10) / 10);
+    const previewLimit = joint.previewLimit ?? joint.limit;
+    input.min = String(Math.ceil(previewLimit.lower * factor * 10) / 10);
+    input.max = String(Math.floor(previewLimit.upper * factor * 10) / 10);
     input.step = '0.1';
     input.value = '0';
     input.setAttribute('aria-label', joint.name);
@@ -38,7 +39,7 @@ function controls() {
     label.append(title, output, input);
     if (joint.type === 'continuous') {
       const hint = document.createElement('small');
-      hint.textContent = '±180° 为预览范围，实机限位尚待确认';
+      hint.textContent = `${input.min}–${input.max}° 仅为模型演示范围，实机零位与限位需单独标定`;
       label.append(hint);
     }
     $('jointControls').append(label);
@@ -53,7 +54,7 @@ async function selectModel() {
   $('resetPose').disabled = true;
   $('modelDescription').textContent = config.key === 'fl-v3'
     ? '用户提供的 FL 模型：6 个旋转关节、2 个平移夹指，单位为米和弧度。'
-    : 'Touch R1 模型：6 个旋转关节、22 份结构与舵机网格，包含按新支架孔位配准的末端夹爪舵机外观。';
+    : 'Touch R1 V3.2 模型：七颗舵机、完整手柄与左右夹指，25 份网格。J7 驱动右夹指，左夹指按 URDF 反向联动。';
   $('urdfDownload').href = new URL(config.sourceUrdf, import.meta.url).href;
   try {
     await renderer.load(config);

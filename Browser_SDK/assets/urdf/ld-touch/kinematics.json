@@ -1,9 +1,30 @@
 {
-  "model": "Touch R1 Leader Arm V3.1",
-  "status_zh": "六轴运动学预览草案",
+  "model": "Touch R1 Leader Arm V3.2",
+  "status_zh": "七轴运动学预览草案（双 finger 联动待实物确认）",
   "source_assembly": "robot-description/source/r1-hd-urdf-only.FCStd",
-  "source_assembly_sha256": "bc9729fcb833e0f48c11398f8416999aee14ef24f35c7c52049bd3bf8c46faa9",
+  "source_assembly_sha256": "b6cac35a9807eb45ec3ebaecfee955961dbb27ddb454c4c01f6b9bc63b60346f",
   "source_format": "FCStd",
+  "original_step": {
+    "revision": "V3.2",
+    "original_step_name": "遥操臂V3.2_1013(1).stp",
+    "original_step_sha256": "f2654e3ba64084a5638cb16c66ebac0a958ef50be641a09abca82bdf0ccb2bc0",
+    "original_step_solids": 115,
+    "excluded_objects": [
+      {
+        "object": "Part__Feature094",
+        "label": "A000",
+        "solids": 1
+      },
+      {
+        "object": "Part__Feature097",
+        "label": "B000",
+        "solids": 1
+      }
+    ],
+    "snapshot_solids": 113,
+    "snapshot_sha256": "b6cac35a9807eb45ec3ebaecfee955961dbb27ddb454c4c01f6b9bc63b60346f",
+    "note_zh": "FCStd 由指定 STEP 导入，移除 A000、B000；原 STEP 原样保存在 hardware/step/assembly/touch-r1-leader-arm-v3.2-1013.stp。"
+  },
   "source_length_unit": "mm",
   "urdf_length_unit": "m",
   "cad_to_urdf_zh": "绕 X 轴 +90°（Y 向上改为 Z 向上），再沿 Z 平移 51.000000 mm，使基座底面为 Z=0。",
@@ -30,44 +51,57 @@
     {
       "source_object": "_25_50KG_0001_ASM_ASM001",
       "model": "rp8-u45h-m",
-      "axis_offset_mm": 3.8984696742772795e-12,
-      "bbox_max_difference_mm": 1.3554316769415209e-05,
+      "axis_offset_mm": 3.8852656115585376e-12,
+      "bbox_max_difference_mm": 1.3554316772967923e-05,
       "original_solids": 14,
       "replacement_solids": 15,
-      "relative_volume_difference": 0.033925480482595416
+      "relative_volume_difference": 0.03392548048259433
     },
     {
       "source_object": "_25_50KG_0001_ASM_ASM002",
       "model": "rp8-u45h-m",
-      "axis_offset_mm": 3.899056396496663e-12,
-      "bbox_max_difference_mm": 1.3554313285979447e-05,
+      "axis_offset_mm": 3.886565250787462e-12,
+      "bbox_max_difference_mm": 1.355431321137246e-05,
       "original_solids": 14,
       "replacement_solids": 15,
-      "relative_volume_difference": 0.033925480482596894
+      "relative_volume_difference": 0.033925480482597796
     },
     {
       "source_object": "RP8_U45H_M_C028_STEP_ASM001",
       "model": "rp8-u45h-m-c028",
-      "axis_offset_mm": 1.960164151320508e-12,
+      "axis_offset_mm": 1.953123537179447e-12,
       "bbox_max_difference_mm": 0.00042820555216849243,
       "original_solids": 14,
       "replacement_solids": 14,
-      "relative_volume_difference": 7.580496954421018e-05
+      "relative_volume_difference": 7.580496954580709e-05
     },
     {
       "source_object": "RP8_U45H_M_C028_STEP_ASM002",
       "model": "rp8-u45h-m-c028",
-      "axis_offset_mm": 1.960559742828625e-12,
-      "bbox_max_difference_mm": 0.0004282022462689383,
+      "axis_offset_mm": 1.94950629163242e-12,
+      "bbox_max_difference_mm": 0.00042820555216849243,
       "original_solids": 14,
       "replacement_solids": 14,
-      "relative_volume_difference": 7.580496954480899e-05
+      "relative_volume_difference": 7.580496954740396e-05
+    },
+    {
+      "source_object": "RP8_U45H_M_C028_STEP_ASM003",
+      "model": "rp8-u45h-m-c028",
+      "axis_offset_mm": 1.9470041148298738e-12,
+      "bbox_max_difference_mm": 0.00042820555593436893,
+      "original_solids": 14,
+      "replacement_solids": 14,
+      "relative_volume_difference": 7.580496954301236e-05
     }
   ],
   "sources": [
     {
       "file": "robot-description/source/r1-hd-urdf-only.FCStd",
-      "sha256": "bc9729fcb833e0f48c11398f8416999aee14ef24f35c7c52049bd3bf8c46faa9"
+      "sha256": "b6cac35a9807eb45ec3ebaecfee955961dbb27ddb454c4c01f6b9bc63b60346f"
+    },
+    {
+      "file": "robot-description/source/assembly-source.json",
+      "sha256": "1f74e3a6917988a9abdefb96b76598ccc35dcfb772321a1c38180e380bc1991c"
     },
     {
       "file": "step/components/rp8-u45h-m.step",
@@ -79,12 +113,12 @@
     }
   ],
   "zero_pose_zh": "源 FCStd 装配姿态，不是实机编码器零位。",
-  "joint_limits_zh": "未确认；URDF 使用 continuous 供可视化，界面 ±90° 仅为演示范围。",
-  "removed_parts_zh": "新源文件已移除 A000、B000 两个限位块；生成器仅使用当前装配叶节点，不从旧 BOM 回填。",
+  "joint_limits_zh": "未确认；URDF 使用 continuous 供可视化；J1–J6 ±90°、J7 0–25° 均仅为演示范围。",
+  "removed_parts_zh": "V3.2 STEP 导入时排除 A000、B000 两个限位块，不从旧 BOM 回填。",
   "auxiliary_parts_zh": "保留当前源文件中的垫片和五个紧固件，固定归属待实物复核。",
   "inertia_collision_control_zh": "未提供质量、惯量、碰撞模型、驱动参数或控制接口；仅用于可视化。",
-  "original_assembly_solids": 97,
-  "replacement_assembly_solids": 100,
+  "original_assembly_solids": 113,
+  "replacement_assembly_solids": 116,
   "source_leaf_objects": [
     "Part__Feature",
     "Part__Feature001",
@@ -180,11 +214,28 @@
     "Part__Feature091",
     "Part__Feature092",
     "Part__Feature093",
-    "Part__Feature094",
+    "Part__Feature095",
     "Part__Feature096",
-    "Part__Feature097"
+    "Part__Feature098",
+    "Part__Feature099",
+    "Part__Feature100",
+    "Part__Feature101",
+    "Part__Feature102",
+    "Part__Feature103",
+    "Part__Feature104",
+    "Part__Feature105",
+    "Part__Feature106",
+    "Part__Feature107",
+    "Part__Feature108",
+    "Part__Feature109",
+    "Part__Feature110",
+    "Part__Feature111",
+    "Part__Feature112",
+    "Part__Feature113",
+    "Part__Feature114"
   ],
-  "links": 7,
+  "links": 9,
+  "independent_joints": 7,
   "joints": [
     {
       "name": "joint_1",
@@ -243,7 +294,7 @@
         -0.0,
         -0.0
       ],
-      "coaxial_error_mm": 6.045111009012872e-08,
+      "coaxial_error_mm": 6.655923868468875e-12,
       "source_object": "_25_50KG_0001_ASM_ASM",
       "servo_model": "rp8-u45h-m",
       "preview_range_deg": [
@@ -257,26 +308,26 @@
       "parent": "link_2",
       "child": "link_3",
       "origin_xyz": [
-        -9.99997e-05,
+        -0.0001,
         -0.165625,
         0.0
       ],
       "axis": [
         1.0,
-        2.2e-09,
+        0.0,
         0.0
       ],
       "cad_axis_point_mm": [
-        -0.2311960997,
+        -0.2311964319,
         39.7644462087,
-        150.6898535256
+        150.6898535251
       ],
       "cad_axis_direction": [
         1.0,
         0.0,
-        -2.2e-09
+        -0.0
       ],
-      "coaxial_error_mm": 5.003032381956754e-11,
+      "coaxial_error_mm": 3.8152384412084326e-11,
       "source_object": "_25_50KG_0001_ASM_ASM001",
       "servo_model": "rp8-u45h-m",
       "preview_range_deg": [
@@ -290,26 +341,26 @@
       "parent": "link_3",
       "child": "link_4",
       "origin_xyz": [
-        0.0003623925,
+        0.0003623929,
         0.165625,
         0.03875
       ],
       "axis": [
         1.0,
-        2.2e-09,
+        0.0,
         0.0
       ],
       "cad_axis_point_mm": [
-        0.131196399,
+        0.1311964319,
         78.5144462083,
-        -14.9351464758
+        -14.9351464755
       ],
       "cad_axis_direction": [
         1.0,
         0.0,
-        -2.2e-09
+        -0.0
       ],
-      "coaxial_error_mm": 3.186451621449573e-11,
+      "coaxial_error_mm": 3.181578725001634e-11,
       "source_object": "_25_50KG_0001_ASM_ASM002",
       "servo_model": "rp8-u45h-m",
       "preview_range_deg": [
@@ -323,7 +374,7 @@
       "parent": "link_4",
       "child": "link_5",
       "origin_xyz": [
-        -0.0002311965,
+        -0.0002311964,
         0.048745,
         0.019343455
       ],
@@ -333,16 +384,16 @@
         1.0
       ],
       "cad_axis_point_mm": [
-        -0.1000001404,
+        -0.1,
         97.8579011945,
-        -63.6801464753
+        -63.6801464755
       ],
       "cad_axis_direction": [
         -0.0,
         1.0,
         -0.0
       ],
-      "coaxial_error_mm": 4.553745692805685e-12,
+      "coaxial_error_mm": 3.543361665283302e-12,
       "source_object": "RP8_U45H_M_C028_STEP_ASM001",
       "servo_model": "rp8-u45h-m-c028",
       "preview_range_deg": [
@@ -361,21 +412,21 @@
         -0.020098455
       ],
       "axis": [
-        2.2e-09,
+        -0.0,
         -1.0,
         0.0
       ],
       "cad_axis_point_mm": [
-        -0.1000001736,
+        -0.1,
         77.7594462083,
-        -78.7266914891
+        -78.7266914893
       ],
       "cad_axis_direction": [
-        2.2e-09,
+        -0.0,
         0.0,
         1.0
       ],
-      "coaxial_error_mm": 7.469570934522505e-12,
+      "coaxial_error_mm": 1.9700007010879524e-12,
       "source_object": "RP8_U45H_M_C028_STEP_ASM002",
       "servo_model": "rp8-u45h-m-c028",
       "preview_range_deg": [
@@ -383,6 +434,72 @@
         90
       ],
       "status_zh": "CAD 推导轴线及连接关系，实物方向与限位待确认"
+    },
+    {
+      "name": "joint_7",
+      "parent": "link_6",
+      "child": "right_finger",
+      "origin_xyz": [
+        0.006675,
+        0.0541,
+        0.00235
+      ],
+      "axis": [
+        -0.0,
+        -1.0,
+        0.0
+      ],
+      "cad_axis_point_mm": [
+        6.575,
+        80.1094462083,
+        -132.8266914893
+      ],
+      "cad_axis_direction": [
+        -0.0,
+        0.0,
+        1.0
+      ],
+      "coaxial_error_mm": 3.0497460088155616e-11,
+      "source_object": "RP8_U45H_M_C028_STEP_ASM003",
+      "servo_model": "rp8-u45h-m-c028",
+      "preview_range_deg": [
+        0,
+        25
+      ],
+      "status_zh": "CAD 推导轴线及连接关系，实物方向与限位待确认"
+    },
+    {
+      "name": "left_finger_joint",
+      "parent": "link_6",
+      "child": "left_finger",
+      "origin_xyz": [
+        -0.015325,
+        0.0541,
+        0.00235
+      ],
+      "axis": [
+        0.0,
+        -1.0,
+        0.0
+      ],
+      "cad_axis_point_mm": [
+        -15.425,
+        80.1094462083,
+        -132.8266914893
+      ],
+      "cad_axis_direction": [
+        -0.0,
+        0.0,
+        1.0
+      ],
+      "coaxial_error_mm": 2.1810797641354933e-12,
+      "source_object": "Part__Feature113",
+      "mimic": {
+        "joint": "joint_7",
+        "multiplier": -1.0,
+        "offset": 0.0
+      },
+      "status_zh": "按 CAD 齿形推定 1:1 反向联动，传动关系与实际行程待实物复核"
     }
   ],
   "meshes": [
@@ -504,7 +621,7 @@
       "link": "link_2",
       "file": "meshes/link_2-structure.stl",
       "category": "structure",
-      "triangles": 14372,
+      "triangles": 14368,
       "bounds_m": [
         [
           -0.030168802805170977,
@@ -517,7 +634,7 @@
           0.014000000049914278
         ]
       ],
-      "sha256": "24d8f5833709296021977f8f852868fa7aaa2c4d4916a8190f4a4921e138feee"
+      "sha256": "86123a0fae9912548c9b3f0b0e8b8936b71cd9c18b4be7e1ff13ee44146a3ac0"
     },
     {
       "link": "link_2",
@@ -536,7 +653,7 @@
           0.010000011494006087
         ]
       ],
-      "sha256": "61f971023fb9e7ad780a4a91490243158884d0ea788038a4c155645762badaaa"
+      "sha256": "011d60e7ac091d136a2ecb9874acfb4d034ed506a36a1f5a1d4c67726d5fde2b"
     },
     {
       "link": "link_2",
@@ -561,20 +678,20 @@
       "link": "link_3",
       "file": "meshes/link_3-structure.stl",
       "category": "structure",
-      "triangles": 18934,
+      "triangles": 18952,
       "bounds_m": [
         [
-          -0.030768803900310133,
-          -0.01399999632787575,
-          -0.01399999995012088
+          -0.030768803568111427,
+          -0.013999996328397572,
+          -0.013999999950121108
         ],
         [
-          0.031231196099689867,
-          0.15219999549436702,
-          0.05274999623518184
+          0.031231196431888573,
+          0.1521999953746359,
+          0.05274999623518161
         ]
       ],
-      "sha256": "df2abc5dcaeda8102cbe6dd38506a50829afae40d563591afa18ca5210298291"
+      "sha256": "fb97e1d6640aff33130fc216917d44e8940c474ef6b49b67caa44804b2e9eeb4"
     },
     {
       "link": "link_3",
@@ -583,17 +700,17 @@
       "triangles": 12772,
       "bounds_m": [
         [
-          -0.026468804663249586,
-          0.13594999489832058,
-          0.028749996235181825
+          -0.02646880433105088,
+          0.13594999489779874,
+          0.0287499962351816
         ],
         [
-          0.02485531490462151,
-          0.17595000443506373,
-          0.0487500114939709
+          0.024855315236820216,
+          0.17595000443454192,
+          0.04875001149397067
         ]
       ],
-      "sha256": "84afec82c930086973c37fdf99e6e3b363a1b711759d9b40792479ead7026684"
+      "sha256": "0f8b91792f6f95789f355417661037c26f43f62ef4d379d7087034462e60e790"
     },
     {
       "link": "link_3",
@@ -602,36 +719,36 @@
       "triangles": 5114,
       "bounds_m": [
         [
-          -0.025768803900310132,
-          -0.00999999632787575,
-          -0.00999999995012088
+          -0.025768803568111426,
+          -0.009999996328397572,
+          -0.009999999950121108
         ],
         [
-          0.025831196481159596,
-          0.01000000367212425,
-          0.010000000049879134
+          0.0258311968133583,
+          0.010000003671602429,
+          0.010000000049878907
         ]
       ],
-      "sha256": "974fbdfc36554975210d4521b51f876e71402de6c725c179ebbd8456d047c5e0"
+      "sha256": "3b9dffb0878c92ca86dcad69bafebbb181f25bf2c8b0d946ece3b2e8991aabee"
     },
     {
       "link": "link_4",
       "file": "meshes/link_4-structure.stl",
       "category": "structure",
-      "triangles": 12796,
+      "triangles": 12802,
       "bounds_m": [
         [
-          -0.03423119487307382,
-          -0.014000000084426124,
-          -0.015999999949733848
+          -0.03423119490600965,
+          -0.014000000024532569,
+          -0.015999999949733876
         ],
         [
-          0.033768805126926184,
-          0.0660000036706665,
-          0.03649999623556892
+          0.03376880509399035,
+          0.06600000367095542,
+          0.036499996235568884
         ]
       ],
-      "sha256": "c8d5d878465f2f398ef1696a2cf2508784ef5f7b8e750aa2c4d09618d53e02cf"
+      "sha256": "0f6f96a3c94cdf559211ff811d69e279dbd8e034563144ecfaaa60fc7c698176"
     },
     {
       "link": "link_4",
@@ -640,17 +757,17 @@
       "triangles": 10080,
       "bounds_m": [
         [
-          -0.010231201548794037,
-          0.01906999573609619,
-          0.017475879719455606
+          -0.01023120158172986,
+          0.019069995736385095,
+          0.017475879719455578
         ],
         [
-          0.009768813709995026,
-          0.059070003365490724,
-          0.062000003864963446
+          0.009768813677059203,
+          0.05907000336577963,
+          0.06200000386496342
         ]
       ],
-      "sha256": "f7ceb84af3e59eee80000de37b8f87e016f0520482b6a3a79e91c6017394f487"
+      "sha256": "2e95471e686c3a8f79be501efeead92a9eda778a52fd580ac43bafbcff78e963"
     },
     {
       "link": "link_4",
@@ -659,17 +776,17 @@
       "triangles": 5114,
       "bounds_m": [
         [
-          -0.02583119716189218,
-          -0.01000000014403077,
-          -0.010000003764431099
+          -0.025831197194828005,
+          -0.010000000143741859,
+          -0.010000003764431128
         ],
         [
-          0.025768803219577547,
-          0.00999999985596923,
-          0.009999996235568916
+          0.025768803186641723,
+          0.009999999856258142,
+          0.009999996235568886
         ]
       ],
-      "sha256": "6f8074676b0f30151ee3d189aef0e0cece28924c578d9eaa461062a2da01ed96"
+      "sha256": "6c26b6b68fd6b2dfe76fc7e5e75de2e6eb18d7f60e760d6a51b0d0fe498d0ddd"
     },
     {
       "link": "link_5",
@@ -678,17 +795,17 @@
       "triangles": 6086,
       "bounds_m": [
         [
-          -0.012250000241073934,
-          -0.03080999877023872,
-          -0.052843454935977176
+          -0.0122500003814717,
+          -0.030809998770455132,
+          -0.052843454935977204
         ],
         [
-          0.013499999758926066,
-          0.015389998178003473,
-          -0.0011434541730377247
+          0.0134999996185283,
+          0.015389998177787063,
+          -0.0011434541730377533
         ]
       ],
-      "sha256": "08be90ea8d2ddef5a0b7942cbd1c7e2c946be7d5ff471c2b33395eff3eb75cc4"
+      "sha256": "0d413a2d34b308d42827e8b339071edcf1ac79d667ce5acf1609d36d508bdd74"
     },
     {
       "link": "link_5",
@@ -697,17 +814,17 @@
       "triangles": 10080,
       "bounds_m": [
         [
-          -0.010000005009445517,
-          -0.027610001821996525,
-          -0.049773459055850226
+          -0.010000005149843283,
+          -0.027610001822212935,
+          -0.049773459055850254
         ],
         [
-          0.010000010249343546,
-          0.016914114694116755,
-          -0.009773451426455694
+          0.01000001010894578,
+          0.016914114693900344,
+          -0.009773451426455722
         ]
       ],
-      "sha256": "7ef5e17d588f98f4b32e4de8432f8d6d6c2bb147ea87f3f77f8e750e214e08ca"
+      "sha256": "49f5dfc86ffe7e2a3742708c6c6cba2f44609179bc704da00171f022762ec435"
     },
     {
       "link": "link_5",
@@ -716,17 +833,17 @@
       "triangles": 3426,
       "bounds_m": [
         [
-          -0.009996114971908896,
-          -0.009996114035131285,
-          -0.0031434541730377247
+          -0.009996114158632345,
+          -0.009996114035347696,
+          -0.0031434541730377533
         ],
         [
-          0.009996114489761027,
-          0.009996115426538645,
-          0.0018565458269622752
+          0.009996114349363261,
+          0.009996115426322234,
+          0.0018565458269622468
         ]
       ],
-      "sha256": "e5de7bfcc6c4bc030cb6e665a34514733928d32e662d628db561c7de1e8d51f2"
+      "sha256": "b262c751b23bce51dee582bb0937efb3dc198601636d0e9179ab3a70dca09f8e"
     },
     {
       "link": "link_5",
@@ -735,36 +852,55 @@
       "triangles": 1274,
       "bounds_m": [
         [
-          -0.0027500000026553545,
-          0.011389998178003473,
-          -0.006493452647158818
+          -0.0027499999046345417,
+          0.011389998177787063,
+          -0.006493452647158847
         ],
         [
-          0.0027499999973446456,
-          0.017389998178003487,
-          -0.0009934526471588186
+          0.002750000095365458,
+          0.017389998177787077,
+          -0.000993452647158847
         ]
       ],
-      "sha256": "d06274b4bc9693bdaf2d9e892eae1e40fa5c1da9541193fb6c291624b1b05c4b"
+      "sha256": "a60aa8f59f4971b0ea19fc02419da03cea22290a9a290fef61cd3648aefc458b"
     },
     {
       "link": "link_6",
       "file": "meshes/link_6-structure.stl",
       "category": "structure",
-      "triangles": 11764,
+      "triangles": 14658,
       "bounds_m": [
         [
-          -0.024965078561781633,
-          -0.002670615439267138,
-          -0.12161447626808777
+          -0.028000000381471685,
+          -0.00714343190676837,
+          -0.12123983484964071
         ],
         [
-          0.025435237676621685,
-          0.06171624063983447,
-          0.013975325520242308
+          0.022300000762937495,
+          0.05724346231930589,
+          0.0166500005080253
         ]
       ],
-      "sha256": "eb7a772562e1fd49a895d61c10434ba141147dd136fbe959f4a665377d5f78bb"
+      "sha256": "369d6dbaf8c2506bcb594f35fcbb45f19d23818bcc9822d4776fec90ab0049a6"
+    },
+    {
+      "link": "link_6",
+      "file": "meshes/link_6-servo.stl",
+      "category": "servo",
+      "triangles": 10080,
+      "bounds_m": [
+        [
+          -0.023000004196168954,
+          0.011443451638153534,
+          -0.0076500101731270575
+        ],
+        [
+          0.017000005340574213,
+          0.05596756815426683,
+          0.01235000508566199
+        ]
+      ],
+      "sha256": "4a5daada45f7092ad03fba80782fe8264b0dc938760b113f64c290bd3ebebe87"
     },
     {
       "link": "link_6",
@@ -773,17 +909,74 @@
       "triangles": 3426,
       "bounds_m": [
         [
-          -0.009996114938734759,
-          -0.001856543783993672,
-          -0.009996117656027224
+          -0.009996114158632332,
+          -0.0018565437842097481,
+          -0.009996117656037199
         ],
         [
-          0.009996114522935164,
-          0.003143456216006328,
-          0.009996115620339963
+          0.009996114349363275,
+          0.0031434562157902518,
+          0.009996115620329989
         ]
       ],
-      "sha256": "4d0408bcab4326cd44511f6e8809a4022698d71189633eefac0d38f281495d3c"
+      "sha256": "af16c8c513257d2b6a4a474ea920a0d853c066e4d82639eca920495f9b490179"
+    },
+    {
+      "link": "right_finger",
+      "file": "meshes/right_finger-horn.stl",
+      "category": "horn",
+      "triangles": 3426,
+      "bounds_m": [
+        [
+          -0.009996114444734179,
+          -0.0018565376806737959,
+          -0.009996111552530308
+        ],
+        [
+          0.009996113586424268,
+          0.003143462319326204,
+          0.009996114094442333
+        ]
+      ],
+      "sha256": "c4a1991228cdce0eedaceb9a3dd62e15213d4812cfdd2367555d1750cf1a2996"
+    },
+    {
+      "link": "right_finger",
+      "file": "meshes/right_finger-finger.stl",
+      "category": "finger",
+      "triangles": 8076,
+      "bounds_m": [
+        [
+          -0.011972137641908251,
+          -0.010838127951669918,
+          -0.07919072965841868
+        ],
+        [
+          0.02367501525878755,
+          0.007343459267568392,
+          0.01275823720235249
+        ]
+      ],
+      "sha256": "0e5a266d6513a5c31ed1df0b3225a002c7f17fc03645b36fde25f94c446814ee"
+    },
+    {
+      "link": "left_finger",
+      "file": "meshes/left_finger-finger.stl",
+      "category": "finger",
+      "triangles": 7026,
+      "bounds_m": [
+        [
+          -0.024708419036865235,
+          -0.012412651877483626,
+          -0.07915748773077501
+        ],
+        [
+          0.011999977397918702,
+          0.007343459267535934,
+          0.011940183003153663
+        ]
+      ],
+      "sha256": "f094eef2d183150a5f232b66b382d3f05ee34ed96de54c44de29f8675f737a81"
     }
   ],
   "source_mapping": [
@@ -926,6 +1119,29 @@
       "horn_solids": 1
     },
     {
+      "source_object": "RP8_U45H_M_C028_STEP_ASM003",
+      "source_leaf_objects": [
+        "Part__Feature099",
+        "Part__Feature100",
+        "Part__Feature101",
+        "Part__Feature102",
+        "Part__Feature103",
+        "Part__Feature104",
+        "Part__Feature105",
+        "Part__Feature106",
+        "Part__Feature107",
+        "Part__Feature108",
+        "Part__Feature109",
+        "Part__Feature110",
+        "Part__Feature111",
+        "Part__Feature112"
+      ],
+      "body_link": 6,
+      "horn_link": 7,
+      "body_solids": 13,
+      "horn_solids": 1
+    },
+    {
       "source_object": "Part__Feature",
       "source_label": "_X2_51738282_X0_1_NEW",
       "link": 0,
@@ -968,9 +1184,16 @@
       "status_zh": "按结构顺序归属"
     },
     {
-      "source_object": "Part__Feature093",
-      "source_label": "_X2_51738282_X0_7",
+      "source_object": "Part__Feature098",
+      "source_label": "NONE-4037_1",
       "link": 6,
+      "solids": 1,
+      "status_zh": "按结构顺序归属"
+    },
+    {
+      "source_object": "Part__Feature114",
+      "source_label": "RIGHT_ZHUA",
+      "link": 7,
       "solids": 1,
       "status_zh": "按结构顺序归属"
     },
@@ -996,23 +1219,30 @@
       "status_zh": "垫片／紧固件固定归属待装配工程复核"
     },
     {
-      "source_object": "Part__Feature094",
+      "source_object": "Part__Feature093",
       "source_label": "GB_T70_1-M3X400",
       "link": 5,
       "solids": 1,
       "status_zh": "垫片／紧固件固定归属待装配工程复核"
     },
     {
-      "source_object": "Part__Feature096",
-      "source_label": "M3X3X60001",
+      "source_object": "Part__Feature095",
+      "source_label": "M2X4X30001",
       "link": 0,
       "solids": 1,
       "status_zh": "垫片／紧固件固定归属待装配工程复核"
     },
     {
-      "source_object": "Part__Feature097",
-      "source_label": "M3X3X60002",
+      "source_object": "Part__Feature096",
+      "source_label": "M2X4X30002",
       "link": 0,
+      "solids": 1,
+      "status_zh": "垫片／紧固件固定归属待装配工程复核"
+    },
+    {
+      "source_object": "Part__Feature113",
+      "source_label": "LEFT_ZHUA",
+      "link": 8,
       "solids": 1,
       "status_zh": "垫片／紧固件固定归属待装配工程复核"
     }

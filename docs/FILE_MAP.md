@@ -97,11 +97,11 @@
 | [Browser_SDK/assets/urdf/fl-v3/model.urdf](../Browser_SDK/assets/urdf/fl-v3/model.urdf) | fl-v3 模型的 关节、坐标和连杆结构 |
 | [Browser_SDK/assets/urdf/fl-v3/source.urdf](../Browser_SDK/assets/urdf/fl-v3/source.urdf) | fl-v3 模型的 关节、坐标和连杆结构 |
 | [Browser_SDK/assets/urdf/ld-touch/SOURCE.json](../Browser_SDK/assets/urdf/ld-touch/SOURCE.json) | Touch R1 上游固定提交与资源校验清单 |
-| [Browser_SDK/assets/urdf/ld-touch/gripper-servo.json](../Browser_SDK/assets/urdf/ld-touch/gripper-servo.json) | 夹爪电机来源、提取实体、安装孔配准和显示装配间隙 |
 | [Browser_SDK/assets/urdf/ld-touch/kinematics.json](../Browser_SDK/assets/urdf/ld-touch/kinematics.json) | Touch R1 上游关节坐标、几何生成和源文件校验报告 |
 | [Browser_SDK/assets/urdf/ld-touch/meshes/base_link-hardware.stl](../Browser_SDK/assets/urdf/ld-touch/meshes/base_link-hardware.stl) | meshes 模型的 原始三角网格 |
 | [Browser_SDK/assets/urdf/ld-touch/meshes/base_link-servo.stl](../Browser_SDK/assets/urdf/ld-touch/meshes/base_link-servo.stl) | meshes 模型的 原始三角网格 |
 | [Browser_SDK/assets/urdf/ld-touch/meshes/base_link-structure.stl](../Browser_SDK/assets/urdf/ld-touch/meshes/base_link-structure.stl) | meshes 模型的 原始三角网格 |
+| [Browser_SDK/assets/urdf/ld-touch/meshes/left_finger-finger.stl](../Browser_SDK/assets/urdf/ld-touch/meshes/left_finger-finger.stl) | meshes 模型的 原始三角网格 |
 | [Browser_SDK/assets/urdf/ld-touch/meshes/link_1-horn.stl](../Browser_SDK/assets/urdf/ld-touch/meshes/link_1-horn.stl) | meshes 模型的 原始三角网格 |
 | [Browser_SDK/assets/urdf/ld-touch/meshes/link_1-servo.stl](../Browser_SDK/assets/urdf/ld-touch/meshes/link_1-servo.stl) | meshes 模型的 原始三角网格 |
 | [Browser_SDK/assets/urdf/ld-touch/meshes/link_1-structure.stl](../Browser_SDK/assets/urdf/ld-touch/meshes/link_1-structure.stl) | meshes 模型的 原始三角网格 |
@@ -118,9 +118,11 @@
 | [Browser_SDK/assets/urdf/ld-touch/meshes/link_5-horn.stl](../Browser_SDK/assets/urdf/ld-touch/meshes/link_5-horn.stl) | meshes 模型的 原始三角网格 |
 | [Browser_SDK/assets/urdf/ld-touch/meshes/link_5-servo.stl](../Browser_SDK/assets/urdf/ld-touch/meshes/link_5-servo.stl) | meshes 模型的 原始三角网格 |
 | [Browser_SDK/assets/urdf/ld-touch/meshes/link_5-structure.stl](../Browser_SDK/assets/urdf/ld-touch/meshes/link_5-structure.stl) | meshes 模型的 原始三角网格 |
-| [Browser_SDK/assets/urdf/ld-touch/meshes/link_6-gripper-servo.stl](../Browser_SDK/assets/urdf/ld-touch/meshes/link_6-gripper-servo.stl) | 从原 LD 提取并定位到 Touch R1 手柄的新夹爪电机显示网格 |
 | [Browser_SDK/assets/urdf/ld-touch/meshes/link_6-horn.stl](../Browser_SDK/assets/urdf/ld-touch/meshes/link_6-horn.stl) | meshes 模型的 原始三角网格 |
+| [Browser_SDK/assets/urdf/ld-touch/meshes/link_6-servo.stl](../Browser_SDK/assets/urdf/ld-touch/meshes/link_6-servo.stl) | meshes 模型的 原始三角网格 |
 | [Browser_SDK/assets/urdf/ld-touch/meshes/link_6-structure.stl](../Browser_SDK/assets/urdf/ld-touch/meshes/link_6-structure.stl) | meshes 模型的 原始三角网格 |
+| [Browser_SDK/assets/urdf/ld-touch/meshes/right_finger-finger.stl](../Browser_SDK/assets/urdf/ld-touch/meshes/right_finger-finger.stl) | meshes 模型的 原始三角网格 |
+| [Browser_SDK/assets/urdf/ld-touch/meshes/right_finger-horn.stl](../Browser_SDK/assets/urdf/ld-touch/meshes/right_finger-horn.stl) | meshes 模型的 原始三角网格 |
 | [Browser_SDK/assets/urdf/ld-touch/model.urdf](../Browser_SDK/assets/urdf/ld-touch/model.urdf) | ld-touch 模型的 关节、坐标和连杆结构 |
 | [Browser_SDK/assets/urdf/ld-touch/source.urdf](../Browser_SDK/assets/urdf/ld-touch/source.urdf) | ld-touch 模型的 关节、坐标和连杆结构 |
 | [Browser_SDK/assets/urdf/ld-touch/upstream-README.md](../Browser_SDK/assets/urdf/ld-touch/upstream-README.md) | Touch R1 上游模型原始说明与实机标定边界 |
@@ -377,14 +379,15 @@
 | [tests/test_ubuntu_setup.py](../tests/test_ubuntu_setup.py) | 软件测试：Ubuntu 授权、锁等待选项、安装失败提示、中断恢复与重复启动 |
 | [tests/test_website_authorization.py](../tests/test_website_authorization.py) | 软件测试：Windows 当前网站连接确认、限时单次令牌与确认界面 |
 | [tests/test_windows_execution.py](../tests/test_windows_execution.py) | 软件测试：Windows COM 官方驱动读写、双相机与固定目录 CPU 环境 |
+| [tests/touch_model_browser_smoke.cjs](../tests/touch_model_browser_smoke.cjs) | 软件测试：隔离本地服务验证完整 Touch R1 资源、七轴滑块和夹爪模型预览 |
 | [tests/training_submission.test.js](../tests/training_submission.test.js) | 软件测试：训练提交编号匹配、旧后台任务核对与准备阶段防重复提交 |
 | [tests/urdf_asset_loading.test.js](../tests/urdf_asset_loading.test.js) | 软件测试：模型网格并发、嵌套路径、网络重试、错误定位与切换释放 |
 | [tools/build_ld_servo_map.py](../tools/build_ld_servo_map.py) | 从原 LD CAD 生成并核验七颗舵机机壳分组，第五和第六颗同属 link5 |
 | [tools/build_runtime_package.py](../tools/build_runtime_package.py) | 构建 Debian 模板、桌面自启动、udev 与浏览器校验值 |
-| [tools/build_touch_gripper_visual.py](../tools/build_touch_gripper_visual.py) | 从原 LD 提取夹爪电机并按 Touch R1 新支架孔位生成显示网格和定位报告 |
 | [tools/capture_docs.cjs](../tools/capture_docs.cjs) | 阻断本机硬件 API，以真实未连接界面生成教程截图 |
 | [tools/check_distribution.py](../tools/check_distribution.py) | 校验安装模板、源码一致性、换行、静态文件与资源路径 |
 | [tools/check_file_map.py](../tools/check_file_map.py) | 逐文件用途清单生成与遗漏检查 |
+| [tools/check_touch_model.py](../tools/check_touch_model.py) | 核验 Touch R1 V3.2 上游校验值、七颗舵机、双夹指和 URDF 从动关系 |
 | [tools/export_browser_act.py](../tools/export_browser_act.py) | 提供方网页模型转换的命令行入口，客户不运行 |
 | [tools/package_browser_local.py](../tools/package_browser_local.py) | 生成 Windows 本地纯网页测试 ZIP，不包含训练后台或客户模型 |
 | [tools/package_lumos_local.py](../tools/package_lumos_local.py) | 打包 Ubuntu Touch R1 与 LumosTouch 本地遥操作源码 |

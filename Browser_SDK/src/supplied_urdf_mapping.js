@@ -17,11 +17,16 @@ export function mapSuppliedVirtualAngles(key, radians) {
     modelAngles[joint.name] = value;
     return value;
   });
-  const gripper = key === 'fl-v3' ? Math.max(0, Math.min(Math.PI / 2, radians[6])) : 0;
+  const gripper = key === 'fl-v3' ? Math.max(0, Math.min(Math.PI / 2, radians[6])) : radians[6];
   if (key === 'fl-v3') {
     const travel = gripper / (Math.PI / 2) * 0.0425;
     modelAngles.gripper_joint1 = -travel;
     modelAngles.gripper_joint2 = travel;
+  } else if (key === 'ld-touch') {
+    // CAD display angle only. Encoder zero, direction, and physical travel are
+    // separate hardware calibration; the renderer derives the passive finger
+    // from URDF mimic instead of a second hand-written control mapping.
+    modelAngles.joint_7 = gripper;
   }
   return { modelAngles, displayAngles: [...displayAngles, gripper] };
 }

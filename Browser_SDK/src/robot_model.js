@@ -46,6 +46,7 @@ export function buildJointTree(joints = ALL_JOINTS) {
       limit: { ...source.limit },
       clampToLimits: source.clampToLimits ?? true,
       displayAngleOffset: source.displayAngleOffset ?? 0,
+      mimic: source.mimic ? { ...source.mimic } : null,
       angle: 0,
       translation: 0,  // 平移关节的初始位移
       displayAxisDirection: source.displayAxisDirection ?? DISPLAY_AXIS_DIRECTIONS[source.name] ?? 1,
@@ -55,7 +56,11 @@ export function buildJointTree(joints = ALL_JOINTS) {
     child.parentJoint = node.name;
   }
 
-  return { rootLink: rootLinks[0], links, joints: jointNodes };
+  const tree = { rootLink: rootLinks[0], links, joints: jointNodes };
+  // Validate and initialize passive joints from the same URDF relationship
+  // used for subsequent updates. This only affects the display tree.
+  applyModelJointAngles(tree);
+  return tree;
 }
 
 /** Apply model radians using display-only clamping to each attachment URDF limit. */
@@ -100,6 +105,25 @@ export function applyModelJointAngles(tree, angles = {}) {
     if (!joint) throw new RangeError(`未知模型关节：${name}`);
     applyDisplayAngle(joint, value);
   }
+  const resolved = new Set();
+  const resolving = new Set();
+  const follow = joint => {
+    if (!joint.mimic || resolved.has(joint.name)) return;
+    if (resolving.has(joint.name)) throw new Error(`URDF 从动关节循环引用：${joint.name}`);
+    resolving.add(joint.name);
+    const driver = tree.joints.get(joint.mimic.joint);
+    const multiplier = joint.mimic.multiplier ?? 1;
+    const offset = joint.mimic.offset ?? 0;
+    if (!driver || !Number.isFinite(multiplier) || !Number.isFinite(offset)) {
+      throw new Error(`URDF 从动关节参数无效：${joint.name}`);
+    }
+    follow(driver);
+    const value = driver.type === 'prismatic' ? driver.translation : driver.angle;
+    applyDisplayAngle(joint, value * multiplier + offset);
+    resolving.delete(joint.name);
+    resolved.add(joint.name);
+  };
+  for (const joint of tree.joints.values()) follow(joint);
   return tree;
 }
 

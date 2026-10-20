@@ -4,7 +4,7 @@ import { isDeviceLostError, userMessageForSerialError } from './browser_serial_u
 import { ServoProtocol, clampGripperAngle, parseMonitorPacket, parsePublicParametersPacket, parseInternalParametersPacket, selectParameterResponse } from './fashionstar_serial.js';
 import { resetArmOrigin, verifyOriginAngles } from './reset_origin.js';
 import { restoreFactoryParameters, compareParameters } from './factory_restore.js';
-import { createRobotModel } from './robot_model.js?v=1.1.2-i18n-trajectory-20261020';
+import { createRobotModel } from './robot_model.js';
 import { MODEL_CONFIGS, resolveDisplayModelKey, isDisplayOnlyModelKey, PIPER_MODEL_KEY, LEADER_TYPE_PIPER } from './robot_model_configs.js';
 import { mapLeaderAnglesToB601 } from './b601_model_data.js';
 import { mapLeaderAnglesToA1Z } from './a1z_model_data.js';

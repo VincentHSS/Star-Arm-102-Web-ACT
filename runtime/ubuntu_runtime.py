@@ -13,7 +13,7 @@ from urllib.request import ProxyHandler, build_opener
 
 ROOT = Path(__file__).resolve().parent
 PORT = 18765
-VERSION = '1.0.22'
+VERSION = '1.0.23'
 
 
 def normalize_origin(value):
