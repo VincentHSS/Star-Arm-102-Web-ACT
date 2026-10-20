@@ -4,7 +4,7 @@ import { isDeviceLostError, userMessageForSerialError } from './browser_serial_u
 import { ServoProtocol, clampGripperAngle, parseMonitorPacket, parsePublicParametersPacket, parseInternalParametersPacket, selectParameterResponse } from './fashionstar_serial.js';
 import { resetArmOrigin, verifyOriginAngles } from './reset_origin.js';
 import { restoreFactoryParameters, compareParameters } from './factory_restore.js';
-import { createRobotModel } from './robot_model.js?v=1.1.2-responsive-1';
+import { createRobotModel } from './robot_model.js?v=1.1.2-i18n-trajectory-20261020';
 import { MODEL_CONFIGS, resolveDisplayModelKey, isDisplayOnlyModelKey, PIPER_MODEL_KEY, LEADER_TYPE_PIPER } from './robot_model_configs.js';
 import { mapLeaderAnglesToB601 } from './b601_model_data.js';
 import { mapLeaderAnglesToA1Z } from './a1z_model_data.js';
@@ -15,7 +15,7 @@ import { CommandExecutionController } from './command_execution.js';
 import { getRobotProfile } from './robot_profiles.js';
 import { loadSettings, saveSettings, normalizeControlSettings } from './settings.js';
 import { TeleopController } from './teleop_controller.js';
-import { initLanguage, setLanguage, getLanguage, t, tWithVars, autoTranslatePage } from './i18n.js';
+import { initLanguage, setLanguage, getLanguage, t, tWithVars, autoTranslatePage, translateMessage } from './i18n.js';
 import { SerialServoBus } from './serial_servo_bus.js';
 import { readServoFeedback } from './servo_readback.js';
 import { ControlGeneration, connectInitializedBus, executeConfirmedTarget } from './control_safety.js';
@@ -248,7 +248,7 @@ class BrowserTeleopController {
       assertIdentity: (identity) => {
         if (this.disconnectPromise || this.controlGeneration.emergencyStopping || !this.isLumosTarget() || !this.leader.connected
           || this.leaderConnectionId !== identity || this.connectedLeaderProfile?.code !== 'TOUCH') {
-          throw new Error('Touch R1 或 LumosTouch 连接已变化，请重新连接并校准。');
+          throw new Error(t('lumos.changed-connection'));
         }
         assertTeleopPairing(this.pairingOptions());
       },
@@ -268,7 +268,7 @@ class BrowserTeleopController {
           renderConnectionState(); renderRunState(); renderManualControlState(); renderTargetPermission();
           if (snapshot.phase === 'running') {
             this.teleopRateMeter.reset(); this.teleopRateMeter.tick(performance.now());
-            els.teleopFrequency.textContent = 'CAN 运行中';
+            els.teleopFrequency.textContent = t('lumos.can-running');
             setInteractionStatus('');
           } else els.teleopFrequency.textContent = t('telemetry.not-running');
         }
@@ -330,12 +330,12 @@ class BrowserTeleopController {
   }
 
   async readFreshTouchAngles() {
-    if (!this.leader.connected || this.connectedLeaderProfile?.code !== 'TOUCH') throw new Error('Touch R1 已断开。');
+    if (!this.leader.connected || this.connectedLeaderProfile?.code !== 'TOUCH') throw new Error(t('lumos.leader-disconnected'));
     const { monitors, missingIds } = await readServoFeedback({
       bus: this.leader, servoIds: [0, 1, 2, 3, 4, 5, 6],
       timeoutMs: Math.min(300, getResponseTimeoutMs()), maxAttempts: 1,
     });
-    if (missingIds.length) throw new Error(`Touch R1 本次六轴或夹爪回读缺失（ID ${missingIds.join(', ')}），已停止整臂与夹爪遥操作。`);
+    if (missingIds.length) throw new Error(tWithVars('lumos.missing-readback', { ids: missingIds.join(', ') }));
     return { leaderDeg: [0, 1, 2, 3, 4, 5].map(id => monitors[id].angle), gripperDeg: monitors[6].angle };
   }
 
@@ -347,7 +347,7 @@ class BrowserTeleopController {
     }
   }
 
-  async stopLumos({ resume = true, reason = '已停止，请重新连接 LumosTouch 并校准。' } = {}) {
+  async stopLumos({ resume = true, reason = t('lumos.stop-reconnect') } = {}) {
     try { await this.lumos.shutdown(reason); }
     finally {
       this.running = false;
@@ -362,7 +362,7 @@ class BrowserTeleopController {
   }
 
   async connectLeader() {
-    if (consoleNavigationPending) throw new Error('正在切换页面，请稍候。');
+    if (consoleNavigationPending) throw new Error(t('error.navigation-pending'));
     if (this.leader.connected) throw new Error(t('error.leader-serial-connected'));
     const leaderType = getLeaderProfileCode();
     const operation = this.leaderConnectionLock.begin(leaderType);
@@ -398,12 +398,12 @@ class BrowserTeleopController {
       this.leaderConnectionLock.finish(operation);
       renderConnectionState();
     }
-    log(profile.code === 'TOUCH' ? 'Touch R1 已连接（只读采集六轴与夹爪）'
+    log(profile.code === 'TOUCH' ? t('lumos.leader-connected')
       : profile.canCommand ? t('status.leader-connected-hd') : t('status.leader-connected-ld'));
   }
 
   async connectFollower() {
-    if (consoleNavigationPending) throw new Error('正在切换页面，请稍候。');
+    if (consoleNavigationPending) throw new Error(t('error.navigation-pending'));
     const targetType = this.followerTarget.type;
     const physicalModel = this.followerTarget.physicalModel;
     if (this.followerConnected()) throw new Error(targetType === FOLLOWER_TARGET_VIRTUAL ? t('status.virtual-fl-connected') : t('status.follower-serial-connected'));
@@ -424,21 +424,21 @@ class BrowserTeleopController {
 
       if (physicalModel === PHYSICAL_FOLLOWER_LUMOS) {
         assertTeleopPairing(this.pairingOptions());
-        if (!els.lumosEnableConfirmed.checked) throw new Error('请先确认 SDK/CAN 配置及连接将使能电机。');
-        if (!this.lumos.api) throw new Error('请在 Ubuntu 运行源码中的 start_ubuntu_lumos.sh，并使用它打开的本地控制台。');
+        if (!els.lumosEnableConfirmed.checked) throw new Error(t('lumos.confirm-sdk'));
+        if (!this.lumos.api) throw new Error(t('lumos.run-local-console'));
         this.lumosLeaderSession = this.manualSessions.leader;
-        if (!this.lumosLeaderSession) throw new Error('请先连接 Touch R1。');
+        if (!this.lumosLeaderSession) throw new Error(t('lumos.connect-leader-first'));
         await this.lumosLeaderSession.pauseSampling();
         try {
           await this.lumos.connect({ leaderProfile: this.connectedLeaderProfile,
             leaderConnectionId: this.leaderConnectionId, canInterface: els.lumosCanInterface.value.trim(),
             enableConfirmed: els.lumosEnableConfirmed.checked });
           this.followerConnectionLock.assertCurrent(operation, this.followerTarget.type);
-          if (this.followerTarget.physicalModel !== physicalModel) throw new Error('真实型号已变化。');
+          if (this.followerTarget.physicalModel !== physicalModel) throw new Error(t('lumos.model-changed'));
           this.followerConnectionId = this.lumos.snapshot.connection_id || this.lumos.sessionId;
-          setInteractionStatus('LumosTouch 已连接，请完成六轴与夹爪校准。', 'success');
+          setInteractionStatus(t('lumos.connected-calibrate'), 'success');
           els.poseSourceFollower.checked = true;
-          syncDisplayedModel('LumosTouch 已连接，请完成六轴校准。');
+          syncDisplayedModel(t('lumos.connected-calibrate-axes'));
         } catch (error) {
           els.lumosEnableConfirmed.checked = false;
           els.lumosMappingConfirmed.checked = false;
@@ -458,7 +458,7 @@ class BrowserTeleopController {
         publish: (identity) => { connectionId = identity; },
       });
       this.followerConnectionLock.assertCurrent(operation, this.followerTarget.type);
-      if (this.followerTarget.physicalModel !== physicalModel) throw new Error('真实型号已变化。');
+      if (this.followerTarget.physicalModel !== physicalModel) throw new Error(t('lumos.model-changed'));
       session = this.createManualSession('follower', false);
       const feedbackStarted = performance.now();
       await session.connect();
@@ -565,8 +565,8 @@ class BrowserTeleopController {
   }
 
   async connectResetArm() {
-    if (consoleNavigationPending) throw new Error('正在切换页面，请稍候。');
-    if (this.isLumosTarget()) throw new Error('LumosTouch 不支持 Star Arm 102 的串口重设零点；请使用六轴参考姿态校准。');
+    if (consoleNavigationPending) throw new Error(t('error.navigation-pending'));
+    if (this.isLumosTarget()) throw new Error(t('lumos.origin-unavailable'));
     if (this.running) throw new Error(t('error.stop-teleop-first'));
     if (this.leader.connected || this.follower?.connected || this.factoryBus.connected) throw new Error(t('error.disconnect-other-first'));
     hideResetOperationNotice();
@@ -608,8 +608,8 @@ class BrowserTeleopController {
   }
 
   async connectFactoryArm() {
-    if (consoleNavigationPending) throw new Error('正在切换页面，请稍候。');
-    if (this.isLumosTarget()) throw new Error('LumosTouch 不支持 Star Arm 102 的恢复出厂参数。');
+    if (consoleNavigationPending) throw new Error(t('error.navigation-pending'));
+    if (this.isLumosTarget()) throw new Error(t('lumos.factory-unavailable'));
     if (this.running || this.leader.connected || this.follower?.connected || this.resetBus.connected) {
       throw new Error(t('error.stop-and-disconnect-first'));
     }
@@ -713,7 +713,7 @@ class BrowserTeleopController {
 
   createTeleopController(settings) {
     assertTeleopPairing(this.pairingOptions());
-    if (this.isLumosTarget()) throw new Error('LumosTouch 必须使用独立 CAN 遥操作连接。');
+    if (this.isLumosTarget()) throw new Error(t('lumos.can-required'));
     this.loopCount = 0;
     this.lastFreqTime = performance.now();
     this.teleopRateMeter.reset();
@@ -916,7 +916,7 @@ class BrowserTeleopController {
     const lumosWasConnected = this.lumos.connected || Boolean(this.lumos.sessionId) || this.lumosChanging();
     if (lumosWasConnected) {
       const connectPending = this.lumos.snapshot.phase === 'connecting';
-      const stop = this.stopLumos({ reason: '急停已触发，请重新连接 LumosTouch 并校准。' });
+      const stop = this.stopLumos({ reason: t('lumos.emergency-reconnect') });
       if (connectPending) {
         try { await this.lumos.request('../emergency-stop', { reason: 'Touch R1 console emergency stop during Lumos connection' }); }
         catch (error) { failures.push(error); }
@@ -951,7 +951,7 @@ class BrowserTeleopController {
 
   async handleBusLost(role, bus, error) {
     if (role === 'leader' && (this.lumos.connected || this.lumos.sessionId)) {
-      await this.stopLumos({ resume: false, reason: 'Touch R1 已失联，LumosTouch 已停止；请重新连接并校准。' }).catch(cause => log(cause.message));
+      await this.stopLumos({ resume: false, reason: t('lumos.lost-leader') }).catch(cause => log(cause.message));
     }
     if (role === 'leader' || role === 'follower') {
       const lock = role === 'leader' ? this.leaderConnectionLock : this.followerConnectionLock;
@@ -1041,7 +1041,7 @@ class BrowserTeleopController {
   }
 
   createManualSession(role, readOnly) {
-    if (role === 'follower' && this.isLumosTarget()) throw new Error('LumosTouch 不使用 Star Arm 102 手动控制会话。');
+    if (role === 'follower' && this.isLumosTarget()) throw new Error(t('lumos.manual-session-unavailable'));
     const bus = role === 'leader' ? this.leader : this.follower;
     if (!bus) throw new Error(tWithVars('error.serial-not-connected', { role: role === 'leader' ? 'Leader' : 'Follower' }));
     return new ArmManualControlSession({
@@ -1167,7 +1167,7 @@ const robotModel = createRobotModel({
 const trajectoryWorkspace = createFlTrajectoryWorkspace({
   adapter: {
     connect: async () => {
-      if (controller.followerTarget.physicalModel !== PHYSICAL_FOLLOWER_STAR_ARM_FL) throw new Error('轨迹记录仅支持 Star Arm 102-FL。请先断开并选择该真实型号。');
+      if (controller.followerTarget.physicalModel !== PHYSICAL_FOLLOWER_STAR_ARM_FL) throw new Error(t('fltraj.only-fl'));
       if (controller.followerConnected()) throw new Error(t('status.follower-serial-connected'));
       els.followerType.value = FOLLOWER_TARGET_PHYSICAL;
       syncFollowerTypeSwitch();
@@ -1315,8 +1315,8 @@ window.addEventListener('beforeunload', () => {
   robotModel.destroy();
 }, { once: true });
 
-els.connectLeader.addEventListener('click', () => withButtonFeedback(els.connectLeader, () => runAction(() => controller.connectLeader()), { label: '正在选择并连接…', restore: renderConnectionState, isSuccessful: () => controller.leader.connected }));
-els.connectFollower.addEventListener('click', () => withButtonFeedback(els.connectFollower, () => runAction(() => controller.connectFollower()), { label: '正在选择并连接…', restore: renderConnectionState, isSuccessful: () => controller.followerConnected() }));
+els.connectLeader.addEventListener('click', () => withButtonFeedback(els.connectLeader, () => runAction(() => controller.connectLeader()), { label: t('feedback.connecting'), restore: renderConnectionState, isSuccessful: () => controller.leader.connected }));
+els.connectFollower.addEventListener('click', () => withButtonFeedback(els.connectFollower, () => runAction(() => controller.connectFollower()), { label: t('feedback.connecting'), restore: renderConnectionState, isSuccessful: () => controller.followerConnected() }));
 function syncFollowerTypeSwitch() {
   const type = els.followerType.value;
   const disabled = els.followerType.disabled;
@@ -1379,7 +1379,7 @@ els.lumosCaptureReference.addEventListener('click', () => runAction(async () => 
 els.lumosCheckService.addEventListener('click', () => withButtonFeedback(els.lumosCheckService, () => runAction(async () => {
   els.lumosEnableConfirmed.checked = false;
   await controller.lumos.checkService();
-}), { label: '正在检查…', restore: renderConnectionState }));
+}), { label: t('feedback.checking'), restore: renderConnectionState }));
 els.lumosGripperClosed.addEventListener('click', () => runAction(() => controller.lumos.command('capture-gripper', { position: 'closed' })));
 els.lumosGripperOpen.addEventListener('click', () => runAction(() => controller.lumos.command('capture-gripper', { position: 'open' })));
 els.lumosFinishCalibration.addEventListener('click', () => runAction(() => controller.lumos.command('finish-calibration')));
@@ -1390,7 +1390,7 @@ els.enterSliderControl.addEventListener('click', () => runAction(enterSelectedSl
 els.exitSliderControl.addEventListener('click', () => runAction(exitSelectedSliderControl));
 els.start.addEventListener('click', () => runAction(() => controller.start()));
 els.stop.addEventListener('click', () => runAction(() => controller.stop()));
-els.connectResetArm.addEventListener('click', () => withButtonFeedback(els.connectResetArm, () => runResetAction(() => controller.connectResetArm()), { label: '正在选择并连接…', restore: renderResetState }));
+els.connectResetArm.addEventListener('click', () => withButtonFeedback(els.connectResetArm, () => runResetAction(() => controller.connectResetArm()), { label: t('feedback.connecting'), restore: renderResetState }));
 els.disconnectResetArm.addEventListener('click', () => runResetAction(() => controller.disconnectResetArm()));
 els.resetOrigin.addEventListener('click', openResetConfirmDialog);
 els.cancelResetOrigin.addEventListener('click', closeResetConfirmDialog);
@@ -1399,7 +1399,7 @@ els.confirmResetOrigin.addEventListener('click', () => {
   runResetOriginAction(() => controller.resetOriginPoints());
 });
 els.resetConfirmDialog.addEventListener('cancel', (event) => { event.preventDefault(); closeResetConfirmDialog(); });
-els.connectFactoryArm.addEventListener('click', () => withButtonFeedback(els.connectFactoryArm, () => runFactoryAction(() => controller.connectFactoryArm()), { label: '正在选择并连接…', restore: renderFactoryState }));
+els.connectFactoryArm.addEventListener('click', () => withButtonFeedback(els.connectFactoryArm, () => runFactoryAction(() => controller.connectFactoryArm()), { label: t('feedback.connecting'), restore: renderFactoryState }));
 els.disconnectFactoryArm.addEventListener('click', () => runFactoryAction(() => controller.disconnectFactoryArm()));
 els.restoreFactory.addEventListener('click', openFactoryConfirmDialog);
 els.cancelFactoryRestore.addEventListener('click', closeFactoryConfirmDialog);
@@ -1556,28 +1556,55 @@ function closeResetConfirmDialog() {
 const sharedPanelHomes = {
   scene: { parent: els.robotScenePanel.parentNode, next: els.robotScenePanel.nextSibling },
 };
-let teleopPoseRoleBeforeTrajectory = selectedPoseRole();
+let teleopSelectionBeforeTrajectory = null;
+
+function trajectorySceneMounted() {
+  return els.robotScenePanel.parentNode === els.trajectorySceneHost;
+}
 
 function mountSharedTrajectoryPanels(name) {
   if (name === 'trajectory') {
-    teleopPoseRoleBeforeTrajectory = selectedPoseRole();
+    if (!trajectorySceneMounted()) {
+      teleopSelectionBeforeTrajectory = {
+        poseRole: selectedPoseRole(),
+        type: controller.followerTarget.type,
+        physicalModel: controller.followerTarget.physicalModel,
+        virtualModel: controller.followerTarget.virtualModel,
+      };
+    }
+    // Page navigation has already released the previous devices. Trajectory
+    // recording owns a physical FL target until its page is left again.
+    controller.followerTarget.setType(FOLLOWER_TARGET_PHYSICAL);
+    controller.followerTarget.setPhysicalModel(PHYSICAL_FOLLOWER_STAR_ARM_FL);
+    els.followerType.value = FOLLOWER_TARGET_PHYSICAL;
+    els.physicalFollowerModel.value = PHYSICAL_FOLLOWER_STAR_ARM_FL;
     els.poseSourceFollower.checked = true;
-    syncDisplayedModel(t('status.trajectory-fixed-model'));
     els.trajectorySceneHost.append(els.robotScenePanel);
+    syncDisplayedModel(t('status.trajectory-fixed-model'));
   } else {
-    if (selectedPoseRole() !== teleopPoseRoleBeforeTrajectory) {
-      (teleopPoseRoleBeforeTrajectory === 'follower' ? els.poseSourceFollower : els.poseSourceLeader).checked = true;
+    sharedPanelHomes.scene.parent.insertBefore(els.robotScenePanel, sharedPanelHomes.scene.next);
+    if (teleopSelectionBeforeTrajectory) {
+      const selection = teleopSelectionBeforeTrajectory;
+      controller.followerTarget.setType(selection.type);
+      controller.followerTarget.setPhysicalModel(selection.physicalModel);
+      controller.followerTarget.setVirtualModel(selection.virtualModel);
+      els.followerType.value = selection.type;
+      els.physicalFollowerModel.value = selection.physicalModel;
+      els.virtualFollowerModel.value = selection.virtualModel;
+      (selection.poseRole === 'follower' ? els.poseSourceFollower : els.poseSourceLeader).checked = true;
+      teleopSelectionBeforeTrajectory = null;
       syncDisplayedModel(t('status.restored-pose-source'));
     }
-    sharedPanelHomes.scene.parent.insertBefore(els.robotScenePanel, sharedPanelHomes.scene.next);
-
   }
+  syncFollowerTypeSwitch();
+  renderConnectionState();
+  renderRunState();
   requestAnimationFrame(() => robotModel.resize());
 }
 
 async function activateTab(name) {
   if (name !== 'teleop' && (controller.lumos.connected || controller.lumos.sessionId)) {
-    await controller.stopLumos({ reason: '已切换功能，LumosTouch 已停止；请重新连接并校准。' });
+    await controller.stopLumos({ reason: t('lumos.navigation-stopped') });
   }
   if ((controller.resettingOrigin && name !== 'reset-origin') || (controller.restoringFactory && name !== 'factory-restore')) {
     (controller.restoringFactory ? factoryLog : resetLog)(t('error.operation-in-progress'));
@@ -1642,48 +1669,47 @@ function renderLumosPanel() {
   els.lumosLocalHelp.hidden = configured;
   if (els.lumosPanel.dataset.phase !== phase) els.lumosReadbacks.open = phase === 'calibrating';
   els.lumosPanel.dataset.phase = phase;
-  els.lumosRunTitle.textContent = phase === 'running' ? '正在跟随主臂' : '确认目标预览';
-  els.lumosPhaseBadge.textContent = ({ connecting: '连接中', connected: '待校准', calibrating: '采集中', preview: '待确认', running: '运行中', stopping: '停止中', fault: '连接异常' })[phase] || '待连接';
+  els.lumosRunTitle.textContent = phase === 'running' ? t('lumos.following-leader') : t('lumos.confirm-preview');
+  els.lumosPhaseBadge.textContent = ({ connecting: t('lumos.badge.connecting'), connected: t('lumos.badge.connected'), calibrating: t('lumos.badge.calibrating'), preview: t('lumos.badge.preview'), running: t('lumos.badge.running'), stopping: t('lumos.badge.stopping'), fault: t('lumos.badge.fault') })[phase] || t('lumos.badge.idle');
   for (const [index, step] of [...els.lumosPanel.querySelectorAll('[data-lumos-step]')].entries()) {
     step.classList.toggle('is-current', index === stage);
     step.classList.toggle('is-complete', index < stage);
     if (index === stage) step.setAttribute('aria-current', 'step'); else step.removeAttribute('aria-current');
   }
-  if (els.connectFollower.textContent !== '连接 LumosTouch') els.connectFollower.textContent = '连接 LumosTouch';
-  els.lumosSdkGripper.textContent = service?.gripper_config_error || (service?.gripper_type
-    ? `夹爪配置 ${service.gripper_type} · 请核对实体型号`
-    : '检查组件后，核对夹爪类型。');
+  if (els.connectFollower.textContent !== t('lumos.connect')) els.connectFollower.textContent = t('lumos.connect');
+  els.lumosSdkGripper.textContent = translateMessage(service?.gripper_config_error) || (service?.gripper_type
+    ? tWithVars('lumos.configured-gripper', { type: service.gripper_type })
+    : t('lumos.service-check-hint'));
   const phaseText = {
-    idle: '先连接 Touch R1，再连接 LumosTouch。',
-    connecting: '正在连接 LumosTouch…',
-    connected: '已连接。请摆好参考姿态，点击“记录参考姿态”。',
-    calibrating: '采集六轴范围，并记录主臂夹爪闭合/张开端点；LumosTouch 保持当前姿态。',
-    preview: '校准完成。核对六轴与夹爪预览，并对齐主从夹爪开度，确认后才可启动。',
-    running: '真实遥操作运行中。',
-    stopping: '正在停止 LumosTouch…',
-    stopped: '已停止，请重新连接并校准。',
-    disconnected: '已断开，请重新连接并校准。',
-    fault: '连接异常，请检查后重新连接并校准。',
+    idle: t('lumos.phase.idle'),
+    connecting: t('lumos.phase.connecting'),
+    connected: t('lumos.phase.connected'),
+    calibrating: t('lumos.phase.calibrating'),
+    preview: t('lumos.phase.preview'),
+    running: t('lumos.phase.running'),
+    stopping: t('lumos.phase.stopping'),
+    stopped: t('lumos.phase.stopped'),
+    disconnected: t('lumos.phase.disconnected'),
+    fault: t('lumos.phase.fault'),
   };
-  els.lumosStatus.textContent = snapshot.error || phaseText[snapshot.phase] || '等待连接';
+  els.lumosStatus.textContent = translateMessage(snapshot.error) || phaseText[snapshot.phase] || t('status.waiting');
   els.lumosStatus.classList.toggle('is-error', snapshot.phase === 'fault');
   const calibration = snapshot.calibration || {};
   const ranges = calibration.range_min_deg?.map((low, index) => (calibration.range_max_deg[index] - low).toFixed(1));
-  els.lumosRange.textContent = ranges ? `六轴已采集范围：${ranges.map(value => `${value}°`).join(' / ')}` : '六轴已采集范围：—';
+  els.lumosRange.textContent = tWithVars('lumos.ranges', { values: ranges ? ranges.map(value => `${value}°`).join(' / ') : '—' });
   const preview = snapshot.preview_rad;
-  els.lumosPreview.textContent = preview?.length === 6
-    ? `目标预览 J1–J6：${preview.map(value => `${(value * 180 / Math.PI).toFixed(1)}°`).join(' / ')}`
-    : '目标预览 J1–J6：—';
+  els.lumosPreview.textContent = tWithVars('lumos.preview-values', { values: preview?.length === 6
+    ? preview.map(value => `${(value * 180 / Math.PI).toFixed(1)}°`).join(' / ') : '—' });
   const gripper = snapshot.gripper || {};
   const percent = ratio => Number.isFinite(ratio) ? `${(ratio * 100).toFixed(0)}%` : '—';
   const angle = degrees => Number.isFinite(degrees) ? `${degrees.toFixed(1)}°` : '—';
   els.lumosActualOpening.textContent = percent(gripper.position_ratio);
   els.lumosTargetOpening.textContent = percent(gripper.preview_ratio);
   for (const [element, value] of [[els.lumosClosedValue, gripper.closed_deg], [els.lumosOpenValue, gripper.open_deg]]) {
-    element.textContent = Number.isFinite(value) ? angle(value) : '待记录';
+    element.textContent = Number.isFinite(value) ? angle(value) : t('lumos.not-captured');
     element.parentElement.classList.toggle('is-recorded', Number.isFinite(value));
   }
-  els.lumosGripper.textContent = `夹爪实际 ${percent(gripper.position_ratio)} / 目标 ${percent(gripper.preview_ratio)}；主臂 ${angle(gripper.leader_deg)}；闭合端点 ${angle(gripper.closed_deg)} / 张开端点 ${angle(gripper.open_deg)}`;
+  els.lumosGripper.textContent = tWithVars('lumos.gripper-values', { actual: percent(gripper.position_ratio), target: percent(gripper.preview_ratio), leader: angle(gripper.leader_deg), closed: angle(gripper.closed_deg), open: angle(gripper.open_deg) });
   els.lumosCanInterface.disabled = connected || busy;
   els.lumosCheckService.disabled = connected || busy || !controller.lumos.api;
   els.lumosEnableConfirmed.disabled = connected || busy || !configured;
@@ -1714,7 +1740,7 @@ function renderConnectionState() {
         ? tWithVars('status.connected-virtual-model', { name: virtualModelName })
         : tWithVars('status.not-connected-virtual-model', { name: virtualModelName }))
       : (controller.follower?.connected ? t('status.physical-fl-connected') : t('status.physical-fl-not-connected'));
-  if (controller.isLumosTarget()) els.followerStatus.textContent = followerConnecting ? 'LumosTouch 连接中…' : followerConnected ? 'LumosTouch 已连接' : 'LumosTouch 未连接';
+  if (controller.isLumosTarget()) els.followerStatus.textContent = followerConnecting ? t('lumos.connection.connecting') : followerConnected ? t('lumos.connection.connected') : t('lumos.connection.idle');
   els.connectFollower.textContent = virtualFollower ? t('btn.connect-virtual-fl') : t('btn.connect-follower');
   els.virtualFollowerNotice.hidden = controller.followerTarget.type !== FOLLOWER_TARGET_VIRTUAL;
   els.virtualFollowerModelField.hidden = !virtualFollower;
@@ -1772,6 +1798,7 @@ function renderRunState() {
 }
 
 function selectedPoseRole() {
+  if (trajectorySceneMounted()) return 'follower';
   return els.poseSourceFollower.checked ? 'follower' : 'leader';
 }
 
@@ -1781,6 +1808,7 @@ function selectedManualSession() {
 }
 
 function selectedDisplayModelKey() {
+  if (trajectorySceneMounted()) return MODEL_CONFIGS.fl.key;
   if (selectedPoseRole() === 'follower' && controller.isLumosTarget()) return 'fl-v3';
   if (selectedPoseRole() === 'follower' && controller.followerTarget.type === FOLLOWER_TARGET_VIRTUAL) {
     return VIRTUAL_MODEL_CONFIG_KEYS[controller.followerTarget.virtualModel];
@@ -1789,6 +1817,7 @@ function selectedDisplayModelKey() {
 }
 
 function selectedDisplayModelName() {
+  if (trajectorySceneMounted()) return MODEL_CONFIGS.fl.name;
   if (isSuppliedVirtualModel(selectedDisplayModelKey())) return MODEL_CONFIGS[selectedDisplayModelKey()].name;
   if (selectedPoseRole() === 'follower') {
     return controller.followerTarget.type === FOLLOWER_TARGET_VIRTUAL
@@ -1805,6 +1834,7 @@ function selectedDisplayModelName() {
 }
 
 function selectedDisplayProfile() {
+  if (trajectorySceneMounted()) return getRobotProfile('FL');
   if (selectedPoseRole() === 'follower' && controller.isLumosTarget()) return getRobotProfile('LUMOS');
   if (selectedDisplayModelKey() === 'ld-touch' && selectedPoseRole() === 'leader') return getRobotProfile('TOUCH');
   if (isSuppliedVirtualModel(selectedDisplayModelKey())) {
@@ -1879,7 +1909,7 @@ function renderManualControlState() {
     ? t('status.ld-readonly')
     : (states[session?.state ?? 'disconnected'] ?? session?.state);
   if (selectedPoseRole() === 'follower' && controller.isLumosTarget()) {
-    els.manualModeStatus.textContent = controller.lumos.running ? 'CAN 遥操作' : controller.lumos.connected ? 'CAN 校准与预览' : '等待 CAN 连接';
+    els.manualModeStatus.textContent = controller.lumos.running ? t('lumos.mode.teleoperation') : controller.lumos.connected ? t('lumos.mode.preview') : t('lumos.mode.waiting');
   }
   const matches = selectedRoleMatchesModel();
   els.enterSliderControl.disabled = !session || session.readOnly || session.state !== 'manual_readback' || !matches || controller.running;
@@ -1913,7 +1943,7 @@ function renderModelPermission() {
   const profile = selectedDisplayProfile();
   const roleText = selectedPoseRole() === 'leader' ? 'Leader' : 'Follower';
   els.displayedModelStatus.textContent = `${roleText} · ${profile.name}`;
-  els.modelPermission.textContent = profile.permissionNote ?? tWithVars('model.allows-control', { name: profile.name });
+  els.modelPermission.textContent = (profile.permissionNoteKey ? t(profile.permissionNoteKey) : profile.permissionNote) ?? tWithVars('model.allows-control', { name: profile.name });
   els.modelPermission.dataset.canCommand = String(profile.canCommand);
   renderTargetPermission();
 }
@@ -2086,7 +2116,7 @@ function resolveTargetConnection() {
   const role = selectedPoseRole();
   const session = selectedManualSession();
   if (role === 'follower' && controller.isLumosTarget()) {
-    return { profile, bus: null, connectionId: null, role, session: null, reason: 'LumosTouch 仅支持已校准的 Touch R1 遥操作，不使用 Star Arm 102 滑块、TCP 或轨迹指令。' };
+    return { profile, bus: null, connectionId: null, role, session: null, reason: t('lumos.control-unavailable') };
   }
   if (role === 'follower' && controller.followerTarget.type === FOLLOWER_TARGET_VIRTUAL) {
     return { profile, bus: null, connectionId: null, role, session: null, reason: t('reason.virtual-fl-only') };
@@ -2609,35 +2639,23 @@ function delay(ms) {
  * 更新页面上所有带 data-i18n 属性的元素
  */
 function updatePageLanguage() {
-  // 更新文本内容
-  document.querySelectorAll('[data-i18n]').forEach((el) => {
-    const key = el.getAttribute('data-i18n');
-    el.textContent = t(key);
-  });
-  
-  // 更新 title 属性
-  document.querySelectorAll('[data-i18n-title]').forEach((el) => {
-    const key = el.getAttribute('data-i18n-title');
-    el.setAttribute('title', t(key));
-  });
-  
-  // 更新 placeholder 属性
-  document.querySelectorAll('[data-i18n-placeholder]').forEach((el) => {
-    const key = el.getAttribute('data-i18n-placeholder');
-    el.setAttribute('placeholder', t(key));
-  });
-  
-  // 更新 aria-label
-  document.querySelectorAll('[data-i18n-aria]').forEach((el) => {
-    const key = el.getAttribute('data-i18n-aria');
-    el.setAttribute('aria-label', t(key));
-  });
-  
-  // 更新 HTML lang 属性
+  // Translate direct text while preserving controls, icons and event listeners.
+  autoTranslatePage();
   document.documentElement.lang = getLanguage();
-  
-  // 重新渲染动态内容
+  renderConnectionState();
+  renderRunState();
+  renderManualControlState();
   renderModelPermission();
+  renderResetState();
+  renderFactoryState();
+  robotModel.refreshLanguage();
+  if (!controller.running && !controller.leaderReadRunning) els.teleopFrequency.textContent = t('telemetry.not-running');
+  else if (!/\d/.test(els.teleopFrequency.textContent)) {
+    els.teleopFrequency.textContent = t(controller.isLumosTarget() && controller.lumos.running ? 'lumos.can-running' : 'telemetry.sampling');
+  }
+  if (!/\d/.test(els.renderFps.textContent)) els.renderFps.textContent = t('telemetry.sampling');
+  const status = document.getElementById('interaction-status');
+  if (status) status.textContent = translateMessage(status.textContent);
 }
 
 /**
@@ -2656,7 +2674,6 @@ function initLanguageSwitch() {
     langZh.setAttribute('aria-pressed', String(lang === 'zh'));
     langEn.setAttribute('aria-pressed', String(lang === 'en'));
     updatePageLanguage();
-    autoTranslatePage();
   };
   if (langSwitchBtn && langZh && langEn) {
     langZh.addEventListener('click', () => selectLanguage('zh'));
@@ -2667,12 +2684,10 @@ function initLanguageSwitch() {
   // 监听语言切换事件
   window.addEventListener('language-change', () => {
     updatePageLanguage();
-    autoTranslatePage(); // 自动翻译未标记的元素
   });
   
   // 初始更新页面语言
   updatePageLanguage();
-  autoTranslatePage(); // 首次加载时自动翻译
 }
 
 // 在 DOM 加载完成后初始化语言切换

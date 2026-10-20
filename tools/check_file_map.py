@@ -189,6 +189,7 @@ def purpose(path):
     if relative.startswith('tests/'):
         stem = path.stem.removesuffix('.test').removeprefix('test_')
         test_names = {
+            'new_ui_i18n': '新增工作区和 Lumos 面板中英文、动态错误、变量保留与日志保护',
             'urdf_asset_loading': '模型网格并发、嵌套路径、网络重试、错误定位与切换释放',
             'training_submission': '训练提交编号匹配、旧后台任务核对与准备阶段防重复提交',
             'api': 'HTTP API、数据集与轮次流程', 'api_client': '请求及响应体超时、取消与禁止自动重试', 'page_lifecycle': '停止和释放成功后切页、失败保留原页与重复点击合并', 'native_camera_api': '原生相机 HTTP API',

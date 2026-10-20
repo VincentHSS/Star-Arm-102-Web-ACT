@@ -104,7 +104,7 @@ label small { color: #707d80; font-size: 8px; font-weight: 500; line-height: 1.4
 .lumos-pair small { margin-left: auto; color: #7f999a; font-size: 10px; }
 .lumos-steps { display: flex; gap: 5px; margin: 0; padding: 0; list-style: none; }
 .lumos-steps li { display: flex; flex: 1; align-items: center; justify-content: center; gap: 6px; padding: 8px 2px; border-bottom: 2px solid #354447; color: #73898d; font-size: 11px; }
-.lumos-steps li > span { font-size: 10px; font-variant-numeric: tabular-nums; }
+.lumos-steps li > span:first-child { font-size: 10px; font-variant-numeric: tabular-nums; }
 .lumos-steps li.is-current { border-color: #58cdc5; color: #d5f6f1; }
 .lumos-steps li.is-complete { border-color: #416d60; color: #88bda9; }
 .lumos-panel p, .lumos-values { font-size: 11px; font-weight: 400; line-height: 1.6; overflow-wrap: anywhere; }
@@ -122,7 +122,7 @@ label small { color: #707d80; font-size: 8px; font-weight: 500; line-height: 1.4
 .lumos-check input[type="checkbox"] { width: 15px; height: 15px; flex: 0 0 15px; margin: 2px 0 0; accent-color: #60c8bf; }
 .lumos-panel .lumos-details { display: block; padding: 10px 0; border-top: 1px solid #334448; border-bottom: 1px solid #334448; }
 .lumos-details summary { cursor: pointer; color: #b5c9ca; font-size: 11px; font-weight: 500; }
-.lumos-details summary > span { float: right; color: #738e91; font-size: 10px; }
+.lumos-details summary > span:not([data-i18n]) { float: right; color: #738e91; font-size: 10px; }
 .lumos-details[open] > * + * { margin-top: 11px; }
 .lumos-details code { color: #b9dddb; font-size: 10px; }
 .lumos-reference, .lumos-sampling { display: grid; gap: 12px; }

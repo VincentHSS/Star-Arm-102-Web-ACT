@@ -144,15 +144,104 @@ const ROOT = path.resolve(__dirname, '..');
     });
     await page.goto(origin + '/index.html');
     await page.waitForFunction(() => document.querySelector('#modelLoadStatus').dataset.state === 'ready');
-    await page.evaluate(async () => {
-      const THREE = await import('./assets/vendor/three.module.js');
-      window.__lumosSceneDraws = 0;
-      THREE.Object3D.prototype.onBeforeRender = function () { window.__lumosSceneDraws++; };
-    });
+    const languagePhases = new Set();
+    const dynamicLanguageIds = ['lumosStatus', 'lumosPhaseBadge', 'manualModeStatus', 'modelPermission', 'jointSliderPermission', 'targetPermission'];
+    const englishPhase = {
+      idle: { status: /connect.*Touch R1|Touch R1.*connect/i, badge: /offline|connect|idle/i, mode: /CAN/i },
+      connected: { status: /reference/i, badge: /calibrat/i, mode: /CAN/i },
+      calibrating: { status: /range|endpoint/i, badge: /captur|collect|record|calibrat/i, mode: /CAN/i },
+      preview: { status: /preview/i, badge: /review|confirm|preview/i, mode: /CAN/i },
+      running: { status: /teleop|running/i, badge: /running|active/i, mode: /CAN/i },
+    };
+    const mockLanguageState = () => JSON.parse(JSON.stringify({
+      phase: state.phase, connected: state.connected, session_id: state.session_id,
+      calibration: state.calibration,
+      gripper: state.gripper && {
+        closed_deg: state.gripper.closed_deg, open_deg: state.gripper.open_deg,
+        calibrated: state.gripper.calibrated,
+      },
+      commands: calls.filter(call => !['sample', 'status'].includes(call.action)).map(call => call.action),
+    }));
+    const assertEnglishRegions = async label => {
+      // textContent intentionally covers collapsed details and hidden stages.
+      const untranslated = await page.evaluate(() => ['.workspace-nav', '#lumosPanel', '#teleopFrequency', '#modelLoadStatus'].flatMap(selector => {
+        const root = document.querySelector(selector);
+        return /[\u3400-\u9fff]/.test(root.textContent) ? [{ selector, text: root.textContent }] : [];
+      }));
+      assert.deepEqual(untranslated, [], `${label}: navigation and every Lumos stage must be fully translated`);
+    };
+    const assertLanguageRoundTrip = async (label, expected = englishPhase[label]) => {
+      const beforeBackend = mockLanguageState();
+      const beforeUi = await page.evaluate(ids => {
+        window.__lumosLanguageInputs = [...document.querySelectorAll('#lumosPanel input')];
+        return {
+          text: Object.fromEntries(ids.map(id => [id, document.getElementById(id).textContent])),
+          inputs: window.__lumosLanguageInputs.map(node => ({ id: node.id, value: node.value, checked: node.checked, disabled: node.disabled })),
+          phase: document.querySelector('#lumosPanel').dataset.phase,
+          serial: { requested: window.__lumosSerial.requested, opened: window.__lumosSerial.opened, closed: window.__lumosSerial.closed },
+        };
+      }, dynamicLanguageIds);
+      const unchangedControls = async language => {
+        const after = await page.evaluate(ids => ({
+          sameInputs: window.__lumosLanguageInputs.every(node => node.isConnected && document.getElementById(node.id) === node)
+            && window.__lumosLanguageInputs.length === document.querySelectorAll('#lumosPanel input').length,
+          inputs: [...document.querySelectorAll('#lumosPanel input')].map(node => ({ id: node.id, value: node.value, checked: node.checked, disabled: node.disabled })),
+          phase: document.querySelector('#lumosPanel').dataset.phase,
+          serial: { requested: window.__lumosSerial.requested, opened: window.__lumosSerial.opened, closed: window.__lumosSerial.closed },
+          text: Object.fromEntries(ids.map(id => [id, document.getElementById(id).textContent])),
+        }), dynamicLanguageIds);
+        assert(after.sameInputs, `${label}/${language}: language changes must preserve the input elements and their listeners`);
+        assert.deepEqual(after.inputs, beforeUi.inputs, `${label}/${language}: input values, checkbox choices and gates must not change`);
+        assert.equal(after.phase, beforeUi.phase, `${label}/${language}: UI phase must not reset`);
+        assert.deepEqual(after.serial, beforeUi.serial, `${label}/${language}: switching language cannot reopen or close serial`);
+        assert.deepEqual(mockLanguageState(), beforeBackend, `${label}/${language}: calibration/session and CAN commands must remain unchanged`);
+        return after.text;
+      };
+      await page.click('#langEn');
+      await page.waitForFunction(() => document.documentElement.lang === 'en' && document.querySelector('#langEn').getAttribute('aria-pressed') === 'true');
+      await assertEnglishRegions(label);
+      if (label === 'connected') await page.screenshot({ path: path.join(ROOT, 'dist', 'lumos-panel-english.png') });
+      const english = await unchangedControls('en');
+      for (const id of dynamicLanguageIds) {
+        assert(!/[\u3400-\u9fff]/.test(english[id]), `${label}: ${id} still contains Chinese: ${english[id]}`);
+        assert(/[A-Za-z]/.test(english[id]), `${label}: ${id} must contain an English status`);
+        assert.notEqual(english[id], beforeUi.text[id], `${label}: ${id} must update when language changes`);
+      }
+      assert.match(english.lumosStatus, expected.status, `${label}: the translated status must describe the current phase/error`);
+      if (expected.badge) assert.match(english.lumosPhaseBadge, expected.badge);
+      if (expected.mode) assert.match(english.manualModeStatus, expected.mode);
+      assert.match(english.modelPermission, /Touch R1|LumosTouch|CAN/i);
+      await page.click('#langZh');
+      await page.waitForFunction(() => document.documentElement.lang === 'zh' && document.querySelector('#langZh').getAttribute('aria-pressed') === 'true');
+      const restored = await unchangedControls('zh');
+      assert.deepEqual(restored, beforeUi.text, `${label}: returning to Chinese must restore every phase/error/permission message`);
+      languagePhases.add(label);
+    };
     await page.selectOption('#physicalFollowerModel', 'LUMOS');
     await page.waitForFunction(() => {
       const status = document.querySelector('#modelLoadStatus');
       return status.dataset.state === 'ready' && status.textContent.includes('LumosTouch');
+    });
+    await page.fill('#lumosCanInterface', 'can-test');
+    await assertLanguageRoundTrip('idle');
+    await page.click('#langEn');
+    await page.reload();
+    await page.waitForFunction(() => document.querySelector('#modelLoadStatus').dataset.state === 'ready'
+      && document.documentElement.lang === 'en' && document.querySelector('#langEn').getAttribute('aria-pressed') === 'true');
+    assert.equal(await page.evaluate(() => localStorage.getItem('language')), 'en', 'English preference must survive a reload');
+    await page.selectOption('#physicalFollowerModel', 'LUMOS');
+    await page.waitForFunction(() => document.querySelector('#modelLoadStatus').dataset.state === 'ready'
+      && document.querySelector('#modelLoadStatus').textContent.includes('LumosTouch'));
+    await assertEnglishRegions('idle after reload');
+    assert.match(await page.locator('#lumosStatus').textContent(), englishPhase.idle.status);
+    assert.equal(calls.some(call => call.action === 'connect'), false, 'Restoring the language preference cannot connect CAN');
+    assert.equal(await page.evaluate(() => window.__lumosSerial.opened), 0, 'Reloading an idle English page cannot open serial');
+    await page.click('#langZh');
+    await page.waitForFunction(() => document.documentElement.lang === 'zh');
+    await page.evaluate(async () => {
+      const THREE = await import('./assets/vendor/three.module.js');
+      window.__lumosSceneDraws = 0;
+      THREE.Object3D.prototype.onBeforeRender = function () { window.__lumosSceneDraws++; };
     });
     assert.equal(await page.locator('#lumosConnectStage').isVisible(), true);
     assert.equal(await page.locator('#lumosCalibrationStage').isVisible(), false);
@@ -197,6 +286,15 @@ const ROOT = path.resolve(__dirname, '..');
       assert.equal(await page.locator('#lumosReferenceStage').isVisible(), true);
       assert.equal(await page.locator('#stopTeleop').isVisible(), true, 'enabled CAN remains stoppable before calibration');
       assert.equal(await page.locator('#lumosReadbacks').isVisible(), true);
+      if (!languagePhases.has('connected')) {
+        await page.locator('#lumosMappingSettings summary').click();
+        await page.fill('#lumosGain', '0.25');
+        await page.check('#lumosInvertGripper');
+        await assertLanguageRoundTrip('connected');
+        await page.uncheck('#lumosInvertGripper');
+        await page.fill('#lumosGain', '0.3');
+        await page.locator('#lumosMappingSettings summary').click();
+      }
     };
     const calibrate = async () => {
       await page.click('#lumosCaptureReference');
@@ -210,6 +308,7 @@ const ROOT = path.resolve(__dirname, '..');
       await page.evaluate(() => { window.__lumosSerial.angles[6] = -40; });
       await page.click('#lumosGripperClosed');
       await page.waitForFunction(() => document.querySelector('#lumosGripper').textContent.includes('闭合端点 -40.0°'));
+      if (!languagePhases.has('calibrating')) await assertLanguageRoundTrip('calibrating');
       await page.evaluate(() => { window.__lumosSerial.angles[6] = 60; });
       await page.click('#lumosGripperOpen');
       await page.waitForFunction(() => document.querySelector('#lumosGripper').textContent.includes('张开端点 60.0°'));
@@ -223,6 +322,7 @@ const ROOT = path.resolve(__dirname, '..');
       await page.screenshot({ path: path.join(ROOT, 'dist', 'lumos-panel-preview.png') });
       assert.equal(await page.locator('#startTeleop').isDisabled(), true);
       await page.check('#lumosMappingConfirmed');
+      if (!languagePhases.has('preview')) await assertLanguageRoundTrip('preview');
       await page.click('#startTeleop');
       await page.waitForFunction(() => document.querySelector('#runStatus').textContent.includes('Touch R1 → LumosTouch'), null, { timeout: 6000 }).catch(async error => {
         throw new Error(`Start Lumos: ${JSON.stringify({ state, calls: calls.slice(-8), errors,
@@ -230,6 +330,7 @@ const ROOT = path.resolve(__dirname, '..');
             run: document.querySelector('#runStatus').textContent, interaction: document.querySelector('#interaction-status')?.textContent,
             logs: document.querySelector('#logs').textContent.slice(-1500) })) })}`, { cause: error });
       });
+      if (!languagePhases.has('running')) await assertLanguageRoundTrip('running');
     };
     await connect();
     assert.equal(await page.evaluate(() => window.__lumosSerial.requested), serialRequests, 'Lumos must not request a serial Follower');
@@ -268,12 +369,14 @@ const ROOT = path.resolve(__dirname, '..');
     await page.waitForFunction(() => document.querySelector('#lumosStatus').textContent.includes('本次六轴或夹爪回读缺失'));
     assert.equal(calls.filter(call => call.action === 'stop').length, stoppedBefore + 1);
     assert.equal(await page.locator('#startTeleop').isDisabled(), true);
+    await assertLanguageRoundTrip('missing-axis', { status: /missing|incomplete/i });
     await page.evaluate(() => { window.__lumosSerial.missing = []; });
     await connect(); await calibrate();
     const beforeMissingGripper = calls.filter(call => call.action === 'stop').length;
     await page.evaluate(() => { window.__lumosSerial.missing = [6]; });
     await page.waitForFunction(() => document.querySelector('#lumosStatus').textContent.includes('（ID 6）'));
     assert.equal(calls.filter(call => call.action === 'stop').length, beforeMissingGripper + 1);
+    await assertLanguageRoundTrip('missing-gripper', { status: /ID\s*6/i });
     await page.evaluate(() => { window.__lumosSerial.missing = []; });
     // CAN connect completion after an emergency cannot publish a live session.
     let connectionStarted, releaseConnection;
@@ -301,13 +404,32 @@ const ROOT = path.resolve(__dirname, '..');
     // Switching console tabs waits for CAN cleanup and closes the Leader serial port.
     await connect();
     const beforeNavigationStops = calls.filter(call => call.action === 'stop').length;
+    const beforeTrajectoryCanConnects = calls.filter(call => call.action === 'connect').length;
     await page.click('[data-tab="trajectory"]');
     await page.waitForFunction(() => document.querySelector('#trajectoryView').classList.contains('active'));
     assert.equal(calls.filter(call => call.action === 'stop').length, beforeNavigationStops + 1);
+    await page.waitForFunction(() => document.querySelector('#modelLoadStatus').dataset.state === 'ready'
+      && document.querySelector('#modelLoadStatus').textContent.includes('Star Arm 102-FL')
+      && document.querySelector('#displayedModelStatus').textContent.includes('Star Arm 102-FL'));
+    assert.equal(await page.locator('#physicalFollowerModel').inputValue(), 'FL');
+    assert.equal(await page.locator('#followerType').inputValue(), 'physical');
+    assert.equal(state.connected, false);
+    await page.screenshot({ path: path.join(ROOT, 'dist', 'trajectory-fl-from-lumos.png') });
+    assert.equal(state.session_id, null);
+    assert.equal(await page.evaluate(() => window.__lumosSerial.requested), serialRequests, 'Navigation alone never opens FL serial');
     await page.click('#flTrajectoryConnect');
-    await page.waitForFunction(() => document.querySelector('#flTrajectoryStatus')?.textContent.includes('仅支持 Star Arm 102-FL'));
-    assert.equal(await page.evaluate(() => window.__lumosSerial.requested), serialRequests);
+    await page.waitForFunction(() => document.querySelector('#flTrajectoryConnect').disabled
+      && !document.querySelector('#flTrajectoryDisconnect').disabled);
+    assert.equal(await page.evaluate(() => window.__lumosSerial.requested), serialRequests + 1);
+    assert.equal(calls.filter(call => call.action === 'connect').length, beforeTrajectoryCanConnects, 'Trajectory never reconnects CAN');
     await page.click('[data-tab="teleop"]');
+    await page.waitForFunction(() => document.querySelector('#modelLoadStatus').dataset.state === 'ready'
+      && document.querySelector('#modelLoadStatus').textContent.includes('LumosTouch')
+      && document.querySelector('#displayedModelStatus').textContent.includes('LumosTouch'));
+    assert.equal(await page.locator('#physicalFollowerModel').inputValue(), 'LUMOS');
+    assert.equal(await page.locator('#followerType').inputValue(), 'physical');
+    assert.equal(await page.locator('#disconnectAll').isDisabled(), true);
+    assert.equal(calls.filter(call => call.action === 'connect').length, beforeTrajectoryCanConnects, 'Restoring Lumos selection never reconnects it');
     await page.selectOption('#physicalFollowerModel', 'FL');
     assert.equal(await page.locator('#lumosPanel').isVisible(), false);
     assert.equal(await page.locator('#standardConnectionActions #connectFollower').count(), 1);
@@ -315,11 +437,14 @@ const ROOT = path.resolve(__dirname, '..');
     assert.equal(await page.locator('#standardTeleopParameters').isVisible(), true);
     assert.equal(await page.locator('#startTeleop').isVisible(), true);
     assert.equal(await page.locator('#stopTeleop').isVisible(), true);
+    assert.deepEqual([...languagePhases], ['idle', 'connected', 'calibrating', 'preview', 'running', 'missing-axis', 'missing-gripper']);
     assert.deepEqual(errors, []);
     console.log(JSON.stringify({ lumosBrowser: true, matchingLeaderRequired: true, noFollowerSerial: true,
       freshSixAxesAndGripper: true, explicitCalibrationAndStart: true, gripperEndpointsRaw: true, stopLocksModel: true, missingAxisOrGripperStops: true,
-      emergencyCancelsPendingConnect: true, navigationClosesCan: true, oldTrajectoryBlocked: true,
-      stationaryPoseSkipsRedrawWithoutPausingSampling: true, stagedLumosPanel: true, originalControlsRestored: true, realHttpTransport: true, hardwareTested: false }));
+      emergencyCancelsPendingConnect: true, navigationClosesCan: true, trajectoryUsesOnlyPhysicalFl: true, trajectoryRestoresLumosSelection: true,
+      stationaryPoseSkipsRedrawWithoutPausingSampling: true, stagedLumosPanel: true, originalControlsRestored: true, realHttpTransport: true,
+      englishPreferenceSurvivesReload: true, allLumosStagesTranslate: true, languagePreservesControlsAndCalibration: true,
+      languageDoesNotReconnectDevices: true, storedFaultsTranslateOnLanguageChange: true, hardwareTested: false }));
   } catch (error) {
     if (page && !page.isClosed()) {
       console.error(JSON.stringify({ state, calls: calls.slice(-8), errors, browser: await page.evaluate(() => ({

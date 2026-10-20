@@ -6,6 +6,7 @@ import { MODEL_CONFIGS } from './robot_model_configs.js';
 import { createRateMeter } from './rate_meter.js';
 import { loadModelAssets } from './model_asset_loader.js';
 import { constrainAxisTranslation, constrainPlaneTranslation, constrainScreenTranslation } from './tcp_translation_gizmo.js';
+import { t, tWithVars } from './i18n.js';
 
 export const MODEL_PARTS = MODEL_CONFIGS.fl.parts;
 
@@ -325,6 +326,8 @@ export function createRobotModel({
   let activeModelConfig = modelConfig;
   let geometryLoaded = false;
   let loadGeneration = 0;
+  let loadStatus = null;
+  let lastLoadError = null;
   let observer = null;
   let destroyed = false;
   let renderDirty = true;
@@ -593,10 +596,23 @@ export function createRobotModel({
     }
   }
 
-  function setStatus(text, state = 'loading') {
-    if (!statusElement) return;
-    statusElement.textContent = text;
-    statusElement.dataset.state = state;
+  function refreshLanguage() {
+    if (destroyed) return;
+    if (statusElement && loadStatus) {
+      const { state, name, count } = loadStatus;
+      statusElement.textContent = state === 'error'
+        ? t('model.status.failed')
+        : tWithVars(state === 'ready' ? 'model.status.ready' : 'model.status.loading-parts', { name, count });
+      statusElement.dataset.state = state;
+    }
+    if (errorElement && lastLoadError !== null) {
+      errorElement.textContent = tWithVars('model.status.failed-detail', { message: lastLoadError });
+    }
+  }
+
+  function setStatus(state, config) {
+    loadStatus = { state, name: config.name, count: config.parts.length };
+    refreshLanguage();
   }
 
   function resize() {
@@ -652,7 +668,7 @@ export function createRobotModel({
     handleEnabled = false;
     tcpTranslationGizmo.visible = false;
     rebuildSkeleton(config);
-    setStatus(`正在加载 ${config.name} 的 ${config.parts.length} 个本地 STL…`);
+    setStatus('loading', config);
     try {
       const geometries = await loadModelAssets(config.parts, {
         baseUrl: import.meta.url,
@@ -689,16 +705,17 @@ export function createRobotModel({
         previewLinks.get(link).add(previewMesh);
       }
       geometryLoaded = true;
-      setStatus(`${config.name} STL 模型已加载`, 'ready');
+      lastLoadError = null;
+      setStatus('ready', config);
       if (errorElement) errorElement.hidden = true;
       fitCamera();
       return api;
     } catch (error) {
       if (destroyed || generation !== loadGeneration) return api;
-      setStatus('模型加载失败', 'error');
+      lastLoadError = String(error?.message ?? error);
+      setStatus('error', config);
       if (errorElement) {
         errorElement.hidden = false;
-        errorElement.textContent = `模型加载失败：${error.message}`;
       }
       onError(error);
       throw error;
@@ -773,7 +790,7 @@ export function createRobotModel({
   }
 
   const api = {
-    load, setModel, update, preview, setTcpDragHandle, cancelTcpDrag, destroy, resize, resetCamera, fitCamera,
+    load, setModel, update, preview, setTcpDragHandle, cancelTcpDrag, destroy, resize, resetCamera, fitCamera, refreshLanguage,
   };
   resetCamera();
   resize();

@@ -313,6 +313,7 @@
 | [tests/lumos_browser_smoke.cjs](../tests/lumos_browser_smoke.cjs) | 软件测试：浏览器 Touch R1 与模拟 Lumos CAN 连接、校准、跟随和释放 |
 | [tests/lumos_client.test.js](../tests/lumos_client.test.js) | 软件测试：本机 Lumos CAN 会话、六轴与夹爪新鲜采样、网页校准与停止 |
 | [tests/model_import_ui.test.js](../tests/model_import_ui.test.js) | 软件测试：完整模型导入界面 |
+| [tests/new_ui_i18n.test.js](../tests/new_ui_i18n.test.js) | 软件测试：新增工作区和 Lumos 面板中英文、动态错误、变量保留与日志保护 |
 | [tests/page_lifecycle.test.js](../tests/page_lifecycle.test.js) | 软件测试：停止和释放成功后切页、失败保留原页与重复点击合并 |
 | [tests/piper/factory_params.test.js](../tests/piper/factory_params.test.js) | 软件测试：舵机工厂参数定义、解析与验证 |
 | [tests/piper/fl_trajectory_controller.test.js](../tests/piper/fl_trajectory_controller.test.js) | 软件测试：从臂轨迹播放、暂停、停止和指令调度 |

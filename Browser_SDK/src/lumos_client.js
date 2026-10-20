@@ -1,3 +1,4 @@
+import { t, tWithVars } from './i18n.js';
 import { assertTeleopPairing } from './teleop_pairing.js';
 
 export function localLumosApi(location) {
@@ -13,12 +14,12 @@ export function parseLumosMapping({ jointMap, signs, gain }) {
   const direction = parse(signs);
   const scale = Number(gain);
   if (joint_map.length !== 6 || new Set(joint_map).size !== 6 || joint_map.some(value => !Number.isInteger(value) || value < 0 || value > 5)) {
-    throw new Error('六轴顺序必须是 0–5 的完整排列。');
+    throw new Error(t('lumos.error.mapping-permutation'));
   }
   if (direction.length !== 6 || direction.some(value => value !== 1 && value !== -1)) {
-    throw new Error('六轴方向必须填写六个 +1 或 -1。');
+    throw new Error(t('lumos.error.mapping-directions'));
   }
-  if (!Number.isFinite(scale) || scale <= 0 || scale > 1) throw new Error('增益必须大于 0 且不超过 1。');
+  if (!Number.isFinite(scale) || scale <= 0 || scale > 1) throw new Error(t('lumos.error.mapping-gain'));
   return { joint_map, signs: direction, gain: scale };
 }
 
@@ -55,17 +56,17 @@ export class LumosClient {
   async checkService() {
     const status = await this.request('status');
     if (!status || typeof status.phase !== 'string' || !Object.hasOwn(status, 'connected')) {
-      throw new Error('当前本地页面未提供 Ubuntu LumosTouch 服务，请运行 start_ubuntu_lumos.sh。');
+      throw new Error(t('lumos.error.missing-service'));
     }
     this.serviceStatus = status;
     this.onState(this.snapshot);
     if (status.gripper_config_error || !status.gripper_type) {
-      throw new Error(status.gripper_config_error || '未读取到 SDK 夹爪类型，请检查本机配置。');
+      throw new Error(status.gripper_config_error || t('lumos.error.missing-gripper-type'));
     }
     return status;
   }
   async request(action, body, { keepalive = false } = {}) {
-    if (!this.api) throw new Error('LumosTouch 实体遥操作需要 Ubuntu：请从源码运行 start_ubuntu_lumos.sh，并使用它打开的本地控制台。');
+    if (!this.api) throw new Error(t('lumos.error.ubuntu-required'));
     const abort = new AbortController();
     const timer = setTimeout(() => abort.abort(), action === 'connect' ? 10000 : 1000);
     try {
@@ -81,26 +82,26 @@ export class LumosClient {
         // Abort can happen after headers arrive, while the body is still being
         // read. Preserve it so a slow service is not reported as a missing one.
         if (error?.name === 'AbortError' || abort.signal.aborted) throw new DOMException('LumosTouch response aborted', 'AbortError');
-        throw new Error('当前本地页面未提供 Ubuntu LumosTouch 服务。请在 Ubuntu 运行 start_ubuntu_lumos.sh，并使用它打开的控制台。');
+        throw new Error(t('lumos.error.missing-service-page'));
       }
       if (!response.ok) {
-        const error = new Error(typeof result.detail === 'string' ? result.detail : result.error?.message || (typeof result.error === 'string' ? result.error : null) || `LumosTouch 请求失败（${response.status}）`);
+        const error = new Error(typeof result.detail === 'string' ? result.detail : result.error?.message || (typeof result.error === 'string' ? result.error : null) || tWithVars('lumos.error.request-failed', { status: response.status }));
         error.code = result.error?.code;
         throw error;
       }
       return result;
     } catch (error) {
-      if (error?.name === 'AbortError') throw new Error('LumosTouch 本机服务响应超时，已停止发送动作；请重新连接并校准。');
+      if (error?.name === 'AbortError') throw new Error(t('lumos.error.service-timeout'));
       throw error;
     } finally { clearTimeout(timer); }
   }
   async connect({ leaderProfile, leaderConnectionId, canInterface, enableConfirmed }) {
-    if (this.connected || this.busy || this.closing) throw new Error('LumosTouch 正在连接或已连接。');
+    if (this.connected || this.busy || this.closing) throw new Error(t('lumos.error.already-connected'));
     if (this.cleanupFailure) throw this.cleanupFailure;
     assertTeleopPairing({ followerTargetType: 'physical', connectedLeaderProfile: leaderProfile, physicalFollowerModel: 'LUMOS' });
-    if (!leaderConnectionId) throw new Error('Leader 连接身份无效。');
-    if (!enableConfirmed) throw new Error('请先确认连接将使能 LumosTouch 电机。');
-    if (!/^[A-Za-z0-9_.:-]{1,32}$/.test(canInterface)) throw new Error('CAN 接口名称无效。');
+    if (!leaderConnectionId) throw new Error(t('lumos.error.leader-identity'));
+    if (!enableConfirmed) throw new Error(t('lumos.error.enable-confirmation'));
+    if (!/^[A-Za-z0-9_.:-]{1,32}$/.test(canInterface)) throw new Error(t('lumos.error.invalid-can-interface'));
     const epoch = ++this.epoch;
     this.busy = true;
     this.leaderConnectionId = leaderConnectionId;
@@ -110,20 +111,20 @@ export class LumosClient {
       const confirmedGripperType = this.serviceStatus?.gripper_type;
       const status = await this.checkService();
       if (!confirmedGripperType || status.gripper_type !== confirmedGripperType) {
-        throw new Error('请先检查本机组件并核对 SDK 夹爪类型，再确认连接；配置变化后须重新确认。');
+        throw new Error(t('lumos.error.gripper-configuration-changed'));
       }
-      if (epoch !== this.epoch) throw new Error('LumosTouch 连接已取消。');
+      if (epoch !== this.epoch) throw new Error(t('lumos.error.connection-cancelled'));
       this.assertIdentity?.(leaderConnectionId);
       const snapshot = await this.request('connect', {
         leader_type: 'TOUCH', follower_type: 'LUMOS', leader_connection_id: leaderConnectionId,
         can_interface: canInterface, enable_confirmed: true,
       });
-      if (!snapshot.session_id) throw new Error('本机服务未返回有效 LumosTouch 会话。');
+      if (!snapshot.session_id) throw new Error(t('lumos.error.invalid-session'));
       this.sessionId = snapshot.session_id;
       if (epoch !== this.epoch) {
         this.leaderConnectionId = leaderConnectionId;
-        await this.shutdown('连接已取消');
-        throw new Error('LumosTouch 连接已取消。');
+        await this.shutdown(t('lumos.error.cancelled'));
+        throw new Error(t('lumos.error.connection-cancelled'));
       }
       this.sequence = 0;
       this.identity();
@@ -157,21 +158,21 @@ export class LumosClient {
     const reading = await this.readLeader();
     const leader_deg = reading?.leaderDeg;
     const leader_gripper_deg = reading?.gripperDeg;
-    if (!validAngles(leader_deg)) throw new Error('Touch R1 六轴回读不完整，已停止遥操作。');
-    if (!Number.isFinite(leader_gripper_deg)) throw new Error('Touch R1 夹爪回读缺失，已停止整臂与夹爪遥操作。');
+    if (!validAngles(leader_deg)) throw new Error(t('lumos.error.missing-six-axes'));
+    if (!Number.isFinite(leader_gripper_deg)) throw new Error(t('lumos.error.missing-gripper'));
     if (epoch !== this.epoch || !this.connected) return;
     this.identity();
     const snapshot = await this.request('sample', { ...identity, sequence: ++this.sequence, leader_deg, leader_gripper_deg });
     if (epoch !== this.epoch) return;
     if (snapshot.session_id !== this.sessionId || !activePhases.includes(snapshot.phase)) {
-      throw new Error(snapshot.error || 'LumosTouch 会话已结束，请重新连接并校准。');
+      throw new Error(snapshot.error || t('lumos.error.session-ended-reconnect'));
     }
     this.notify(snapshot);
     this.onSample({ leaderDeg: leader_deg, leaderGripperDeg: leader_gripper_deg, snapshot });
     return { leader_deg, leader_gripper_deg };
   }
   async command(action, extras = {}) {
-    if (!this.connected || this.busy || this.closing) throw new Error('请先连接 LumosTouch，并等待当前操作完成。');
+    if (!this.connected || this.busy || this.closing) throw new Error(t('lumos.error.wait-for-connection'));
     const epoch = this.epoch;
     this.busy = true;
     if (this.timer !== null) this.cancel(this.timer);
@@ -179,13 +180,13 @@ export class LumosClient {
     this.onState(this.snapshot);
     try {
       await this.inFlight;
-      if (epoch !== this.epoch || !this.connected) throw new Error('LumosTouch 会话已结束。');
+      if (epoch !== this.epoch || !this.connected) throw new Error(t('lumos.error.session-ended'));
       const reading = await this.sampleOnce(epoch).catch(error => { error.lumosSampleError = true; throw error; });
-      if (epoch !== this.epoch || !this.connected) throw new Error('LumosTouch 会话已结束。');
+      if (epoch !== this.epoch || !this.connected) throw new Error(t('lumos.error.session-ended'));
       const snapshot = await this.request(action, { ...this.identity(), ...extras,
         ...(['capture-reference', 'capture-gripper'].includes(action) ? reading : {}) });
       if (epoch !== this.epoch) return;
-      if (snapshot.session_id !== this.sessionId || !activePhases.includes(snapshot.phase)) throw new Error(snapshot.error || 'LumosTouch 会话已结束。');
+      if (snapshot.session_id !== this.sessionId || !activePhases.includes(snapshot.phase)) throw new Error(snapshot.error || t('lumos.error.session-ended'));
       this.notify(snapshot);
     } catch (error) {
       // Calibration validation may fail without dropping the connection.
@@ -194,7 +195,7 @@ export class LumosClient {
       throw error;
     } finally { this.busy = false; this.onState(this.snapshot); this.scheduleNext(epoch, 0); }
   }
-  shutdown(reason = '已停止，请重新连接并校准。', { skipDrain = false } = {}) {
+  shutdown(reason = t('lumos.error.stopped-reconnect'), { skipDrain = false } = {}) {
     if (this.closing) return this.closing;
     ++this.epoch;
     if (this.timer !== null) this.cancel(this.timer);
@@ -206,7 +207,7 @@ export class LumosClient {
       if (!['idle', 'stopped', 'disconnected', 'fault'].includes(snapshot.phase)
         || snapshot.connected || snapshot.session_id || snapshot.cleanup_pending || snapshot.cleanup_failed || snapshot.connecting
         || /SDK 关闭失败|无法确认电机已关闭/.test(snapshot.error || '')) {
-        throw new Error(snapshot.error || '尚未确认 LumosTouch 电机已关闭，请检查设备。');
+        throw new Error(snapshot.error || t('lumos.error.shutdown-unconfirmed'));
       }
     };
     const operation = (async () => {

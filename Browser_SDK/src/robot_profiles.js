@@ -8,6 +8,7 @@ const profiles = Object.freeze({
     powered: true,
     canCommand: false,
     permissionNote: '通过 Touch R1 校准控制六轴与夹爪；不支持旧款串口滑块、TCP 或轨迹指令',
+    permissionNoteKey: 'lumos.permission',
   }),
   TOUCH: Object.freeze({
     code: 'TOUCH',

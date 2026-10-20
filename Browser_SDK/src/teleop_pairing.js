@@ -1,3 +1,5 @@
+import { t, tWithVars } from './i18n.js';
+
 export const PHYSICAL_FOLLOWER_STAR_ARM_FL = 'FL';
 export const PHYSICAL_FOLLOWER_LUMOS = 'LUMOS';
 
@@ -44,23 +46,23 @@ export function evaluateTeleopPairing({
   });
 
   if (!['physical', 'virtual'].includes(followerTargetType)) {
-    return result(false, 'Follower 类型无效，请重新选择并连接。', 'UNKNOWN_FOLLOWER_TARGET');
+    return result(false, t('pairing.unknown-follower-target'), 'UNKNOWN_FOLLOWER_TARGET');
   }
   if (!connectedLeaderProfile) {
-    return result(false, '请先连接 Leader，再开始遥操作。', 'LEADER_NOT_CONNECTED');
+    return result(false, t('pairing.leader-not-connected'), 'LEADER_NOT_CONNECTED');
   }
   if (connectedLeaderProfile.role !== 'leader' || !Object.hasOwn(LEADER_NAMES, leaderCode)) {
-    return result(false, '已连接 Leader 型号无效，请断开后重新连接。', 'UNKNOWN_LEADER');
+    return result(false, t('pairing.unknown-leader'), 'UNKNOWN_LEADER');
   }
   if (followerTargetType === 'virtual') return result(true, '');
 
   if (!Object.hasOwn(PHYSICAL_FOLLOWER_MODELS, followerCode)) {
-    return result(false, '真实 Follower 型号未确认，请重新选择并连接。', 'UNKNOWN_PHYSICAL_FOLLOWER');
+    return result(false, t('pairing.unknown-physical-follower'), 'UNKNOWN_PHYSICAL_FOLLOWER');
   }
   const follower = PHYSICAL_FOLLOWER_MODELS[followerCode];
   if (!follower.allowedLeaderCodes.includes(leaderCode)) {
     const allowedNames = follower.allowedLeaderCodes.map(code => LEADER_NAMES[code]).join(' / ');
-    return result(false, `${follower.name} 仅允许 ${allowedNames} 遥操作，当前连接的是 ${LEADER_NAMES[leaderCode]}。`, 'INCOMPATIBLE_TELEOP_PAIR');
+    return result(false, tWithVars('pairing.incompatible', { follower: follower.name, allowed: allowedNames, leader: LEADER_NAMES[leaderCode] }), 'INCOMPATIBLE_TELEOP_PAIR');
   }
   return result(true, '');
 }

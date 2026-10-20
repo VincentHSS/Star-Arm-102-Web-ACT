@@ -6,8 +6,8 @@
   <meta http-equiv="Expires" content="0">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Star Arm 102 控制台</title>
-  <link rel="stylesheet" href="./src/styles.css?v=1.1.2-lumos-layout-20261020">
+  <title data-i18n="workspace.title">Star Arm 102 控制台</title>
+  <link rel="stylesheet" href="./src/styles.css?v=1.1.2-i18n-trajectory-20261020">
   <link rel="stylesheet" href="./src/fl_trajectory_styles.css?v=1.1.2">
   <link rel="stylesheet" href="./src/workspace-switch.css?v=2026-10-12-responsive-1">
 <style>html,body{background:#0f1416}</style>
@@ -20,15 +20,15 @@
     <header class="topbar workspace-header console-header">
       <div class="brand">
         <img src="./assets/logo-icon.png" alt="" class="brand-logo" aria-hidden="true">
-        <div class="brand-copy"><strong>Star Arm 102</strong><small>CONTROL CONSOLE / 控制台</small></div>
+        <div class="brand-copy"><strong>Star Arm 102</strong><small><span data-i18n="workspace.caption">CONTROL CONSOLE / 控制台</span></small></div>
       </div>
-      <nav class="workspace-nav" aria-label="工作区">
+      <nav class="workspace-nav" aria-label="工作区" data-i18n-aria="workspace.label">
         <details>
-          <summary><span><small>当前工作区</small><strong>控制台</strong></span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 7 5 5 5-5"/></svg></summary>
+          <summary><span><small><span data-i18n="workspace.current">当前工作区</span></small><strong><span data-i18n="workspace.console">控制台</span></strong></span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 7 5 5 5-5"/></svg></summary>
           <div class="workspace-nav-menu">
-            <span aria-current="page"><strong>控制台</strong><small>机械臂连接与实时控制</small></span>
-            <a href="act-workbench.html" data-workspace-target="act"><strong>ACT 工作台</strong><small>数据采集、训练与模型管理</small></a>
-            <a href="act-browser.html" data-workspace-target="act"><strong>网页执行</strong><small>在浏览器中运行已转换模型</small></a>
+            <span aria-current="page"><strong><span data-i18n="workspace.console">控制台</span></strong><small><span data-i18n="workspace.console-detail">机械臂连接与实时控制</span></small></span>
+            <a href="act-workbench.html" data-workspace-target="act"><strong><span data-i18n="workspace.act">ACT 工作台</span></strong><small><span data-i18n="workspace.act-detail">数据采集、训练与模型管理</span></small></a>
+            <a href="act-browser.html" data-workspace-target="act"><strong><span data-i18n="workspace.execution">网页执行</span></strong><small><span data-i18n="workspace.execution-detail">在浏览器中运行已转换模型</span></small></a>
           </div>
         </details>
       </nav>
@@ -74,7 +74,7 @@
               <button id="followerTypeVirtual" class="follower-type-option" type="button" data-follower-type-option="virtual" aria-pressed="false" data-i18n="device.virtual-fl-short">虚拟手臂</button>
             </div>
           </div>
-          <label id="physicalFollowerModelField" class="follower-target-field"><span>真实型号</span>
+          <label id="physicalFollowerModelField" class="follower-target-field"><span><span data-i18n="label.physical-model">真实型号</span></span>
             <select id="physicalFollowerModel"><option value="FL">Star Arm 102-FL</option><option value="LUMOS">LumosTouch V3</option></select>
           </label>
           <label id="virtualFollowerModelField" class="follower-target-field" hidden><span data-i18n="label.virtual-model">虚拟型号</span>
@@ -84,43 +84,43 @@
           <p id="b601VirtualNotice" class="virtual-follower-notice" role="status" hidden data-i18n="notice.b601-virtual">B601 仅跟随 J1–J6，不发送硬件命令</p>
           <p id="a1zVirtualNotice" class="virtual-follower-notice" role="status" hidden data-i18n="notice.a1z-virtual">星海图 A1Z 仅跟随 J1–J6，不发送硬件命令</p>
           <p id="teleopPairingStatus" class="virtual-follower-notice" role="status" hidden></p>
-          <section id="lumosPanel" class="lumos-panel" hidden aria-label="LumosTouch 校准">
-            <header class="lumos-heading"><div><span class="lumos-eyebrow">配对遥操作</span><h3>LumosTouch</h3></div><span id="lumosPhaseBadge" class="lumos-badge">待连接</span></header>
-            <div class="lumos-pair"><span>Touch R1</span><span aria-hidden="true">→</span><strong>LumosTouch V3</strong><small>六轴 + 夹爪</small></div>
-            <ol class="lumos-steps" aria-label="遥操作步骤"><li data-lumos-step="connect"><span>1</span>连接</li><li data-lumos-step="calibrate"><span>2</span>校准</li><li data-lumos-step="run"><span>3</span>运行</li></ol>
-            <p id="lumosStatus" class="lumos-status" role="status">先连接 Touch R1，再连接 LumosTouch。</p>
+          <section id="lumosPanel" class="lumos-panel" hidden aria-label="LumosTouch 校准" data-i18n-aria="lumos.aria.panel">
+            <header class="lumos-heading"><div><span class="lumos-eyebrow"><span data-i18n="lumos.paired-teleoperation">配对遥操作</span></span><h3>LumosTouch</h3></div><span id="lumosPhaseBadge" class="lumos-badge"><span data-i18n="lumos.badge.idle">待连接</span></span></header>
+            <div class="lumos-pair"><span>Touch R1</span><span aria-hidden="true">→</span><strong>LumosTouch V3</strong><small><span data-i18n="lumos.six-axes-gripper">六轴 + 夹爪</span></small></div>
+            <ol class="lumos-steps" aria-label="遥操作步骤" data-i18n-aria="lumos.aria.steps"><li data-lumos-step="connect"><span>1</span><span data-i18n="lumos.step.connect">连接</span></li><li data-lumos-step="calibrate"><span>2</span><span data-i18n="lumos.step.calibrate">校准</span></li><li data-lumos-step="run"><span>3</span><span data-i18n="lumos.step.run">运行</span></li></ol>
+            <p id="lumosStatus" class="lumos-status" role="status"><span data-i18n="lumos.phase.idle">先连接 Touch R1，再连接 LumosTouch。</span></p>
             <div id="lumosConnectStage" class="lumos-stage">
-              <div class="lumos-stage-heading"><h4>连接从臂</h4><small>Ubuntu · CAN</small></div>
-              <details id="lumosLocalHelp" class="lumos-details"><summary>打开 Ubuntu 本地控制台</summary><p>在源码目录运行 <code>sh start_ubuntu_lumos.sh</code>，使用它打开的网页连接真实 LumosTouch。</p></details>
-              <div class="lumos-connect-fields"><label>CAN 接口<input id="lumosCanInterface" value="can0" maxlength="32" autocomplete="off"></label><button id="lumosCheckService" class="ghost" type="button">检查组件</button></div>
-              <p id="lumosSdkGripper" class="lumos-hint" role="status">检查组件后，核对夹爪类型。</p>
-              <label class="lumos-check"><input id="lumosEnableConfirmed" type="checkbox"><span>已核对 SDK、夹爪及 CAN 配置并确认周围安全。连接将使能电机。</span></label>
+              <div class="lumos-stage-heading"><h4><span data-i18n="lumos.connect-follower">连接从臂</span></h4><small>Ubuntu · CAN</small></div>
+              <details id="lumosLocalHelp" class="lumos-details"><summary><span data-i18n="lumos.local-console">打开 Ubuntu 本地控制台</span></summary><p><span data-i18n="lumos.local-help-prefix">在源码目录运行</span> <code>sh start_ubuntu_lumos.sh</code><span data-i18n="lumos.local-help-suffix">，使用它打开的网页连接真实 LumosTouch。</span></p></details>
+              <div class="lumos-connect-fields"><label><span data-i18n="lumos.can-interface">CAN 接口</span><input id="lumosCanInterface" value="can0" maxlength="32" autocomplete="off"></label><button id="lumosCheckService" class="ghost" type="button"><span data-i18n="lumos.check-service">检查组件</span></button></div>
+              <p id="lumosSdkGripper" class="lumos-hint" role="status"><span data-i18n="lumos.service-check-hint">检查组件后，核对夹爪类型。</span></p>
+              <label class="lumos-check"><input id="lumosEnableConfirmed" type="checkbox"><span><span data-i18n="lumos.enable-confirmation">已核对 SDK、夹爪及 CAN 配置并确认周围安全。连接将使能电机。</span></span></label>
               <div id="lumosConnectAction" class="lumos-action"></div>
             </div>
             <div id="lumosCalibrationStage" class="lumos-stage" hidden>
-              <div class="lumos-stage-heading"><h4>校准主从关系</h4><small>仅采集，不跟随</small></div>
-              <details id="lumosMappingSettings" class="lumos-details"><summary>关节映射与方向<span>展开核对</span></summary>
-                <p>默认值来自适配示例，请按当前两台手臂核对。</p>
-                <label>Lumos J1–J6 对应主臂 ID<input id="lumosJointMap" value="0,1,2,3,4,5" autocomplete="off"></label>
-                <label>六轴方向（+1 / -1）<input id="lumosSigns" value="-1,1,1,1,-1,-1" autocomplete="off"></label>
-                <label>跟随增益<input id="lumosGain" type="number" min="0.01" max="1" step="0.01" value="0.3"></label>
-                <label class="lumos-check"><input id="lumosInvertGripper" type="checkbox"><span>反转夹爪开合方向</span></label>
+              <div class="lumos-stage-heading"><h4><span data-i18n="lumos.calibrate-pair">校准主从关系</span></h4><small><span data-i18n="lumos.capture-only">仅采集，不跟随</span></small></div>
+              <details id="lumosMappingSettings" class="lumos-details"><summary><span data-i18n="lumos.mapping">关节映射与方向</span><span><span data-i18n="lumos.expand-check">展开核对</span></span></summary>
+                <p><span data-i18n="lumos.mapping-hint">默认值来自适配示例，请按当前两台手臂核对。</span></p>
+                <label><span data-i18n="lumos.joint-map">Lumos J1–J6 对应主臂 ID</span><input id="lumosJointMap" value="0,1,2,3,4,5" autocomplete="off"></label>
+                <label><span data-i18n="lumos.directions">六轴方向（+1 / -1）</span><input id="lumosSigns" value="-1,1,1,1,-1,-1" autocomplete="off"></label>
+                <label><span data-i18n="lumos.gain">跟随增益</span><input id="lumosGain" type="number" min="0.01" max="1" step="0.01" value="0.3"></label>
+                <label class="lumos-check"><input id="lumosInvertGripper" type="checkbox"><span><span data-i18n="lumos.invert-gripper">反转夹爪开合方向</span></span></label>
               </details>
-              <div id="lumosReferenceStage" class="lumos-reference"><p class="lumos-hint">将两臂摆到对应姿态，核对映射后记录参考。</p><button id="lumosCaptureReference" class="primary" type="button">记录参考姿态</button></div>
+              <div id="lumosReferenceStage" class="lumos-reference"><p class="lumos-hint"><span data-i18n="lumos.reference-hint">将两臂摆到对应姿态，核对映射后记录参考。</span></p><button id="lumosCaptureReference" class="primary" type="button"><span data-i18n="lumos.capture-reference">记录参考姿态</span></button></div>
               <div id="lumosSamplingStage" class="lumos-sampling" hidden>
-                <p class="lumos-hint">逐轴缓慢移动主臂，再记录夹爪的两个端点。</p>
-                <div class="lumos-endpoints"><div><span>闭合位置</span><strong id="lumosClosedValue">待记录</strong><button id="lumosGripperClosed" class="ghost" type="button">记录闭合</button></div><div><span>张开位置</span><strong id="lumosOpenValue">待记录</strong><button id="lumosGripperOpen" class="ghost" type="button">记录张开</button></div></div>
-                <button id="lumosFinishCalibration" class="primary" type="button">完成校准，查看预览</button>
+                <p class="lumos-hint"><span data-i18n="lumos.sample-hint">逐轴缓慢移动主臂，再记录夹爪的两个端点。</span></p>
+                <div class="lumos-endpoints"><div><span><span data-i18n="lumos.closed-position">闭合位置</span></span><strong id="lumosClosedValue"><span data-i18n="lumos.not-captured">待记录</span></strong><button id="lumosGripperClosed" class="ghost" type="button"><span data-i18n="lumos.capture-closed">记录闭合</span></button></div><div><span><span data-i18n="lumos.open-position">张开位置</span></span><strong id="lumosOpenValue"><span data-i18n="lumos.not-captured">待记录</span></strong><button id="lumosGripperOpen" class="ghost" type="button"><span data-i18n="lumos.capture-open">记录张开</span></button></div></div>
+                <button id="lumosFinishCalibration" class="primary" type="button"><span data-i18n="lumos.finish-calibration">完成校准，查看预览</span></button>
               </div>
             </div>
             <div id="lumosRunStage" class="lumos-stage" hidden>
-              <div class="lumos-stage-heading"><h4 id="lumosRunTitle">确认目标预览</h4><small>六轴 + 夹爪</small></div>
-              <div class="lumos-gripper-meter"><div><span>夹爪实际</span><strong id="lumosActualOpening">—</strong></div><span aria-hidden="true">→</span><div><span>目标开度</span><strong id="lumosTargetOpening">—</strong></div></div>
-              <div id="lumosPreview" class="lumos-values" aria-label="LumosTouch 六轴目标预览">目标预览：—</div>
-              <label id="lumosMappingConfirmation" class="lumos-check"><input id="lumosMappingConfirmed" type="checkbox" disabled><span>已核对六轴与夹爪方向、目标预览，并将主从夹爪开度对齐。</span></label>
+              <div class="lumos-stage-heading"><h4 id="lumosRunTitle"><span data-i18n="lumos.confirm-preview">确认目标预览</span></h4><small><span data-i18n="lumos.six-axes-gripper">六轴 + 夹爪</span></small></div>
+              <div class="lumos-gripper-meter"><div><span><span data-i18n="lumos.actual-gripper">夹爪实际</span></span><strong id="lumosActualOpening">—</strong></div><span aria-hidden="true">→</span><div><span><span data-i18n="lumos.target-gripper">目标开度</span></span><strong id="lumosTargetOpening">—</strong></div></div>
+              <div id="lumosPreview" class="lumos-values" aria-label="LumosTouch 六轴目标预览" data-i18n-aria="lumos.aria.preview">目标预览：—</div>
+              <label id="lumosMappingConfirmation" class="lumos-check"><input id="lumosMappingConfirmed" type="checkbox" disabled><span><span data-i18n="lumos.mapping-confirmation">已核对六轴与夹爪方向、目标预览，并将主从夹爪开度对齐。</span></span></label>
             </div>
-            <details id="lumosReadbacks" class="lumos-details lumos-readbacks" hidden><summary>反馈与校准数据</summary><div id="lumosRange" class="lumos-values">六轴采集范围：—</div><div id="lumosGripper" class="lumos-values" aria-label="LumosTouch 夹爪开度">夹爪开度：—</div></details>
-            <footer id="lumosRunFooter" class="lumos-run-footer" hidden><div id="lumosRunActions" class="button-row run-row"></div><p class="lumos-hint">停止或失联后，需重新连接并校准。</p></footer>
+            <details id="lumosReadbacks" class="lumos-details lumos-readbacks" hidden><summary><span data-i18n="lumos.readbacks">反馈与校准数据</span></summary><div id="lumosRange" class="lumos-values">六轴采集范围：—</div><div id="lumosGripper" class="lumos-values" aria-label="LumosTouch 夹爪开度" data-i18n-aria="lumos.aria.gripper">夹爪开度：—</div></details>
+            <footer id="lumosRunFooter" class="lumos-run-footer" hidden><div id="lumosRunActions" class="button-row run-row"></div><p class="lumos-hint"><span data-i18n="lumos.reconnect-hint">停止或失联后，需重新连接并校准。</span></p></footer>
           </section>
           <details id="standardTeleopParameters" class="debug-panel" open>
             <summary data-i18n="teleop.parameters">遥操作参数</summary>
@@ -131,7 +131,7 @@
           </details>
           <p id="settingsError" class="warning-note" role="alert" hidden></p>
           <div id="standardTeleopRunActions" class="button-row run-row"><button id="startTeleop" class="start" data-i18n="btn.start-teleop">启动遥操作</button><button id="stopTeleop" class="stop" data-i18n="btn.stop-teleop">停止</button></div>
-          <details class="debug-panel"><summary data-i18n="debug.settings">调试设置与运行日志</summary><div class="settings-grid"><label><span data-i18n="label.timeout">Leader 响应超时 ms</span><input id="responseTimeout" type="number" min="100" max="2000" value="800"></label><label><span data-i18n="label.raw-log">原始串口日志</span><select id="rawLogEnabled"><option value="off" data-i18n="teleop.raw-log-off">关闭</option><option value="on" data-i18n="teleop.raw-log-on">开启</option></select></label></div><pre id="logs" data-i18n="debug.waiting">等待连接串口...</pre></details>
+          <details class="debug-panel"><summary data-i18n="debug.settings">调试设置与运行日志</summary><div class="settings-grid"><label><span data-i18n="label.timeout">Leader 响应超时 ms</span><input id="responseTimeout" type="number" min="100" max="2000" value="800"></label><label><span data-i18n="label.raw-log">原始串口日志</span><select id="rawLogEnabled"><option value="off" data-i18n="teleop.raw-log-off">关闭</option><option value="on" data-i18n="teleop.raw-log-on">开启</option></select></label></div><pre id="logs" data-i18n-initial data-i18n="debug.waiting">等待连接串口...</pre></details>
         </section>
       </aside>
 
@@ -186,12 +186,12 @@
           <label class="target-duration-field"><span data-i18n="confirm.duration">执行时长（ms）</span><input id="targetDuration" type="number" min="1" step="1" value="800" inputmode="numeric"></label>
           <div class="button-row target-actions"><button id="confirmTarget" class="confirm-target" type="button" disabled data-i18n="confirm.execute">确认执行关节<span data-i18n="joint.target">目标</span></button><button id="cancelTarget" class="ghost" type="button" disabled data-i18n="confirm.cancel-preview">取消预览</button></div>
           <p class="target-conflict-note" data-i18n="confirm.safety-mechanism">两种控制方式（滑块/<span data-i18n="joint.target">目标</span>姿态）均采用"仅预览，确认后执行"的安全机制。切换控制方式会自动取消未确认的预览；确认执行后将先停止遥操作，执行结束后不会自动恢复遥操作。</p>
-          <article id="targetState" class="target-state is-idle" aria-live="polite"><div><span class="target-state-mark" aria-hidden="true"></span><div><strong id="targetStatusTitle" data-i18n="confirm.waiting-connection">等待可控连接</strong><p id="targetStatusDetail" data-i18n="confirm.select-model">请选择 HD Leader 或 FL Follower 模型，并连接对应串口。</p></div></div><dl class="target-result-grid"><div><dt data-i18n="confirm.position-error">位置误差</dt><dd id="targetError">—</dd></div><div><dt data-i18n="confirm.iterations">迭代次数</dt><dd id="targetIterations">—</dd></div></dl><div class="target-angle-result"><span data-i18n="confirm.target-angle">关节<span data-i18n="joint.target">目标</span>角</span><strong id="targetAngles">—</strong></div><p id="targetCalibration" class="target-calibration" data-i18n="confirm.calibration-status">预览后将显示校准状态。</p></article>
+          <article id="targetState" class="target-state is-idle" aria-live="polite"><div><span class="target-state-mark" aria-hidden="true"></span><div><strong id="targetStatusTitle" data-i18n-initial data-i18n="confirm.waiting-connection">等待可控连接</strong><p id="targetStatusDetail" data-i18n-initial data-i18n="confirm.select-model">请选择 HD Leader 或 FL Follower 模型，并连接对应串口。</p></div></div><dl class="target-result-grid"><div><dt data-i18n="confirm.position-error">位置误差</dt><dd id="targetError">—</dd></div><div><dt data-i18n="confirm.iterations">迭代次数</dt><dd id="targetIterations">—</dd></div></dl><div class="target-angle-result"><span data-i18n="confirm.target-angle">关节<span data-i18n="joint.target">目标</span>角</span><strong id="targetAngles">—</strong></div><p id="targetCalibration" data-i18n-initial class="target-calibration" data-i18n="confirm.calibration-status">预览后将显示校准状态。</p></article>
         </section>
       </aside>
 
       <section id="emergencyDock" class="emergency-dock safety-region" data-i18n-aria="safety.emergency-stop">
-        <div class="emergency-copy"><span data-i18n="section.safety">SAFETY</span><strong data-i18n="safety.check-obstacles">操作前确认机械臂周围无障碍物</strong><p id="emergencyStatus" class="operation-status" role="alert" aria-live="assertive" data-i18n="safety.emergency-desc">紧急停止可随时终止循环，并发送停止命令到当前连接的机械臂。</p></div>
+        <div class="emergency-copy"><span data-i18n="section.safety">SAFETY</span><strong data-i18n="safety.check-obstacles">操作前确认机械臂周围无障碍物</strong><p id="emergencyStatus" data-i18n-initial class="operation-status" role="alert" aria-live="assertive" data-i18n="safety.emergency-desc">紧急停止可随时终止循环，并发送停止命令到当前连接的机械臂。</p></div>
         <button id="emergencyStop" class="emergency-stop" type="button" data-i18n="btn.emergency-stop">紧急停止</button>
       </section>
     </div>
@@ -228,11 +228,11 @@
 
     <div id="resetOriginView" class="tab-view maintenance-view">
       <section id="resetOriginPanel" class="panel reset-panel"><div class="reset-header"><div><p class="section-kicker">Maintenance Tool</p><h2 data-i18n="reset-origin.title">重设手臂零点</h2><p data-i18n="reset-origin.desc">选择哪一台手臂的串口，就设置该手臂 ID 0–6 舵机的当前位置为零点，不区分 Leader 或 Follower。</p></div><div class="danger-card"><strong data-i18n="reset-origin.warning">操作前必须扶稳手臂</strong><span data-i18n="reset-origin.hold-steady">机械臂卸力后关节可以自由转动，请先摆到目标零位。</span></div></div><div class="reset-steps"><div class="reset-step"><b>01</b><strong data-i18n="reset-origin.step1">选择手臂串口</strong><span data-i18n="reset-origin.step1-desc">连接需要设置零点的机械臂。</span></div><div class="reset-step"><b>02</b><strong data-i18n="reset-origin.step2">扶稳并摆正</strong><span data-i18n="reset-origin.step2-desc">将所有关节摆放到目标零位。</span></div><div class="reset-step"><b>03</b><strong data-i18n="reset-origin.step3">确认执行</strong><span data-i18n="reset-origin.step3-desc">设置和校验期间请勿移动机械臂。</span></div></div><div class="reset-status"><div class="status-card"><span data-i18n="label.reset-serial">零点设置串口</span><strong id="resetArmStatus" data-i18n="status.not-connected">未连接</strong></div><div class="status-card"><span><span data-i18n="joint.target">目标</span>舵机</span><strong>ID 0–6</strong></div><div class="status-card"><span data-i18n="label.reset-status">设置状态</span><strong id="resetStatus" data-i18n="status.waiting">等待连接</strong></div></div><div class="button-row reset-actions"><button id="connectResetArm" class="primary" data-i18n="btn.connect-reset-arm">选择手臂串口</button><button id="disconnectResetArm" class="ghost" data-i18n="btn.disconnect-reset-arm">断开串口</button><button id="resetOrigin" class="origin" disabled data-i18n="btn.reset-origin">重设零点</button></div><div id="resetOperationNotice" class="reset-operation-notice" role="alert" aria-live="assertive" hidden><span id="resetOperationIcon" class="reset-operation-icon" aria-hidden="true"></span><div><strong id="resetOperationTitle"></strong><p id="resetOperationDetail"></p></div></div><p class="warning-note" data-i18n="reset-origin.no-auto-restore"><strong>注意：</strong>操作完成后不会自动恢复锁力。请保持手臂被扶稳，完成后再根据使用场景重新连接或控制。</p></section>
-      <section class="panel"><h2 data-i18n="reset-origin.logs">零点设置日志</h2><pre id="resetLogs" data-i18n="reset-origin.waiting">请先选择需要重设零点的手臂串口...</pre></section>
+      <section class="panel"><h2 data-i18n="reset-origin.logs">零点设置日志</h2><pre id="resetLogs" data-i18n-initial data-i18n="reset-origin.waiting">请先选择需要重设零点的手臂串口...</pre></section>
     </div>
 
     <div id="factoryRestoreView" class="tab-view maintenance-view">
-      <section class="panel reset-panel"><div class="factory-workspace"><div class="factory-main"><div class="reset-header"><div><p class="section-kicker">Maintenance Tool</p><h2 data-i18n="factory-restore.title">恢复出厂参数</h2><p data-i18n="factory-restore.desc">请先选择手臂型号（Star Arm 102-FL / HD 或 Violin U25 / U45），再连接对应手臂串口。连接后型号将锁定，断开串口后才可重新选择。</p></div><div class="danger-card"><strong data-i18n="factory-restore.no-zero">不会设置机械臂零点</strong><span data-i18n="factory-restore.confirm-model">操作前请确认手臂型号，并扶稳机械臂。</span></div></div><div class="settings-grid factory-settings"><label><span data-i18n="label.arm-model">手臂型号</span><select id="factoryModel"><option value="FL">Star Arm 102-FL</option><option value="HD">Star Arm 102-HD</option><option value="U25">Violin U25</option><option value="U45">Violin U45</option></select></label></div><div class="reset-status"><div class="status-card"><span data-i18n="label.factory-serial">参数设置串口</span><strong id="factoryArmStatus" data-i18n="status.not-connected">未连接</strong></div><div class="status-card"><span><span data-i18n="joint.target">目标</span>舵机</span><strong>ID 0–6</strong></div><div class="status-card"><span data-i18n="label.factory-status">恢复状态</span><strong id="factoryStatus" data-i18n="status.waiting">等待连接</strong></div></div><div class="button-row reset-actions"><button id="connectFactoryArm" class="primary" data-i18n="btn.connect-reset-arm">选择手臂串口</button><button id="disconnectFactoryArm" class="ghost" data-i18n="btn.disconnect-reset-arm">断开串口</button><button id="restoreFactory" class="origin" disabled data-i18n="btn.restore-factory">恢复出厂参数</button></div></div><aside id="factoryProgressPanel" class="factory-progress-panel" aria-live="polite"><div class="factory-progress-heading"><div><p class="section-kicker">Progress</p><h3 data-i18n="factory-restore.progress">恢复进度</h3></div><span id="factoryProgressSummary" data-i18n="factory-restore.waiting">等待开始</span></div><ol class="factory-progress-list"><li class="factory-progress-step is-pending" data-factory-step="stop"><span class="factory-step-number">1</span><div><strong data-i18n="factory-restore.step1">机械臂卸力</strong><small data-i18n="factory-restore.waiting-exec">等待执行</small></div><span class="factory-step-state" aria-hidden="true"></span></li><li class="factory-progress-step is-pending" data-factory-step="public"><span class="factory-step-number">2</span><div><strong data-i18n="factory-restore.step2">写入公开参数</strong><small data-i18n="factory-restore.waiting-exec">等待执行</small></div><span class="factory-step-state" aria-hidden="true"></span></li><li class="factory-progress-step is-pending" data-factory-step="internal"><span class="factory-step-number">3</span><div><strong data-i18n="factory-restore.step3">写入内部参数</strong><small data-i18n="factory-restore.waiting-exec">等待执行</small></div><span class="factory-step-state" aria-hidden="true"></span></li><li class="factory-progress-step is-pending" data-factory-step="verify"><span class="factory-step-number">4</span><div><strong data-i18n="factory-restore.step4">自动校验</strong><small data-i18n="factory-restore.waiting-exec">等待执行</small></div><span class="factory-step-state" aria-hidden="true"></span></li></ol><div id="factoryManualPowerNotice" class="factory-manual-power-notice" role="status" hidden><span class="factory-manual-power-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M12 2v10"></path><path d="M18.36 6.64a9 9 0 1 1-12.72 0"></path></svg></span><div><strong data-i18n="factory-restore.power-cycle">请关闭机械臂电源，再重新上电后使用</strong></div></div></aside></div></section><section class="panel"><h2 data-i18n="factory-restore.logs">恢复参数日志</h2><pre id="factoryLogs" data-i18n="factory-restore.waiting-connect">请先选择手臂型号并连接串口...</pre></section>
+      <section class="panel reset-panel"><div class="factory-workspace"><div class="factory-main"><div class="reset-header"><div><p class="section-kicker">Maintenance Tool</p><h2 data-i18n="factory-restore.title">恢复出厂参数</h2><p data-i18n="factory-restore.desc">请先选择手臂型号（Star Arm 102-FL / HD 或 Violin U25 / U45），再连接对应手臂串口。连接后型号将锁定，断开串口后才可重新选择。</p></div><div class="danger-card"><strong data-i18n="factory-restore.no-zero">不会设置机械臂零点</strong><span data-i18n="factory-restore.confirm-model">操作前请确认手臂型号，并扶稳机械臂。</span></div></div><div class="settings-grid factory-settings"><label><span data-i18n="label.arm-model">手臂型号</span><select id="factoryModel"><option value="FL">Star Arm 102-FL</option><option value="HD">Star Arm 102-HD</option><option value="U25">Violin U25</option><option value="U45">Violin U45</option></select></label></div><div class="reset-status"><div class="status-card"><span data-i18n="label.factory-serial">参数设置串口</span><strong id="factoryArmStatus" data-i18n="status.not-connected">未连接</strong></div><div class="status-card"><span><span data-i18n="joint.target">目标</span>舵机</span><strong>ID 0–6</strong></div><div class="status-card"><span data-i18n="label.factory-status">恢复状态</span><strong id="factoryStatus" data-i18n="status.waiting">等待连接</strong></div></div><div class="button-row reset-actions"><button id="connectFactoryArm" class="primary" data-i18n="btn.connect-reset-arm">选择手臂串口</button><button id="disconnectFactoryArm" class="ghost" data-i18n="btn.disconnect-reset-arm">断开串口</button><button id="restoreFactory" class="origin" disabled data-i18n="btn.restore-factory">恢复出厂参数</button></div></div><aside id="factoryProgressPanel" class="factory-progress-panel" aria-live="polite"><div class="factory-progress-heading"><div><p class="section-kicker">Progress</p><h3 data-i18n="factory-restore.progress">恢复进度</h3></div><span id="factoryProgressSummary" data-i18n-initial data-i18n="factory-restore.waiting">等待开始</span></div><ol class="factory-progress-list"><li class="factory-progress-step is-pending" data-factory-step="stop"><span class="factory-step-number">1</span><div><strong data-i18n="factory-restore.step1">机械臂卸力</strong><small data-i18n-initial data-i18n="factory-restore.waiting-exec">等待执行</small></div><span class="factory-step-state" aria-hidden="true"></span></li><li class="factory-progress-step is-pending" data-factory-step="public"><span class="factory-step-number">2</span><div><strong data-i18n="factory-restore.step2">写入公开参数</strong><small data-i18n-initial data-i18n="factory-restore.waiting-exec">等待执行</small></div><span class="factory-step-state" aria-hidden="true"></span></li><li class="factory-progress-step is-pending" data-factory-step="internal"><span class="factory-step-number">3</span><div><strong data-i18n="factory-restore.step3">写入内部参数</strong><small data-i18n-initial data-i18n="factory-restore.waiting-exec">等待执行</small></div><span class="factory-step-state" aria-hidden="true"></span></li><li class="factory-progress-step is-pending" data-factory-step="verify"><span class="factory-step-number">4</span><div><strong data-i18n="factory-restore.step4">自动校验</strong><small data-i18n-initial data-i18n="factory-restore.waiting-exec">等待执行</small></div><span class="factory-step-state" aria-hidden="true"></span></li></ol><div id="factoryManualPowerNotice" class="factory-manual-power-notice" role="status" hidden><span class="factory-manual-power-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M12 2v10"></path><path d="M18.36 6.64a9 9 0 1 1-12.72 0"></path></svg></span><div><strong data-i18n="factory-restore.power-cycle">请关闭机械臂电源，再重新上电后使用</strong></div></div></aside></div></section><section class="panel"><h2 data-i18n="factory-restore.logs">恢复参数日志</h2><pre id="factoryLogs" data-i18n-initial data-i18n="factory-restore.waiting-connect">请先选择手臂型号并连接串口...</pre></section>
     </div>
 
 
@@ -309,9 +309,9 @@
         </div>
       </div>
     </dialog>
-  <script type="importmap">{"imports":{"./src/serial_servo_bus.js":"./src/serial_servo_bus.js?v=serial-connect-1","./src/browser_serial_utils.js":"./src/browser_serial_utils.js?v=serial-connect-1","./src/i18n.js":"./src/i18n.js?v=serial-connect-1"}}</script>
+  <script type="importmap">{"imports":{"./src/serial_servo_bus.js":"./src/serial_servo_bus.js?v=serial-connect-1","./src/browser_serial_utils.js":"./src/browser_serial_utils.js?v=serial-connect-1","./src/i18n.js":"./src/i18n.js?v=i18n-trajectory-20261020"}}</script>
   <script type="module" src="./src/servo_setup.js?v=1.1.2-merged-piper-1"></script>
-  <script type="module" src="./src/app.js?v=1.1.2-button-flow-20261020"></script>
+  <script type="module" src="./src/app.js?v=1.1.2-i18n-trajectory-20261020"></script>
   <script type="module" src="./src/workspace-switch.js?v=capture-flow-1"></script>
   <script type="module" src="./src/workspace-nav.js?v=20261020"></script>
 </body>

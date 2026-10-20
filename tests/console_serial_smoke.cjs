@@ -220,11 +220,35 @@ const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
     await waitModel('Star Arm 102-LD');
     await page.check('#poseSourceFollower');
     await waitModel('Star Arm 102-FL');
-    // The trajectory page also changes the Follower type internally when its physical connect button is used.
+    // The trajectory page owns an independent physical FL selection, including
+    // before connection, and restores the teleop selection without reconnecting.
+    await page.selectOption('#physicalFollowerModel', 'LUMOS');
+    await waitModel('LumosTouch V3');
+    const beforeTrajectorySerial = await page.evaluate(() => window.__consoleSerial.requested);
+    const beforeTrajectoryMotion = await page.evaluate(() => window.__consoleSerial.motionWrites.length);
+    await page.click('[data-tab="trajectory"]');
+    await waitModel('Star Arm 102-FL');
+    assert.equal(await page.locator('#physicalFollowerModel').inputValue(), 'FL');
+    assert.equal(await page.locator('#followerType').inputValue(), 'physical');
+    assert.equal(await page.evaluate(() => window.__consoleSerial.requested), beforeTrajectorySerial, 'Opening trajectory never connects a device');
+    await page.click('#flTrajectoryConnect');
+    await page.waitForFunction(() => document.querySelector('#flTrajectoryConnect').disabled
+      && !document.querySelector('#flTrajectoryDisconnect').disabled);
+    assert.equal(await page.evaluate(() => window.__consoleSerial.requested), beforeTrajectorySerial + 1, 'Trajectory connects only a new FL serial port');
+    assert.equal(await page.evaluate(() => window.__consoleSerial.motionWrites.length), beforeTrajectoryMotion, 'Trajectory connection never sends motion');
+    await page.click('[data-tab="teleop"]');
+    await waitModel('LumosTouch V3');
+    assert.equal(await page.locator('#physicalFollowerModel').inputValue(), 'LUMOS');
+    assert.equal(await page.locator('#followerType').inputValue(), 'physical');
+    assert.equal(await page.locator('#poseSourceFollower').isChecked(), true);
+    assert.equal(await page.locator('#disconnectAll').isDisabled(), true, 'Returning restores the choice, not a connection');
+    await page.selectOption('#physicalFollowerModel', 'FL');
+    await waitModel('Star Arm 102-FL');
     await page.click('#followerTypeVirtual');
     await page.selectOption('#virtualFollowerModel', 'fl-v3');
     await waitModel('LumosTouch V3');
     await page.click('[data-tab="trajectory"]');
+    await waitModel('Star Arm 102-FL');
     await page.click('#flTrajectoryConnect');
     await page.waitForFunction(() => document.querySelector('#flTrajectoryConnect').disabled
       && document.querySelector('#modelLoadStatus')?.dataset.state === 'ready'
@@ -237,14 +261,24 @@ const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
       }));
       throw new Error(`trajectory return: ${JSON.stringify(diagnostic)}`, { cause: error });
     });
-    assert.equal(await page.locator('#followerType').inputValue(), 'physical');
+    await waitModel('LumosTouch V3');
+    assert.equal(await page.locator('#followerType').inputValue(), 'virtual');
+    assert.equal(await page.locator('#virtualFollowerModel').inputValue(), 'fl-v3');
     assert.equal(await page.locator('#connectFollower').isDisabled(), false);
     assert.equal(await page.locator('#disconnectAll').isDisabled(), true, 'Changing console tabs releases the physical connection');
+    await page.check('#poseSourceLeader');
+    await waitModel('Star Arm 102-LD');
+    await page.click('[data-tab="trajectory"]');
+    await waitModel('Star Arm 102-FL');
+    await page.click('[data-tab="teleop"]');
+    await waitModel('Star Arm 102-LD');
+    assert.equal(await page.locator('#poseSourceLeader').isChecked(), true);
+    assert.equal(await page.locator('#followerType').inputValue(), 'virtual');
     assert.deepEqual(errors, []);
     console.log(JSON.stringify({ consoleSerial: true, ldAndHdAndFl: true, immediateAndOutOfOrderReplies: true, retryOnlyMissingIds: true,
       failedFirstFeedbackCannotReuseOldAngles: true, missingFeedbackSharedDeadline: true, disconnectAndReconnect: true,
       suppliedVirtualModels: virtualResults, virtualFollowerHasNoSerial: true, virtualLeaderFeedbackRendered: true,
       touchLeaderReadsSixAxesAndGripper: true, touchLeaderReadOnly: true, touchCannotCommandOriginalFl: true,
-      physicalModelRestored: true, trajectoryRestoresPhysicalModel: true, wholeButtonFeedback: true, feedbackPreservesLabelAndSize: true, reducedMotionSupported: true, hardwareTested: false }));
+      physicalModelRestored: true, trajectoryUsesOnlyPhysicalFl: true, trajectoryRestoresTeleopSelection: true, wholeButtonFeedback: true, feedbackPreservesLabelAndSize: true, reducedMotionSupported: true, hardwareTested: false }));
   } finally { if (browser) await browser.close(); service.kill(); }
 })().catch(error => { console.error(error); process.exitCode = 1; });
