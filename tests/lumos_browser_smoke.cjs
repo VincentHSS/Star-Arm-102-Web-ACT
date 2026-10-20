@@ -278,13 +278,14 @@ const ROOT = path.resolve(__dirname, '..');
     // CAN connect completion after an emergency cannot publish a live session.
     let connectionStarted, releaseConnection;
     const enteredConnect = new Promise(resolve => { connectionStarted = resolve; });
-    connectBarrier = { started: connectionStarted, pending: new Promise(resolve => { releaseConnection = resolve; }) };
+    connectBarrier = { started: connectionStarted, pending: new Promise(resolve => { releaseConnection = resolve; }), release: () => releaseConnection() };
     await page.check('#lumosEnableConfirmed'); await page.click('#connectFollower');
     await page.waitForFunction(() => document.querySelector('#lumosStatus').textContent.includes('正在连接'));
     let connectTimer;
     try {
       await Promise.race([enteredConnect, new Promise((_, reject) => { connectTimer = setTimeout(() => reject(new Error('mock CAN connect was not entered')), 6000); })]);
     } finally { clearTimeout(connectTimer); }
+    const commandsBeforeCancellation = calls.filter(call => ['sample', 'start'].includes(call.action)).length;
     await page.click('#emergencyStop');
     // Keep the mocked SDK constructor pending until the actual emergency API
     // arrives. A fixed delay can finish before a slow renderer dispatches click.
@@ -294,6 +295,8 @@ const ROOT = path.resolve(__dirname, '..');
     await page.waitForFunction(() => document.querySelector('#lumosStatus').textContent.includes('取消'));
     assert(calls.some(call => call.action === 'emergency-stop'));
     assert.equal(state.connected, false);
+    assert.equal(state.session_id, null);
+    assert.equal(calls.filter(call => ['sample', 'start'].includes(call.action)).length, commandsBeforeCancellation, 'cancelled SDK connection cannot start sampling or motion');
     connectBarrier = null;
     // Switching console tabs waits for CAN cleanup and closes the Leader serial port.
     await connect();
@@ -327,6 +330,8 @@ const ROOT = path.resolve(__dirname, '..');
     }
     throw error;
   } finally {
+    connectBarrier?.release();
+    connectBarrier = null;
     if (browser) await browser.close();
     server.closeAllConnections();
     await new Promise(resolve => server.close(resolve));
