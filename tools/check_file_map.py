@@ -45,7 +45,11 @@ FRONTEND = {
     'robot_model': '创建 3D 关节树并应用实际关节角度', 'robot_profiles': '主从臂型号、关节范围和控制配置',
     'runtime_integration': '控制台运行状态与设备控制的集成', 'serial_servo_bus': '舵机总线串口收发与响应管理',
     'servo_readback': '控制台按 ID 收集回包、每轮统一超时、仅补读缺失关节与清理等待',
-    'servo_setup_flow': '舵机 ID 和参数设置的读写校验流程', 'servo_setup': '舵机设置界面与设备操作',
+    'servo_setup_flow': '舵机 ID 和波特率冲突探测、保留保护参数的写入核验与只读恢复',
+    'servo_setup': 'LD 三维选舵机、逐颗总线配置与单颗参数编辑',
+    'servo_bus_wizard': '七颗出厂舵机逐颗编号、恢复 ID 0、统一速率及中断接续',
+    'servo_setup_model': '配置页独立 LD 三维模型、网格点选、七颗编号与高亮',
+    'servo_setup_i18n': '舵机配置页面、步骤、错误与通信反馈的中英文文本',
     'settings': '控制台用户设置与持久化', 'styles': '控制台主题、响应式布局和通用控件样式',
     'target_execution_ownership': '确保运动目标同一时间由一个执行者持有', 'tcp_drag_preview': '拖动末端时的目标预览',
     'tcp_translation_gizmo': '3D 末端平移操作控件', 'teleop_controller': '主从臂遥操作与周期控制',
@@ -78,6 +82,8 @@ BACKEND = {
     'training_manifest': 'Python / LeRobot / PyTorch 版本及加速源清单',
 }
 EXACT = {
+    'tests/servo_setup_browser_smoke.cjs': '软件测试：模拟七颗总线舵机、三维点选、单颗改参、冲突、中断恢复和中英文布局',
+    'tests/helpers/servo_setup_hardware.cjs': '软件测试：可追加舵机、切速、读写公共参数及丢包的模拟 Web Serial',
     'tools/build_touch_gripper_visual.py': '从原 LD 提取夹爪电机并按 Touch R1 新支架孔位生成显示网格和定位报告',
     'Browser_SDK/assets/urdf/ld-touch/gripper-servo.json': '夹爪电机来源、提取实体、安装孔配准和显示装配间隙',
     'Browser_SDK/assets/urdf/ld-touch/meshes/link_6-gripper-servo.stl': '从原 LD 提取并定位到 Touch R1 手柄的新夹爪电机显示网格',
@@ -228,7 +234,9 @@ def purpose(path):
                 'browser.js': '网页模型 ZIP 解压库，运行在 Worker 中'}[path.name]
     if relative.startswith('Browser_SDK/assets/vendor/'):
         return {'three.module.js': 'Three.js 模块入口与 WebGL 实现', 'three.core.js': 'Three.js 几何、场景、材质与数学核心',
-                'OrbitControls.js': '3D 视角旋转、缩放与平移控件', 'STLLoader.js': '加载机械臂 STL 三角网格'}[path.name]
+                'OrbitControls.js': '3D 视角旋转、缩放与平移控件', 'STLLoader.js': '加载机械臂 STL 三角网格',
+                'lucide-icons.svg': '自托管 Lucide 0.468.0 开源图标精灵，用于舵机配置页面',
+                'lucide-LICENSE.txt': 'Lucide 图标原始 ISC 许可证与来源版权声明'}[path.name]
     if relative.startswith('Browser_SDK/assets/'):
         return {'resource-manifest.json': '本地模型与显示资源清单', 'icon.png': '网站图标', 'logo-icon.png': '品牌图标与组件桌面图标',
                 'logo-full.png': '完整品牌图像', 'logo.svg': '品牌矢量图标'}[path.name]

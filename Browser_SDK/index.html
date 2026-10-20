@@ -14,6 +14,7 @@
 <link rel="icon" href="assets/logo-icon.png">
 <link rel="stylesheet" href="src/interaction.css?v=button-flow-1">
 <link rel="stylesheet" href="src/workspace-nav.css?v=20261020">
+<link rel="stylesheet" href="src/servo_setup.css?v=studio-1">
 </head>
 <body>
   <main class="shell">
@@ -240,77 +241,68 @@
   <dialog id="factoryConfirmDialog" class="confirm-dialog" aria-labelledby="factoryConfirmTitle"><div class="confirm-dialog-content"><p class="section-kicker" data-i18n="dialog.safety-confirm">安全确认</p><h2 id="factoryConfirmTitle" data-i18n="factory-confirm.title">确认恢复出厂参数？</h2><p data-i18n="factory-confirm.desc">请确认手臂型号选择正确并已扶稳机械臂。本操作不会设置或改变机械臂零点。</p><div class="confirm-check"><strong data-i18n="factory-confirm.current-model">当前参数型号</strong><span id="factoryConfirmModel">Star Arm 102-FL</span></div><div class="button-row confirm-actions"><button id="cancelFactoryRestore" class="ghost" type="button" data-i18n="btn.cancel">取消</button><button id="confirmFactoryRestore" class="confirm-origin" type="button" data-i18n="factory-confirm.btn">确认恢复出厂参数</button></div></div></dialog>
 
     <!-- 舵机配置视图 -->
-    <div id="servoSetupView" class="tab-view maintenance-view">
-      <section class="panel servo-panel">
-        <div class="servo-container">
-          <aside class="servo-sidebar">
-            <h3 data-i18n="servo-setup.steps-title">配置步骤</h3>
-            <ol class="servo-steps">
-              <li class="step"><span class="num">1</span><div><strong data-i18n="servo-setup.step1">连接舵机</strong><small data-i18n="servo-setup.step1-desc">按当前 ID 和波特率连接</small></div></li>
-              <li class="step"><span class="num">2</span><div><strong data-i18n="servo-setup.step2">设置参数</strong><small data-i18n="servo-setup.step2-desc">ID + 1 Mbps</small></div></li>
-              <li class="step"><span class="num">3</span><div><strong data-i18n="servo-setup.step3">完成</strong><small data-i18n="servo-setup.step3-desc">安装到机械臂</small></div></li>
-            </ol>
-            <div class="servo-status">
-              <div class="status-item"><span data-i18n="servo-setup.serial">串口</span><strong id="portStatus" data-i18n="status.not-connected">未连接</strong></div>
-              <div class="status-item"><span data-i18n="servo-setup.baudrate">波特率</span><strong id="paramStatus">-</strong></div>
-              <div class="status-item"><span data-i18n="servo-setup.status">状态</span><strong id="workState" data-i18n="status.waiting">等待连接</strong></div>
-            </div>
-            <div class="progress-wrap"><div class="progress-label" data-i18n="servo-setup.progress">进度</div><div class="progress-track"><div id="progressBar" class="progress-bar"></div></div><small id="progressText" data-i18n="servo-setup.waiting-start">等待开始</small></div>
-          </aside>
-          <main class="servo-main">
-            <header class="servo-header">
-              <div><p class="kicker">Servo Configuration</p><h1 data-i18n="servo-setup.title">舵机配置</h1><p data-i18n="servo-setup.desc">将新舵机设置为机械臂对应的 ID，波特率调整为 1 Mbps。</p></div>
-              <div class="warn-card"><strong data-i18n="servo-setup.warn-title">⚠ 只连接一颗舵机</strong><span data-i18n="servo-setup.warn-desc">不要连接整台机械臂，避免 ID 冲突。</span></div>
-            </header>
-            <div class="servo-form">
-              <div class="form-group">
-                <label for="initialId" data-i18n="servo-setup.initial-id">初始舵机 ID</label>
-                <input type="number" id="initialId" min="0" max="253" value="0">
-                <small data-i18n="servo-setup.initial-id-note">填写舵机当前 ID，新舵机通常为 0</small>
-              </div>
-              <div class="form-group">
-                <label for="initialBaudRate" data-i18n="servo-setup.initial-baudrate">初始波特率</label>
-                <select id="initialBaudRate">
-                  <option value="115200">115,200 bps</option>
-                  <option value="1000000">1,000,000 bps</option>
-                </select>
-                <small data-i18n="servo-setup.initial-baudrate-note">选择舵机当前使用的波特率</small>
-              </div>
-              <div class="form-group">
-                <label for="targetId" data-i18n="servo-setup.target-id">目标舵机 ID</label>
-                <input type="number" id="targetId" min="0" max="6" value="">
-                <small data-i18n="servo-setup.id-range">范围 0-6，对应机械臂 J1-J7</small>
-              </div>
-              <div class="form-group">
-                <label data-i18n="servo-setup.target-baudrate">目标波特率</label>
-                <input type="text" value="1,000,000 bps (固定)" readonly data-i18n-value="servo-setup.baudrate-fixed">
-                <small data-i18n="servo-setup.baudrate-note">Star Arm 102 统一使用 1 Mbps</small>
-              </div>
-            </div>
-            <label class="check-label"><input type="checkbox" id="singleCheck"><span data-i18n="servo-setup.confirm-single">我确认当前只连接了这一颗新舵机</span></label>
-            <div class="btn-row">
-              <button id="btnConnect" class="btn-primary" data-i18n="servo-setup.connect">连接舵机</button>
-              <button id="btnDisconnect" class="btn-ghost" disabled data-i18n="servo-setup.disconnect">断开</button>
-              <button id="btnWrite" class="btn-success" disabled data-i18n="servo-setup.write">写入配置</button>
-            </div>
-            <div class="log-box"><h4 data-i18n="debug.logs">日志</h4><pre id="servoLog" data-i18n="servo-setup.waiting-servo">等待连接舵机...</pre></div>
-          </main>
+    <div id="servoSetupView" class="tab-view maintenance-view ss-page">
+      <section class="ss-studio">
+        <header class="ss-mast ss-enter" style="--order:0">
+          <div><p class="ss-eyebrow">STAR ARM / DEVICE STUDIO</p><h1><span data-ss="title">舵机配置</span></h1><p class="ss-description"><span data-ss="subtitle">跟着模型逐颗接入 已配置的舵机留在总线上</span></p></div>
+          <div class="ss-product"><svg class="ss-icon" aria-hidden="true"><use href="./assets/vendor/lucide-icons.svg#cpu"></use></svg><div><small>LEADER ARM</small><strong>Star Arm 102-LD</strong></div><span class="ss-product-count">7</span></div>
+        </header>
+        <div class="ss-commandbar ss-enter" style="--order:1">
+          <div class="ss-modes" role="tablist" aria-label="Servo configuration mode">
+            <button id="ssModeAssembly" type="button" role="tab" aria-selected="true" aria-controls="ssAssemblyPanel"><svg class="ss-icon" aria-hidden="true"><use href="./assets/vendor/lucide-icons.svg#cable"></use></svg><span data-ss="assembly">逐颗配置</span></button>
+            <button id="ssModeSingle" type="button" role="tab" aria-selected="false" aria-controls="ssManualPanel"><svg class="ss-icon" aria-hidden="true"><use href="./assets/vendor/lucide-icons.svg#settings-2"></use></svg><span data-ss="single">单颗修改</span></button>
+          </div>
+          <div class="ss-connection"><span class="ss-live-dot" id="ssConnectionDot"></span><span id="portStatus">未连接</span><span class="ss-divider"></span><strong id="paramStatus">115200</strong><span class="ss-unit">bps</span></div>
+          <div class="ss-connection-actions"><button id="btnConnect" class="ss-primary" type="button"><svg class="ss-icon" aria-hidden="true"><use href="./assets/vendor/lucide-icons.svg#usb"></use></svg><span id="ssConnectLabel">连接配置总线</span></button><button id="btnDisconnect" class="ss-icon-button" type="button" disabled data-ss-title="disconnect" aria-label="断开"><svg class="ss-icon" aria-hidden="true"><use href="./assets/vendor/lucide-icons.svg#unplug"></use></svg></button></div>
         </div>
+        <div class="ss-workspace ss-enter" style="--order:2">
+          <section class="ss-model-panel" aria-label="Star Arm 102-LD servo selection">
+            <div class="ss-model-top"><div><p class="ss-eyebrow">INTERACTIVE MODEL</p><h2>Star Arm 102<span>-LD</span></h2></div><span class="ss-model-state" id="ssModelState">正在准备 LD 模型</span></div>
+            <canvas id="ssModelCanvas" aria-label="Star Arm 102-LD clickable servo model"></canvas>
+            <div id="ssModelLabels" class="ss-model-labels"></div>
+            <div class="ss-model-bottom"><span><svg class="ss-icon" aria-hidden="true"><use href="./assets/vendor/lucide-icons.svg#mouse-pointer-2"></use></svg><span data-ss="modelHint">点击舵机或编号选择 拖动旋转 滚轮缩放</span></span><button id="ssFitModel" class="ss-icon-button" type="button" data-ss-title="fit" aria-label="适应模型"><svg class="ss-icon" aria-hidden="true"><use href="./assets/vendor/lucide-icons.svg#scan-line"></use></svg></button></div>
+          </section>
+          <aside class="ss-control-panel">
+            <div id="ssStageMorph" class="ss-stage-morph">
+              <section id="ssAssemblyPanel" role="tabpanel" aria-labelledby="ssModeAssembly">
+                <ol class="ss-phase-track"><li data-ss-phase="adding"><span>01</span><span data-ss="phaseAdding">逐颗接入</span></li><li data-ss-phase="restore"><span>02</span><span data-ss="phaseRestore">恢复第一颗</span></li><li data-ss-phase="baud"><span>03</span><span data-ss="phaseBaud">统一速率</span></li></ol>
+                <p class="ss-eyebrow ss-stage-number" id="ssStageNumber">MOTOR 01 / 07</p>
+                <h2 id="ssStageTitle">接入第 1 颗舵机</h2><p id="ssStageDetail" class="ss-stage-detail"></p>
+                <div class="ss-route"><div><small>ID</small><strong id="ssFromId">0</strong></div><svg class="ss-icon" aria-hidden="true"><use href="./assets/vendor/lucide-icons.svg#arrow-right"></use></svg><div><small id="ssRouteTarget">临时 ID</small><strong id="ssToId">253</strong></div><span id="ssRouteBaud">115200 <small>bps</small></span></div>
+                <div id="ssFactoryNote" class="ss-inline-note"><svg class="ss-icon" aria-hidden="true"><use href="./assets/vendor/lucide-icons.svg#cable"></use></svg><span data-ss="preservedBaud">编号阶段保持 115200</span></div>
+                <label id="ssNewServoConfirmation" class="ss-check"><input id="ssNewServoCheck" type="checkbox"><span data-ss="newConfirmation">本轮只新增这一颗 ID 0 舵机 已配好的保持连接</span></label>
+                <button id="ssNext" class="ss-primary ss-main-action" type="button" disabled><span id="ssNextLabel">已接好 配置 J1</span><svg class="ss-icon" aria-hidden="true"><use href="./assets/vendor/lucide-icons.svg#arrow-right"></use></svg></button>
+                <button id="ssPause" class="ss-soft ss-main-action" type="button" hidden><svg class="ss-icon" aria-hidden="true"><use href="./assets/vendor/lucide-icons.svg#pause"></use></svg><span data-ss="pause">完成当前颗后暂停</span></button>
+                <p class="ss-wire-note"><span data-ss="wireHint">每次核验成功后再新增下一颗 接线通断电遵循设备说明</span></p>
+              </section>
+              <section id="ssManualPanel" role="tabpanel" aria-labelledby="ssModeSingle" hidden>
+                <p class="ss-eyebrow">INDIVIDUAL SERVO</p><div class="ss-selected-heading"><h2><span data-ss="selected">所选舵机</span></h2><strong id="ssSelectedJoint">J1</strong></div><p class="ss-stage-detail"><span data-ss="singleDescription">从模型选择一颗 读取参数后修改 ID 和波特率</span></p>
+                <div class="ss-form">
+                  <label><span data-ss="currentId">当前 ID</span><input type="number" id="initialId" min="0" max="253" value="0"></label>
+                  <label><span data-ss="currentBaud">当前波特率</span><select id="initialBaudRate"><option value="115200">115200</option><option value="1000000">1000000</option></select></label>
+                  <div class="ss-form-divider"><svg class="ss-icon" aria-hidden="true"><use href="./assets/vendor/lucide-icons.svg#arrow-right"></use></svg></div>
+                  <label><span data-ss="targetId">目标 ID</span><input type="number" id="targetId" min="0" max="253" value=""></label>
+                  <label><span data-ss="targetBaud">目标波特率</span><select id="targetBaudRate"><option value="1000000">1000000</option><option value="115200">115200</option></select></label>
+                </div>
+                <p class="ss-wire-note"><span data-ss="idHelp">可用 ID 0 至 253 读取前请核对当前地址</span></p>
+                <label class="ss-check"><input id="singleCheck" type="checkbox"><span data-ss="singleConfirmation">我已选中要修改的舵机 并确认它的当前 ID 在总线上唯一</span></label>
+                <button id="btnWrite" class="ss-primary ss-main-action" type="button" disabled><svg class="ss-icon" aria-hidden="true"><use href="./assets/vendor/lucide-icons.svg#settings-2"></use></svg><span data-ss="write">写入并核验</span></button>
+              </section>
+            </div>
+            <div id="ssIssue" class="ss-issue" role="alert" hidden><svg class="ss-icon" aria-hidden="true"><use href="./assets/vendor/lucide-icons.svg#circle-alert"></use></svg><div><strong data-ss="errorTitle">需要检查连接或参数</strong><p id="ssIssueText"></p></div></div>
+            <div class="ss-progress"><div><span data-ss="progress">配置进度</span><strong id="workState">等待连接</strong></div><div class="ss-progress-track"><i id="progressBar"></i></div><small id="progressText">等待连接总线</small></div>
+          </aside>
+        </div>
+        <section class="ss-motors ss-enter" style="--order:3"><div class="ss-section-heading"><h2><span data-ss="sequence">总线上的七颗舵机</span></h2><span data-ss="sequenceHint">J1 至 J7 对应最终 ID 0 至 6</span></div><div id="ssMotorList" class="ss-motor-list"></div></section>
+        <footer class="ss-footer ss-enter" style="--order:4"><p><svg class="ss-icon" aria-hidden="true"><use href="./assets/vendor/lucide-icons.svg#cable"></use></svg><span data-ss="recordNote">页面记录用于核对 连接后始终重新读取实际参数</span></p><div><button id="ssSaveRecord" class="ss-text-button" type="button"><svg class="ss-icon" aria-hidden="true"><use href="./assets/vendor/lucide-icons.svg#arrow-up-right"></use></svg><span data-ss="export">保存配置记录</span></button><button id="ssNewRecord" class="ss-text-button" type="button"><svg class="ss-icon" aria-hidden="true"><use href="./assets/vendor/lucide-icons.svg#rotate-ccw"></use></svg><span data-ss="newRecord">新建配置记录</span></button></div></footer>
+        <details class="ss-log ss-enter" style="--order:5"><summary><svg class="ss-icon" aria-hidden="true"><use href="./assets/vendor/lucide-icons.svg#chevron-down"></use></svg><span data-ss="logs">通信记录</span><span id="ssLogCount">0</span></summary><pre id="servoLog" role="log" aria-live="polite"></pre></details>
       </section>
     </div>
-
-    <dialog id="confirmDialog" class="simple-dialog">
-      <div class="dialog-body">
-        <h3 data-i18n="servo-confirm.title">确认写入配置？</h3>
-        <p><span data-i18n="servo-confirm.desc-prefix">将把舵机从初始 ID</span> <strong id="confirmInitialId">0</strong> <span data-i18n="servo-confirm.desc-target">设置为目标 ID</span> <strong id="confirmId">—</strong>，<span data-i18n="servo-confirm.desc-baudrate">波特率设置为 1 Mbps</span></p>
-        <div class="dialog-btns">
-          <button id="btnCancel" class="btn-ghost" data-i18n="btn.cancel">取消</button>
-          <button id="btnConfirm" class="btn-success" data-i18n="servo-confirm.write">确认写入</button>
-        </div>
-      </div>
+    <dialog id="confirmDialog" class="ss-confirm">
+      <div class="ss-confirm-content"><span class="ss-confirm-mark"><svg class="ss-icon" aria-hidden="true"><use href="./assets/vendor/lucide-icons.svg#settings-2"></use></svg></span><h3 data-ss="confirmTitle">确认本次配置</h3><p id="ssConfirmDescription"></p><div id="ssConfirmNumbers" class="ss-confirm-numbers"><div><small data-ss="currentId">当前 ID</small><strong id="confirmInitialId">0</strong></div><svg class="ss-icon" aria-hidden="true"><use href="./assets/vendor/lucide-icons.svg#arrow-right"></use></svg><div><small data-ss="targetId">目标 ID</small><strong id="confirmId">—</strong></div><div><small data-ss="targetBaud">目标波特率</small><strong id="ssConfirmBaud">1000000</strong></div></div><div class="ss-confirm-actions"><button id="btnCancel" class="ss-soft" type="button" data-ss="cancel">取消</button><button id="btnConfirm" class="ss-primary" type="button" data-ss="confirmWrite">确认写入</button></div></div>
     </dialog>
-  <script type="importmap">{"imports":{"./src/serial_servo_bus.js":"./src/serial_servo_bus.js?v=serial-connect-1","./src/browser_serial_utils.js":"./src/browser_serial_utils.js?v=serial-connect-1","./src/supplied_urdf_models.js":"./src/supplied_urdf_models.js?v=touch-gripper-20261020","./src/i18n.js":"./src/i18n.js?v=i18n-trajectory-20261020"}}</script>
-  <script type="module" src="./src/servo_setup.js?v=1.1.2-merged-piper-1"></script>
+  <script type="importmap">{"imports":{"./src/servo_setup_flow.js":"./src/servo_setup_flow.js?v=studio-1","./src/serial_servo_bus.js":"./src/serial_servo_bus.js?v=serial-connect-1","./src/browser_serial_utils.js":"./src/browser_serial_utils.js?v=serial-connect-1","./src/supplied_urdf_models.js":"./src/supplied_urdf_models.js?v=touch-gripper-20261020","./src/i18n.js":"./src/i18n.js?v=i18n-trajectory-20261020"}}</script>
+  <script type="module" src="./src/servo_setup.js?v=studio-1"></script>
   <script type="module" src="./src/app.js?v=1.1.2-touch-gripper-20261020"></script>
   <script type="module" src="./src/workspace-switch.js?v=capture-flow-1"></script>
   <script type="module" src="./src/workspace-nav.js?v=20261020"></script>

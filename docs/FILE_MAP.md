@@ -133,6 +133,8 @@
 | [Browser_SDK/assets/vendor/fflate/LICENSE.txt](../Browser_SDK/assets/vendor/fflate/LICENSE.txt) | fflate 的 MIT 许可证 |
 | [Browser_SDK/assets/vendor/fflate/browser.js](../Browser_SDK/assets/vendor/fflate/browser.js) | 网页模型 ZIP 解压库，运行在 Worker 中 |
 | [Browser_SDK/assets/vendor/fflate/package-version.json](../Browser_SDK/assets/vendor/fflate/package-version.json) | npm 原包版本和 SHA512 完整性信息 |
+| [Browser_SDK/assets/vendor/lucide-LICENSE.txt](../Browser_SDK/assets/vendor/lucide-LICENSE.txt) | Lucide 图标原始 ISC 许可证与来源版权声明 |
+| [Browser_SDK/assets/vendor/lucide-icons.svg](../Browser_SDK/assets/vendor/lucide-icons.svg) | 自托管 Lucide 0.468.0 开源图标精灵，用于舵机配置页面 |
 | [Browser_SDK/assets/vendor/onnxruntime-web/LICENSE.txt](../Browser_SDK/assets/vendor/onnxruntime-web/LICENSE.txt) | ONNX Runtime Web 的 MIT 许可证 |
 | [Browser_SDK/assets/vendor/onnxruntime-web/ort-wasm-simd-threaded.asyncify.js](../Browser_SDK/assets/vendor/onnxruntime-web/ort-wasm-simd-threaded.asyncify.js) | WebGPU 引擎的异步 WASM 模块胶水代码 |
 | [Browser_SDK/assets/vendor/onnxruntime-web/ort-wasm-simd-threaded.asyncify.wasm](../Browser_SDK/assets/vendor/onnxruntime-web/ort-wasm-simd-threaded.asyncify.wasm) | 浏览器直接运行的 WebGPU / WASM 推理实现 |
@@ -196,9 +198,13 @@
 | [Browser_SDK/src/robot_profiles.js](../Browser_SDK/src/robot_profiles.js) | 主从臂型号、关节范围和控制配置 |
 | [Browser_SDK/src/runtime_integration.js](../Browser_SDK/src/runtime_integration.js) | 控制台运行状态与设备控制的集成 |
 | [Browser_SDK/src/serial_servo_bus.js](../Browser_SDK/src/serial_servo_bus.js) | 舵机总线串口收发与响应管理 |
+| [Browser_SDK/src/servo_bus_wizard.js](../Browser_SDK/src/servo_bus_wizard.js) | 七颗出厂舵机逐颗编号、恢复 ID 0、统一速率及中断接续 |
 | [Browser_SDK/src/servo_readback.js](../Browser_SDK/src/servo_readback.js) | 控制台按 ID 收集回包、每轮统一超时、仅补读缺失关节与清理等待 |
-| [Browser_SDK/src/servo_setup.js](../Browser_SDK/src/servo_setup.js) | 舵机设置界面与设备操作 |
-| [Browser_SDK/src/servo_setup_flow.js](../Browser_SDK/src/servo_setup_flow.js) | 舵机 ID 和参数设置的读写校验流程 |
+| [Browser_SDK/src/servo_setup.css](../Browser_SDK/src/servo_setup.css) | LD 三维选舵机、逐颗总线配置与单颗参数编辑（样式） |
+| [Browser_SDK/src/servo_setup.js](../Browser_SDK/src/servo_setup.js) | LD 三维选舵机、逐颗总线配置与单颗参数编辑 |
+| [Browser_SDK/src/servo_setup_flow.js](../Browser_SDK/src/servo_setup_flow.js) | 舵机 ID 和波特率冲突探测、保留保护参数的写入核验与只读恢复 |
+| [Browser_SDK/src/servo_setup_i18n.js](../Browser_SDK/src/servo_setup_i18n.js) | 舵机配置页面、步骤、错误与通信反馈的中英文文本 |
+| [Browser_SDK/src/servo_setup_model.js](../Browser_SDK/src/servo_setup_model.js) | 配置页独立 LD 三维模型、网格点选、七颗编号与高亮 |
 | [Browser_SDK/src/settings.js](../Browser_SDK/src/settings.js) | 控制台用户设置与持久化 |
 | [Browser_SDK/src/styles.css](../Browser_SDK/src/styles.css) | 控制台主题、响应式布局和通用控件样式（样式） |
 | [Browser_SDK/src/supplied_urdf_mapping.js](../Browser_SDK/src/supplied_urdf_mapping.js) | Touch R1 Leader 和 LumosTouch 虚拟从臂的显示角度与夹指位移映射 |
@@ -312,6 +318,7 @@
 | [tests/camera_navigation_smoke.cjs](../tests/camera_navigation_smoke.cjs) | 隔离端口与模拟双相机，验证步骤切换复用预览和过期状态处理 |
 | [tests/console_serial_smoke.cjs](../tests/console_serial_smoke.cjs) | 模拟控制台 LD/HD/FL 串口、首轮反馈、共享超时、补读与重新连接 |
 | [tests/follower_calibration_ui.test.js](../tests/follower_calibration_ui.test.js) | 软件测试：从臂校准与重试界面 |
+| [tests/helpers/servo_setup_hardware.cjs](../tests/helpers/servo_setup_hardware.cjs) | 软件测试：可追加舵机、切速、读写公共参数及丢包的模拟 Web Serial |
 | [tests/lumos_browser_smoke.cjs](../tests/lumos_browser_smoke.cjs) | 软件测试：浏览器 Touch R1 与模拟 Lumos CAN 连接、校准、跟随和释放 |
 | [tests/lumos_client.test.js](../tests/lumos_client.test.js) | 软件测试：本机 Lumos CAN 会话、六轴与夹爪新鲜采样、网页校准与停止 |
 | [tests/model_import_ui.test.js](../tests/model_import_ui.test.js) | 软件测试：完整模型导入界面 |
@@ -328,9 +335,11 @@
 | [tests/piper/piper_leader_contract.test.js](../tests/piper/piper_leader_contract.test.js) | 软件测试：PiPER Mate 姿态源配置与显示约束 |
 | [tests/piper/piper_readback_zero.test.js](../tests/piper/piper_readback_zero.test.js) | 软件测试：PiPER 实时角度、J3 多圈与夹爪中心线 |
 | [tests/piper/release_version_contract.test.js](../tests/piper/release_version_contract.test.js) | 软件测试：两系统启动脚本与整合服务入口 |
-| [tests/piper/servo_setup_flow.test.js](../tests/piper/servo_setup_flow.test.js) | 软件测试：舵机 ID 和参数设置的读写校验流程 |
+| [tests/piper/servo_bus_wizard.test.js](../tests/piper/servo_bus_wizard.test.js) | 软件测试：七颗出厂舵机逐颗编号、恢复 ID 0、统一速率及中断接续 |
+| [tests/piper/servo_setup_flow.test.js](../tests/piper/servo_setup_flow.test.js) | 软件测试：舵机 ID 和波特率冲突探测、保留保护参数的写入核验与只读恢复 |
 | [tests/piper/servo_setup_ui_contract.test.js](../tests/piper/servo_setup_ui_contract.test.js) | 软件测试：舵机设置界面与读写错误显示 |
 | [tests/servo_readback.test.js](../tests/servo_readback.test.js) | 软件测试：控制台按 ID 收集回包、每轮统一超时、仅补读缺失关节与清理等待 |
+| [tests/servo_setup_browser_smoke.cjs](../tests/servo_setup_browser_smoke.cjs) | 软件测试：模拟七颗总线舵机、三维点选、单颗改参、冲突、中断恢复和中英文布局 |
 | [tests/supplied_urdf_models.test.js](../tests/supplied_urdf_models.test.js) | 软件测试：新增 URDF 连接树、网格、夹爪与原控制映射隔离 |
 | [tests/teleop_pairing.test.js](../tests/teleop_pairing.test.js) | 软件测试：已连接主从型号配对策略，实体 LumosTouch 仅允许 Touch R1 |
 | [tests/test_act_policy_worker.py](../tests/test_act_policy_worker.py) | 软件测试：独立进程加载 ACT 策略并产生预测动作 |

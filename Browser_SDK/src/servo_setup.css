@@ -1,0 +1,206 @@
+/* Servo studio only. The console, ACT pages and their themes remain independent. */
+#servoSetupView.ss-page,#confirmDialog.ss-confirm { color-scheme:light; }
+#servoSetupView.ss-page { --ss-blue:#2563eb; --ss-ink:#152031; --ss-muted:#728097; --ss-line:#e4eaf1; --ss-ease:cubic-bezier(.22,1,.36,1); height:calc(100dvh - var(--workspace-header-height,60px)); padding:28px 32px 42px; overflow-y:auto; background:#f5f7fb; color:var(--ss-ink); scrollbar-color:#c5d0de #f5f7fb; }
+#servoSetupView .ss-studio { max-width:1560px; margin:auto; }
+#servoSetupView h1,#servoSetupView h2,#servoSetupView h3,#servoSetupView p { margin:0; }
+#servoSetupView h1 { font-size:29px; font-weight:750; letter-spacing:-.045em; line-height:1.4; }
+#servoSetupView .ss-eyebrow { color:#7b8ca4; font:700 10px/1.5 Bahnschrift,sans-serif; letter-spacing:.15em; }
+#servoSetupView .ss-description { margin-top:6px; color:var(--ss-muted); font-size:12px; line-height:1.65; }
+#servoSetupView .ss-icon,#confirmDialog.ss-confirm .ss-icon { width:18px; height:18px; flex:none; fill:none; stroke:currentColor; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; }
+#servoSetupView button,#confirmDialog.ss-confirm button { display:inline-flex; justify-content:center; align-items:center; gap:8px; min-height:42px; padding:10px 15px; border:1px solid transparent; border-radius:10px; background:transparent; color:var(--ss-ink,#152031); font:600 12px/1.4 "Microsoft YaHei",sans-serif; cursor:pointer; transition:background .2s,border-color .2s,color .2s,box-shadow .2s,transform .25s var(--ss-ease),opacity .2s; }
+#servoSetupView button:hover:not(:disabled),#confirmDialog.ss-confirm button:hover:not(:disabled) { transform:translateY(-1px) scale(1.015); }
+#servoSetupView button:active:not(:disabled),#confirmDialog.ss-confirm button:active:not(:disabled) { transform:translateY(0) scale(.975); }
+#servoSetupView button:focus-visible,#servoSetupView input:focus-visible,#servoSetupView select:focus-visible,#confirmDialog.ss-confirm button:focus-visible { outline:3px solid #a9c8ff; outline-offset:3px; }
+#servoSetupView button:disabled,#confirmDialog.ss-confirm button:disabled { opacity:.4; cursor:not-allowed; }
+#servoSetupView .ss-primary,#confirmDialog.ss-confirm .ss-primary { position:relative; overflow:hidden; isolation:isolate; background:#2563eb; border-color:#2563eb; color:white; box-shadow:0 4px 9px #2563eb15; }
+#servoSetupView .ss-primary:hover:not(:disabled),#confirmDialog.ss-confirm .ss-primary:hover:not(:disabled) { background:#1756d9; box-shadow:0 7px 18px #2563eb26; }
+#servoSetupView .ss-primary[aria-busy="true"]::after { position:absolute; inset:0; pointer-events:none; background:linear-gradient(100deg,transparent 15%,#ffffff30 48%,transparent 80%); transform:translateX(-100%); animation:ss-button-sheen 1.3s ease-in-out infinite; content:""; }
+#servoSetupView .ss-soft,#confirmDialog.ss-confirm .ss-soft { background:#f1f5fb; border-color:#e2e9f3; color:#526b90; }
+#servoSetupView .ss-icon-button { width:42px; padding:10px; border-color:var(--ss-line); background:white; color:#6a7a90; }
+#servoSetupView .ss-icon-button:hover { color:var(--ss-blue); border-color:#bbd2fc; }
+#servoSetupView .ss-mast { display:flex; justify-content:space-between; align-items:center; gap:24px; margin-bottom:24px; }
+#servoSetupView .ss-product { display:flex; align-items:center; gap:12px; padding:12px 16px; border:1px solid var(--ss-line); border-radius:12px; background:#ffffffd9; }
+#servoSetupView .ss-product>.ss-icon { color:#7597bf; width:23px; height:23px; }
+#servoSetupView .ss-product small,#servoSetupView .ss-product strong { display:block; }
+#servoSetupView .ss-product small { margin-bottom:3px; color:#93a0b2; font-size:8px; letter-spacing:.13em; }
+#servoSetupView .ss-product strong { font-size:13px; }
+#servoSetupView .ss-product-count { margin-left:12px; border-left:1px solid #e2e9f3; padding-left:16px; color:#3e6596; font:600 26px Bahnschrift,sans-serif; }
+#servoSetupView .ss-commandbar { display:flex; align-items:center; gap:18px; padding:10px; margin-bottom:18px; border:1px solid var(--ss-line); border-radius:14px; background:#fff; box-shadow:0 4px 18px #243e5c03; }
+#servoSetupView .ss-modes { display:flex; padding:4px; border-radius:10px; background:#f0f3f8; }
+#servoSetupView .ss-modes button { min-height:36px; border-radius:7px; padding:8px 17px; color:#8390a2; }
+#servoSetupView .ss-modes [aria-selected="true"] { color:var(--ss-blue); background:white; box-shadow:0 2px 6px #1520310c; }
+#servoSetupView .ss-modes .ss-icon { width:16px; height:16px; }
+#servoSetupView .ss-connection { display:flex; align-items:center; gap:9px; margin-left:auto; color:#6d7f95; font-size:11px; }
+#servoSetupView .ss-live-dot { width:7px; height:7px; border-radius:50%; background:#bdc8d6; box-shadow:0 0 0 4px #edf1f6; transition:background .3s,box-shadow .3s; }
+#servoSetupView .ss-live-dot[data-online="true"] { background:#3b82f6; box-shadow:0 0 0 4px #ebf2ff; }
+#servoSetupView .ss-connection strong { color:#44546a; font:600 12px Bahnschrift,monospace; }
+#servoSetupView .ss-divider { width:1px; height:15px; background:#e5eaf1; margin:0 5px; }
+#servoSetupView .ss-unit { color:#a3aebe; font-size:10px; }
+#servoSetupView .ss-connection-actions { display:flex; gap:7px; }
+#servoSetupView .ss-workspace { display:grid; grid-template-columns:minmax(0,1.65fr) minmax(340px,1fr); gap:18px; }
+#servoSetupView .ss-model-panel { position:relative; display:grid; grid-template-rows:auto minmax(440px,1fr) auto; min-height:548px; overflow:hidden; border:1px solid var(--ss-line); border-radius:16px; background:radial-gradient(ellipse at 50% 25%,#fff 10%,#f2f6fd 100%); }
+#servoSetupView .ss-model-top { position:relative; z-index:2; display:flex; justify-content:space-between; align-items:center; padding:23px 25px; pointer-events:none; }
+#servoSetupView .ss-model-top h2 { margin-top:5px; font:600 20px Bahnschrift,sans-serif; letter-spacing:-.04em; }
+#servoSetupView .ss-model-top h2 span { color:#94a7be; }
+#servoSetupView .ss-model-state { color:#8a9aaf; font-size:10px; }
+#servoSetupView #ssModelCanvas { position:absolute; inset:42px 0 45px; width:100%; height:calc(100% - 87px); touch-action:none; }
+#servoSetupView .ss-model-labels { position:absolute; inset:42px 0 45px; pointer-events:none; }
+#servoSetupView #ssModelCanvas { cursor:grab; }
+#servoSetupView #ssModelCanvas:active { cursor:grabbing; }
+#servoSetupView .ss-label-lines { position:absolute; inset:0; width:100%; height:100%; overflow:visible; pointer-events:none; }
+#servoSetupView .ss-label-lines line { stroke:#9bb8de; stroke-width:1; transition:opacity .25s; }
+#servoSetupView .ss-model-labels button { position:absolute; top:0; left:0; width:29px; min-height:29px; height:29px; padding:0; border:1px solid #bdcfe9; border-radius:50%; color:#6b82a0; background:#fff; font:650 11px Bahnschrift,monospace; pointer-events:auto; box-shadow:0 3px 11px #344d7018; transform:translate(-50%,-50%); transition:background .25s,border-color .25s,box-shadow .3s,color .25s; }
+#servoSetupView .ss-model-labels button:hover:not(:disabled) { transform:translate(-50%,-50%) scale(1.12); }
+#servoSetupView .ss-model-labels button[aria-pressed="true"] { color:white; border-color:#2563eb; background:#2563eb; box-shadow:0 0 0 6px #2563eb13,0 3px 14px #2563eb30; }
+#servoSetupView .ss-model-bottom { position:relative; z-index:2; display:flex; justify-content:space-between; align-items:center; gap:12px; padding:0 20px 16px; grid-row:3; }
+#servoSetupView .ss-model-bottom>span { display:flex; align-items:center; gap:8px; color:#91a0b5; font-size:10px; }
+#servoSetupView .ss-model-bottom .ss-icon { width:14px; height:14px; }
+#servoSetupView .ss-control-panel { padding:25px; border:1px solid var(--ss-line); border-radius:16px; background:#fff; }
+#servoSetupView .ss-stage-morph { view-transition-name:servo-config-stage; }
+#servoSetupView .ss-model-panel { view-transition-name:servo-config-model; }
+#servoSetupView .ss-motors { view-transition-name:servo-config-motors; }
+#servoSetupView .ss-footer { view-transition-name:servo-config-footer; }
+#servoSetupView .ss-log { view-transition-name:servo-config-log; interpolate-size:allow-keywords; }
+#servoSetupView .ss-log::details-content { block-size:0; overflow:hidden; opacity:0; transition:block-size .3s var(--ss-ease),opacity .3s,content-visibility .3s allow-discrete; }
+#servoSetupView .ss-log[open]::details-content { block-size:auto; opacity:1; }
+#servoSetupView .ss-phase-track { display:flex; gap:10px; list-style:none; padding:0; margin:0 0 30px; }
+#servoSetupView .ss-phase-track li { flex:1; display:grid; gap:7px; border-top:2px solid #ebeff5; padding-top:10px; color:#a2adbd; font-size:10px; transition:color .3s,border-color .3s; }
+#servoSetupView .ss-phase-track li>span:first-child { font:600 9px Bahnschrift,monospace; opacity:.6; }
+#servoSetupView .ss-phase-track li[data-active="true"] { border-color:#2563eb; color:#2563eb; }
+#servoSetupView .ss-phase-track li[data-done="true"] { border-color:#9fbdf1; color:#718cae; }
+#servoSetupView .ss-stage-number { color:#7195cb; margin-bottom:10px; }
+#servoSetupView .ss-control-panel h2 { font-size:21px; letter-spacing:-.035em; font-weight:700; }
+#servoSetupView .ss-stage-detail { min-height:44px; margin-top:11px; color:#8591a3; font-size:11px; line-height:1.85; }
+#servoSetupView .ss-route { display:flex; align-items:center; gap:19px; margin:24px 0 13px; padding:16px 20px; border:1px solid #e3ecfb; border-radius:12px; background:#f5f8ff; }
+#servoSetupView .ss-route>div { display:grid; gap:7px; }
+#servoSetupView .ss-route small { color:#90a3bf; font-size:9px; }
+#servoSetupView .ss-route strong { color:#2456a1; font:600 31px/1 Bahnschrift,monospace; letter-spacing:-.04em; }
+#servoSetupView .ss-route>.ss-icon { color:#8cafe2; width:22px; }
+#servoSetupView #ssRouteBaud { margin-left:auto; color:#4d70a1; text-align:right; font:600 13px Bahnschrift,monospace; }
+#servoSetupView #ssRouteBaud small { display:block; margin-top:5px; font-size:9px; }
+#servoSetupView .ss-inline-note { display:flex; align-items:center; gap:7px; color:#7692b6; font-size:10px; }
+#servoSetupView .ss-inline-note .ss-icon { width:14px; height:14px; }
+#servoSetupView .ss-check { display:flex; align-items:flex-start; gap:10px; margin:21px 0 16px; color:#61758e; font-size:11px; line-height:1.8; cursor:pointer; }
+#servoSetupView input[type="checkbox"] { width:16px; height:16px; margin:2px 0 0; accent-color:#2563eb; flex:none; }
+#servoSetupView .ss-main-action { width:100%; min-height:46px; }
+#servoSetupView #ssPause { margin-top:8px; }
+#servoSetupView .ss-wire-note { margin-top:12px; color:#a0acbd; font-size:9px; line-height:1.8; }
+#servoSetupView .ss-selected-heading { display:flex; justify-content:space-between; align-items:center; margin-top:10px; }
+#servoSetupView .ss-selected-heading>strong { border:1px solid #dce8fd; border-radius:8px; padding:7px 10px; color:#2563eb; background:#f0f6ff; font:600 15px Bahnschrift,monospace; }
+#servoSetupView .ss-form { display:grid; grid-template-columns:1fr 1fr; gap:13px 14px; margin-top:22px; }
+#servoSetupView .ss-form label { display:grid; gap:7px; color:#8a98ab; font-size:10px; }
+#servoSetupView .ss-form input,#servoSetupView .ss-form select { width:100%; min-width:0; height:42px; padding:9px 11px; border:1px solid #dce4ef; border-radius:8px; outline:none; background:#fbfcff; color:#34465e; font:500 14px Bahnschrift,"Microsoft YaHei",sans-serif; transition:border-color .2s,background .2s,box-shadow .2s; }
+#servoSetupView .ss-form input:hover,#servoSetupView .ss-form select:hover { border-color:#b9cdef; }
+#servoSetupView .ss-form input:focus,#servoSetupView .ss-form select:focus { border-color:#83acf2; background:white; box-shadow:0 0 0 3px #2563eb0c; }
+#servoSetupView .ss-form input:disabled,#servoSetupView .ss-form select:disabled { background:#f4f6fa; color:#9babc0; }
+#servoSetupView .ss-form-divider { grid-column:1/-1; display:flex; justify-content:center; margin:-3px; color:#b6c9e4; }
+#servoSetupView .ss-form-divider .ss-icon { transform:rotate(90deg); width:16px; height:16px; }
+#servoSetupView .ss-issue { display:flex; gap:10px; margin-top:18px; padding:12px; border:1px solid #f5d4d4; border-radius:10px; background:#fff7f7; color:#b94f59; }
+#servoSetupView .ss-issue>.ss-icon { width:17px; margin-top:1px; }
+#servoSetupView .ss-issue strong { font-size:11px; }
+#servoSetupView .ss-issue p { margin-top:5px; font-size:10px; line-height:1.7; word-break:break-word; }
+#servoSetupView .ss-progress { margin-top:24px; padding-top:19px; border-top:1px solid #edf0f5; }
+#servoSetupView .ss-progress>div:first-child { display:flex; justify-content:space-between; gap:14px; font-size:10px; color:#8a99ad; }
+#servoSetupView .ss-progress strong { font-weight:500; color:#6085ba; text-align:right; }
+#servoSetupView .ss-progress-track { height:4px; margin:12px 0 8px; overflow:hidden; border-radius:5px; background:#edf2fa; }
+#servoSetupView #progressBar { display:block; height:100%; width:0; border-radius:5px; background:#3b82f6; transition:width .65s var(--ss-ease); }
+#servoSetupView #progressText { color:#9ba9bb; font-size:9px; }
+#servoSetupView .ss-motors { margin-top:21px; }
+#servoSetupView .ss-section-heading { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:12px; }
+#servoSetupView .ss-section-heading h2 { font-size:12px; font-weight:600; color:#52657e; }
+#servoSetupView .ss-section-heading>span { color:#9ca9ba; font-size:10px; }
+#servoSetupView .ss-motor-list { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:10px; }
+#servoSetupView .ss-motor-card { display:grid; justify-content:stretch; gap:10px; min-height:90px; padding:13px 14px; border:1px solid #e1e7f0; border-radius:11px; background:#ffffffb8; text-align:left; }
+#servoSetupView .ss-motor-card>div { display:flex; justify-content:space-between; align-items:center; gap:7px; }
+#servoSetupView .ss-motor-card b { font:600 11px Bahnschrift,sans-serif; color:#7d90aa; }
+#servoSetupView .ss-motor-card strong { font:600 21px/1 Bahnschrift,monospace; color:#8091a9; }
+#servoSetupView .ss-motor-card small { color:#a1afc2; font-size:8px; font-weight:400; }
+#servoSetupView .ss-motor-card .ss-motor-state { width:5px; height:5px; border-radius:50%; background:#d1dae6; }
+#servoSetupView .ss-motor-card[aria-pressed="true"] { border-color:#8bb5ff; background:#edf4ff; box-shadow:0 0 0 2px #2563eb05; }
+#servoSetupView .ss-motor-card[aria-pressed="true"] b,#servoSetupView .ss-motor-card[aria-pressed="true"] strong { color:#2563eb; }
+#servoSetupView .ss-motor-card[data-verified="true"] .ss-motor-state { background:#3b82f6; box-shadow:0 0 0 3px #e4efff; }
+#servoSetupView .ss-footer { display:flex; align-items:center; justify-content:space-between; gap:15px; margin-top:20px; }
+#servoSetupView .ss-footer>p { display:flex; align-items:center; gap:8px; color:#a0adbf; font-size:9px; }
+#servoSetupView .ss-footer .ss-icon { width:14px; height:14px; }
+#servoSetupView .ss-footer>div { display:flex; gap:8px; }
+#servoSetupView .ss-text-button { min-height:30px; padding:6px 8px; border-radius:6px; color:#8a9bb2; font-size:10px; }
+#servoSetupView .ss-text-button:hover { color:#2563eb; background:#edf3fd; }
+#servoSetupView .ss-log { margin-top:16px; border:1px solid #e7ecf3; border-radius:10px; background:#ffffff9c; }
+#servoSetupView .ss-log summary { display:flex; gap:8px; align-items:center; padding:13px 16px; color:#91a0b4; font-size:10px; list-style:none; cursor:pointer; }
+#servoSetupView .ss-log summary::-webkit-details-marker { display:none; }
+#servoSetupView .ss-log summary .ss-icon { width:14px; height:14px; transition:transform .3s var(--ss-ease); }
+#servoSetupView .ss-log[open] summary .ss-icon { transform:rotate(180deg); }
+#servoSetupView #ssLogCount { margin-left:auto; padding:2px 6px; border-radius:4px; background:#f0f4fa; font:10px Bahnschrift,monospace; }
+#servoSetupView #servoLog { max-height:190px; min-height:60px; margin:0; padding:4px 16px 16px; overflow:auto; border:0; background:transparent; color:#7688a0; font:10px/1.9 Consolas,"Microsoft YaHei",monospace; white-space:pre-wrap; word-break:break-word; }
+#servoSetupView [hidden] { display:none!important; }
+#confirmDialog.ss-confirm { --ss-ink:#152031; width:min(470px,calc(100vw - 36px)); max-height:calc(100dvh - 36px); overflow:auto; padding:0; border:1px solid #dce5f1; border-radius:18px; background:white; color:#152031; box-shadow:0 30px 100px #071b4930; }
+#confirmDialog.ss-confirm::backdrop { background:#10244266; backdrop-filter:blur(6px); }
+#confirmDialog.ss-confirm::backdrop { transition:background .2s,backdrop-filter .2s; }
+#confirmDialog.ss-confirm[data-closing]::backdrop { background:transparent; backdrop-filter:blur(0); }
+@starting-style { #confirmDialog.ss-confirm[open]::backdrop { background:transparent; backdrop-filter:blur(0); } }
+#confirmDialog.ss-confirm .ss-confirm-content { padding:27px; }
+#confirmDialog.ss-confirm .ss-confirm-mark { display:grid; place-items:center; width:40px; height:40px; border-radius:12px; color:#2563eb; background:#edf4ff; margin-bottom:17px; }
+#confirmDialog.ss-confirm h3 { font-size:20px; margin:0 0 10px; }
+#confirmDialog.ss-confirm #ssConfirmDescription { margin:0; color:#8291a6; font-size:12px; line-height:1.8; }
+#confirmDialog.ss-confirm .ss-confirm-numbers { display:flex; align-items:center; gap:17px; margin-top:22px; padding:16px; border:1px solid #e2ebfa; border-radius:10px; background:#f6f9ff; }
+#confirmDialog.ss-confirm .ss-confirm-numbers>div { display:grid; gap:7px; }
+#confirmDialog.ss-confirm .ss-confirm-numbers>div:last-child { margin-left:auto; }
+#confirmDialog.ss-confirm .ss-confirm-numbers small { color:#93a6c2; font-size:9px; }
+#confirmDialog.ss-confirm .ss-confirm-numbers strong { color:#2859a6; font:600 22px Bahnschrift,monospace; }
+#confirmDialog.ss-confirm .ss-confirm-numbers>.ss-icon { color:#91b1e1; }
+#confirmDialog.ss-confirm .ss-confirm-actions { display:flex; justify-content:flex-end; gap:10px; margin-top:24px; }
+#confirmDialog.ss-confirm [hidden] { display:none!important; }
+.shell:has(#servoSetupView.active) .tab.active { border-bottom-color:#4b8dff; }
+.shell:has(#servoSetupView.active) .topbar::after { background:#4b8dff; }
+.shell:has(#servoSetupView.active) .language-switch { display:grid!important; }
+.shell:has(#servoSetupView.active) .language-switch::before { border-color:#4b8dff; background:#1b417a; box-shadow:0 0 12px #2563eb20; }
+#servoSetupView.active .ss-enter { animation:ss-enter .58s var(--ss-ease) both; animation-delay:calc(var(--order,0)*45ms); }
+#servoSetupView.active :is(h1,h2,h3,label,.ss-stage-detail,.ss-route,.ss-check,.ss-motor-card) { animation:ss-content-in .44s var(--ss-ease) backwards; }
+#servoSetupView.active .ss-model-labels button { animation:ss-label-in .4s var(--ss-ease) backwards; }
+@keyframes ss-label-in { from{opacity:0;transform:translate(-50%,-50%) scale(.7)} to{opacity:1;transform:translate(-50%,-50%) scale(1)} }
+@keyframes ss-enter { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+@keyframes ss-content-in { from{opacity:0;transform:translateY(5px)} to{opacity:1;transform:translateY(0)} }
+@keyframes ss-button-sheen { to{transform:translateX(100%)} }
+html[data-ss-transition]::view-transition-old(root),html[data-ss-transition]::view-transition-new(root) { animation:none; }
+html[data-ss-transition]::view-transition-group(servo-config-stage) { animation-duration:.38s; animation-timing-function:cubic-bezier(.22,1,.36,1); }
+html[data-ss-transition]::view-transition-group(servo-config-model),html[data-ss-transition]::view-transition-group(servo-config-motors),html[data-ss-transition]::view-transition-group(servo-config-footer),html[data-ss-transition]::view-transition-group(servo-config-log) { animation-duration:.38s; animation-timing-function:cubic-bezier(.22,1,.36,1); }
+html[data-ss-transition]::view-transition-old(servo-config-stage) { animation:ss-morph-out .2s both; }
+html[data-ss-transition]::view-transition-new(servo-config-stage) { animation:ss-morph-in .35s both; }
+@keyframes ss-morph-out { to{opacity:0;filter:blur(2px);transform:translateY(-6px)} }
+@keyframes ss-morph-in { from{opacity:0;filter:blur(2px);transform:translateY(8px)} to{opacity:1;filter:blur(0);transform:translateY(0)} }
+@media(max-width:1050px) {
+  #servoSetupView.ss-page { padding:22px 20px 36px; }
+  #servoSetupView .ss-workspace { grid-template-columns:minmax(0,1fr) 350px; }
+  #servoSetupView .ss-control-panel { padding:21px; }
+  #servoSetupView .ss-model-panel { min-height:570px; }
+  #servoSetupView .ss-connection { font-size:10px; gap:7px; }
+  #servoSetupView .ss-motor-list { gap:7px; }
+  #servoSetupView .ss-motor-card { padding:11px; }
+}
+@media(max-width:760px) {
+  #servoSetupView.ss-page { padding:18px 12px 32px; }
+  #servoSetupView .ss-mast { gap:12px; align-items:flex-start; margin-bottom:18px; }
+  #servoSetupView h1 { font-size:25px; }
+  #servoSetupView .ss-description { font-size:10px; max-width:230px; }
+  #servoSetupView .ss-product { padding:9px; gap:7px; }
+  #servoSetupView .ss-product strong { font-size:10px; }
+  #servoSetupView .ss-product>.ss-icon,#servoSetupView .ss-product-count { display:none; }
+  #servoSetupView .ss-commandbar { flex-wrap:wrap; gap:12px; }
+  #servoSetupView .ss-modes { flex:1 0 100%; justify-content:center; }
+  #servoSetupView .ss-modes button { flex:1; }
+  #servoSetupView .ss-connection { margin-left:8px; margin-right:auto; }
+  #servoSetupView .ss-workspace { grid-template-columns:1fr; }
+  #servoSetupView .ss-model-panel { min-height:420px; grid-template-rows:auto minmax(300px,1fr) auto; }
+  #servoSetupView .ss-model-top { padding:19px; }
+  #servoSetupView .ss-control-panel { padding:23px; }
+  #servoSetupView .ss-motor-list { grid-template-columns:repeat(4,minmax(0,1fr)); }
+  #servoSetupView .ss-section-heading { align-items:flex-start; }
+  #servoSetupView .ss-section-heading>span { max-width:165px; font-size:9px; text-align:right; }
+  #servoSetupView .ss-footer { flex-wrap:wrap; gap:9px; }
+  #servoSetupView .ss-footer>div { margin-left:auto; }
+}
+@media(prefers-reduced-motion:reduce) {
+  #servoSetupView *,#confirmDialog.ss-confirm * { animation:none!important; transition-duration:.001ms!important; }
+  #confirmDialog.ss-confirm::backdrop { transition:none; }
+  html[data-ss-transition]::view-transition-group(servo-config-stage),html[data-ss-transition]::view-transition-old(servo-config-stage),html[data-ss-transition]::view-transition-new(servo-config-stage) { animation-duration:.001ms!important; }
+}

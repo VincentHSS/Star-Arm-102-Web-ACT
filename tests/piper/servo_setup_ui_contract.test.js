@@ -20,7 +20,7 @@ test('servo setup derives the target ID from the live input instead of a hard-co
     app,
     /ui\.btnWrite\.onclick\s*=\s*\(\)\s*=>\s*\{\s*targetId\s*=\s*Number\(ui\.idInput\.value\);/s,
   );
-  assert.match(html, /<input type="number" id="targetId" min="0" max="6" value="">/);
+  assert.match(html, /<input type="number" id="targetId" min="0" max="253" value="">/);
   assert.doesNotMatch(html, /id="targetId"[^>]*value="3"/);
   assert.match(html, /<strong id="confirmId">—<\/strong>/);
   assert.doesNotMatch(html, /<strong id="confirmId">3<\/strong>/);

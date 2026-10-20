@@ -18,6 +18,7 @@ def main():
         'Star Arm 102 · Windows 本地网页测试\n\n'
         '双击 start_windows_urdf.bat 打开控制台。Touch R1 在“Leader 类型”中；LumosTouch V3 在 Follower“虚拟手臂”的“虚拟型号”中。切换型号前先停止并断开连接。Touch R1 的六轴与 ID 6 夹爪共同参与遥操作。\n'
         '页面顶部“当前工作区”菜单统一切换控制台、ACT 工作台和网页执行。\n\n'
+        '舵机配置：打开控制台的“舵机配置”。Star Arm 102-LD 支持七颗出厂 ID 0 / 115200 舵机逐颗新增，已配置的保持连接；先用临时 ID 253，再配置 1 至 6，恢复第一颗为 0，最后统一切到 1000000。模型可点击选择单颗修改 ID 和波特率。\n\n'
         '实体 LumosTouch 的 CAN 遥操作仅支持 Ubuntu；请使用源码中的 start_ubuntu_lumos.sh。Windows 本包不提供 Lumos CAN 驱动。\n\n'
         '更新包时，先在旧网页停止执行并关闭旧启动窗口，再解压到新文件夹启动。\n'
         '1. 将整个 ZIP 解压到普通文件夹，不要在压缩包预览中启动。\n'

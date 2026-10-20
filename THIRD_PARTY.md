@@ -9,6 +9,7 @@ LumosTouch 遥操作参考用户指定的 [VincentHSS/stararm102-lumos-teleop �
 | 组件 | 位置与说明 |
 | --- | --- |
 | Three.js、OrbitControls、STLLoader | `Browser_SDK/assets/vendor/`，保留文件内的 MIT 许可头。 |
+| Lucide 0.468.0 | 舵机配置页使用自托管 SVG 图标，来自 [固定版本官方图标](https://github.com/lucide-icons/lucide/tree/0.468.0/icons)，保留 `Browser_SDK/assets/vendor/lucide-LICENSE.txt` 中的 ISC 许可与版权声明。 |
 | FashionStar UART SDK 1.3.6 | `ai_service/vendor/fashionstar_uart_sdk-1.3.6-py3-none-any.whl`，未修改的上游 wheel；随附 `.LICENSE.txt` 保留原 MIT 文本。 |
 | pyserial 3.5 | `ai_service/vendor/pyserial-3.5-py2.py3-none-any.whl`，未修改的上游 wheel；许可证在 wheel 的 dist-info/LICENSE.txt。 |
 | LeRobot 与 PyTorch | 按训练清单在用户本机安装，上游组件适用各自的许可证；不随本仓库打包训练环境。 |
