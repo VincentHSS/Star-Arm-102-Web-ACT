@@ -7,8 +7,12 @@ const ROOT = path.resolve(__dirname, '..');
   const origin = 'http://127.0.0.1:18766';
   let browser;
   try {
-    browser = await chromium.launch({ headless: true, ...(process.env.PLAYWRIGHT_BROWSER_CHANNEL ? { channel: process.env.PLAYWRIGHT_BROWSER_CHANNEL } : {}) });
+    browser = await chromium.launch({ headless: true, ...(process.env.PLAYWRIGHT_BROWSER_CHANNEL ? { channel: process.env.PLAYWRIGHT_BROWSER_CHANNEL } : {}),
+      ...(process.env.LUMOS_BROWSER_SOFTWARE_RENDERER === '1' ? { args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader'] } : {}) });
     const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
+    if (Number(process.env.LUMOS_BROWSER_CPU_THROTTLE) > 1) {
+      await (await page.context().newCDPSession(page)).send('Emulation.setCPUThrottlingRate', { rate: Number(process.env.LUMOS_BROWSER_CPU_THROTTLE) });
+    }
     const errors = [], calls = [];
     let state = { phase: 'idle', connected: false, session_id: null }, sequence = 0, stopDelay = 0, connectDelay = 0, sdkEpoch = 0;
     page.on('pageerror', error => errors.push(error.message));
@@ -148,7 +152,12 @@ const ROOT = path.resolve(__dirname, '..');
       assert.equal(await page.locator('#startTeleop').isDisabled(), true);
       await page.check('#lumosMappingConfirmed');
       await page.click('#startTeleop');
-      await page.waitForFunction(() => document.querySelector('#runStatus').textContent.includes('Touch R1 → LumosTouch'));
+      await page.waitForFunction(() => document.querySelector('#runStatus').textContent.includes('Touch R1 → LumosTouch'), null, { timeout: 6000 }).catch(async error => {
+        throw new Error(`Start Lumos: ${JSON.stringify({ state, calls: calls.slice(-8), errors,
+          ui: await page.evaluate(() => ({ status: document.querySelector('#lumosStatus').textContent,
+            run: document.querySelector('#runStatus').textContent, interaction: document.querySelector('#interaction-status')?.textContent,
+            logs: document.querySelector('#logs').textContent.slice(-1500) })) })}`, { cause: error });
+      });
     };
     await connect();
     assert.equal(await page.evaluate(() => window.__lumosSerial.requested), serialRequests, 'Lumos must not request a serial Follower');
