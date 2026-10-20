@@ -99,7 +99,16 @@ const ROOT = path.resolve(__dirname, '..');
     });
     await page.goto(origin + '/index.html');
     await page.waitForFunction(() => document.querySelector('#modelLoadStatus').dataset.state === 'ready');
+    await page.evaluate(async () => {
+      const THREE = await import('./assets/vendor/three.module.js');
+      window.__lumosSceneDraws = 0;
+      THREE.Object3D.prototype.onBeforeRender = function () { window.__lumosSceneDraws++; };
+    });
     await page.selectOption('#physicalFollowerModel', 'LUMOS');
+    await page.waitForFunction(() => {
+      const status = document.querySelector('#modelLoadStatus');
+      return status.dataset.state === 'ready' && status.textContent.includes('LumosTouch');
+    });
     await page.click('#lumosCheckService');
     await page.waitForFunction(() => document.querySelector('#lumosSdkGripper').textContent.includes('TypeLJ'));
     assert.equal(await page.locator('#connectFollower').isDisabled(), true);
@@ -129,6 +138,10 @@ const ROOT = path.resolve(__dirname, '..');
           logs: document.querySelector('#logs').textContent.slice(-1500),
           interaction: document.querySelector('#interaction-status')?.textContent,
         })), calls: calls.slice(-10), errors })}`, { cause: error });
+      });
+      await page.waitForFunction(() => {
+        const status = document.querySelector('#modelLoadStatus');
+        return status.dataset.state === 'ready' && status.textContent.includes('LumosTouch');
       });
     };
     const calibrate = async () => {
@@ -166,6 +179,14 @@ const ROOT = path.resolve(__dirname, '..');
     await page.waitForFunction(() => document.querySelector('#jointActualValue7').textContent === '50%'
       && document.querySelector('#jointSliderValue7').textContent === '50%'
       && document.querySelector('#teleopFrequency').textContent !== '未运行');
+    await pause(1600); // Let the model's camera damping finish before counting unchanged poses.
+    const samplesBeforeIdle = calls.filter(call => call.action === 'sample').length;
+    await page.evaluate(() => { window.__lumosSceneDraws = 0; });
+    await pause(350);
+    assert.equal(await page.evaluate(() => window.__lumosSceneDraws), 0, 'fresh but unchanged feedback must not redraw the STL scene');
+    assert(calls.filter(call => call.action === 'sample').length > samplesBeforeIdle, 'render deduplication must not pause fresh control samples');
+    state.positions_rad[0] += 0.01;
+    await page.waitForFunction(() => window.__lumosSceneDraws > 0);
     await page.locator('#lumosPanel').scrollIntoViewIfNeeded();
     await page.screenshot({ path: path.join(ROOT, 'dist', 'lumos-console.png') });
     assert.equal(await page.evaluate(() => window.__lumosSerial.nonReadWrites), 0, 'Touch is strictly read-only');
@@ -215,6 +236,7 @@ const ROOT = path.resolve(__dirname, '..');
     assert.deepEqual(errors, []);
     console.log(JSON.stringify({ lumosBrowser: true, matchingLeaderRequired: true, noFollowerSerial: true,
       freshSixAxesAndGripper: true, explicitCalibrationAndStart: true, gripperEndpointsRaw: true, stopLocksModel: true, missingAxisOrGripperStops: true,
-      emergencyCancelsPendingConnect: true, navigationClosesCan: true, oldTrajectoryBlocked: true, hardwareTested: false }));
+      emergencyCancelsPendingConnect: true, navigationClosesCan: true, oldTrajectoryBlocked: true,
+      stationaryPoseSkipsRedrawWithoutPausingSampling: true, hardwareTested: false }));
   } finally { if (browser) await browser.close(); }
 })().catch(error => { console.error(error); process.exitCode = 1; });

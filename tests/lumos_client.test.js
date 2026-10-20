@@ -133,6 +133,22 @@ test('structured API error messages remain readable', async () => {
   await assert.rejects(client.connect(identity), error => error.message === 'CAN 接口未启动' && error.code === 'can_unavailable');
 });
 
+test('aborted JSON body reports a timeout instead of a missing local service', async () => {
+  const { client } = fixture({ fetchHook: async () => ({
+    ok: true, status: 200,
+    json: async () => { throw new DOMException('The operation was aborted', 'AbortError'); },
+  }) });
+  await assert.rejects(client.checkService(), /本机服务响应超时/);
+});
+
+test('a static HTML response still explains how to launch the Ubuntu component', async () => {
+  const { client } = fixture({ fetchHook: async () => ({
+    ok: true, status: 200,
+    json: async () => { throw new SyntaxError('Unexpected token <'); },
+  }) });
+  await assert.rejects(client.checkService(), /start_ubuntu_lumos\.sh/);
+});
+
 test('backend cleanup failure stays visible and blocks reconnect', async () => {
   const { client } = fixture({ fetchHook: async ({ action, respond }) => ['stop', 'disconnect', 'status'].includes(action)
     ? respond({ phase: 'fault', connected: false, session_id: null, cleanup_failed: true, error: 'SDK 关闭失败' }) : null });

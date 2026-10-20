@@ -222,6 +222,8 @@ class BrowserTeleopController {
     this.disconnectPromise = null;
     this.lumosLeaderSession = null;
     this.lumosLastPhase = null;
+    this.lumosActualRenderKey = null;
+    this.lumosPreviewRenderKey = null;
     this.lumos = new LumosClient({
       readLeader: () => this.readFreshTouchAngles(),
       assertIdentity: (identity) => {
@@ -233,6 +235,7 @@ class BrowserTeleopController {
       },
       onState: (snapshot) => {
         if (!this.isLumosTarget()) { renderLumosPanel(); return; }
+        if (snapshot.phase === 'connecting') this.resetLumosRenderCache();
         const changed = this.lumosLastPhase !== snapshot.phase || this.lumosLastBusy !== this.lumos.busy
           || this.lumosLastChanging !== this.lumosChanging();
         this.lumosLastPhase = snapshot.phase;
@@ -258,13 +261,28 @@ class BrowserTeleopController {
           this.latestAngles.follower = [...snapshot.positions_rad.map(value => value * 180 / Math.PI),
             Number.isFinite(gripperRatio) ? Math.max(0, Math.min(1, gripperRatio)) * 90 : 0];
         }
-        if (this.latestAngles[selectedPoseRole()]) renderAngles(this.latestAngles[selectedPoseRole()], selectedPoseRole());
+        const role = selectedPoseRole();
+        const angles = this.latestAngles[role];
+        // Serial sampling stays fresh at every iteration; a stationary pose does
+        // not need to redraw all STL meshes at the same rate.
+        const actualKey = JSON.stringify([role, selectedDisplayModelKey(), angles,
+          snapshot.gripper?.position_ratio, snapshot.gripper?.preview_ratio]);
+        if (angles && actualKey !== this.lumosActualRenderKey) {
+          renderAngles(angles, role);
+          this.lumosActualRenderKey = actualKey;
+        }
         if (this.running) this.updateFrequency();
-        if (selectedPoseRole() === 'follower' && snapshot.preview_rad?.length === 6 && snapshot.phase === 'preview') {
+        let preview = null;
+        if (role === 'follower' && snapshot.preview_rad?.length === 6 && snapshot.phase === 'preview') {
           const ratio = snapshot.gripper?.preview_ratio;
-          robotModel.preview(mapSuppliedVirtualAngles('fl-v3', [...snapshot.preview_rad,
-            Number.isFinite(ratio) ? Math.max(0, Math.min(1, ratio)) * Math.PI / 2 : 0]).modelAngles);
-        } else robotModel.preview(null);
+          preview = mapSuppliedVirtualAngles('fl-v3', [...snapshot.preview_rad,
+            Number.isFinite(ratio) ? Math.max(0, Math.min(1, ratio)) * Math.PI / 2 : 0]).modelAngles;
+        }
+        const previewKey = JSON.stringify([role, selectedDisplayModelKey(), preview]);
+        if (previewKey !== this.lumosPreviewRenderKey) {
+          robotModel.preview(preview);
+          this.lumosPreviewRenderKey = previewKey;
+        }
       },
       onFault: (error) => {
         log(error.message);
@@ -276,6 +294,11 @@ class BrowserTeleopController {
 
   isLumosTarget() {
     return this.followerTarget.type === FOLLOWER_TARGET_PHYSICAL && this.followerTarget.physicalModel === PHYSICAL_FOLLOWER_LUMOS;
+  }
+
+  resetLumosRenderCache() {
+    this.lumosActualRenderKey = null;
+    this.lumosPreviewRenderKey = null;
   }
 
   lumosChanging() {
@@ -1836,12 +1859,14 @@ function renderModelPermission() {
 }
 
 function syncDisplayedModel(reason = t('status.display-model-changed')) {
+  controller.resetLumosRenderCache();
   if (reason) invalidateTargetPreview(reason);
   if (targetControlMode === 'tcp' && selectedDisplayProfile().code !== 'FL') targetControlMode = 'joint';
   const role = selectedPoseRole();
   const angles = controller.latestAngles[role] ?? new Array(SERVO_IDS.length).fill(0);
   robotModel.setModel(MODEL_CONFIGS[selectedDisplayModelKey()]).then(() => {
     if (selectedPoseRole() !== role) return;
+    controller.resetLumosRenderCache();
     renderAngles(angles, role);
     renderTargetPermission();
   }).catch((error) => log(tWithVars('error.model-switch-failed', { model: selectedDisplayModelName(), message: error.message })));

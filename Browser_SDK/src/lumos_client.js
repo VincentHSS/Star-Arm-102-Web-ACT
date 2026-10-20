@@ -77,7 +77,12 @@ export class LumosClient {
       });
       let result;
       try { result = await response.json(); }
-      catch { throw new Error('当前本地页面未提供 Ubuntu LumosTouch 服务。请在 Ubuntu 运行 start_ubuntu_lumos.sh，并使用它打开的控制台。'); }
+      catch (error) {
+        // Abort can happen after headers arrive, while the body is still being
+        // read. Preserve it so a slow service is not reported as a missing one.
+        if (error?.name === 'AbortError' || abort.signal.aborted) throw new DOMException('LumosTouch response aborted', 'AbortError');
+        throw new Error('当前本地页面未提供 Ubuntu LumosTouch 服务。请在 Ubuntu 运行 start_ubuntu_lumos.sh，并使用它打开的控制台。');
+      }
       if (!response.ok) {
         const error = new Error(typeof result.detail === 'string' ? result.detail : result.error?.message || (typeof result.error === 'string' ? result.error : null) || `LumosTouch 请求失败（${response.status}）`);
         error.code = result.error?.code;
