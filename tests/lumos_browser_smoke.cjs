@@ -9,7 +9,7 @@ const ROOT = path.resolve(__dirname, '..');
   const origin = 'http://127.0.0.1:18766';
   let browser, page;
   const errors = [], calls = [];
-  let state = { phase: 'idle', connected: false, session_id: null }, sequence = 0, stopDelay = 0, connectDelay = 0, sdkEpoch = 0;
+  let state = { phase: 'idle', connected: false, session_id: null }, sequence = 0, stopDelay = 0, connectBarrier = null, sdkEpoch = 0;
   const server = http.createServer(async (request, response) => {
     try {
       const url = new URL(request.url, origin);
@@ -38,7 +38,7 @@ const ROOT = path.resolve(__dirname, '..');
         assert.equal(body.leader_type, 'TOUCH'); assert.equal(body.follower_type, 'LUMOS');
         assert.equal(body.enable_confirmed, true);
         const epoch = sdkEpoch;
-        await pause(connectDelay);
+        if (connectBarrier) { connectBarrier.started(); await connectBarrier.pending; }
         if (epoch !== sdkEpoch) return reply({ error: { code: 'cancelled', message: '连接已被急停取消' } }, 400);
         state = { phase: 'connected', connected: true, session_id: `session-${++sequence}`, connection_id: `can-${sequence}`,
           positions_rad: [0.1, 0.2, 0.3, 0.4, 0.5, 0.6], preview_rad: null, calibration: { reference_set: false, range_ready: false },
@@ -276,14 +276,25 @@ const ROOT = path.resolve(__dirname, '..');
     assert.equal(calls.filter(call => call.action === 'stop').length, beforeMissingGripper + 1);
     await page.evaluate(() => { window.__lumosSerial.missing = []; });
     // CAN connect completion after an emergency cannot publish a live session.
-    connectDelay = 400;
+    let connectionStarted, releaseConnection;
+    const enteredConnect = new Promise(resolve => { connectionStarted = resolve; });
+    connectBarrier = { started: connectionStarted, pending: new Promise(resolve => { releaseConnection = resolve; }) };
     await page.check('#lumosEnableConfirmed'); await page.click('#connectFollower');
     await page.waitForFunction(() => document.querySelector('#lumosStatus').textContent.includes('正在连接'));
+    let connectTimer;
+    try {
+      await Promise.race([enteredConnect, new Promise((_, reject) => { connectTimer = setTimeout(() => reject(new Error('mock CAN connect was not entered')), 6000); })]);
+    } finally { clearTimeout(connectTimer); }
     await page.click('#emergencyStop');
+    // Keep the mocked SDK constructor pending until the actual emergency API
+    // arrives. A fixed delay can finish before a slow renderer dispatches click.
+    for (let attempt = 0; attempt < 100 && !calls.some(call => call.action === 'emergency-stop'); attempt++) await pause(20);
+    assert(calls.some(call => call.action === 'emergency-stop'));
+    releaseConnection();
     await page.waitForFunction(() => document.querySelector('#lumosStatus').textContent.includes('取消'));
     assert(calls.some(call => call.action === 'emergency-stop'));
     assert.equal(state.connected, false);
-    connectDelay = 0;
+    connectBarrier = null;
     // Switching console tabs waits for CAN cleanup and closes the Leader serial port.
     await connect();
     const beforeNavigationStops = calls.filter(call => call.action === 'stop').length;
