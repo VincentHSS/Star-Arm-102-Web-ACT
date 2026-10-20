@@ -1,6 +1,8 @@
 # 第三方来源与许可
 
-新增 URDF 预览资源：`assets/urdf/fl-v3/` 来自用户提供的 `URDF.zip`（LumosTouch / FastTouchV3.SLDASM）；`assets/urdf/ld-touch/` 来自 [Touch R1 Leader Arm](https://github.com/servodevelop/touch-r1-leader-arm/tree/2b07a1a74b7b0ae5a6a4915ccd58a055cfde4597/hardware/robot-description) 的 URDF 包。保留原始 `source.urdf`；`model.urdf` 仅将网格引用改为相对路径。网格未修改；LD 全部 21 份视觉网格按原连杆归属加载。上游 LD 的 continuous 关节用于预览，不作为实机无限旋转或编码器零点的依据。相关资产沿用各自来源授权，本工程不另行授予模型资产许可。
+URDF 资源：`Browser_SDK/assets/urdf/fl-v3/` 来自用户提供的 `URDF.zip`（LumosTouch / FastTouchV3.SLDASM）；`Browser_SDK/assets/urdf/ld-touch/` 来自 [Touch R1 Leader Arm 固定提交 7c681191](https://github.com/servodevelop/touch-r1-leader-arm/tree/7c6811913e0928b04a2ad69d6ab25b7f22217ee5/hardware/robot-description) 的 URDF 包。保留原始 `source.urdf`、`upstream-README.md` 与 `kinematics.json`；`model.urdf` 仅将网格引用改为相对路径。全部 21 份视觉网格（182,708 个三角面）按原连杆归属加载，下载文件与该提交一致，SHA-256 清单见同目录 `SOURCE.json`。当前版本移除源装配的 A000、B000 两个限位块并采用上游更新的舵机网格。上游 continuous 关节只表示可视化旋转，源装配零姿态不代表编码器零位；实机 ID、方向、零位和限位需由控制标定单独确定。相关资产沿用各自来源授权，本工程不另行授予模型资产许可。
+
+LumosTouch 遥操作参考用户指定的 [VincentHSS/stararm102-lumos-teleop 固定提交 c9922364](https://github.com/VincentHSS/stararm102-lumos-teleop/tree/c9922364c22156bba277ff1ba904f5d0ac696079)，采用六轴参考姿态映射、自适应滤波、按实际时间限速及单帧变化限制，以及 ID 6 夹爪的闭合/张开端点映射。网页会话、型号配对、校准流程与超时停止由本工程实现。Lumos 本机 SDK 通过 [lumos-open/startouch_sdk 固定提交 04041254](https://github.com/lumos-open/startouch_sdk/tree/040412542c0b6b6fd2bb6dd652c0de6c666631be) 在用户 Ubuntu 独立环境中安装，源码下载校验值记录于 `tools/start_lumos_local.py`；其本机库和依赖不复制到静态网站，适用上游各自授权。当前 SDK 以 Ubuntu SocketCAN 为接口；模型的 URDF 更新不代表硬件兼容性或控制参数已实机确认。
 
 本平台基于 Star Arm 102 浏览器控制台与 ACT 工程。原工程参考：<https://github.com/servodevelop/Star-Arm-102>。本仓库未为全部原始资产擅自添加新的统一开源许可证；公开可下载并不等于所有品牌和模型资产都被重新授权。
 

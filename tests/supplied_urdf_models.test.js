@@ -79,14 +79,14 @@ for (const key of ['fl-v3']) {
   });
 }
 
-test('Touch R1 is a six-axis read-only Leader and cannot be selected as a virtual Follower', async () => {
+test('Touch R1 reads six axes and the gripper without commanding the Leader', async () => {
   const profile = getRobotProfile('TOUCH');
   assert.equal(profile.code, 'TOUCH');
   assert.equal(profile.name, 'Touch R1');
   assert.equal(profile.role, 'leader');
   assert.equal(profile.canCommand, false);
   assert.equal(profile.powered, false);
-  assert.deepEqual(profile.servoIds, [0, 1, 2, 3, 4, 5]);
+  assert.deepEqual(profile.servoIds, [0, 1, 2, 3, 4, 5, 6]);
   assert.equal(getConnectedLeaderType(profile, '102LD'), '102TOUCH');
   assert.equal(resolveDisplayModelKey({ role: 'leader', leaderType: '102TOUCH' }), 'ld-touch');
   assert.equal(resolveDisplayModelKey({ role: 'follower', leaderType: '102TOUCH' }), 'fl');

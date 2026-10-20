@@ -105,36 +105,36 @@ const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
     assert.equal(await page.locator('#virtualFollowerModel option[value="fl-v3"]').textContent(), 'LumosTouch V3');
     assert.equal(await page.locator('#virtualFollowerModel option[value="ld-touch"]').count(), 0);
 
-    // Touch R1 is the read-only Leader, and an absent hardware J7 must not block connection or polling.
+    // Touch R1 reads all six axes and its raw gripper channel without writing controls.
     await page.check('#poseSourceLeader');
     await page.selectOption('#leaderType', '102TOUCH');
     await waitModel('Touch R1');
     assert.equal(await page.locator('#displayedModelStatus').textContent(), 'Leader · Touch R1');
     assert.equal(await page.locator('[data-target-mode="tcp"]').isDisabled(), true);
     assert.equal(await page.locator('#jointSlider1').isDisabled(), true);
-    await page.evaluate(() => { Object.assign(window.__consoleSerial, { angles: [0, 0, 0, 0, 0, 0, 90], pendingMissing: [6], recoverMissing: false, rounds: [] }); });
+    await page.evaluate(() => { Object.assign(window.__consoleSerial, { angles: [0, 0, 0, 0, 0, 0, 90], pendingMissing: [], recoverMissing: false, rounds: [] }); });
     const touchNonReadWrites = await page.evaluate(() => window.__consoleSerial.nonReadWrites);
     await page.click('#connectLeader');
     await page.waitForFunction(() => document.querySelector('#leaderStatus').textContent.includes('已连接'));
-    await waitJoints(['0.0°', '0.0°', '0.0°', '0.0°', '0.0°', '0.0°', '0.0°'], 'Touch R1 initial readback');
+    await waitJoints(['0.0°', '0.0°', '0.0°', '0.0°', '0.0°', '0.0°', '90.0°'], 'Touch R1 initial readback');
     const touchBaseline = await page.locator('#robotCanvas').screenshot();
     await page.evaluate(() => { window.__consoleSerial.angles = [25, 35, -45, 20, -15, 40, 90]; });
-    await waitJoints(['25.0°', '35.0°', '-45.0°', '20.0°', '-15.0°', '40.0°', '0.0°'], 'Touch R1 six-axis readback');
+    await waitJoints(['25.0°', '35.0°', '-45.0°', '20.0°', '-15.0°', '40.0°', '90.0°'], 'Touch R1 six-axis and raw gripper readback');
     assert.notDeepEqual(await page.locator('#robotCanvas').screenshot(), touchBaseline, 'Touch R1 canvas must follow its six hardware axes');
     assert.equal(await page.evaluate(() => window.__consoleSerial.nonReadWrites), touchNonReadWrites, 'Touch R1 must stay read-only');
     assert.equal(await page.locator('#leaderType').isDisabled(), true);
     assert(await page.evaluate(() => window.__consoleSerial.rounds.length > 0 && window.__consoleSerial.rounds.every(ids =>
-      JSON.stringify(ids) === JSON.stringify([0, 1, 2, 3, 4, 5]))), 'Every Touch query must contain IDs 0–5 only');
+      JSON.stringify(ids) === JSON.stringify([0, 1, 2, 3, 4, 5, 6]))), 'Every Touch query must include ID6 gripper');
     await page.click('#disconnectAll');
     await page.waitForFunction(() => !document.querySelector('#connectLeader').disabled);
 
-    // The virtual LumosTouch model accepts both the six-axis Touch and the original seven-channel Leader.
+    // The virtual LumosTouch model accepts both Touch and the original Leader.
     await page.click('#followerTypeVirtual');
     const virtualResults = [];
-    for (const [leaderType, gripperValue] of [['102TOUCH', '0.0°'], ['102LD', '67.5°']]) {
+    for (const [leaderType, gripperValue] of [['102TOUCH', '45.0°'], ['102LD', '67.5°']]) {
       await page.selectOption('#leaderType', leaderType);
       await page.evaluate(touch => {
-        Object.assign(window.__consoleSerial, { angles: [0, 0, 0, 0, 0, 0, 0], pendingMissing: touch ? [6] : [], rounds: [] });
+        Object.assign(window.__consoleSerial, { angles: [0, 0, 0, 0, 0, 0, 0], pendingMissing: [], rounds: [] });
       }, leaderType === '102TOUCH');
       await page.selectOption('#virtualFollowerModel', 'fl-v3');
       await waitModel('LumosTouch V3');
@@ -163,7 +163,7 @@ const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
       assert.deepEqual(await page.evaluate(() => ({ requested: window.__consoleSerial.requested, opened: window.__consoleSerial.opened })), before);
       assert.equal(await page.evaluate(() => window.__consoleSerial.nonReadWrites), nonReadWrites,
         `${leaderType}: virtual following must produce only Leader feedback queries`);
-      const expectedIds = leaderType === '102TOUCH' ? [0, 1, 2, 3, 4, 5] : [0, 1, 2, 3, 4, 5, 6];
+      const expectedIds = [0, 1, 2, 3, 4, 5, 6];
       assert(await page.evaluate(ids => window.__consoleSerial.rounds.every(round =>
         JSON.stringify(round) === JSON.stringify(ids)), expectedIds), `${leaderType}: preserve the Leader's actual channel count`);
       await page.click('#stopTeleop');
@@ -179,23 +179,21 @@ const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
     await page.click('#followerTypePhysical');
     await waitModel('Star Arm 102-FL');
 
-    // Touch may command the six arm axes of a physical Follower only after explicit start; J7 is never included.
+    // Touch must never command the original serial FL; only its matching Lumos target is allowed.
     await page.selectOption('#leaderType', '102TOUCH');
     await page.check('#poseSourceLeader');
     await waitModel('Touch R1');
-    await page.evaluate(() => { Object.assign(window.__consoleSerial, { pendingMissing: [6], motionWrites: [] }); });
+    await page.evaluate(() => { Object.assign(window.__consoleSerial, { pendingMissing: [], motionWrites: [] }); });
     await page.click('#connectLeader');
     await page.waitForFunction(() => document.querySelector('#leaderStatus').textContent.includes('已连接'));
     await page.evaluate(() => { window.__consoleSerial.pendingMissing = []; });
     await page.click('#connectFollower');
-    await page.waitForFunction(() => !document.querySelector('#startTeleop').disabled);
+    await page.waitForFunction(() => document.querySelector('#followerStatus').textContent.includes('已连接'));
     assert.deepEqual(await page.evaluate(() => window.__consoleSerial.motionWrites), [], 'Connecting alone must not issue an angle command');
-    await page.click('#startTeleop');
-    await page.waitForFunction(() => window.__consoleSerial.motionWrites.length >= 3);
-    assert(await page.evaluate(() => window.__consoleSerial.motionWrites.every(ids =>
-      JSON.stringify(ids) === JSON.stringify([0, 1, 2, 3, 4, 5]))), 'Touch to physical FL must leave the gripper channel untouched');
-    await page.click('#stopTeleop');
-    await page.waitForFunction(() => document.querySelector('#stopTeleop').disabled);
+    assert.equal(await page.locator('#startTeleop').isDisabled(), true);
+    await page.evaluate(() => document.querySelector('#startTeleop').dispatchEvent(new MouseEvent('click', { bubbles: true })));
+    await page.waitForFunction(() => document.querySelector('#interaction-status')?.textContent.includes('仅允许'));
+    assert.deepEqual(await page.evaluate(() => window.__consoleSerial.motionWrites), [], 'DOM-event bypass must still fail closed for Touch to serial FL');
     await page.click('#disconnectAll');
     await page.waitForFunction(() => !document.querySelector('#connectFollower').disabled);
     await page.selectOption('#leaderType', '102LD');
@@ -227,7 +225,7 @@ const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
     console.log(JSON.stringify({ consoleSerial: true, ldAndHdAndFl: true, immediateAndOutOfOrderReplies: true, retryOnlyMissingIds: true,
       failedFirstFeedbackCannotReuseOldAngles: true, missingFeedbackSharedDeadline: true, disconnectAndReconnect: true,
       suppliedVirtualModels: virtualResults, virtualFollowerHasNoSerial: true, virtualLeaderFeedbackRendered: true,
-      touchLeaderReadsSixAxes: true, touchLeaderReadOnly: true, touchPhysicalFollowerLeavesJ7Untouched: true,
+      touchLeaderReadsSixAxesAndGripper: true, touchLeaderReadOnly: true, touchCannotCommandOriginalFl: true,
       physicalModelRestored: true, trajectoryRestoresPhysicalModel: true, hardwareTested: false }));
   } finally { if (browser) await browser.close(); service.kill(); }
 })().catch(error => { console.error(error); process.exitCode = 1; });

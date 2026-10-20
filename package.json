@@ -1,11 +1,11 @@
 {
   "name": "star-arm-102-web-act",
-  "version": "1.0.15",
+  "version": "1.0.16",
   "private": true,
   "type": "module",
   "scripts": {
     "test": "node --test tests/*.test.js tests/piper/*.test.js",
-    "test:browser": "node tests/browser_smoke.cjs && node tests/camera_navigation_smoke.cjs && node tests/browser_direct_smoke.cjs && node tests/console_serial_smoke.cjs && node tests/act_workflow_smoke.cjs"
+    "test:browser": "node tests/browser_smoke.cjs && node tests/camera_navigation_smoke.cjs && node tests/browser_direct_smoke.cjs && node tests/console_serial_smoke.cjs && node tests/lumos_browser_smoke.cjs && node tests/act_workflow_smoke.cjs"
   },
   "devDependencies": {
     "playwright": "1.62.1"

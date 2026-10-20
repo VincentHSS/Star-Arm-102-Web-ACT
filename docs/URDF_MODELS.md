@@ -5,12 +5,16 @@
 - LumosTouch V3：用户提供的 FL URDF，六轴及两个平移夹指，作为虚拟 Follower。
 - Touch R1：用户指定的 Leader Arm 描述，六轴、七个连杆、21 份结构/舵机/舵盘网格。保留各零件原有连杆归属。
 
-Touch R1 使用现有 FashionStar 串口读取流程，查询 ID 0–5 的六个关节，仅采集姿态。内部第七通道为占位值；开始跟随时不会向实体 Follower 的 J7 发送角度命令，保留其当前夹爪位置。它的编码器零点、方向与 CAD 坐标仍需实机确认。
+Touch R1 使用 FashionStar 串口读取流程，查询 ID 0–5 的六个关节和 ID 6 的夹爪，不向 Leader 发送运动或扭矩命令。上游 URDF 描述六轴本体，实体夹爪输入按遥操作程序单独读取；编码器零点、方向与 CAD 坐标仍需实机确认。
 
-LumosTouch V3 使用现有虚拟 Follower 通道，六个关节按 J1–J6 顺序在原 URDF 轴线上跟随。带夹爪输入的 Leader，其 J7 以 0–90° 对应双夹指各 0–42.5 mm 位移；Touch R1 不提供夹爪输入。LumosTouch 的显示范围受其 URDF 限位约束，Touch R1 连续关节保留输入角度。新模型不使用旧 FL 的 TCP / IK 控制入口。
+实体型号中新增 LumosTouch V3，只允许已连接的 Touch R1 遥操作。实体 Star Arm 102-FL 保留 LD / HD 配对，不能与 Touch R1 混用。LumosTouch 通过 Ubuntu 本机 CAN 组件连接，不能沿用原 FL 的串口协议、轨迹回放或滑块/TCP 控制。连接、当次校准、目标预览与开始跟随见 [LumosTouch 遥操作](LUMOS_TELEOP.md)。
+
+LumosTouch V3 使用现有虚拟 Follower 通道，六个关节按 J1–J6 顺序在原 URDF 轴线上跟随。虚拟预览的 J7 以 0–90° 对应双夹指各 0–42.5 mm 位移；实体 LumosTouch 的夹爪按当次闭合/张开校准映射为开度比例，并使用 SDK 反馈显示真实开度。显示范围受 URDF 限位约束，Touch R1 连续关节保留输入角度。新模型不使用旧 FL 的 TCP / IK 控制入口。
 
 三个页面顶部使用统一的「当前工作区」菜单，切换控制台、ACT 工作台和网页执行；切换时继续停止控制并释放设备。
 
 如需单独检查原始关节结构，可打开 `urdf-preview.html` 使用逐轴滑块、恢复零位和完整显示功能。
 
-源码资源位于 `Browser_SDK/assets/urdf/fl-v3/` 和 `ld-touch/`。`source.urdf` 为原文，`model.urdf` 为可移动目录的相对路径版本；使用时保留旁边的 `meshes/`。来源见根目录 `THIRD_PARTY.md`。
+源码资源位于 `Browser_SDK/assets/urdf/fl-v3/` 和 `ld-touch/`。Touch R1 已固定更新到上游 `7c6811913e0928b04a2ad69d6ab25b7f22217ee5`：新装配移除 A000 / B000 限位块，21 份网格重新生成；六轴关节树和坐标未变。`SOURCE.json` 记录来源及校验信息。
+
+`source.urdf` 为原文，`model.urdf` 为可移动目录的相对路径版本；使用时保留旁边的 `meshes/`。来源见根目录 `THIRD_PARTY.md`。URDF 用于几何显示，不构成真实手臂的控制标定或实机验证。

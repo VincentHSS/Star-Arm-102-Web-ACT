@@ -96,6 +96,8 @@
 | [Browser_SDK/assets/urdf/fl-v3/meshes/link5.STL](../Browser_SDK/assets/urdf/fl-v3/meshes/link5.STL) | meshes 模型的 原始三角网格 |
 | [Browser_SDK/assets/urdf/fl-v3/model.urdf](../Browser_SDK/assets/urdf/fl-v3/model.urdf) | fl-v3 模型的 关节、坐标和连杆结构 |
 | [Browser_SDK/assets/urdf/fl-v3/source.urdf](../Browser_SDK/assets/urdf/fl-v3/source.urdf) | fl-v3 模型的 关节、坐标和连杆结构 |
+| [Browser_SDK/assets/urdf/ld-touch/SOURCE.json](../Browser_SDK/assets/urdf/ld-touch/SOURCE.json) | Touch R1 上游固定提交与资源校验清单 |
+| [Browser_SDK/assets/urdf/ld-touch/kinematics.json](../Browser_SDK/assets/urdf/ld-touch/kinematics.json) | Touch R1 上游关节坐标、几何生成和源文件校验报告 |
 | [Browser_SDK/assets/urdf/ld-touch/meshes/base_link-hardware.stl](../Browser_SDK/assets/urdf/ld-touch/meshes/base_link-hardware.stl) | meshes 模型的 原始三角网格 |
 | [Browser_SDK/assets/urdf/ld-touch/meshes/base_link-servo.stl](../Browser_SDK/assets/urdf/ld-touch/meshes/base_link-servo.stl) | meshes 模型的 原始三角网格 |
 | [Browser_SDK/assets/urdf/ld-touch/meshes/base_link-structure.stl](../Browser_SDK/assets/urdf/ld-touch/meshes/base_link-structure.stl) | meshes 模型的 原始三角网格 |
@@ -119,6 +121,7 @@
 | [Browser_SDK/assets/urdf/ld-touch/meshes/link_6-structure.stl](../Browser_SDK/assets/urdf/ld-touch/meshes/link_6-structure.stl) | meshes 模型的 原始三角网格 |
 | [Browser_SDK/assets/urdf/ld-touch/model.urdf](../Browser_SDK/assets/urdf/ld-touch/model.urdf) | ld-touch 模型的 关节、坐标和连杆结构 |
 | [Browser_SDK/assets/urdf/ld-touch/source.urdf](../Browser_SDK/assets/urdf/ld-touch/source.urdf) | ld-touch 模型的 关节、坐标和连杆结构 |
+| [Browser_SDK/assets/urdf/ld-touch/upstream-README.md](../Browser_SDK/assets/urdf/ld-touch/upstream-README.md) | Touch R1 上游模型原始说明与实机标定边界 |
 | [Browser_SDK/assets/urdf/ld/model.urdf](../Browser_SDK/assets/urdf/ld/model.urdf) | ld 模型的 关节、坐标和连杆结构 |
 | [Browser_SDK/assets/urdf/piper/export_report.json](../Browser_SDK/assets/urdf/piper/export_report.json) | piper 模型的 模型导出坐标与警告报告 |
 | [Browser_SDK/assets/urdf/piper/model.urdf](../Browser_SDK/assets/urdf/piper/model.urdf) | piper 模型的 关节、坐标和连杆结构 |
@@ -179,7 +182,9 @@
 | [Browser_SDK/src/joint_mapper.js](../Browser_SDK/src/joint_mapper.js) | 舵机角度与显示模型关节方向映射 |
 | [Browser_SDK/src/joint_slider_control.js](../Browser_SDK/src/joint_slider_control.js) | 关节滑条输入与连续控制 |
 | [Browser_SDK/src/local-service.js](../Browser_SDK/src/local-service.js) | 本机后台探测、组件下载与环境准备接续 |
+| [Browser_SDK/src/lumos_client.js](../Browser_SDK/src/lumos_client.js) | 本机 Lumos CAN 会话、六轴与夹爪新鲜采样、网页校准与停止 |
 | [Browser_SDK/src/manual_control_session.js](../Browser_SDK/src/manual_control_session.js) | 手动控制会话的启动、结束与指令管理 |
+| [Browser_SDK/src/model_asset_loader.js](../Browser_SDK/src/model_asset_loader.js) | 模型网格有限并发、网络读取重试、错误定位与旧请求释放 |
 | [Browser_SDK/src/page-lifecycle.js](../Browser_SDK/src/page-lifecycle.js) | 页面切换前停止控制、释放串口与按钮处理状态 |
 | [Browser_SDK/src/piper_model_data.js](../Browser_SDK/src/piper_model_data.js) | PiPER Mate 烘焙模型与关节原始数据 |
 | [Browser_SDK/src/rate_meter.js](../Browser_SDK/src/rate_meter.js) | 采样与通信频率统计 |
@@ -200,6 +205,7 @@
 | [Browser_SDK/src/tcp_drag_preview.js](../Browser_SDK/src/tcp_drag_preview.js) | 拖动末端时的目标预览 |
 | [Browser_SDK/src/tcp_translation_gizmo.js](../Browser_SDK/src/tcp_translation_gizmo.js) | 3D 末端平移操作控件 |
 | [Browser_SDK/src/teleop_controller.js](../Browser_SDK/src/teleop_controller.js) | 主从臂遥操作与周期控制 |
+| [Browser_SDK/src/teleop_pairing.js](../Browser_SDK/src/teleop_pairing.js) | 已连接主从型号配对策略，实体 LumosTouch 仅允许 Touch R1 |
 | [Browser_SDK/src/training-submission.js](../Browser_SDK/src/training-submission.js) | 识别已提交训练任务与数据准备、训练、停止状态，避免超时后重复提交 |
 | [Browser_SDK/src/urdf-preview.css](../Browser_SDK/src/urdf-preview.css) | URDF 模型大画布、关节侧栏及移动端布局 |
 | [Browser_SDK/src/urdf-preview.js](../Browser_SDK/src/urdf-preview.js) | 独立 URDF 预览状态、旋转与平移关节滑块，不连接硬件 |
@@ -226,6 +232,7 @@
 | [ai_service/follower_calibration.py](../ai_service/follower_calibration.py) | 从臂校准记录、范围、JSON 与归一化转换 |
 | [ai_service/inference_runtime.py](../ai_service/inference_runtime.py) | 策略进程、状态读取、动作调度与推理诊断 |
 | [ai_service/lerobot_convert.py](../ai_service/lerobot_convert.py) | 将示教角度、相机和统计量转换到 LeRobot 数据约定 |
+| [ai_service/lumos_runtime.py](../ai_service/lumos_runtime.py) | Ubuntu Lumos SDK 六轴与夹爪控制、当次校准、配对与失联看门狗 |
 | [ai_service/model_import.py](../ai_service/model_import.py) | 完整模型包验证、发行包识别与导入整理 |
 | [ai_service/native_act_driver.py](../ai_service/native_act_driver.py) | 原生 FashionStar SDK 适配与从臂读写、校准坐标转换 |
 | [ai_service/native_cameras.py](../ai_service/native_cameras.py) | Ubuntu V4L2 双相机枚举、模式、JPEG 流与采集 |
@@ -253,6 +260,7 @@
 | [docs/DEVELOPMENT.md](../docs/DEVELOPMENT.md) | 开发检查、打包、更新与持续集成教程 |
 | [docs/FILE_MAP.md](../docs/FILE_MAP.md) | 本清单：每个仓库文件的用途 |
 | [docs/GETTING_STARTED.md](../docs/GETTING_STARTED.md) | 图文快速上手、下载选择与已有模型 / 自训练路线 |
+| [docs/LUMOS_TELEOP.md](../docs/LUMOS_TELEOP.md) | Ubuntu CAN 连接、网页校准、预览、遥操作与测试边界 |
 | [docs/TROUBLESHOOTING.md](../docs/TROUBLESHOOTING.md) | 启动、环境、设备、相机与导入问题排查 |
 | [docs/UBUNTU.md](../docs/UBUNTU.md) | Ubuntu 首次安装、本地启动、环境与数据目录教程 |
 | [docs/URDF_MODELS.md](../docs/URDF_MODELS.md) | 新增 FL 和 LD 模型预览入口、来源和坐标说明 |
@@ -281,6 +289,7 @@
 | [runtime/start_desktop_sessions.py](../runtime/start_desktop_sessions.py) | 安装后识别活动桌面用户并启动用户后台 |
 | [runtime/ubuntu_runtime.py](../runtime/ubuntu_runtime.py) | 用户后台启动、网站授权、环回 API 与组件连接检测 |
 | [start_ubuntu.sh](../start_ubuntu.sh) | Ubuntu 检查并补齐系统依赖，使用系统 Python 启动网页与后台 |
+| [start_ubuntu_lumos.sh](../start_ubuntu_lumos.sh) | 使用系统 Python 准备隔离 Lumos SDK 环境并打开 Ubuntu 本机控制台 |
 | [start_ubuntu_training_test.sh](../start_ubuntu_training_test.sh) | Ubuntu 本地训练测试入口，拒绝复用旧版或仅有 API 的组件后台 |
 | [start_windows.bat](../start_windows.bat) | Windows 自动选择 Python 启动同一网页与后台 |
 | [start_windows_browser.bat](../start_windows_browser.bat) | Windows 双击启动本地纯网页测试，不安装 Python 或设备后台 |
@@ -301,6 +310,8 @@
 | [tests/camera_navigation_smoke.cjs](../tests/camera_navigation_smoke.cjs) | 隔离端口与模拟双相机，验证步骤切换复用预览和过期状态处理 |
 | [tests/console_serial_smoke.cjs](../tests/console_serial_smoke.cjs) | 模拟控制台 LD/HD/FL 串口、首轮反馈、共享超时、补读与重新连接 |
 | [tests/follower_calibration_ui.test.js](../tests/follower_calibration_ui.test.js) | 软件测试：从臂校准与重试界面 |
+| [tests/lumos_browser_smoke.cjs](../tests/lumos_browser_smoke.cjs) | 软件测试：浏览器 Touch R1 与模拟 Lumos CAN 连接、校准、跟随和释放 |
+| [tests/lumos_client.test.js](../tests/lumos_client.test.js) | 软件测试：本机 Lumos CAN 会话、六轴与夹爪新鲜采样、网页校准与停止 |
 | [tests/model_import_ui.test.js](../tests/model_import_ui.test.js) | 软件测试：完整模型导入界面 |
 | [tests/page_lifecycle.test.js](../tests/page_lifecycle.test.js) | 软件测试：停止和释放成功后切页、失败保留原页与重复点击合并 |
 | [tests/piper/factory_params.test.js](../tests/piper/factory_params.test.js) | 软件测试：舵机工厂参数定义、解析与验证 |
@@ -318,6 +329,7 @@
 | [tests/piper/servo_setup_ui_contract.test.js](../tests/piper/servo_setup_ui_contract.test.js) | 软件测试：舵机设置界面与读写错误显示 |
 | [tests/servo_readback.test.js](../tests/servo_readback.test.js) | 软件测试：控制台按 ID 收集回包、每轮统一超时、仅补读缺失关节与清理等待 |
 | [tests/supplied_urdf_models.test.js](../tests/supplied_urdf_models.test.js) | 软件测试：新增 URDF 连接树、网格、夹爪与原控制映射隔离 |
+| [tests/teleop_pairing.test.js](../tests/teleop_pairing.test.js) | 软件测试：已连接主从型号配对策略，实体 LumosTouch 仅允许 Touch R1 |
 | [tests/test_act_policy_worker.py](../tests/test_act_policy_worker.py) | 软件测试：独立进程加载 ACT 策略并产生预测动作 |
 | [tests/test_action_schedule.py](../tests/test_action_schedule.py) | 软件测试：动作块队列、节拍调度与多次预测融合 |
 | [tests/test_api.py](../tests/test_api.py) | 软件测试：HTTP API、数据集与轮次流程 |
@@ -331,6 +343,9 @@
 | [tests/test_follower_calibration.py](../tests/test_follower_calibration.py) | 软件测试：从臂校准记录、范围、JSON 与归一化转换 |
 | [tests/test_inference_runtime.py](../tests/test_inference_runtime.py) | 软件测试：策略进程、状态读取、动作调度与推理诊断 |
 | [tests/test_lerobot_convert.py](../tests/test_lerobot_convert.py) | 软件测试：将示教角度、相机和统计量转换到 LeRobot 数据约定 |
+| [tests/test_lumos_api.py](../tests/test_lumos_api.py) | 软件测试：Lumos 本机同源 API、会话字段、错误传播与跨站拒绝 |
+| [tests/test_lumos_local.py](../tests/test_lumos_local.py) | 软件测试：Lumos 独立启动器、SDK 固定版本及服务复用 |
+| [tests/test_lumos_runtime.py](../tests/test_lumos_runtime.py) | 软件测试：Ubuntu Lumos SDK 六轴与夹爪控制、当次校准、配对与失联看门狗 |
 | [tests/test_model_import.py](../tests/test_model_import.py) | 软件测试：完整模型包验证、发行包识别与导入整理 |
 | [tests/test_native_act_driver.py](../tests/test_native_act_driver.py) | 软件测试：原生 FashionStar SDK 适配与从臂读写、校准坐标转换 |
 | [tests/test_native_camera_api.py](../tests/test_native_camera_api.py) | 软件测试：原生相机 HTTP API |
@@ -349,14 +364,17 @@
 | [tests/test_website_authorization.py](../tests/test_website_authorization.py) | 软件测试：Windows 当前网站连接确认、限时单次令牌与确认界面 |
 | [tests/test_windows_execution.py](../tests/test_windows_execution.py) | 软件测试：Windows COM 官方驱动读写、双相机与固定目录 CPU 环境 |
 | [tests/training_submission.test.js](../tests/training_submission.test.js) | 软件测试：训练提交编号匹配、旧后台任务核对与准备阶段防重复提交 |
+| [tests/urdf_asset_loading.test.js](../tests/urdf_asset_loading.test.js) | 软件测试：模型网格并发、嵌套路径、网络重试、错误定位与切换释放 |
 | [tools/build_runtime_package.py](../tools/build_runtime_package.py) | 构建 Debian 模板、桌面自启动、udev 与浏览器校验值 |
 | [tools/capture_docs.cjs](../tools/capture_docs.cjs) | 阻断本机硬件 API，以真实未连接界面生成教程截图 |
 | [tools/check_distribution.py](../tools/check_distribution.py) | 校验安装模板、源码一致性、换行、静态文件与资源路径 |
 | [tools/check_file_map.py](../tools/check_file_map.py) | 逐文件用途清单生成与遗漏检查 |
 | [tools/export_browser_act.py](../tools/export_browser_act.py) | 提供方网页模型转换的命令行入口，客户不运行 |
 | [tools/package_browser_local.py](../tools/package_browser_local.py) | 生成 Windows 本地纯网页测试 ZIP，不包含训练后台或客户模型 |
+| [tools/package_lumos_local.py](../tools/package_lumos_local.py) | 打包 Ubuntu Touch R1 与 LumosTouch 本地遥操作源码 |
 | [tools/package_site.py](../tools/package_site.py) | 生成含静态网站、图文教程和 SHA256 清单的单个交付 ZIP |
 | [tools/package_training_local.py](../tools/package_training_local.py) | 打包包含网页、训练后台与启动器的 Ubuntu 本地测试源码 |
 | [tools/serve_local.py](../tools/serve_local.py) | 源码启动入口，检查版本并同端口提供完整网页与 API |
 | [tools/start_browser_local.ps1](../tools/start_browser_local.ps1) | 使用 Windows 自带 .NET，仅在环回地址提供静态网页与推理资源 |
+| [tools/start_lumos_local.py](../tools/start_lumos_local.py) | 固定版本 Lumos SDK 安装、独立本机服务与重复启动检查 |
 | [tools/ubuntu_setup.py](../tools/ubuntu_setup.py) | Ubuntu 系统依赖与组件安装，等待 dpkg 锁、重试下载并解释失败原因 |

@@ -4,6 +4,7 @@ import { OrbitControls } from '../assets/vendor/OrbitControls.js';
 import { ALL_JOINTS } from './urdf_model_data.js';
 import { MODEL_CONFIGS } from './robot_model_configs.js';
 import { createRateMeter } from './rate_meter.js';
+import { loadModelAssets } from './model_asset_loader.js';
 import { constrainAxisTranslation, constrainPlaneTranslation, constrainScreenTranslation } from './tcp_translation_gizmo.js';
 
 export const MODEL_PARTS = MODEL_CONFIGS.fl.parts;
@@ -653,10 +654,11 @@ export function createRobotModel({
     rebuildSkeleton(config);
     setStatus(`正在加载 ${config.name} 的 ${config.parts.length} 个本地 STL…`);
     try {
-      const geometries = await Promise.all(config.parts.map(async (part) => ({
-        ...part,
-        geometry: await loader.loadAsync(new URL(part.url, import.meta.url).href),
-      })));
+      const geometries = await loadModelAssets(config.parts, {
+        baseUrl: import.meta.url,
+        load: url => loader.loadAsync(url),
+        isCurrent: () => !destroyed && generation === loadGeneration,
+      });
       if (destroyed || generation !== loadGeneration) {
         for (const { geometry } of geometries) geometry.dispose();
         return api;
@@ -689,6 +691,7 @@ export function createRobotModel({
       fitCamera();
       return api;
     } catch (error) {
+      if (destroyed || generation !== loadGeneration) return api;
       setStatus('模型加载失败', 'error');
       if (errorElement) {
         errorElement.hidden = false;

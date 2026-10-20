@@ -1,5 +1,6 @@
 export const FOLLOWER_TARGET_PHYSICAL = 'physical';
 export const FOLLOWER_TARGET_VIRTUAL = 'virtual';
+import { PHYSICAL_FOLLOWER_MODELS, PHYSICAL_FOLLOWER_STAR_ARM_FL } from './teleop_pairing.js';
 export const VIRTUAL_MODEL_STAR_ARM_FL = 'star-arm-102-fl';
 export const VIRTUAL_MODEL_REBOT_B601 = 'rebot-b601';
 export const VIRTUAL_MODEL_GALAXEA_A1Z = 'galaxea-a1z';
@@ -29,11 +30,18 @@ export function createFollowerTargetState(initialType = FOLLOWER_TARGET_PHYSICAL
   let type = validateFollowerTargetType(initialType);
   let virtualConnected = false;
   let virtualModel = VIRTUAL_MODEL_STAR_ARM_FL;
+  let physicalModel = PHYSICAL_FOLLOWER_STAR_ARM_FL;
 
   return {
     get type() { return type; },
     get virtualConnected() { return virtualConnected; },
     get virtualModel() { return virtualModel; },
+    get physicalModel() { return physicalModel; },
+    setPhysicalModel(nextModel) {
+      if (virtualConnected) throw new Error('请先断开虚拟手臂，再切换真实型号');
+      if (!Object.hasOwn(PHYSICAL_FOLLOWER_MODELS, nextModel)) throw new RangeError(`未知真实型号：${nextModel}`);
+      physicalModel = nextModel;
+    },
     setType(nextType) {
       if (virtualConnected) throw new Error('请先断开虚拟手臂，再切换 Follower 类型');
       type = validateFollowerTargetType(nextType);

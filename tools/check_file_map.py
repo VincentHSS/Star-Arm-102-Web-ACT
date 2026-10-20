@@ -6,6 +6,9 @@ ROOT = Path(__file__).resolve().parent.parent
 IGNORED = {'.git', '__pycache__', 'node_modules', 'dist', '.venv', '.local-state'}
 
 FRONTEND = {
+    'model_asset_loader': '模型网格有限并发、网络读取重试、错误定位与旧请求释放',
+    'teleop_pairing': '已连接主从型号配对策略，实体 LumosTouch 仅允许 Touch R1',
+    'lumos_client': '本机 Lumos CAN 会话、六轴与夹爪新鲜采样、网页校准与停止',
     'training-submission': '识别已提交训练任务与数据准备、训练、停止状态，避免超时后重复提交',
     'api-client': '本机 API 请求与响应体超时、错误反馈和取消管理',
     'page-lifecycle': '页面切换前停止控制、释放串口与按钮处理状态',
@@ -49,6 +52,7 @@ FRONTEND = {
     'version': '原控制台版本显示信息', 'workspace-switch': '控制台与 ACT 的全屏能量环切换、倒计时与取消',
 }
 BACKEND = {
+    'lumos_runtime': 'Ubuntu Lumos SDK 六轴与夹爪控制、当次校准、配对与失联看门狗',
     'website_authorization': 'Windows 当前网站连接确认、限时单次令牌与确认界面',
     'windows_cameras': 'Windows DirectShow 双相机枚举、模式和原生 JPEG 视频流',
     '__init__': 'Python 后台包入口', 'act_policy_worker': '独立进程加载 ACT 策略并产生预测动作',
@@ -74,6 +78,16 @@ BACKEND = {
     'training_manifest': 'Python / LeRobot / PyTorch 版本及加速源清单',
 }
 EXACT = {
+    'start_ubuntu_lumos.sh': '使用系统 Python 准备隔离 Lumos SDK 环境并打开 Ubuntu 本机控制台',
+    'tools/start_lumos_local.py': '固定版本 Lumos SDK 安装、独立本机服务与重复启动检查',
+    'tools/package_lumos_local.py': '打包 Ubuntu Touch R1 与 LumosTouch 本地遥操作源码',
+    'docs/LUMOS_TELEOP.md': 'Ubuntu CAN 连接、网页校准、预览、遥操作与测试边界',
+    'tests/test_lumos_api.py': '软件测试：Lumos 本机同源 API、会话字段、错误传播与跨站拒绝',
+    'tests/test_lumos_local.py': '软件测试：Lumos 独立启动器、SDK 固定版本及服务复用',
+    'tests/lumos_browser_smoke.cjs': '软件测试：浏览器 Touch R1 与模拟 Lumos CAN 连接、校准、跟随和释放',
+    'Browser_SDK/assets/urdf/ld-touch/SOURCE.json': 'Touch R1 上游固定提交与资源校验清单',
+    'Browser_SDK/assets/urdf/ld-touch/kinematics.json': 'Touch R1 上游关节坐标、几何生成和源文件校验报告',
+    'Browser_SDK/assets/urdf/ld-touch/upstream-README.md': 'Touch R1 上游模型原始说明与实机标定边界',
     'start_windows_urdf.bat': 'Windows 双击打开控制台，测试 Touch R1 Leader 与 LumosTouch 虚拟从臂',
     'Browser_SDK/src/supplied_urdf_mapping.js': 'Touch R1 Leader 和 LumosTouch 虚拟从臂的显示角度与夹指位移映射',
     'Browser_SDK/src/workspace-nav.js': '统一工作区下拉菜单的键盘、失焦收起及控制台标题高度同步',
@@ -175,6 +189,7 @@ def purpose(path):
     if relative.startswith('tests/'):
         stem = path.stem.removesuffix('.test').removeprefix('test_')
         test_names = {
+            'urdf_asset_loading': '模型网格并发、嵌套路径、网络重试、错误定位与切换释放',
             'training_submission': '训练提交编号匹配、旧后台任务核对与准备阶段防重复提交',
             'api': 'HTTP API、数据集与轮次流程', 'api_client': '请求及响应体超时、取消与禁止自动重试', 'page_lifecycle': '停止和释放成功后切页、失败保留原页与重复点击合并', 'native_camera_api': '原生相机 HTTP API',
             'native_camera_manager': '原生双相机管理', 'native_cameras_streaming': '原生相机流与结束排空',

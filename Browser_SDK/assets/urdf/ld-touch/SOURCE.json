@@ -1,0 +1,40 @@
+{
+  "repository": "https://github.com/servodevelop/touch-r1-leader-arm",
+  "commit": "7c6811913e0928b04a2ad69d6ab25b7f22217ee5",
+  "directory": "hardware/robot-description",
+  "sourceUrdf": "touch_r1_description/urdf/touch-r1.urdf",
+  "transformation": "model.urdf only changes ../meshes/ references to meshes/; source.urdf and meshes are unchanged upstream bytes.",
+  "validation": {
+    "links": 7,
+    "joints": 6,
+    "meshes": 21,
+    "triangles": 182708
+  },
+  "sha256": {
+    "kinematics.json": "b170a51b9a1e37e2538f081054e6d194f97542fd3fdf9c1651aca042d08e5704",
+    "meshes/base_link-hardware.stl": "a780fc48dc8fd680e6e57fedf4a1c1e568569c5e1606c55b8676d271c2a0af1a",
+    "meshes/base_link-servo.stl": "a8756dccb320ded3cb8d54bb6ac813ef8c49216b5f0228361df4cb4e00a08648",
+    "meshes/base_link-structure.stl": "54b36ed6c5d1a5d1e05947d2b1f63bef4ec7aedb0fbf96b040766c289e7818df",
+    "meshes/link_1-horn.stl": "5d43061373941a9c5760b472b5a1bbd3a387776421983ea346d22264fe15e393",
+    "meshes/link_1-servo.stl": "c47a3c9ffdce6bc6c9a1cf21fbfd33ca40346a79d1219ca406923b3102a7b216",
+    "meshes/link_1-structure.stl": "936ccf707ef974c7fd322dae0d000190c658b5f15cafdfca6a92dd54bdcf6813",
+    "meshes/link_2-horn.stl": "fc4a15dba7732ae4fb632ab03ae77283d1ef7f6f8a93060393d4a0fdc0168140",
+    "meshes/link_2-servo.stl": "61f971023fb9e7ad780a4a91490243158884d0ea788038a4c155645762badaaa",
+    "meshes/link_2-structure.stl": "24d8f5833709296021977f8f852868fa7aaa2c4d4916a8190f4a4921e138feee",
+    "meshes/link_3-horn.stl": "974fbdfc36554975210d4521b51f876e71402de6c725c179ebbd8456d047c5e0",
+    "meshes/link_3-servo.stl": "84afec82c930086973c37fdf99e6e3b363a1b711759d9b40792479ead7026684",
+    "meshes/link_3-structure.stl": "df2abc5dcaeda8102cbe6dd38506a50829afae40d563591afa18ca5210298291",
+    "meshes/link_4-horn.stl": "6f8074676b0f30151ee3d189aef0e0cece28924c578d9eaa461062a2da01ed96",
+    "meshes/link_4-servo.stl": "f7ceb84af3e59eee80000de37b8f87e016f0520482b6a3a79e91c6017394f487",
+    "meshes/link_4-structure.stl": "c8d5d878465f2f398ef1696a2cf2508784ef5f7b8e750aa2c4d09618d53e02cf",
+    "meshes/link_5-hardware.stl": "d06274b4bc9693bdaf2d9e892eae1e40fa5c1da9541193fb6c291624b1b05c4b",
+    "meshes/link_5-horn.stl": "e5de7bfcc6c4bc030cb6e665a34514733928d32e662d628db561c7de1e8d51f2",
+    "meshes/link_5-servo.stl": "7ef5e17d588f98f4b32e4de8432f8d6d6c2bb147ea87f3f77f8e750e214e08ca",
+    "meshes/link_5-structure.stl": "08be90ea8d2ddef5a0b7942cbd1c7e2c946be7d5ff471c2b33395eff3eb75cc4",
+    "meshes/link_6-horn.stl": "4d0408bcab4326cd44511f6e8809a4022698d71189633eefac0d38f281495d3c",
+    "meshes/link_6-structure.stl": "eb7a772562e1fd49a895d61c10434ba141147dd136fbe959f4a665377d5f78bb",
+    "model.urdf": "caef0ac103780c058bea71ffdb4a33d439fcb8890818b110607e8666e7ff6e92",
+    "source.urdf": "4a00fe0f6c66861168be23ab6e021c5c289d8954387dd29b902b7251ffdd0499",
+    "upstream-README.md": "2c35b6b9ee66adedcf5b40dc3d44c5c3a8fe761d05a74d8e16647b592bd7190b"
+  }
+}

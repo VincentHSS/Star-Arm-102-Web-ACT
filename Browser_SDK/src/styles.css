@@ -88,6 +88,16 @@ input:focus, select:focus { border-color: var(--preview-cyan); }
 label small { color: #707d80; font-size: 8px; font-weight: 500; line-height: 1.45; }
 .follower-target-field { display: grid; gap: 6px; margin-top: 11px; }
 .follower-target-field[hidden] { display: none; }
+.lumos-panel[hidden] { display: none; }
+.lumos-panel { display: grid; gap: 12px; padding: 14px; border: 1px solid #405963; border-radius: 10px; background: #152126; }
+.lumos-panel h3, .lumos-panel p { margin: 0; }
+.lumos-panel p, .lumos-values { font-size: 12px; line-height: 1.65; overflow-wrap: anywhere; }
+.lumos-panel details { display: grid; gap: 10px; }
+.lumos-panel details > * + * { margin-top: 10px; }
+.lumos-panel .lumos-check { display: flex; align-items: flex-start; gap: 9px; line-height: 1.6; font-size: 12px; }
+.lumos-check input[type="checkbox"] { width: 17px; height: 17px; flex: 0 0 17px; margin-top: 3px; }
+.lumos-panel .is-error { color: #ff9d93; }
+.lumos-values { color: #b8dcdf; padding: 8px; background: #0e181b; border-radius: 5px; }
 .follower-target-label { color: var(--muted); font-size: 10px; font-weight: 800; }
 .follower-type-switch { position: relative; display: grid; grid-template-columns: 1fr 1fr; align-items: center; height: 38px; padding: 3px; border: 1px solid #405055; border-radius: 5px; background: #0d1416; box-shadow: inset 0 1px #ffffff08, 0 5px 16px #0005; isolation: isolate; }
 .follower-type-switch::before { content: ""; position: absolute; z-index: -1; top: 3px; bottom: 3px; left: 3px; width: calc(50% - 3px); border: 1px solid #4ba9a3; border-radius: 3px; background: #1e5a57; box-shadow: 0 0 12px #4fd1c820; transition: transform .2s ease; }

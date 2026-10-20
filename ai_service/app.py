@@ -16,6 +16,7 @@ from .capabilities import detect_capabilities
 from .domain import ActWorkspace, DomainError
 from .episode_data import EpisodeDataStore
 from .inference_runtime import ActInferenceRuntime
+from .lumos_runtime import LumosRuntime
 from .native_cameras import NativeCameraError, V4L2CameraManager
 from .windows_cameras import WindowsCameraManager
 from .browser_exports import BrowserExportManager
@@ -69,12 +70,13 @@ class ApiServer(ThreadingHTTPServer):
 
     def __init__(self, address, handler, data_root, static_root, native_cameras=None,
                  training_environment=None, training_jobs=None, training_dataset=None, inference=None,
-                 data_dir_explicit=False):
+                 data_dir_explicit=False, lumos=None):
         super().__init__(address, handler)
         self.control_lock = RLock()
         self._data_dir_explicit = bool(data_dir_explicit)
         self._inject = dict(native_cameras=native_cameras, training_environment=training_environment,
-                            training_jobs=training_jobs, training_dataset=training_dataset, inference=inference)
+                            training_jobs=training_jobs, training_dataset=training_dataset, inference=inference,
+                            lumos=lumos)
         self.static_root = static_root.resolve()
         self._bind_data_managers(data_root)
 
@@ -99,12 +101,16 @@ class ApiServer(ThreadingHTTPServer):
         self.inference = self._inject.get("inference") or ActInferenceRuntime(
             self.serial_connections, self.native_cameras, self.telemetry, self.data_root
         )
+        self.lumos = self._inject.get("lumos") or LumosRuntime()
 
     def data_dir_explicit(self):
         return bool(self._data_dir_explicit or _config_data_dir() or os.environ.get("ACT_DATA_DIR"))
 
     def set_data_dir(self, new_root):
         new_root = str(Path(new_root).expanduser().resolve())
+        lumos_state = self.lumos.snapshot()
+        if any(lumos_state.get(key) for key in ("session_id", "connecting", "cleanup_pending", "cleanup_failed")):
+            raise DomainError("请先断开 LumosTouch，再切换数据目录", "devices_busy")
         if self.inference.snapshot().get("status") in {"loading", "running", "stopping"}:
             raise DomainError("推理正在运行，不能切换数据目录", "data_dir_busy")
         if self.calibration.active():
@@ -118,6 +124,7 @@ class ApiServer(ThreadingHTTPServer):
         self.native_cameras.stop_recording()
         self.teleop.stop()
         self.serial_connections.close_all()
+        self.lumos.close()
         write_config_data_dir(new_root)
         self._bind_data_managers(new_root)
         self._data_dir_explicit = True
@@ -126,7 +133,7 @@ class ApiServer(ThreadingHTTPServer):
     def server_close(self):
         # HTTPServer calls this even if binding fails before our managers exist.
         try:
-            for name, method in (("inference", "close"), ("native_cameras", "close"),
+            for name, method in (("lumos", "close"), ("inference", "close"), ("native_cameras", "close"),
                                  ("teleop", "stop"), ("episode_data", "close"),
                                  ("serial_connections", "close_all"),
                                  ("training_environment", "close"), ("training_jobs", "close")):
@@ -199,10 +206,30 @@ class Handler(SimpleHTTPRequestHandler):
         status = 409 if error.code in conflicts else 404 if error.code in missing else 400
         self._json(status, {"error": {"code": error.code, "message": str(error)}})
 
+    def _require_local_lumos(self, mutation=False):
+        """CAN control is only available from this loopback page, never a remote site."""
+        port = self.server.server_address[1]
+        authorities = {f"127.0.0.1:{port}", f"localhost:{port}", f"[::1]:{port}"}
+        host = self.headers.get("Host", "").lower()
+        origin = self.headers.get("Origin")
+        if self.client_address[0] not in {"127.0.0.1", "::1"} or host not in authorities:
+            raise DomainError("请从 Ubuntu 本机启动页使用 LumosTouch", "lumos_local_only")
+        if origin and origin != f"http://{host}":
+            raise DomainError("LumosTouch 只接受本机同源页面请求", "lumos_origin_denied")
+        if mutation and self.headers.get_content_type() != "application/json":
+            raise DomainError("LumosTouch 请求需要 application/json", "invalid_request")
+
     def do_GET(self):
         parsed = urlparse(self.path)
         path = parsed.path
         try:
+            if path == "/api/lumos/launcher":
+                self._require_local_lumos()
+                identity = getattr(self.server, "lumos_launcher_identity", None)
+                return self._json(200, identity) if identity else self._json(404, {"error": {"code": "not_found"}})
+            if path == "/api/v1/lumos/status":
+                self._require_local_lumos()
+                return self._json(200, self.server.lumos.snapshot())
             if path == "/api/v1/health":
                 return self._json(200, {"service": "star-arm-102-act", "version": "0.1.0", "status": "ok"})
             if path == "/api/v1/capabilities":
@@ -299,6 +326,24 @@ class Handler(SimpleHTTPRequestHandler):
     def _do_POST(self):
         path = urlparse(self.path).path
         try:
+            if path.startswith("/api/v1/lumos/"):
+                # Drain the bounded request before rejecting it; leaving a POST
+                # body unread can reset the TCP connection before the error is seen.
+                body = self._body(16_384)
+                self._require_local_lumos(mutation=True)
+                methods = {
+                    "connect": "connect", "sample": "sample",
+                    "capture-reference": "capture_reference",
+                    "capture-gripper": "capture_gripper",
+                    "finish-calibration": "finish_calibration",
+                    "start": "start", "stop": "stop", "disconnect": "disconnect",
+                }
+                method = methods.get(path.removeprefix("/api/v1/lumos/"))
+                if method is None:
+                    return self._json(404, {"error": {"code": "not_found", "message": "LumosTouch 操作不存在"}})
+                if not isinstance(body, dict):
+                    raise DomainError("请求需要 JSON 对象", "invalid_request")
+                return self._json(200, getattr(self.server.lumos, method)(body))
             if self.server.calibration.active() and path in {"/api/v1/inference/start", "/api/v1/episodes", "/api/v1/follower/drive-test", "/api/v1/devices/serial/connect"}:
                 raise DomainError("从臂校准正在记录，请先保存或取消校准", "calibration_active")
             if path.startswith("/api/v1/follower-calibration/"):
@@ -537,6 +582,7 @@ class Handler(SimpleHTTPRequestHandler):
                 return self._json(200, self.server.inference.stop(body.get("reason", "operator")))
             if path == "/api/v1/emergency-stop":
                 reason = body.get("reason", "emergency_stop")
+                self.server.lumos.emergency_stop(str(reason))
                 self.server.calibration.cancel()
                 self.server.inference.emergency_stop(reason)
                 self._stop_active_episode()
@@ -619,11 +665,11 @@ class Handler(SimpleHTTPRequestHandler):
 
 def create_server(address, data_root, static_root, native_cameras=None,
                   training_environment=None, training_jobs=None, training_dataset=None, inference=None,
-                  data_dir_explicit=False):
+                  data_dir_explicit=False, lumos=None):
     return ApiServer(address, Handler, Path(data_root), Path(static_root), native_cameras=native_cameras,
                      training_environment=training_environment, training_jobs=training_jobs,
                      training_dataset=training_dataset, inference=inference,
-                     data_dir_explicit=data_dir_explicit)
+                     data_dir_explicit=data_dir_explicit, lumos=lumos)
 
 
 def main():

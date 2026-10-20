@@ -1,4 +1,6 @@
+<?xml version='1.0' encoding='utf-8'?>
 <robot name="touch_r1_leader_arm_preview">
+  <!--运动学预览草案：continuous 仅为无已知限位时的可视化表示；不是实机无限旋转声明。未提供惯量、碰撞模型或控制接口。-->
   <link name="base_link">
     <visual name="base_link_structure">
       <origin xyz="0 0 0" rpy="0 0 0" />

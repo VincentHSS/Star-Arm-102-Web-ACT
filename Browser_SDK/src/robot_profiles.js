@@ -1,14 +1,22 @@
 import { t, tWithVars } from './i18n.js';
 
 const profiles = Object.freeze({
+  LUMOS: Object.freeze({
+    code: 'LUMOS',
+    name: 'LumosTouch V3',
+    role: 'follower',
+    powered: true,
+    canCommand: false,
+    permissionNote: '通过 Touch R1 校准控制六轴与夹爪；不支持旧款串口滑块、TCP 或轨迹指令',
+  }),
   TOUCH: Object.freeze({
     code: 'TOUCH',
     name: 'Touch R1',
     role: 'leader',
     powered: false,
     canCommand: false,
-    servoIds: Object.freeze([0, 1, 2, 3, 4, 5]),
-    permissionNote: '六轴 Leader，仅采集姿态；不提供夹爪输入',
+    servoIds: Object.freeze([0, 1, 2, 3, 4, 5, 6]),
+    permissionNote: '只读采集六轴及夹爪，不向 Leader 发送运动指令',
     permissionNoteKey: 'profile.touch-permission',
   }),
   LD: Object.freeze({

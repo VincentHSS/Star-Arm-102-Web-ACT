@@ -3,7 +3,7 @@
 
 const translations = {
   zh: {
-    'profile.touch-permission': '六轴 Leader，仅采集姿态；不提供夹爪输入',
+    'profile.touch-permission': '只读采集六轴与夹爪，不向 Leader 发送运动指令',
     'notice.supplied-virtual': '虚拟模型按 J1–J6 顺序跟随，夹指随 J7 开合。',
     'status.connected-virtual-model': '已连接 · {name}',
     'status.not-connected-virtual-model': '未连接 · {name}',
@@ -1104,7 +1104,7 @@ const translations = {
     'target.drag-only-preview-hint': '拖拽仅生成预览',
   },
   en: {
-    'profile.touch-permission': 'Six-axis Leader, read-only pose input; no gripper channel',
+    'profile.touch-permission': 'Read-only six-axis and gripper input; no motion commands sent to the Leader',
     'notice.supplied-virtual': 'Virtual J1–J6 follow in order; fingers follow J7.',
     'status.connected-virtual-model': 'Connected · {name}',
     'status.not-connected-virtual-model': 'Not connected · {name}',

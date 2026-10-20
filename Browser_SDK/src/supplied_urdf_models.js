@@ -481,7 +481,7 @@ export const SUPPLIED_URDF_MODELS = {
     "parts": [
       {
         "link": "base_link",
-        "url": "../assets/urdf/ld-touch/meshes/base_link-structure.stl",
+        "url": "../assets/urdf/ld-touch/meshes/base_link-structure.stl?v=7c681191",
         "origin": {
           "xyz": [
             0.0,
@@ -507,7 +507,7 @@ export const SUPPLIED_URDF_MODELS = {
       },
       {
         "link": "base_link",
-        "url": "../assets/urdf/ld-touch/meshes/base_link-servo.stl",
+        "url": "../assets/urdf/ld-touch/meshes/base_link-servo.stl?v=7c681191",
         "origin": {
           "xyz": [
             0.0,
@@ -533,7 +533,7 @@ export const SUPPLIED_URDF_MODELS = {
       },
       {
         "link": "base_link",
-        "url": "../assets/urdf/ld-touch/meshes/base_link-hardware.stl",
+        "url": "../assets/urdf/ld-touch/meshes/base_link-hardware.stl?v=7c681191",
         "origin": {
           "xyz": [
             0.0,
@@ -559,7 +559,7 @@ export const SUPPLIED_URDF_MODELS = {
       },
       {
         "link": "link_1",
-        "url": "../assets/urdf/ld-touch/meshes/link_1-structure.stl",
+        "url": "../assets/urdf/ld-touch/meshes/link_1-structure.stl?v=7c681191",
         "origin": {
           "xyz": [
             0.0,
@@ -585,7 +585,7 @@ export const SUPPLIED_URDF_MODELS = {
       },
       {
         "link": "link_1",
-        "url": "../assets/urdf/ld-touch/meshes/link_1-servo.stl",
+        "url": "../assets/urdf/ld-touch/meshes/link_1-servo.stl?v=7c681191",
         "origin": {
           "xyz": [
             0.0,
@@ -611,7 +611,7 @@ export const SUPPLIED_URDF_MODELS = {
       },
       {
         "link": "link_1",
-        "url": "../assets/urdf/ld-touch/meshes/link_1-horn.stl",
+        "url": "../assets/urdf/ld-touch/meshes/link_1-horn.stl?v=7c681191",
         "origin": {
           "xyz": [
             0.0,
@@ -637,7 +637,7 @@ export const SUPPLIED_URDF_MODELS = {
       },
       {
         "link": "link_2",
-        "url": "../assets/urdf/ld-touch/meshes/link_2-structure.stl",
+        "url": "../assets/urdf/ld-touch/meshes/link_2-structure.stl?v=7c681191",
         "origin": {
           "xyz": [
             0.0,
@@ -663,7 +663,7 @@ export const SUPPLIED_URDF_MODELS = {
       },
       {
         "link": "link_2",
-        "url": "../assets/urdf/ld-touch/meshes/link_2-servo.stl",
+        "url": "../assets/urdf/ld-touch/meshes/link_2-servo.stl?v=7c681191",
         "origin": {
           "xyz": [
             0.0,
@@ -689,7 +689,7 @@ export const SUPPLIED_URDF_MODELS = {
       },
       {
         "link": "link_2",
-        "url": "../assets/urdf/ld-touch/meshes/link_2-horn.stl",
+        "url": "../assets/urdf/ld-touch/meshes/link_2-horn.stl?v=7c681191",
         "origin": {
           "xyz": [
             0.0,
@@ -715,7 +715,7 @@ export const SUPPLIED_URDF_MODELS = {
       },
       {
         "link": "link_3",
-        "url": "../assets/urdf/ld-touch/meshes/link_3-structure.stl",
+        "url": "../assets/urdf/ld-touch/meshes/link_3-structure.stl?v=7c681191",
         "origin": {
           "xyz": [
             0.0,
@@ -741,7 +741,7 @@ export const SUPPLIED_URDF_MODELS = {
       },
       {
         "link": "link_3",
-        "url": "../assets/urdf/ld-touch/meshes/link_3-servo.stl",
+        "url": "../assets/urdf/ld-touch/meshes/link_3-servo.stl?v=7c681191",
         "origin": {
           "xyz": [
             0.0,
@@ -767,7 +767,7 @@ export const SUPPLIED_URDF_MODELS = {
       },
       {
         "link": "link_3",
-        "url": "../assets/urdf/ld-touch/meshes/link_3-horn.stl",
+        "url": "../assets/urdf/ld-touch/meshes/link_3-horn.stl?v=7c681191",
         "origin": {
           "xyz": [
             0.0,
@@ -793,7 +793,7 @@ export const SUPPLIED_URDF_MODELS = {
       },
       {
         "link": "link_4",
-        "url": "../assets/urdf/ld-touch/meshes/link_4-structure.stl",
+        "url": "../assets/urdf/ld-touch/meshes/link_4-structure.stl?v=7c681191",
         "origin": {
           "xyz": [
             0.0,
@@ -819,7 +819,7 @@ export const SUPPLIED_URDF_MODELS = {
       },
       {
         "link": "link_4",
-        "url": "../assets/urdf/ld-touch/meshes/link_4-servo.stl",
+        "url": "../assets/urdf/ld-touch/meshes/link_4-servo.stl?v=7c681191",
         "origin": {
           "xyz": [
             0.0,
@@ -845,7 +845,7 @@ export const SUPPLIED_URDF_MODELS = {
       },
       {
         "link": "link_4",
-        "url": "../assets/urdf/ld-touch/meshes/link_4-horn.stl",
+        "url": "../assets/urdf/ld-touch/meshes/link_4-horn.stl?v=7c681191",
         "origin": {
           "xyz": [
             0.0,
@@ -871,7 +871,7 @@ export const SUPPLIED_URDF_MODELS = {
       },
       {
         "link": "link_5",
-        "url": "../assets/urdf/ld-touch/meshes/link_5-structure.stl",
+        "url": "../assets/urdf/ld-touch/meshes/link_5-structure.stl?v=7c681191",
         "origin": {
           "xyz": [
             0.0,
@@ -897,7 +897,7 @@ export const SUPPLIED_URDF_MODELS = {
       },
       {
         "link": "link_5",
-        "url": "../assets/urdf/ld-touch/meshes/link_5-servo.stl",
+        "url": "../assets/urdf/ld-touch/meshes/link_5-servo.stl?v=7c681191",
         "origin": {
           "xyz": [
             0.0,
@@ -923,7 +923,7 @@ export const SUPPLIED_URDF_MODELS = {
       },
       {
         "link": "link_5",
-        "url": "../assets/urdf/ld-touch/meshes/link_5-horn.stl",
+        "url": "../assets/urdf/ld-touch/meshes/link_5-horn.stl?v=7c681191",
         "origin": {
           "xyz": [
             0.0,
@@ -949,7 +949,7 @@ export const SUPPLIED_URDF_MODELS = {
       },
       {
         "link": "link_5",
-        "url": "../assets/urdf/ld-touch/meshes/link_5-hardware.stl",
+        "url": "../assets/urdf/ld-touch/meshes/link_5-hardware.stl?v=7c681191",
         "origin": {
           "xyz": [
             0.0,
@@ -975,7 +975,7 @@ export const SUPPLIED_URDF_MODELS = {
       },
       {
         "link": "link_6",
-        "url": "../assets/urdf/ld-touch/meshes/link_6-structure.stl",
+        "url": "../assets/urdf/ld-touch/meshes/link_6-structure.stl?v=7c681191",
         "origin": {
           "xyz": [
             0.0,
@@ -1001,7 +1001,7 @@ export const SUPPLIED_URDF_MODELS = {
       },
       {
         "link": "link_6",
-        "url": "../assets/urdf/ld-touch/meshes/link_6-horn.stl",
+        "url": "../assets/urdf/ld-touch/meshes/link_6-horn.stl?v=7c681191",
         "origin": {
           "xyz": [
             0.0,
@@ -1202,6 +1202,6 @@ export const SUPPLIED_URDF_MODELS = {
         "displayAxisDirection": 1
       }
     ],
-    "sourceUrdf": "../assets/urdf/ld-touch/model.urdf"
+    "sourceUrdf": "../assets/urdf/ld-touch/model.urdf?v=7c681191"
   }
 };

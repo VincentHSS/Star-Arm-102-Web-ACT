@@ -6,7 +6,9 @@
 
 **Windows 客户直接执行：[纯网页图文教程](docs/BROWSER_EXECUTION.md)。** 打开网站中的 `act-browser.html`，导入网页执行模型、授权相机和串口、校验后执行。提供方在第 3 步点击“导出 Windows 网页模型”生成客户包；不是让客户把普通权重改名或安装运行环境。
 
-控制台进入 ACT 统一打开四步骤工作台。**第 1 步配置本机采集连接并采集，第 2 步再准备训练环境**；采集不用先安装 PyTorch / LeRobot。Windows 免安装模型执行仍可从工作台顶栏“网页执行”单独进入。
+页面顶部的“当前工作区”菜单统一切换控制台、ACT 工作台和网页执行。**ACT 第 1 步配置本机采集连接并采集，第 2 步再准备训练环境**；采集不用先安装 PyTorch / LeRobot。
+
+**Touch R1 → 实体 LumosTouch：使用 Ubuntu + CAN。** 下载源码后运行 `sh start_ubuntu_lumos.sh`，在本机控制台完成连接、六轴及夹爪校准、目标预览和遥操作。实体 LumosTouch 只接受 Touch R1 配对，夹爪随主臂 ID 6 开合；详情见 [LumosTouch 遥操作](docs/LUMOS_TELEOP.md)。Windows 可预览这两款模型，实体 LumosTouch 的 CAN 控制需要 Ubuntu 组件。
 
 **第一次使用先看 [图文快速上手](docs/GETTING_STARTED.md)。** 教程包含实际界面截图，按按钮位置说明控制台连接、从臂校准、双相机、数据集创建、环境准备、模型导入和执行。截图为未连接硬件状态，不代表实机验证结果。
 
@@ -18,6 +20,7 @@
 | --- | --- |
 | 第一次使用，选下载包和操作路线 | [图文快速上手](docs/GETTING_STARTED.md) |
 | 连接设备、三维查看、主从控制、舵机设置 | [控制台图文教程](docs/CONSOLE_GUIDE.md) |
+| Touch R1 控制实体 LumosTouch（Ubuntu CAN） | [LumosTouch 遥操作](docs/LUMOS_TELEOP.md) |
 | 采集、校准、训练、导入完整模型、实机推理 | [ACT 四步骤图文教程](docs/ACT_GUIDE.md) |
 | 客户首次安装或 Ubuntu 本地源码启动 | [Ubuntu 详细教程](docs/UBUNTU.md) |
 | Windows 启动、准备环境并执行 Ubuntu 训练模型 | [Windows 详细教程](docs/WINDOWS.md) |
