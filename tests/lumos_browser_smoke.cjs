@@ -1,34 +1,36 @@
-// No hardware or live API: loopback 18766 is fully intercepted and Web Serial is synthetic.
+// No hardware or customer API: this test owns its loopback HTTP server and uses
+// synthetic Web Serial. Refuse an occupied port instead of reusing a live service.
 const { chromium } = require('playwright');
 const path = require('node:path'), assert = require('node:assert/strict');
+const http = require('node:http'), fs = require('node:fs/promises');
 const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
 const ROOT = path.resolve(__dirname, '..');
 (async () => {
   const origin = 'http://127.0.0.1:18766';
-  let browser;
-  try {
-    browser = await chromium.launch({ headless: true, ...(process.env.PLAYWRIGHT_BROWSER_CHANNEL ? { channel: process.env.PLAYWRIGHT_BROWSER_CHANNEL } : {}),
-      ...(process.env.LUMOS_BROWSER_SOFTWARE_RENDERER === '1' ? { args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader'] } : {}) });
-    const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
-    if (Number(process.env.LUMOS_BROWSER_CPU_THROTTLE) > 1) {
-      await (await page.context().newCDPSession(page)).send('Emulation.setCPUThrottlingRate', { rate: Number(process.env.LUMOS_BROWSER_CPU_THROTTLE) });
-    }
-    const errors = [], calls = [];
-    let state = { phase: 'idle', connected: false, session_id: null }, sequence = 0, stopDelay = 0, connectDelay = 0, sdkEpoch = 0;
-    page.on('pageerror', error => errors.push(error.message));
-    await page.route('http://127.0.0.1:18765/**', route => route.abort());
-    await page.route(origin + '/**', async route => {
-      const url = new URL(route.request().url());
+  let browser, page;
+  const errors = [], calls = [];
+  let state = { phase: 'idle', connected: false, session_id: null }, sequence = 0, stopDelay = 0, connectDelay = 0, sdkEpoch = 0;
+  const server = http.createServer(async (request, response) => {
+    try {
+      const url = new URL(request.url, origin);
       if (!url.pathname.startsWith('/api/')) {
-        try {
-          const file = path.resolve(ROOT, 'Browser_SDK', '.' + decodeURIComponent(url.pathname));
-          assert(file.startsWith(path.join(ROOT, 'Browser_SDK') + path.sep));
-          return route.fulfill({ path: file });
-        } catch (error) { if (!page.isClosed()) errors.push(error.message); await route.abort().catch(() => {}); return; }
+        const file = path.resolve(ROOT, 'Browser_SDK', '.' + decodeURIComponent(url.pathname));
+        assert(file.startsWith(path.join(ROOT, 'Browser_SDK') + path.sep));
+        const types = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css',
+          '.json': 'application/json', '.urdf': 'application/xml', '.svg': 'image/svg+xml',
+          '.png': 'image/png', '.ico': 'image/x-icon', '.woff2': 'font/woff2' };
+        const content = await fs.readFile(file);
+        response.writeHead(200, { 'Content-Type': types[path.extname(file)] || 'application/octet-stream' });
+        return response.end(content);
       }
-      const body = route.request().postDataJSON() || {};
+      let input = '';
+      for await (const chunk of request) input += chunk;
+      const body = input ? JSON.parse(input) : {};
       const action = url.pathname.split('/').at(-1);
-      const reply = (result, status = 200) => route.fulfill({ status, contentType: 'application/json', body: JSON.stringify({ gripper_type: 'TypeLJ', gripper_config_error: null, ...result }) });
+      const reply = (result, status = 200) => {
+        response.writeHead(status, { 'Content-Type': 'application/json' });
+        response.end(JSON.stringify({ gripper_type: 'TypeLJ', gripper_config_error: null, ...result }));
+      };
       calls.push({ action, body });
       if (action === 'emergency-stop') { sdkEpoch++; state = { phase: 'stopped', connected: false, session_id: null }; return reply({ stopped: true }); }
       if (action === 'status') return reply(state);
@@ -72,8 +74,51 @@ const ROOT = path.resolve(__dirname, '..');
         await pause(stopDelay); state = { phase: 'stopped', connected: false, session_id: null, cleanup_pending: false, cleanup_failed: false };
       } else return reply({ error: { message: `Unexpected API ${action}` } }, 400);
       return reply(state);
+    } catch (error) {
+      if (error.code !== 'ENOENT') errors.push(error.message);
+      response.writeHead(error.code === 'ENOENT' ? 404 : 500);
+      response.end(error.message);
+    }
+  });
+  try {
+    // Exercise actual HTTP response delivery during the 50 Hz sample loop;
+    // production deadlines remain unchanged.
+    await new Promise((resolve, reject) => {
+      server.once('error', reject);
+      server.listen(18766, '127.0.0.1', resolve);
     });
+    browser = await chromium.launch({ headless: true, ...(process.env.PLAYWRIGHT_BROWSER_CHANNEL ? { channel: process.env.PLAYWRIGHT_BROWSER_CHANNEL } : {}),
+      ...(process.env.LUMOS_BROWSER_SOFTWARE_RENDERER === '1' ? { args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader'] } : {}) });
+    page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
+    if (Number(process.env.LUMOS_BROWSER_CPU_THROTTLE) > 1) {
+      await (await page.context().newCDPSession(page)).send('Emulation.setCPUThrottlingRate', { rate: Number(process.env.LUMOS_BROWSER_CPU_THROTTLE) });
+    }
+    page.on('pageerror', error => errors.push(error.message));
+    await page.route('http://127.0.0.1:18765/**', route => route.abort());
     await page.addInitScript(() => {
+      window.__lumosTiming = [];
+      new PerformanceObserver(list => {
+        for (const entry of list.getEntries()) {
+          window.__lumosTiming.push({ type: 'longtask', start: entry.startTime, duration: entry.duration });
+        }
+      }).observe({ type: 'longtask', buffered: true });
+      const originalFetch = window.fetch.bind(window);
+      window.fetch = async (...args) => {
+        if (!String(args[0]).includes('/api/v1/lumos/')) return originalFetch(...args);
+        const timing = { type: String(args[0]).split('/').at(-1), start: performance.now() };
+        window.__lumosTiming.push(timing);
+        try {
+          const response = await originalFetch(...args);
+          timing.headers = performance.now();
+          const json = response.json.bind(response);
+          response.json = async () => {
+            try { return await json(); }
+            catch (error) { timing.error = error.name; throw error; }
+            finally { timing.end = performance.now(); }
+          };
+          return response;
+        } catch (error) { timing.error = error.name; timing.end = performance.now(); throw error; }
+      };
       const state = { requested: 0, opened: 0, closed: 0, nonReadWrites: 0, rounds: [], missing: [], angles: [0, 0, 0, 0, 0, 0, 0] };
       window.__lumosSerial = state;
       Object.defineProperty(navigator, 'serial', { value: {
@@ -237,6 +282,19 @@ const ROOT = path.resolve(__dirname, '..');
     console.log(JSON.stringify({ lumosBrowser: true, matchingLeaderRequired: true, noFollowerSerial: true,
       freshSixAxesAndGripper: true, explicitCalibrationAndStart: true, gripperEndpointsRaw: true, stopLocksModel: true, missingAxisOrGripperStops: true,
       emergencyCancelsPendingConnect: true, navigationClosesCan: true, oldTrajectoryBlocked: true,
-      stationaryPoseSkipsRedrawWithoutPausingSampling: true, hardwareTested: false }));
-  } finally { if (browser) await browser.close(); }
+      stationaryPoseSkipsRedrawWithoutPausingSampling: true, realHttpTransport: true, hardwareTested: false }));
+  } catch (error) {
+    if (page && !page.isClosed()) {
+      console.error(JSON.stringify({ state, calls: calls.slice(-8), errors, browser: await page.evaluate(() => ({
+        status: document.querySelector('#lumosStatus')?.textContent,
+        logs: document.querySelector('#logs')?.textContent.slice(-1500),
+        timing: window.__lumosTiming?.slice(-50),
+      })).catch(() => null) }));
+    }
+    throw error;
+  } finally {
+    if (browser) await browser.close();
+    server.closeAllConnections();
+    await new Promise(resolve => server.close(resolve));
+  }
 })().catch(error => { console.error(error); process.exitCode = 1; });
