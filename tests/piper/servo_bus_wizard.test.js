@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import installHardware from '../helpers/servo_setup_hardware.cjs';
 import { SerialServoBus } from '../../Browser_SDK/src/serial_servo_bus.js';
 import { readServoPublicConfig, writeAndVerifyServoConfig, reconcileServoMutation } from '../../Browser_SDK/src/servo_setup_flow.js';
-import { ServoBusWizard } from '../../Browser_SDK/src/servo_bus_wizard.js';
+import { ServoBusWizard, ServoBusAutoRunner } from '../../Browser_SDK/src/servo_bus_wizard.js';
 
 async function harness(t) {
   const { state, serial, port } = installHardware();
@@ -119,4 +119,73 @@ test('concurrent requests and malformed saved records cannot send extra writes',
   const checkpoint = h.wizard.checkpoint(); checkpoint.slots[1] = { index: 1, id: 253, baud: 115200 };
   assert.throws(() => new ServoBusWizard({ ...h.dependencies, checkpoint }), { code: 'bad-record' });
   assert.equal(h.writes().length, 1);
+});
+
+function autoRunner(h, onStatus = () => {}) {
+  return new ServoBusAutoRunner({ wizard: h.wizard, pollMs: 1, stableMs: 1, onStatus,
+    probeFactory: async () => {
+      try { return await h.dependencies.readAt(0, 115200); }
+      catch (error) { if (error.code === 'serial_response_timeout') return null; throw error; }
+    } });
+}
+
+test('one start automatically waits for seven successive factory motors, restores 0 and migrates every baud rate', async t => {
+  const h = await harness(t); let waiting = 0;
+  const runner = autoRunner(h, ({ status }) => {
+    if (status !== 'waiting') return;
+    waiting++;
+    if (waiting >= 3 && h.state.motors.length === h.wizard.state.assigned) h.state.addFactory();
+  });
+  await runner.start();
+  assert(waiting >= 9, 'absence is polled without advancing or requiring UI clicks');
+  assert.equal(h.wizard.state.phase, 'complete'); assert.equal(runner.status, 'complete');
+  assert.equal(runner.running, false); assert.equal(h.writes().length, 15);
+  assert.deepEqual(h.state.snapshot().map(m => [m.id, m.baud]), Array.from({ length: 7 }, (_, id) => [id, 1000000]));
+});
+
+test('automatic waiting can pause with no motor attached and cannot write after pausing', async t => {
+  const h = await harness(t); let runner;
+  runner = autoRunner(h, ({ status }) => { if (status === 'waiting') runner.stop(); });
+  await runner.start(); assert.equal(runner.status, 'paused'); assert.equal(h.writes().length, 0);
+  h.state.addFactory(); await new Promise(resolve => setTimeout(resolve, 15));
+  assert.equal(h.writes().length, 0);
+});
+
+test('automatic setup resumes after pausing without rewriting already assigned motors', async t => {
+  const h = await harness(t);
+  const runner = autoRunner(h, ({ status }) => {
+    if (status === 'waiting' && h.state.motors.length === h.wizard.state.assigned) h.state.addFactory();
+  });
+  h.wizard.onChange = () => { if (h.wizard.state.assigned === 3 && !runner.stopRequested) runner.stop(); };
+  await runner.start(); assert.equal(h.writes().length, 3); assert.equal(runner.status, 'paused');
+  h.wizard.onChange = () => {};
+  await runner.start(); assert.equal(h.writes().length, 15); assert.equal(h.wizard.state.phase, 'complete');
+});
+
+test('automatic setup stops on an uncertain write and an explicit resume reconciles it without resending', async t => {
+  const h = await harness(t); h.state.addFactory(); h.state.dropAfterWrite = true;
+  const runner = autoRunner(h);
+  await assert.rejects(runner.start(), { code: 'serial_response_timeout' });
+  assert.equal(runner.status, 'error'); assert.equal(runner.running, false); assert.equal(h.writes().length, 1);
+  assert(h.wizard.state.pending);
+  runner.onStatus = ({ status }) => { if (status === 'waiting') runner.stop(); };
+  await runner.start(); assert.equal(h.writes().length, 1); assert.equal(h.wizard.state.assigned, 1);
+});
+
+test('automatic recovery of an unapplied write stops after the read-only reconciliation', async t => {
+  const h = await harness(t); h.state.addFactory(); h.state.applyWrite = false;
+  const runner = autoRunner(h);
+  await assert.rejects(runner.start(), { code: 'serial_response_timeout' });
+  await runner.start(); assert.equal(runner.status, 'unchanged'); assert.equal(h.writes().length, 1);
+  assert.equal(h.wizard.state.assigned, 0); assert.equal(h.wizard.state.pending, null);
+});
+
+test('a new motor must provide two stable reads and a pause before mutation prevents the write', async t => {
+  const h = await harness(t); let samples = 0;
+  const unstable = new ServoBusAutoRunner({ wizard: h.wizard, stableMs: 0,
+    probeFactory: async () => ({ id: 0, baudrate: 5, protection: ++samples }) });
+  await assert.rejects(unstable.start(), { code: 'source-changed' }); assert.equal(h.writes().length, 0);
+  h.state.addFactory(); let runner;
+  runner = autoRunner(h, ({ status }) => { if (status === 'writing') runner.stop(); });
+  await runner.start(); assert.equal(h.writes().length, 0); assert.equal(runner.status, 'paused');
 });

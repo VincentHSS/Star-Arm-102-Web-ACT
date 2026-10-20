@@ -198,13 +198,14 @@
 | [Browser_SDK/src/robot_profiles.js](../Browser_SDK/src/robot_profiles.js) | 主从臂型号、关节范围和控制配置 |
 | [Browser_SDK/src/runtime_integration.js](../Browser_SDK/src/runtime_integration.js) | 控制台运行状态与设备控制的集成 |
 | [Browser_SDK/src/serial_servo_bus.js](../Browser_SDK/src/serial_servo_bus.js) | 舵机总线串口收发与响应管理 |
-| [Browser_SDK/src/servo_bus_wizard.js](../Browser_SDK/src/servo_bus_wizard.js) | 七颗出厂舵机逐颗编号、恢复 ID 0、统一速率及中断接续 |
+| [Browser_SDK/src/servo_bus_wizard.js](../Browser_SDK/src/servo_bus_wizard.js) | 一次启动自动检测七颗新舵机、编号、恢复 ID 0、统一速率与暂停接续 |
 | [Browser_SDK/src/servo_readback.js](../Browser_SDK/src/servo_readback.js) | 控制台按 ID 收集回包、每轮统一超时、仅补读缺失关节与清理等待 |
 | [Browser_SDK/src/servo_setup.css](../Browser_SDK/src/servo_setup.css) | LD 三维选舵机、逐颗总线配置与单颗参数编辑（样式） |
 | [Browser_SDK/src/servo_setup.js](../Browser_SDK/src/servo_setup.js) | LD 三维选舵机、逐颗总线配置与单颗参数编辑 |
 | [Browser_SDK/src/servo_setup_flow.js](../Browser_SDK/src/servo_setup_flow.js) | 舵机 ID 和波特率冲突探测、保留保护参数的写入核验与只读恢复 |
 | [Browser_SDK/src/servo_setup_i18n.js](../Browser_SDK/src/servo_setup_i18n.js) | 舵机配置页面、步骤、错误与通信反馈的中英文文本 |
 | [Browser_SDK/src/servo_setup_model.js](../Browser_SDK/src/servo_setup_model.js) | 配置页独立 LD 三维模型、网格点选、七颗编号与高亮 |
+| [Browser_SDK/src/servo_setup_parts.js](../Browser_SDK/src/servo_setup_parts.js) | 从原始 LD CAD 生成的独立舵机机壳中心与精确三角面点选分组 |
 | [Browser_SDK/src/settings.js](../Browser_SDK/src/settings.js) | 控制台用户设置与持久化 |
 | [Browser_SDK/src/styles.css](../Browser_SDK/src/styles.css) | 控制台主题、响应式布局和通用控件样式（样式） |
 | [Browser_SDK/src/supplied_urdf_mapping.js](../Browser_SDK/src/supplied_urdf_mapping.js) | Touch R1 Leader 和 LumosTouch 虚拟从臂的显示角度与夹指位移映射 |
@@ -335,8 +336,9 @@
 | [tests/piper/piper_leader_contract.test.js](../tests/piper/piper_leader_contract.test.js) | 软件测试：PiPER Mate 姿态源配置与显示约束 |
 | [tests/piper/piper_readback_zero.test.js](../tests/piper/piper_readback_zero.test.js) | 软件测试：PiPER 实时角度、J3 多圈与夹爪中心线 |
 | [tests/piper/release_version_contract.test.js](../tests/piper/release_version_contract.test.js) | 软件测试：两系统启动脚本与整合服务入口 |
-| [tests/piper/servo_bus_wizard.test.js](../tests/piper/servo_bus_wizard.test.js) | 软件测试：七颗出厂舵机逐颗编号、恢复 ID 0、统一速率及中断接续 |
+| [tests/piper/servo_bus_wizard.test.js](../tests/piper/servo_bus_wizard.test.js) | 软件测试：一次启动自动检测七颗新舵机、编号、恢复 ID 0、统一速率与暂停接续 |
 | [tests/piper/servo_setup_flow.test.js](../tests/piper/servo_setup_flow.test.js) | 软件测试：舵机 ID 和波特率冲突探测、保留保护参数的写入核验与只读恢复 |
+| [tests/piper/servo_setup_parts.test.js](../tests/piper/servo_setup_parts.test.js) | 软件测试：从原始 LD CAD 生成的独立舵机机壳中心与精确三角面点选分组 |
 | [tests/piper/servo_setup_ui_contract.test.js](../tests/piper/servo_setup_ui_contract.test.js) | 软件测试：舵机设置界面与读写错误显示 |
 | [tests/servo_readback.test.js](../tests/servo_readback.test.js) | 软件测试：控制台按 ID 收集回包、每轮统一超时、仅补读缺失关节与清理等待 |
 | [tests/servo_setup_browser_smoke.cjs](../tests/servo_setup_browser_smoke.cjs) | 软件测试：模拟七颗总线舵机、三维点选、单颗改参、冲突、中断恢复和中英文布局 |
@@ -377,6 +379,7 @@
 | [tests/test_windows_execution.py](../tests/test_windows_execution.py) | 软件测试：Windows COM 官方驱动读写、双相机与固定目录 CPU 环境 |
 | [tests/training_submission.test.js](../tests/training_submission.test.js) | 软件测试：训练提交编号匹配、旧后台任务核对与准备阶段防重复提交 |
 | [tests/urdf_asset_loading.test.js](../tests/urdf_asset_loading.test.js) | 软件测试：模型网格并发、嵌套路径、网络重试、错误定位与切换释放 |
+| [tools/build_ld_servo_map.py](../tools/build_ld_servo_map.py) | 从原 LD CAD 生成并核验七颗舵机机壳分组，第五和第六颗同属 link5 |
 | [tools/build_runtime_package.py](../tools/build_runtime_package.py) | 构建 Debian 模板、桌面自启动、udev 与浏览器校验值 |
 | [tools/build_touch_gripper_visual.py](../tools/build_touch_gripper_visual.py) | 从原 LD 提取夹爪电机并按 Touch R1 新支架孔位生成显示网格和定位报告 |
 | [tools/capture_docs.cjs](../tools/capture_docs.cjs) | 阻断本机硬件 API，以真实未连接界面生成教程截图 |

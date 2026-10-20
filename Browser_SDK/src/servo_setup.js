@@ -1,6 +1,6 @@
 import { SerialServoBus } from './serial_servo_bus.js';
 import { readServoPublicConfig, writeAndVerifyServoConfig, reconcileServoMutation, ServoSetupError } from './servo_setup_flow.js';
-import { ServoBusWizard } from './servo_bus_wizard.js';
+import { ServoBusWizard, ServoBusAutoRunner } from './servo_bus_wizard.js';
 import { createServoSetupModel } from './servo_setup_model.js';
 import { ss, servoSetupErrorMessage } from './servo_setup_i18n.js';
 import { getLanguage, tWithVars } from './i18n.js';
@@ -17,6 +17,7 @@ let bus = null, selectedPort = null, connected = false, currentBaud = 115200, wo
 let initialConfig = null, initialId = 0, initialBaudRate = 115200, targetId = Number(ui.idInput.value);
 let selected = 0, mode = 'assembly', model = null, loadingModel = false, modelFailed = false, issue = null, manualPending = null;
 let confirmAction = null, activeOperation = null, lineCount = 0, transition = null, stageKey = '';
+let autoRunner = null;
 const visibilityChanges = new WeakMap();
 const verified = new Set(), records = Array.from({ length: 7 }, (_, index) => ({ index, id: null, baud: 115200 }));
 let saved;
@@ -72,9 +73,9 @@ async function reconnect(baud) {
   await bus.disconnect(); await bus.connect(selectedPort, { baudRate: baud }); currentBaud = baud; connected = true;
   render();
 }
-async function readAt(id, baud) {
+async function readAt(id, baud, timeoutMs = 1500) {
   await reconnect(baud);
-  const config = await readServoPublicConfig(bus, id);
+  const config = await readServoPublicConfig(bus, id, timeoutMs);
   const slot = records.find(row => row.id === id && row.baud === baud);
   if (slot) verified.add(slot.index);
   return config;
@@ -89,7 +90,6 @@ function wizardChanged(snapshot) {
   persist();
   const key = `${snapshot.phase}/${snapshot.assigned}`;
   if (stageKey && stageKey !== key) {
-    $('ssNewServoCheck').checked = false;
     if (snapshot.phase === 'adding') selected = snapshot.assigned;
     stageKey = key; morph(render);
   } else { stageKey = key; render(); }
@@ -100,6 +100,13 @@ const dependencies = { readAt, changeConfig: options => writeAndVerifyServoConfi
 try { wizard = new ServoBusWizard({ ...dependencies, checkpoint: saved?.wizard }); }
 catch { wizard = new ServoBusWizard(dependencies); issue = new ServoSetupError('bad-record'); }
 if (saved?.mode === 'single' && (wizard.state.assigned === 0 || wizard.state.phase === 'complete')) mode = 'single';
+function createAutoRunner() {
+  return new ServoBusAutoRunner({ wizard, probeFactory: async () => {
+    try { return await readAt(0, 115200, 300); }
+    catch (error) { if (error.code === 'serial_response_timeout') return null; throw error; }
+  }, onStatus: render });
+}
+autoRunner = createAutoRunner();
 
 const cardNodes = [], labelNodes = [], labelLines = [];
 const svgNS = 'http://www.w3.org/2000/svg', labelSvg = document.createElementNS(svgNS, 'svg');
@@ -147,7 +154,7 @@ function render() {
   $('ssAssemblyPanel').hidden = mode !== 'assembly'; $('ssManualPanel').hidden = mode !== 'single';
   $('ssModeAssembly').setAttribute('aria-selected', String(mode === 'assembly')); $('ssModeSingle').setAttribute('aria-selected', String(mode === 'single'));
   $('ssModeAssembly').disabled = working; $('ssModeSingle').disabled = working;
-  animateText(ui.port, working ? ss('busy') : ss(connected ? 'online' : 'offline'));
+  animateText(ui.port, working && (!autoRunner.running || wizard.busy) ? ss('busy') : ss(connected ? 'online' : 'offline'));
   ui.param.textContent = currentBaud; $('ssConnectionDot').dataset.online = String(connected || working);
   $('ssConnectLabel').textContent = mode === 'assembly' ? ss('connect') : ss(connected ? 'reread' : 'read');
   ui.btnConnect.disabled = working || (mode === 'assembly' && connected);
@@ -172,7 +179,7 @@ function render() {
   if (state.phase === 'adding') {
     const number = state.assigned + 1;
     title = ss('addTitle', { number }); detail = ss(state.assigned === 0 ? 'addFirst' : 'addNext', { number });
-    action = ss('next', { number }); to = state.assigned === 0 ? 253 : state.assigned;
+    action = ss(connected ? state.assigned ? 'autoResume' : 'autoStart' : 'autoConnectStart'); to = state.assigned === 0 ? 253 : state.assigned;
     $('ssStageNumber').textContent = `MOTOR ${String(number).padStart(2, '0')} / 07`;
   } else {
     title = ss(state.phase + 'Title'); detail = ss(state.phase === 'complete' && !connected ? 'completeSaved' : state.phase + 'Detail');
@@ -187,14 +194,15 @@ function render() {
   $('ssRouteTarget').textContent = ss(state.phase === 'adding' && state.assigned === 0 ? 'temporary' : 'targetId');
   $('ssRouteBaud').firstChild.textContent = state.phase === 'baud' || state.phase === 'complete' ? '1000000 ' : '115200 ';
   showElement($('ssFactoryNote'), state.phase !== 'baud' && state.phase !== 'complete');
-  showElement($('ssNewServoConfirmation'), state.phase === 'adding' && !pending);
-  $('ssNewServoCheck').disabled = working;
-  $('ssNextLabel').textContent = pending ? ss('retry') : action;
-  $('ssNext').disabled = working || !connected || state.phase === 'complete' || (!pending && state.phase === 'adding' && !$('ssNewServoCheck').checked);
-  $('ssNext').setAttribute('aria-busy', String(working && wizard.busy));
-  showElement($('ssPause'), working && state.phase === 'baud'); $('ssPause').disabled = wizard.pauseRequested;
+  const autoText = ss('auto.' + (state.phase === 'complete' ? 'complete' : autoRunner.status), { number: state.assigned + 1 });
+  $('ssAutoStatus').dataset.status = autoRunner.status;
+  animateText($('ssAutoStatusText'), autoText);
+  $('ssNextLabel').textContent = autoRunner.running ? autoText : pending ? ss('autoRecover') : state.phase === 'complete' ? ss('completed') : state.phase === 'adding' ? action : ss('autoResume');
+  $('ssNext').disabled = working || state.phase === 'complete';
+  $('ssNext').setAttribute('aria-busy', String(autoRunner.running));
+  showElement($('ssPause'), autoRunner.running); $('ssPause').disabled = autoRunner.stopRequested;
   const issueValue = issue || (state.error ? { ...state.error } : null);
-  showElement($('ssIssue'), Boolean(issueValue || pending || manualPending));
+  showElement($('ssIssue'), Boolean(issueValue || (!working && (pending || manualPending))));
   $('ssIssueText').textContent = issueValue ? servoSetupErrorMessage(issueValue) : ss('readOnlyRecovery');
   const count = state.slots.filter(slot => slot.baud === 1000000 && slot.id !== null).length;
   const percent = state.phase === 'complete' ? 100 : state.phase === 'baud' ? 55 + count / 7 * 45 : state.phase === 'restore' ? 50 : state.assigned / 7 * 45;
@@ -202,7 +210,7 @@ function render() {
   ui.progress.setAttribute('role', 'progressbar'); ui.progress.setAttribute('aria-valuemin', '0'); ui.progress.setAttribute('aria-valuemax', '100');
   ui.progress.setAttribute('aria-valuenow', String(Math.round(percent))); ui.progress.setAttribute('aria-label', ss('progress'));
   ui.progressText.textContent = mode === 'single' ? ss(initialConfig ? 'ready' : 'waitingRead') : ss(state.phase === 'baud' || state.phase === 'complete' ? 'speedCount' : 'statusCount', { count: state.phase === 'baud' || state.phase === 'complete' ? count : state.assigned });
-  ui.state.textContent = working ? ss('writing') : mode === 'single' ? ss(initialConfig ? 'ready' : 'waitingRead') : ss('phase' + state.phase[0].toUpperCase() + state.phase.slice(1));
+  ui.state.textContent = autoRunner.running ? autoText : working ? ss('writing') : mode === 'single' ? ss(initialConfig ? 'ready' : 'waitingRead') : ss('phase' + state.phase[0].toUpperCase() + state.phase.slice(1));
   const activeSlot = mode === 'assembly' && state.phase === 'adding' ? state.assigned : selected;
   for (let slot = 0; slot < 7; slot++) {
     const row = records[slot], card = cardNodes[slot];
@@ -223,7 +231,7 @@ async function ensurePort(baud) {
   if (bus) await bus.disconnect();
   bus = new SerialServoBus('ServoSetup', {
     onStateChange: () => { connected = bus.connected; render(); },
-    onLost: error => { issue = error; initialConfig = null; verified.clear(); wizard.requestPause(); persist(); render(); },
+    onLost: error => { issue = error; initialConfig = null; verified.clear(); autoRunner.stop(); persist(); render(); },
   });
   await bus.connect(null, { baudRate: baud }); selectedPort = bus.port; currentBaud = baud; connected = true;
   log(ss('logConnected', { baud }));
@@ -257,11 +265,10 @@ async function disconnect() {
 async function runWizard() {
   if (working || !connected) return;
   working = true; issue = null; render();
-  const wasPending = Boolean(wizard.state.pending);
-  const operation = wizard.advance({ newServoConfirmed: $('ssNewServoCheck').checked }); activeOperation = operation;
-  try { const result = await operation; if (wasPending) log(ss(result.recovered ? 'logRecovered' : 'logUnchanged')); }
+  const operation = autoRunner.start(); activeOperation = operation;
+  try { await operation; if (autoRunner.status === 'unchanged') log(ss('logUnchanged')); }
   catch (e) { issue = e; log(servoSetupErrorMessage(e)); }
-  finally { working = false; $('ssNewServoCheck').checked = false; activeOperation = null; persist(); render(); }
+  finally { working = false; activeOperation = null; persist(); render(); }
 }
 async function recoverManual() {
   const result = await reconcileServoMutation({ bus, reconnect, mutation: manualPending });
@@ -316,25 +323,25 @@ view.querySelector('.ss-modes').addEventListener('keydown', event => {
   event.preventDefault(); const next = event.key === 'Home' ? 'assembly' : event.key === 'End' ? 'single' : mode === 'assembly' ? 'single' : 'assembly';
   setMode(next); $(mode === 'assembly' ? 'ssModeAssembly' : 'ssModeSingle').focus();
 });
-$('ssNewServoCheck').onchange = render; ui.check.onchange = render;
+ui.check.onchange = render;
 for (const input of [ui.initialIdInput, ui.initialBaudRate]) input.addEventListener('input', () => { initialConfig = null; render(); });
 for (const input of [ui.idInput, ui.targetBaudRate]) input.addEventListener('input', render);
-$('ssNext').onclick = () => {
+$('ssNext').onclick = async () => {
   if ($('ssNext').disabled) return;
-  if (wizard.state.pending || wizard.state.phase === 'adding') { void runWizard(); return; }
-  showConfirm({ description: wizard.state.phase === 'restore' ? ss('restoreDetail') : ss('confirmBaud'), from: wizard.state.phase === 'restore' ? 253 : 0,
-    to: wizard.state.phase === 'restore' ? 0 : 6, baud: wizard.state.phase === 'restore' ? 115200 : 1000000, action: runWizard });
+  if (!connected) { await connect(); if (!connected || issue) return; }
+  await runWizard();
 };
 $('ssPause').onclick = async () => {
-  wizard.requestPause();
+  autoRunner.stop();
   try { await activeOperation; } catch { /* runWizard displays and retains the failed operation. */ }
-  await disconnect(); log(ss('paused'));
+  log(ss('paused')); render();
 };
 $('ssNewRecord').onclick = () => showConfirm({ description: ss('confirmReset'), numbers: false, action: async () => {
   if (working) return; await disconnect();
   wizard = new ServoBusWizard(dependencies); records.forEach((row, index) => { records[index] = { index, id: null, baud: 115200 }; });
+  autoRunner = createAutoRunner();
   manualPending = null; verified.clear(); selected = 0; mode = 'assembly'; initialConfig = null; issue = null; stageKey = '';
-  $('ssNewServoCheck').checked = false; persist(); morph(render);
+  persist(); morph(render);
 } });
 $('ssSaveRecord').onclick = () => {
   const blob = new Blob([JSON.stringify({ model: 'Star Arm 102-LD', savedAt: new Date().toISOString(), wizard: wizard.checkpoint(), records, manualPending }, null, 2)], { type: 'application/json' });
@@ -361,6 +368,7 @@ const observer = new MutationObserver(() => { if (view.classList.contains('activ
 window.addEventListener('language-change', () => { render(); model?.resize(); });
 window.addEventListener('workbench:before-switch', event => {
   event.detail.waits.push((async () => {
+    if (autoRunner.running) { autoRunner.stop(); await activeOperation; }
     if (working) throw new Error(ss('error.leave'));
     if (bus) await disconnect();
     if (view.classList.contains('active') && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
@@ -368,5 +376,5 @@ window.addEventListener('workbench:before-switch', event => {
     }
   })());
 });
-window.addEventListener('pagehide', () => { persist(); model?.destroy(); observer.disconnect(); if (bus) void bus.disconnect(); }, { once: true });
+window.addEventListener('pagehide', () => { autoRunner.stop(); persist(); model?.destroy(); observer.disconnect(); if (bus) void bus.disconnect(); }, { once: true });
 render(); void ensureModel();

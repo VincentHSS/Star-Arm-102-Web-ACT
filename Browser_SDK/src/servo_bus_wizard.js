@@ -84,6 +84,7 @@ export class ServoBusWizard {
         return { ...this.snapshot(), recovered: result.applied };
       }
       await this.verifyKnown();
+      if (this.pauseRequested) return this.snapshot();
       if (this.state.phase === 'adding') {
         if (!newServoConfirmed) throw new ServoSetupError('confirm-new');
         const slot = this.state.assigned;
@@ -104,5 +105,71 @@ export class ServoBusWizard {
       this.state.error = { code: error.code || '', message: error.message, details: error.details || {} };
       this.emit(); throw error;
     } finally { this.busy = false; this.emit(); }
+  }
+}
+
+function waitForNextProbe(ms, signal) {
+  return new Promise((resolve, reject) => {
+    if (signal.aborted) { reject(signal.reason); return; }
+    const done = () => { signal.removeEventListener('abort', cancel); resolve(); };
+    const timer = setTimeout(done, ms);
+    const cancel = () => { clearTimeout(timer); signal.removeEventListener('abort', cancel); reject(signal.reason); };
+    signal.addEventListener('abort', cancel, { once: true });
+  });
+}
+
+/** One explicit start drives discovery, numbering, restore and the final speed pass.
+ * Polling is read-only. Only a twice-read factory ID 0 can advance an adding
+ * step, after the prior motor was verified at its new ID. Errors end this run.
+ */
+export class ServoBusAutoRunner {
+  constructor({ wizard, probeFactory, onStatus = () => {}, wait = waitForNextProbe, pollMs = 350, stableMs = 180 }) {
+    this.wizard = wizard; this.probeFactory = probeFactory; this.onStatus = onStatus;
+    this.wait = wait; this.pollMs = pollMs; this.stableMs = stableMs;
+    this.running = false; this.status = 'idle'; this.stopRequested = false; this.controller = null;
+  }
+  report(status) { this.status = status; this.onStatus({ status, running: this.running, slot: this.wizard.state.assigned }); }
+  stop() {
+    if (!this.running) return;
+    this.stopRequested = true; this.wizard.requestPause(); this.controller.abort(new DOMException('Paused', 'AbortError')); this.report('pausing');
+  }
+  async start() {
+    if (this.running) throw new ServoSetupError('busy');
+    this.running = true; this.stopRequested = false; this.controller = new AbortController();
+    this.wizard.state.error = null;
+    try {
+      if (this.wizard.state.pending) {
+        this.report('recovering');
+        const result = await this.wizard.advance();
+        // An unchanged source is an observed result, never permission to resend.
+        if (!result.recovered) { this.report('unchanged'); return this.wizard.snapshot(); }
+      }
+      while (!this.stopRequested && this.wizard.state.phase !== 'complete') {
+        if (this.wizard.state.phase === 'adding') {
+          this.report('waiting');
+          const first = await this.probeFactory();
+          if (this.stopRequested) break;
+          if (!first) { await this.wait(this.pollMs, this.controller.signal); continue; }
+          if (first.id !== 0 || first.baudrate !== 5) throw new ServoSetupError('baud-mismatch', { id: 0 });
+          this.report('detecting'); await this.wait(this.stableMs, this.controller.signal);
+          const second = await this.probeFactory();
+          if (this.stopRequested) break;
+          if (!second) continue;
+          if (JSON.stringify(first) !== JSON.stringify(second)) throw new ServoSetupError('source-changed');
+          this.report('writing');
+          if (this.stopRequested) break;
+          await this.wizard.advance({ newServoConfirmed: true });
+        } else {
+          this.report(this.wizard.state.phase);
+          if (this.stopRequested) break;
+          await this.wizard.advance();
+        }
+      }
+      this.report(this.wizard.state.phase === 'complete' ? 'complete' : 'paused');
+      return this.wizard.snapshot();
+    } catch (error) {
+      if (this.stopRequested && error.name === 'AbortError') { this.report('paused'); return this.wizard.snapshot(); }
+      this.report('error'); throw error;
+    } finally { this.running = false; this.report(this.status); }
   }
 }

@@ -14,7 +14,7 @@
 <link rel="icon" href="assets/logo-icon.png">
 <link rel="stylesheet" href="src/interaction.css?v=button-flow-1">
 <link rel="stylesheet" href="src/workspace-nav.css?v=20261020">
-<link rel="stylesheet" href="src/servo_setup.css?v=studio-1">
+<link rel="stylesheet" href="src/servo_setup.css?v=studio-2">
 </head>
 <body>
   <main class="shell">
@@ -270,9 +270,9 @@
                 <h2 id="ssStageTitle">接入第 1 颗舵机</h2><p id="ssStageDetail" class="ss-stage-detail"></p>
                 <div class="ss-route"><div><small>ID</small><strong id="ssFromId">0</strong></div><svg class="ss-icon" aria-hidden="true"><use href="./assets/vendor/lucide-icons.svg#arrow-right"></use></svg><div><small id="ssRouteTarget">临时 ID</small><strong id="ssToId">253</strong></div><span id="ssRouteBaud">115200 <small>bps</small></span></div>
                 <div id="ssFactoryNote" class="ss-inline-note"><svg class="ss-icon" aria-hidden="true"><use href="./assets/vendor/lucide-icons.svg#cable"></use></svg><span data-ss="preservedBaud">编号阶段保持 115200</span></div>
-                <label id="ssNewServoConfirmation" class="ss-check"><input id="ssNewServoCheck" type="checkbox"><span data-ss="newConfirmation">本轮只新增这一颗 ID 0 舵机 已配好的保持连接</span></label>
+                <div id="ssAutoStatus" class="ss-auto-state" role="status" aria-live="polite"><span class="ss-auto-dot"></span><div><strong id="ssAutoStatusText">启动后自动识别舵机</strong><p data-ss="autoHint">每次只新增一颗 已配置的保持连接 无需逐颗点击</p></div></div>
                 <button id="ssNext" class="ss-primary ss-main-action" type="button" disabled><span id="ssNextLabel">已接好 配置 J1</span><svg class="ss-icon" aria-hidden="true"><use href="./assets/vendor/lucide-icons.svg#arrow-right"></use></svg></button>
-                <button id="ssPause" class="ss-soft ss-main-action" type="button" hidden><svg class="ss-icon" aria-hidden="true"><use href="./assets/vendor/lucide-icons.svg#pause"></use></svg><span data-ss="pause">完成当前颗后暂停</span></button>
+                <button id="ssPause" class="ss-soft ss-main-action" type="button" hidden><svg class="ss-icon" aria-hidden="true"><use href="./assets/vendor/lucide-icons.svg#pause"></use></svg><span data-ss="pause">暂停自动配置</span></button>
                 <p class="ss-wire-note"><span data-ss="wireHint">每次核验成功后再新增下一颗 接线通断电遵循设备说明</span></p>
               </section>
               <section id="ssManualPanel" role="tabpanel" aria-labelledby="ssModeSingle" hidden>
@@ -301,8 +301,8 @@
     <dialog id="confirmDialog" class="ss-confirm">
       <div class="ss-confirm-content"><span class="ss-confirm-mark"><svg class="ss-icon" aria-hidden="true"><use href="./assets/vendor/lucide-icons.svg#settings-2"></use></svg></span><h3 data-ss="confirmTitle">确认本次配置</h3><p id="ssConfirmDescription"></p><div id="ssConfirmNumbers" class="ss-confirm-numbers"><div><small data-ss="currentId">当前 ID</small><strong id="confirmInitialId">0</strong></div><svg class="ss-icon" aria-hidden="true"><use href="./assets/vendor/lucide-icons.svg#arrow-right"></use></svg><div><small data-ss="targetId">目标 ID</small><strong id="confirmId">—</strong></div><div><small data-ss="targetBaud">目标波特率</small><strong id="ssConfirmBaud">1000000</strong></div></div><div class="ss-confirm-actions"><button id="btnCancel" class="ss-soft" type="button" data-ss="cancel">取消</button><button id="btnConfirm" class="ss-primary" type="button" data-ss="confirmWrite">确认写入</button></div></div>
     </dialog>
-  <script type="importmap">{"imports":{"./src/servo_setup_flow.js":"./src/servo_setup_flow.js?v=studio-1","./src/serial_servo_bus.js":"./src/serial_servo_bus.js?v=serial-connect-1","./src/browser_serial_utils.js":"./src/browser_serial_utils.js?v=serial-connect-1","./src/supplied_urdf_models.js":"./src/supplied_urdf_models.js?v=touch-gripper-20261020","./src/i18n.js":"./src/i18n.js?v=i18n-trajectory-20261020"}}</script>
-  <script type="module" src="./src/servo_setup.js?v=studio-1"></script>
+  <script type="importmap">{"imports":{"./src/servo_setup_flow.js":"./src/servo_setup_flow.js?v=studio-2","./src/serial_servo_bus.js":"./src/serial_servo_bus.js?v=serial-connect-1","./src/browser_serial_utils.js":"./src/browser_serial_utils.js?v=serial-connect-1","./src/supplied_urdf_models.js":"./src/supplied_urdf_models.js?v=touch-gripper-20261020","./src/i18n.js":"./src/i18n.js?v=i18n-trajectory-20261020","./src/servo_bus_wizard.js":"./src/servo_bus_wizard.js?v=studio-2","./src/servo_setup_model.js":"./src/servo_setup_model.js?v=studio-2","./src/servo_setup_i18n.js":"./src/servo_setup_i18n.js?v=studio-2","./src/servo_setup_parts.js":"./src/servo_setup_parts.js?v=studio-2"}}</script>
+  <script type="module" src="./src/servo_setup.js?v=studio-2"></script>
   <script type="module" src="./src/app.js?v=1.1.2-touch-gripper-20261020"></script>
   <script type="module" src="./src/workspace-switch.js?v=capture-flow-1"></script>
   <script type="module" src="./src/workspace-nav.js?v=20261020"></script>

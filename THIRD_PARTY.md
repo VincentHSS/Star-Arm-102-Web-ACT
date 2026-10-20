@@ -6,6 +6,8 @@ LumosTouch 遥操作参考用户指定的 [VincentHSS/stararm102-lumos-teleop �
 
 本平台基于 Star Arm 102 浏览器控制台与 ACT 工程。原工程参考：<https://github.com/servodevelop/Star-Arm-102>。本仓库未为全部原始资产擅自添加新的统一开源许可证；公开可下载并不等于所有品牌和模型资产都被重新授权。
 
+舵机配置页的 `servo_setup_parts.js` 由 `tools/build_ld_servo_map.py` 从原 LD STL 生成机壳中心及三角面分组，并记录源文件 SHA-256。第五、第六颗机壳均在 `link5.STL`，`link4.STL` 是支架；第七颗在 `link6.STL` 中单独分组。原始网格、关节树和硬件控制映射未改，分组只用于页面点选与显示高亮。
+
 | 组件 | 位置与说明 |
 | --- | --- |
 | Three.js、OrbitControls、STLLoader | `Browser_SDK/assets/vendor/`，保留文件内的 MIT 许可头。 |
