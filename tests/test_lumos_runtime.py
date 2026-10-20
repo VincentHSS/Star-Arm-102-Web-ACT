@@ -779,9 +779,9 @@ class LumosHelpersTests(unittest.TestCase):
                 self.assertEqual(find_sdk_root(), root.resolve())
             with self.assertRaisesRegex(RuntimeError, "construction failed"):
                 with sdk_initialization_directory(root):
-                    self.assertEqual(Path.cwd(), root.resolve())
+                    self.assertTrue(Path.cwd().samefile(root))
                     raise RuntimeError("construction failed")
-            self.assertEqual(Path.cwd(), original)
+            self.assertTrue(Path.cwd().samefile(original))
 
     def test_real_factory_rejects_windows_before_importing_or_constructing(self):
         with patch("ai_service.lumos_runtime.sys.platform", "win32"), \
@@ -827,7 +827,7 @@ class LumosHelpersTests(unittest.TestCase):
             config.write_text("test: true")
 
             def constructor(**kwargs):
-                self.assertEqual(Path.cwd(), root.resolve())
+                self.assertTrue(Path.cwd().samefile(root))
                 self.assertTrue(kwargs["gripper"])
                 self.assertEqual(os.environ["STARTOUCH_GRIPPER_STARTUP_CLOSE"], "0")
                 raise RuntimeError("native constructor failed")
@@ -842,7 +842,7 @@ class LumosHelpersTests(unittest.TestCase):
                           return_value=SimpleNamespace(SingleArm=constructor)):
                 with self.assertRaisesRegex(DomainError, "可能已使能"):
                     create_lumos_arm(can_interface="can0", sdk_root=root)
-            self.assertEqual(Path.cwd(), original)
+            self.assertTrue(Path.cwd().samefile(original))
 
 
 if __name__ == "__main__":
