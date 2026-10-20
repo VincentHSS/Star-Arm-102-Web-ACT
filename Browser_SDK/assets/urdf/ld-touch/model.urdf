@@ -203,6 +203,15 @@
         <color rgba="0.62 0.68 0.73 1" />
       </material>
     </visual>
+    <visual name="link_6_gripper_servo">
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/link_6-gripper-servo.stl" />
+      </geometry>
+      <material name="servo">
+        <color rgba="0.18 0.23 0.28 1" />
+      </material>
+    </visual>
   </link>
   <joint name="joint_1" type="continuous">
     <parent link="base_link" />

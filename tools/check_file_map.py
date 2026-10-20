@@ -78,6 +78,9 @@ BACKEND = {
     'training_manifest': 'Python / LeRobot / PyTorch 版本及加速源清单',
 }
 EXACT = {
+    'tools/build_touch_gripper_visual.py': '从原 LD 提取夹爪电机并按 Touch R1 新支架孔位生成显示网格和定位报告',
+    'Browser_SDK/assets/urdf/ld-touch/gripper-servo.json': '夹爪电机来源、提取实体、安装孔配准和显示装配间隙',
+    'Browser_SDK/assets/urdf/ld-touch/meshes/link_6-gripper-servo.stl': '从原 LD 提取并定位到 Touch R1 手柄的新夹爪电机显示网格',
     'start_ubuntu_lumos.sh': '使用系统 Python 准备隔离 Lumos SDK 环境并打开 Ubuntu 本机控制台',
     'tools/start_lumos_local.py': '固定版本 Lumos SDK 安装、独立本机服务与重复启动检查',
     'tools/package_lumos_local.py': '打包 Ubuntu Touch R1 与 LumosTouch 本地遥操作源码',

@@ -30,6 +30,7 @@ jobs:
           apt-get -o DPkg::Lock::Timeout=1 -o Acquire::Retries=3 --no-remove --simulate install ffmpeg
       - run: python tools/build_runtime_package.py
       - run: python tools/check_distribution.py
+      - run: python tools/build_touch_gripper_visual.py --check
       - if: runner.os == 'Linux'
         name: Unpack Ubuntu template into an empty root
         run: |

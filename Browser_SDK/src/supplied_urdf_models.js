@@ -1024,6 +1024,32 @@ export const SUPPLIED_URDF_MODELS = {
           0.68,
           0.73
         ]
+      },
+      {
+        "link": "link_6",
+        "url": "../assets/urdf/ld-touch/meshes/link_6-gripper-servo.stl?v=gripper-20261020",
+        "origin": {
+          "xyz": [
+            0,
+            0,
+            0
+          ],
+          "rpy": [
+            0,
+            0,
+            0
+          ]
+        },
+        "scale": [
+          1,
+          1,
+          1
+        ],
+        "color": [
+          0.18,
+          0.23,
+          0.28
+        ]
       }
     ],
     "joints": [
@@ -1202,6 +1228,6 @@ export const SUPPLIED_URDF_MODELS = {
         "displayAxisDirection": 1
       }
     ],
-    "sourceUrdf": "../assets/urdf/ld-touch/model.urdf?v=7c681191"
+    "sourceUrdf": "../assets/urdf/ld-touch/model.urdf?v=7c681191-gripper-1"
   }
 };

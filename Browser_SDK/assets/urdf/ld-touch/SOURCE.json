@@ -3,12 +3,14 @@
   "commit": "7c6811913e0928b04a2ad69d6ab25b7f22217ee5",
   "directory": "hardware/robot-description",
   "sourceUrdf": "touch_r1_description/urdf/touch-r1.urdf",
-  "transformation": "model.urdf only changes ../meshes/ references to meshes/; source.urdf and meshes are unchanged upstream bytes.",
+  "transformation": "source.urdf, upstream-README.md, kinematics.json and the original 21 meshes preserve upstream bytes. model.urdf uses relative meshes/ paths and adds one fixed link_6 gripper-servo visual extracted from the original 102-LD model and located by the Touch R1 bracket mounting holes. See gripper-servo.json.",
   "validation": {
     "links": 7,
     "joints": 6,
-    "meshes": 21,
-    "triangles": 182708
+    "meshes": 22,
+    "triangles": 192528,
+    "upstreamMeshes": 21,
+    "upstreamTriangles": 182708
   },
   "sha256": {
     "kinematics.json": "b170a51b9a1e37e2538f081054e6d194f97542fd3fdf9c1651aca042d08e5704",
@@ -33,8 +35,19 @@
     "meshes/link_5-structure.stl": "08be90ea8d2ddef5a0b7942cbd1c7e2c946be7d5ff471c2b33395eff3eb75cc4",
     "meshes/link_6-horn.stl": "4d0408bcab4326cd44511f6e8809a4022698d71189633eefac0d38f281495d3c",
     "meshes/link_6-structure.stl": "eb7a772562e1fd49a895d61c10434ba141147dd136fbe959f4a665377d5f78bb",
-    "model.urdf": "caef0ac103780c058bea71ffdb4a33d439fcb8890818b110607e8666e7ff6e92",
+    "model.urdf": "8abe970340722ad0b623358a1eebb27c4750d42744e2ae29e97447a224353e99",
     "source.urdf": "4a00fe0f6c66861168be23ab6e021c5c289d8954387dd29b902b7251ffdd0499",
-    "upstream-README.md": "2c35b6b9ee66adedcf5b40dc3d44c5c3a8fe761d05a74d8e16647b592bd7190b"
+    "upstream-README.md": "2c35b6b9ee66adedcf5b40dc3d44c5c3a8fe761d05a74d8e16647b592bd7190b",
+    "meshes/link_6-gripper-servo.stl": "0c07fca15a61b9a4bf95465e153709f4324100300f837517a1b1c04c5259e4e2",
+    "gripper-servo.json": "c5981d879f337011324c797973d8066a5d6acdddc4e5b60b2afee8017f11cd45"
+  },
+  "supplement": {
+    "kind": "fixed-gripper-servo-visual",
+    "link": "link_6",
+    "sourceModel": "../ld/model.urdf",
+    "sourceMesh": "../../models/ld/link6.STL",
+    "report": "gripper-servo.json",
+    "generator": "../../../../tools/build_touch_gripper_visual.py",
+    "hardwareMappingChanged": false
   }
 }

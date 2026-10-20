@@ -53,7 +53,7 @@ async function selectModel() {
   $('resetPose').disabled = true;
   $('modelDescription').textContent = config.key === 'fl-v3'
     ? '用户提供的 FL 模型：6 个旋转关节、2 个平移夹指，单位为米和弧度。'
-    : 'Touch R1 LD 模型：6 个旋转关节、21 份结构与舵机网格；保留原装配坐标。';
+    : 'Touch R1 模型：6 个旋转关节、22 份结构与舵机网格，包含按新支架孔位配准的末端夹爪舵机外观。';
   $('urdfDownload').href = new URL(config.sourceUrdf, import.meta.url).href;
   try {
     await renderer.load(config);
