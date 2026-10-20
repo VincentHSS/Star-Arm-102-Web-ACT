@@ -677,8 +677,11 @@ export function createRobotModel({
         actualLinks.get(link).add(actualMesh);
         // Both meshes can share immutable vertex data; material and transforms remain independent.
         const previewGeometry = geometry;
-        const previewMaterial = new THREE.MeshStandardMaterial({
-          color: 0x1be7e2, transparent: true, opacity: 0.28, depthWrite: false, wireframe: true,
+        // Dense CAD wireframes are expensive on software WebGL and can block
+        // fresh control feedback. A flat translucent surface keeps the same
+        // target geometry without lighting or a second set of edge indices.
+        const previewMaterial = new THREE.MeshBasicMaterial({
+          color: 0x1be7e2, transparent: true, opacity: 0.28, depthWrite: false,
         });
         const previewMesh = new THREE.Mesh(previewGeometry, previewMaterial);
         if (origin) applyUrdfOrigin(previewMesh, origin);
