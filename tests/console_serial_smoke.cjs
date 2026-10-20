@@ -32,6 +32,7 @@ const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
       Object.defineProperty(navigator, 'serial', { value: {
         requestPort: async () => {
           state.requested++;
+          if (state.holdPicker) await new Promise(resolve => { state.finishPicker = resolve; });
           let incoming;
           return { async open() {
             state.opened++; state.first = true;
@@ -56,8 +57,25 @@ const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
     await page.goto(site + '/index.html');
     await page.waitForFunction(() => document.querySelector('#modelLoadStatus')?.dataset.state === 'ready');
     await page.selectOption('#leaderType', '102LD');
+    const originalButton = await page.locator('#connectLeader').evaluate(button => ({ html: button.innerHTML, width: button.getBoundingClientRect().width }));
+    await page.evaluate(() => { window.__consoleSerial.holdPicker = true; });
     await page.click('#connectLeader');
+    await page.waitForFunction(() => document.querySelector('#connectLeader').getAttribute('aria-busy') === 'true');
+    const pendingButton = await page.locator('#connectLeader').evaluate(button => ({ html: button.innerHTML, width: button.getBoundingClientRect().width,
+      effect: getComputedStyle(button, '::after').animationName, decorationPointerEvents: getComputedStyle(button, '::after').pointerEvents }));
+    assert.equal(pendingButton.html, originalButton.html, 'waiting for a picker must preserve the label and any icon nodes');
+    assert(Math.abs(pendingButton.width - originalButton.width) < 1, 'feedback must not resize the button');
+    assert.equal(pendingButton.effect, 'interaction-flow');
+    assert.equal(pendingButton.decorationPointerEvents, 'none');
+    await page.locator('#connectLeader').evaluate(button => button.getAnimations({ subtree: true }).forEach(animation => { animation.currentTime = 650; animation.pause(); }));
+    await page.screenshot({ path: path.join(ROOT, 'dist', 'button-flow-pending.png') });
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    assert.equal(await page.locator('#connectLeader').evaluate(button => getComputedStyle(button, '::after').animationName), 'none');
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
+    await page.evaluate(() => { window.__consoleSerial.holdPicker = false; window.__consoleSerial.finishPicker(); });
     await page.waitForFunction(() => document.querySelector('#leaderStatus').textContent.includes('已连接'));
+    await page.waitForFunction(() => document.querySelector('#connectLeader').dataset.feedback === 'success');
+    await page.screenshot({ path: path.join(ROOT, 'dist', 'button-flow-success.png') });
     assert.equal(await page.locator('#logs').textContent().then(text => text.includes('首次回读')), true);
     await page.click('#disconnectAll');
     await page.waitForFunction(() => !document.querySelector('#connectLeader').disabled);
@@ -76,6 +94,7 @@ const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
     const started = Date.now();
     await page.click('#connectLeader');
     await page.waitForFunction(() => !document.querySelector('#connectLeader').disabled && document.querySelector('#interaction-status')?.textContent.includes('未返回有效角度'));
+    assert.equal(await page.locator('#connectLeader').getAttribute('data-feedback'), 'error', 'missing feedback must not flash as a successful connection');
     assert(Date.now() - started < 1800, 'Three missing IDs must share the 100 ms deadline instead of multiplying it');
     assert(await page.locator('#interaction-status').textContent().then(text => text.includes('0, 2, 4')));
     assert.equal(await page.locator('#startTeleop').isDisabled(), true);
@@ -226,6 +245,6 @@ const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
       failedFirstFeedbackCannotReuseOldAngles: true, missingFeedbackSharedDeadline: true, disconnectAndReconnect: true,
       suppliedVirtualModels: virtualResults, virtualFollowerHasNoSerial: true, virtualLeaderFeedbackRendered: true,
       touchLeaderReadsSixAxesAndGripper: true, touchLeaderReadOnly: true, touchCannotCommandOriginalFl: true,
-      physicalModelRestored: true, trajectoryRestoresPhysicalModel: true, hardwareTested: false }));
+      physicalModelRestored: true, trajectoryRestoresPhysicalModel: true, wholeButtonFeedback: true, feedbackPreservesLabelAndSize: true, reducedMotionSupported: true, hardwareTested: false }));
   } finally { if (browser) await browser.close(); service.kill(); }
 })().catch(error => { console.error(error); process.exitCode = 1; });

@@ -16,23 +16,44 @@ export function setInteractionStatus(message, kind = 'pending') {
   }
   clearTimeout(setInteractionStatus.timer);
   status.textContent = message; status.dataset.kind = kind; status.hidden = !message;
-  if (message && kind !== 'pending') setInteractionStatus.timer = setTimeout(() => { status.hidden = true; }, 7000);
+  if (message && kind !== 'pending') setInteractionStatus.timer = setTimeout(() => { status.hidden = true; }, kind === 'success' ? 2800 : 7000);
 }
 
 const buttonActions = new WeakMap();
-export function withButtonFeedback(button, action, { label, restore } = {}) {
+const buttonFeedbackTimers = new WeakMap();
+export function withButtonFeedback(button, action, { label, restore, isSuccessful } = {}) {
   if (buttonActions.has(button)) return buttonActions.get(button);
-  const text = button.textContent, disabled = button.disabled;
+  const disabled = button.disabled, description = button.getAttribute('aria-description');
+  clearTimeout(buttonFeedbackTimers.get(button));
+  buttonFeedbackTimers.delete(button);
+  button.dataset.feedback = 'pending';
   button.disabled = true; button.setAttribute('aria-busy', 'true');
-  if (label) button.textContent = label;
+  if (label) button.setAttribute('aria-description', label);
   // Invoke immediately: browser serial/file dialogs must retain the click's user activation.
   let operation;
   try { operation = action(); } catch (error) { operation = Promise.reject(error); }
-  const pending = Promise.resolve(operation).catch(error => { setInteractionStatus(error.message, 'error'); })
+  let outcome = null;
+  const pending = Promise.resolve(operation).then(result => {
+    // Some callers catch their own errors. Confirm success explicitly instead
+    // of treating every fulfilled promise as a completed hardware operation.
+    if (result === false) outcome = 'error';
+    else if (isSuccessful ? isSuccessful(result) : result === true) outcome = 'success';
+    return result;
+  }).catch(error => { outcome = 'error'; setInteractionStatus(error.message, 'error'); })
     .finally(() => {
       buttonActions.delete(button); button.removeAttribute('aria-busy');
-      if (label) button.textContent = text;
+      if (label) {
+        if (description === null) button.removeAttribute('aria-description'); else button.setAttribute('aria-description', description);
+      }
       if (restore) restore(); else button.disabled = disabled;
+      if (!outcome) { delete button.dataset.feedback; return; }
+      button.dataset.feedback = outcome;
+      const timer = setTimeout(() => {
+        if (buttonFeedbackTimers.get(button) !== timer) return;
+        delete button.dataset.feedback;
+        buttonFeedbackTimers.delete(button);
+      }, outcome === 'success' ? 1300 : 1800);
+      buttonFeedbackTimers.set(button, timer);
     });
   buttonActions.set(button, pending);
   return pending;

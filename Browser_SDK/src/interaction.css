@@ -1,8 +1,90 @@
-button[aria-busy="true"]{cursor:progress;position:relative}
-button[aria-busy="true"]::after{content:"";display:inline-block;width:11px;height:11px;margin-left:8px;vertical-align:-1px;border:1.5px solid currentColor;border-right-color:transparent;border-radius:50%;animation:interaction-spin .8s linear infinite}
-.interaction-status{position:fixed;z-index:11000;left:50%;bottom:24px;transform:translateX(-50%);max-width:min(640px,calc(100vw - 32px));padding:12px 18px;border:1px solid #705a91;border-radius:10px;background:#252d3e;color:#e5eaf1;box-shadow:0 8px 24px #0005;font:13px/1.6 system-ui,"Microsoft YaHei",sans-serif;pointer-events:none;animation:interaction-enter .18s ease-out}
-.interaction-status[data-kind="error"]{border-color:#bb6975;background:#392b36}
-.interaction-status[hidden]{display:none}
-@keyframes interaction-spin{to{transform:rotate(360deg)}}
-@keyframes interaction-enter{from{opacity:0;translate:0 4px}to{opacity:1;translate:0 0}}
-@media(prefers-reduced-motion:reduce){button[aria-busy="true"]::after,.interaction-status{animation:none}}
+/* Keep feedback inside the existing button, without moving its label or icon. */
+button:not(:disabled):not(.emergency-stop):not(.emergency):not(:focus-visible):hover {
+  outline: 1px solid #92d8d438;
+  outline-offset: 1px;
+}
+button:not(:disabled):not(.emergency-stop):not(.emergency):active { translate: 0 1px; }
+button[aria-busy="true"], button[data-feedback] {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+button[aria-busy="true"] {
+  cursor: progress;
+  opacity: 1;
+  box-shadow: inset 0 0 0 1px #66d6cf9c, 0 0 14px #46d1d81a;
+}
+button[data-feedback="success"]:disabled { opacity: .9; }
+button[aria-busy="true"]::after, button[data-feedback]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  width: auto;
+  height: auto;
+  border-radius: inherit;
+  pointer-events: none;
+}
+button[aria-busy="true"]::after {
+  background: linear-gradient(110deg, transparent 12%, #46d1d806 34%, #75e5dc47 49%, #b492e62e 58%, transparent 79%);
+  animation: interaction-flow 1.65s cubic-bezier(.4,0,.2,1) infinite;
+}
+button[data-feedback="success"]::after {
+  border: 1px solid #74dfb1c2;
+  background: linear-gradient(120deg, #55d49f24, #8be9ba10);
+  animation: interaction-result 1.3s ease-out both;
+}
+button[data-feedback="error"]::after {
+  border: 1px solid #ed9a90cc;
+  background: linear-gradient(120deg, #dc736529, #ffad9d0b);
+  animation: interaction-result 1.8s ease-out both;
+}
+.interaction-status {
+  position: fixed;
+  z-index: 11000;
+  left: 50%;
+  bottom: 22px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  transform: translateX(-50%);
+  max-width: min(560px, calc(100vw - 32px));
+  padding: 11px 15px;
+  border: 1px solid #496064;
+  border-radius: 8px;
+  background: #172327f5;
+  color: #d4e4e3;
+  box-shadow: 0 10px 28px #0004;
+  font: 12px/1.6 system-ui, "Microsoft YaHei", sans-serif;
+  pointer-events: none;
+  animation: interaction-enter .2s ease-out;
+}
+.interaction-status::before {
+  content: "·";
+  flex: 0 0 18px;
+  height: 18px;
+  margin-top: 1px;
+  border-radius: 5px;
+  background: #46d1d81c;
+  color: #87dcd5;
+  font: 700 15px/18px system-ui, sans-serif;
+  text-align: center;
+}
+.interaction-status[data-kind="success"] { border-color: #446c5c; }
+.interaction-status[data-kind="success"]::before { content: "✓"; color: #98e2bd; background: #55d49f1c; font-size: 12px; }
+.interaction-status[data-kind="error"] { border-color: #84564f; color: #f0cdc5; }
+.interaction-status[data-kind="error"]::before { content: "!"; color: #f2b2a4; background: #e98c7a1c; font-size: 12px; }
+.interaction-status[hidden] { display: none; }
+@keyframes interaction-flow {
+  0% { transform: translateX(-105%); opacity: 0; }
+  20% { opacity: 1; }
+  80% { opacity: 1; }
+  100% { transform: translateX(105%); opacity: 0; }
+}
+@keyframes interaction-result { 0%, 35% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes interaction-enter { from { opacity: 0; translate: 0 5px; } to { opacity: 1; translate: 0 0; } }
+@media (prefers-reduced-motion: reduce) {
+  button[aria-busy="true"]::after, button[data-feedback]::after, .interaction-status { animation: none; }
+  button[aria-busy="true"]::after { transform: none; background: #46d1d812; }
+  button:not(:disabled):active { translate: none; }
+}

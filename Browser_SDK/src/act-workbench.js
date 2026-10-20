@@ -1,6 +1,6 @@
 import { requestJson, fetchWithDeadline } from './api-client.js?v=responsive-1';
 import { activeTraining, findTrainingSubmission } from './training-submission.js';
-import { createSingleFlight, createPageNavigator, withButtonFeedback, setInteractionStatus } from './page-lifecycle.js?v=responsive-1';
+import { createSingleFlight, createPageNavigator, withButtonFeedback, setInteractionStatus } from './page-lifecycle.js?v=button-flow-1';
 import { getLocalApi, localFetch, ensureRuntime, renderRuntimeEnvironment, publicationConfigured } from './local-service.js?v=capture-flow-1';
 import { installWorkbenchMotion, switchWorkbenchView } from './act-motion.js?v=2026-10-12-motion-icons-13';
 import { effectiveCameraBackend, cameraConnectionSignature, nativeCameraReady, cameraRolePresentation, browserCameraLive } from './act-camera-state.js?v=2026-10-13-camera-runtime-2';
@@ -1129,8 +1129,31 @@ async function refreshState(revision) {
     toast(state.capabilities ? error.message : '请点击第 1 步“配置采集连接”。连接本机设备服务即可采集，训练环境在第 2 步准备。');
   }
 }
-async function connectSerial(role, selectedPort = null) { if (state.navigationPending) return toast('正在切换页面，请稍候。'); state.deviceEpoch++; const prefix = role === 'leader' ? 'leader' : 'follower'; const port = selectedPort ?? $(`#${prefix}-port`).value; if (!port) return toast(`请先选择${role === 'leader' ? ' Leader' : '真实 FL'}串口`); try { const result = await request('/devices/serial/connect', { method: 'POST', body: JSON.stringify({ role, port, leader_type: $('#leader-type').value }) }); state.serial[role] = result; state.deviceBinding = null; setDeviceCard(role, true, `${result.port} · ${result.baudrate / 1000} kbps`, result.verification); $(`#${role}-state`).textContent = result.port; toast(`${role === 'leader' ? 'Leader' : '真实 FL'}串口已连接；J1–J7 实时样本尚未接入`); renderCapabilities(state.capabilities); } catch (error) { toast(error.message); } }
-async function disconnectSerial(role) { try { await request('/devices/serial/disconnect', { method: 'POST', body: JSON.stringify({ role }) }); state.serial[role] = null; state.deviceBinding = null; setDeviceCard(role, false, ''); $('#bind-devices').disabled = true; updateNextAction(); toast(`${role === 'leader' ? 'Leader' : '真实 FL'}已断开，采集权限已撤销`); } catch (error) { toast(error.message); } }
+async function connectSerial(role, selectedPort = null) {
+  if (state.navigationPending) { toast('正在切换页面，请稍候。'); return false; }
+  state.deviceEpoch++;
+  const prefix = role === 'leader' ? 'leader' : 'follower';
+  const port = selectedPort ?? $(`#${prefix}-port`).value;
+  if (!port) { toast(`请先选择${role === 'leader' ? ' Leader' : '真实 FL'}串口`); return false; }
+  try {
+    const result = await request('/devices/serial/connect', { method: 'POST', body: JSON.stringify({ role, port, leader_type: $('#leader-type').value }) });
+    state.serial[role] = result; state.deviceBinding = null;
+    setDeviceCard(role, true, `${result.port} · ${result.baudrate / 1000} kbps`, result.verification);
+    $(`#${role}-state`).textContent = result.port;
+    toast(`${role === 'leader' ? 'Leader' : '真实 FL'}串口已连接；J1–J7 实时样本尚未接入`);
+    renderCapabilities(state.capabilities);
+    return Boolean(result.connected);
+  } catch (error) { toast(error.message); return false; }
+}
+async function disconnectSerial(role) {
+  try {
+    await request('/devices/serial/disconnect', { method: 'POST', body: JSON.stringify({ role }) });
+    state.serial[role] = null; state.deviceBinding = null; setDeviceCard(role, false, '');
+    $('#bind-devices').disabled = true; updateNextAction();
+    toast(`${role === 'leader' ? 'Leader' : '真实 FL'}已断开，采集权限已撤销`);
+    return true;
+  } catch (error) { toast(error.message); return false; }
+}
 function updateCameraSelectionState() {
   const backend = effectiveCameraBackend($('#camera-backend').value, state.nativeCameras);
   const devices = backend === 'native' ? state.nativeCameras : state.browserCameras;
@@ -1154,7 +1177,7 @@ function populateCameraChoices() {
 function populateBrowserCameras(devices) { state.browserCameras = devices; populateCameraChoices(); }
 async function detectCameras() {
   const button = $('#detect-cameras');
-  button.disabled = true; button.textContent = '检测中…'; $('#camera-transport').textContent = '正在检测浏览器与 本机原生摄像头';
+  button.disabled = true; $('#camera-transport').textContent = '正在检测浏览器与 本机原生摄像头';
   try {
     const nativeResult = await request('/cameras/native');
     state.nativeCameras = nativeResult.devices || [];
@@ -1171,10 +1194,12 @@ async function detectCameras() {
     $('#camera-badge').textContent = `${count} FOUND`; $('#camera-badge').className = 'status-badge pending';
     $('#camera-transport').textContent = `浏览器 ${state.browserCameras.length} 台 · 本机原生 ${state.nativeCameras.length} 台，请选择两个不同设备`;
     toast(`已检测到 ${count} 台可用摄像头`);
+    return true;
   } catch (error) {
     state.browserCameras = []; state.nativeCameras = []; populateCameraChoices();
     $('#camera-badge').textContent = 'NOT FOUND'; $('#camera-badge').className = 'status-badge off'; $('#camera-transport').textContent = `摄像头检测失败：${error.message}`; toast(`摄像头检测失败：${error.message}`);
-  } finally { button.disabled = false; button.textContent = '重新检测摄像头'; updateNextAction(); }
+    return false;
+  } finally { button.disabled = false; updateNextAction(); }
 }
 function selectedCaptureProfile() {
   const contract = ($('#infer').classList.contains('active') || state.inferenceCameraSetup) ? selectedInferenceModel()?.camera_contract : null;
@@ -1350,10 +1375,10 @@ async function connectNativeCameras(profile) {
   state.cameraBackend = 'native'; state.cameraFrameSupport.wrist = false; state.cameraFrameSupport.world = false; startNativePreviewPolling();
 }
 async function connectCameras() {
-  if (state.cameraConnecting || state.cameraDisconnecting) return;
+  if (state.cameraConnecting || state.cameraDisconnecting) return false;
   state.cameraConnecting = true; state.cameraEpoch++;
   const backend = effectiveCameraBackend($('#camera-backend').value, state.nativeCameras); const profile = selectedCaptureProfile();
-  if (!$('#wrist-camera-select').value || !$('#world-camera-select').value || $('#wrist-camera-select').value === $('#world-camera-select').value) { state.cameraConnecting = false; return toast('请选择两台不同摄像头'); }
+  if (!$('#wrist-camera-select').value || !$('#world-camera-select').value || $('#wrist-camera-select').value === $('#world-camera-select').value) { state.cameraConnecting = false; toast('请选择两台不同摄像头'); return false; }
   try {
     if (backend === 'native') await connectNativeCameras(profile);
     else {
@@ -1370,15 +1395,17 @@ async function connectCameras() {
     const cameraEpoch = state.cameraEpoch;
     renderInference(await request('/inference'), cameraEpoch, true);
     if (selectedInferenceModel()) await validateInference();
-  } catch (error) { await disconnectCameras(false); toast(`摄像头连接失败：${error.message}`); }
+    return Boolean(state.cameraBackend);
+  } catch (error) { await disconnectCameras(false); toast(`摄像头连接失败：${error.message}`); return false; }
   finally { state.cameraConnecting = false; }
 }
 async function disconnectCameras(showToast = true) {
   state.cameraDisconnecting = true; state.cameraEpoch++;
+  const cleanupErrors = [];
   try {
   const wasRecording = state.episode?.status === 'recording';
-  if (wasRecording) { if (frameUploader.snapshot().active) frameUploader.stopAndDrain().catch(() => {}); try { await request('/emergency-stop', { method: 'POST', body: JSON.stringify({ reason: 'camera_disconnected' }) }); } catch (error) { toast(`相机断开后的采集停止失败：${error.message}`); } }
-  stopNativePreviewPolling(); if (state.cameraBackend === 'native') await request('/cameras/native/disconnect', { method: 'POST', body: JSON.stringify({}) }).catch(() => {});
+  if (wasRecording) { if (frameUploader.snapshot().active) frameUploader.stopAndDrain().catch(() => {}); try { await request('/emergency-stop', { method: 'POST', body: JSON.stringify({ reason: 'camera_disconnected' }) }); } catch (error) { const message = `相机断开后的采集停止失败：${error.message}`; cleanupErrors.push(message); toast(message); } }
+  stopNativePreviewPolling(); if (state.cameraBackend === 'native') await request('/cameras/native/disconnect', { method: 'POST', body: JSON.stringify({}) }).catch(error => { cleanupErrors.push(`原生相机断开失败：${error.message}`); });
   cameraController?.close(); detachBrowserPreviews(); state.cameraBackend = null; state.deviceBinding = null;
   state.inferenceGate = null; inferenceValidationGeneration += 1;
   if (state.inference) state.inference.cameras = { status: 'idle', roles: {} };
@@ -1388,7 +1415,9 @@ async function disconnectCameras(showToast = true) {
   for (const [id, labelSelector] of [['wrist-preview', '#wrist-camera'], ['world-preview', '#world-camera']]) { const video = $(`#${id}`); video.srcObject = null; video.closest('.camera-view').classList.remove('streaming', 'native-streaming'); $(labelSelector).textContent = '未连接'; }
   $('#camera-badge').textContent = Math.max(state.browserCameras.length, state.nativeCameras.length) >= 2 ? 'FOUND' : 'LOCKED'; $('#camera-badge').className = `status-badge ${Math.max(state.browserCameras.length, state.nativeCameras.length) >= 2 ? 'pending' : 'off'}`; $('#camera-transport').textContent = '末端视角 + 世界视角 · 30 FPS'; $('#detect-cameras').disabled = false; $('#disconnect-cameras').disabled = true; $('#capture-profile').disabled = false; $('#camera-backend').disabled = false; $('#bind-devices').disabled = true; populateCameraChoices(); updateNextAction();
   if (wasRecording) await refreshAfterMutation();
-  if (showToast) toast(wasRecording ? '相机已断开，Episode 已停止并保留待审核数据' : '相机预览已关闭');
+  if (cleanupErrors.length) $('#camera-transport').textContent = cleanupErrors.join('；');
+  if (showToast) toast(cleanupErrors.length ? cleanupErrors.join('；') : wasRecording ? '相机已断开，Episode 已停止并保留待审核数据' : '相机预览已关闭');
+  return cleanupErrors.length === 0;
   } finally { state.cameraDisconnecting = false; }
 }
 async function recoverNativeCameraFault(error) {
@@ -1475,14 +1504,28 @@ for (const role of ['leader', 'follower']) for (const operation of ['connect', '
   button.addEventListener('click', () => withButtonFeedback(button,
     () => operation === 'connect' ? connectSerial(role) : disconnectSerial(role),
     { label: operation === 'connect' ? '正在连接…' : '正在断开…', restore: () => renderSerialState(state.serial) }));
-}  $('#detect-cameras').addEventListener('click', detectCameras); $('#connect-cameras').addEventListener('click', connectCameras); $('#disconnect-cameras').addEventListener('click', disconnectCameras); $('#camera-backend').addEventListener('change', populateCameraChoices); $('#wrist-camera-select').addEventListener('change', updateCameraSelectionState); $('#world-camera-select').addEventListener('change', updateCameraSelectionState);
+}
+for (const [id, action, label, restore] of [
+  ['detect-cameras', detectCameras, '正在检测摄像头', () => { $('#detect-cameras').disabled = Boolean(state.cameraBackend || state.cameraConnecting || state.cameraDisconnecting); }],
+  ['connect-cameras', connectCameras, '正在连接双相机', () => {
+    if (state.cameraBackend || state.cameraConnecting || state.cameraDisconnecting) $('#connect-cameras').disabled = true;
+    else updateCameraSelectionState();
+  }],
+  ['disconnect-cameras', () => disconnectCameras(), '正在断开双相机', () => { $('#disconnect-cameras').disabled = !state.cameraBackend || state.cameraDisconnecting; }],
+]) {
+  const button = $(`#${id}`);
+  button.addEventListener('click', () => withButtonFeedback(button, action, { label, restore }));
+}
+$('#camera-backend').addEventListener('change', populateCameraChoices); $('#wrist-camera-select').addEventListener('change', updateCameraSelectionState); $('#world-camera-select').addEventListener('change', updateCameraSelectionState);
 $('#bind-devices').addEventListener('click', () => withButtonFeedback($('#bind-devices'), async () => { if (state.navigationPending) return toast('正在切换页面，请稍候。'); const payload = { leader_type: $('#leader-type').value, leader_port: $('#leader-port').value, follower_port: $('#follower-port').value, wrist_camera_id: $('#wrist-camera-select').value, world_camera_id: $('#world-camera-select').value }; try { const binding = await request('/devices/bind', { method: 'POST', body: JSON.stringify(payload) }); renderDeviceBinding(binding); toast('设备选择已保存；机械臂 J1–J7 实时校验尚未接入'); } catch (error) { toast(error.message); } }, { label: '正在保存…', restore: () => renderCapabilities(state.capabilities) }));
 $('#inference-connect-follower').addEventListener('click', () => withButtonFeedback($('#inference-connect-follower'), async () => {
-  await connectSerial('follower', $('#inference-follower-port').value);
+  if (!await connectSerial('follower', $('#inference-follower-port').value)) return false;
   if (state.serial.follower?.connected && selectedInferenceModel()) await validateInference();
+  return Boolean(state.serial.follower?.connected);
 }, { label: '正在连接…', restore: () => renderSerialState(state.serial) }));
 $('#inference-disconnect-follower').addEventListener('click', () => withButtonFeedback($('#inference-disconnect-follower'), async () => {
-  await disconnectSerial('follower'); state.inferenceGate = null; renderInferenceGate();
+  const disconnected = await disconnectSerial('follower'); state.inferenceGate = null; renderInferenceGate();
+  return disconnected;
 }, { label: '正在断开…', restore: () => renderSerialState(state.serial) }));
 $('#inference-refresh-ports').addEventListener('click', () => withButtonFeedback($('#inference-refresh-ports'), refreshAfterMutation));
 $('#runtime-backend').addEventListener('change', () => { if (state.trainingEnvironment?.status === 'ready' && $('#runtime-backend').value && $('#runtime-backend').value !== state.trainingEnvironment.backend) { $('#training-prepare').classList.remove('hidden'); $('#training-prepare').textContent = '按所选方式配置环境'; } else if (state.trainingEnvironment) renderTrainingEnvironment(state.trainingEnvironment); });

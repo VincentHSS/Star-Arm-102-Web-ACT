@@ -1,4 +1,4 @@
-import { createPageNavigator, releaseWorkbenchConnections, setInteractionStatus, withButtonFeedback } from './page-lifecycle.js?v=responsive-1';
+import { createPageNavigator, releaseWorkbenchConnections, setInteractionStatus, withButtonFeedback } from './page-lifecycle.js?v=button-flow-1';
 import { APP_VERSION } from './version.js';
 import { isDeviceLostError, userMessageForSerialError } from './browser_serial_utils.js';
 import { ServoProtocol, clampGripperAngle, parseMonitorPacket, parsePublicParametersPacket, parseInternalParametersPacket, selectParameterResponse } from './fashionstar_serial.js';
@@ -1315,8 +1315,8 @@ window.addEventListener('beforeunload', () => {
   robotModel.destroy();
 }, { once: true });
 
-els.connectLeader.addEventListener('click', () => withButtonFeedback(els.connectLeader, () => runAction(() => controller.connectLeader()), { label: '正在选择并连接…', restore: renderConnectionState }));
-els.connectFollower.addEventListener('click', () => withButtonFeedback(els.connectFollower, () => runAction(() => controller.connectFollower()), { label: '正在选择并连接…', restore: renderConnectionState }));
+els.connectLeader.addEventListener('click', () => withButtonFeedback(els.connectLeader, () => runAction(() => controller.connectLeader()), { label: '正在选择并连接…', restore: renderConnectionState, isSuccessful: () => controller.leader.connected }));
+els.connectFollower.addEventListener('click', () => withButtonFeedback(els.connectFollower, () => runAction(() => controller.connectFollower()), { label: '正在选择并连接…', restore: renderConnectionState, isSuccessful: () => controller.followerConnected() }));
 function syncFollowerTypeSwitch() {
   const type = els.followerType.value;
   const disabled = els.followerType.disabled;
@@ -1437,10 +1437,11 @@ renderFactoryState();
 
 async function runAction(action) {
   try {
-    await action();
+    return (await action()) !== false;
   } catch (error) {
     log(tWithVars('error.generic', { message: error.message }));
     setInteractionStatus(error.message, 'error');
+    return false;
   } finally {
     renderConnectionState();
     renderRunState();
@@ -1495,10 +1496,11 @@ function beginEmergencyStop() {
 
 async function runResetAction(action) {
   try {
-    await action();
+    return (await action()) !== false;
   } catch (error) {
     resetLog(tWithVars('error.generic', { message: error.message }));
     if (isDeviceLostError(error)) controller.resetBus.markLost(error);
+    return false;
   } finally {
     renderResetState();
     renderRunState();
@@ -1520,10 +1522,11 @@ async function runResetOriginAction(action) {
 
 async function runFactoryAction(action) {
   try {
-    await action();
+    return (await action()) !== false;
   } catch (error) {
     factoryLog(tWithVars('error.generic', { message: error.message }));
     if (isDeviceLostError(error)) controller.factoryBus.markLost(error);
+    return false;
   } finally {
     renderFactoryState();
     renderConnectionState();

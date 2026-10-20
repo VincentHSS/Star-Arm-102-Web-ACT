@@ -1,5 +1,6 @@
 import { BrowserActRunner,modelStore } from './act-browser-runtime.js';
 import { WaveformBuffer,WaveformChart } from './act-waveform.js';
+import { withButtonFeedback } from './page-lifecycle.js?v=button-flow-1';
 const $=id=>document.getElementById(id),videos=[$('web-video-0'),$('web-video-1')];
 let busy=false,saved=null,feedbackBusy=false;
 const waveform=new WaveformBuffer({limit:600}),chart=new WaveformChart($('web-waveform'),waveform,{maxDrawHz:10});
@@ -19,7 +20,6 @@ function draw(){
   $('web-camera-connection').hidden=!connection;
   $('web-camera-connection').textContent=connection?.message||'';
   $('web-camera-connection').classList.toggle('error',cameraError);
-  $('web-connect-cameras').textContent=connection?.state==='connecting'?'正在连接…':'连接双相机';
   $('web-model-name').textContent=model?.name||'尚未选择模型';
   $('web-model-detail').textContent=model?`${model.chunk_size} 步动作块 · WebGPU · ${model.inputs.cameras[0].shape[3]}×${model.inputs.cameras[0].shape[2]}`:'网页执行模型包含 web-act.json 和 model.onnx';
   $('web-calibration-status').textContent=!model?'导入模型后检查关节坐标与校准要求':model.coordinate_contract==='degrees'?'此模型使用角度坐标，不需要 LeRobot 归一化校准':runner.calibration?'校准已载入；仍需确认属于当前物理从臂':'此模型需要同一台从臂的 LeRobot 校准 JSON';
@@ -51,10 +51,15 @@ function draw(){
   }
   if(runner.message){message(runner.message);runner.message=null;}
 }
-async function action(fn){
-  if(busy||runner.running)return;busy=true;draw();
-  try{await fn();}catch(e){runner.validated=false;$('web-confirm').checked=false;message(e.message,true);}
-  finally{busy=false;draw();}
+async function action(fn,button=null){
+  if(busy||runner.running)return false;
+  const run=async()=>{
+    busy=true;draw();
+    try{await fn();return true;}
+    catch(e){runner.validated=false;$('web-confirm').checked=false;message(e.message,true);return false;}
+    finally{busy=false;draw();}
+  };
+  return button?withButtonFeedback(button,run,{restore:draw}):run();
 }
 $('web-model-import').onclick=()=>$('web-model-file').click();
 $('web-model-file').onchange=()=>void action(async()=>{
@@ -76,20 +81,20 @@ $('web-detect-cameras').onclick=()=>void action(async()=>{
   const devices=await runner.listCameras();if(devices.length<2)throw Error(`仅检测到 ${devices.length} 台相机，请检查 USB 和浏览器权限`);
   for(let i=0;i<2;i++){option($('web-camera-'+i),devices.map(d=>[d.deviceId,d.label]));$('web-camera-'+i).value=devices[i].deviceId;}
   message('请按模型的实际视角核对两路设备，再连接双相机。');
-});
+},$('web-detect-cameras'));
 for(let i=0;i<2;i++)$('web-camera-'+i).onchange=()=>{runner.validated=false;$('web-confirm').checked=false;draw();};
 $('web-task').onchange=()=>{runner.validated=false;$('web-confirm').checked=false;draw();};
-$('web-connect-cameras').onclick=()=>void action(async()=>{await runner.connectCameras($('web-camera-0').value,$('web-camera-1').value);message('浏览器双相机已直接接入网页策略，无需切换到本机原生相机。');});
-$('web-close-cameras').onclick=()=>void action(async()=>{runner.closeCameras();$('web-confirm').checked=false;message('双相机已关闭。');});
+$('web-connect-cameras').onclick=()=>void action(async()=>{await runner.connectCameras($('web-camera-0').value,$('web-camera-1').value);message('浏览器双相机已直接接入网页策略，无需切换到本机原生相机。');},$('web-connect-cameras'));
+$('web-close-cameras').onclick=()=>void action(async()=>{runner.closeCameras();$('web-confirm').checked=false;message('双相机已关闭。');},$('web-close-cameras'));
 $('web-connect-arm').onclick=()=>void action(async()=>{
   $('web-confirm').checked=false;await runner.bus.connect();
   try{await runner.readState();}catch(e){await runner.bus.disconnect();throw e;}
   message('从臂已连接，七关节反馈已读取。校验不会带动机械臂。');
-});
-$('web-close-arm').onclick=()=>void action(async()=>{await runner.stop();await runner.bus.disconnect();$('web-confirm').checked=false;message('从臂串口已释放。');});
-$('web-validate').onclick=()=>void action(async()=>{message('使用真实图像和反馈预热模型，正在校验；首次 WebGPU 编译可能需要数秒…');const ms=await runner.validate();message(`模型与设备校验通过，当前预测 ${ms.toFixed(1)} ms / 动作块。确认设备、视角和运动区域后可以执行。`);});
+},$('web-connect-arm'));
+$('web-close-arm').onclick=()=>void action(async()=>{await runner.stop();await runner.bus.disconnect();$('web-confirm').checked=false;message('从臂串口已释放。');},$('web-close-arm'));
+$('web-validate').onclick=()=>void action(async()=>{message('使用真实图像和反馈预热模型，正在校验；首次 WebGPU 编译可能需要数秒…');const ms=await runner.validate();message(`模型与设备校验通过，当前预测 ${ms.toFixed(1)} ms / 动作块。确认设备、视角和运动区域后可以执行。`);},$('web-validate'));
 $('web-confirm').onchange=draw;
-$('web-start').onclick=()=>void action(async()=>{const confirmed=$('web-confirm').checked;message('正在准备连续动作…');waveform.clear();await runner.start(confirmed);$('web-confirm').checked=false;});
+$('web-start').onclick=()=>void action(async()=>{const confirmed=$('web-confirm').checked;message('正在准备连续动作…');waveform.clear();await runner.start(confirmed);$('web-confirm').checked=false;},$('web-start'));
 $('web-stop').onclick=()=>{void runner.stop('用户停止执行并请求卸力');$('web-confirm').checked=false;draw();};
 $('web-download-diagnostics').onclick=()=>{
   const url=URL.createObjectURL(new Blob([JSON.stringify(runner.diagnostics(),null,2)],{type:'application/json'})),link=document.createElement('a');
