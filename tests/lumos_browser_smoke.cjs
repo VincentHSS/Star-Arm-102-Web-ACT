@@ -154,6 +154,11 @@ const ROOT = path.resolve(__dirname, '..');
       const status = document.querySelector('#modelLoadStatus');
       return status.dataset.state === 'ready' && status.textContent.includes('LumosTouch');
     });
+    assert.equal(await page.locator('#lumosConnectStage').isVisible(), true);
+    assert.equal(await page.locator('#lumosCalibrationStage').isVisible(), false);
+    assert.equal(await page.locator('#standardTeleopParameters').isVisible(), false);
+    assert.equal(await page.locator('#lumosConnectAction #connectFollower').count(), 1);
+    await page.screenshot({ path: path.join(ROOT, 'dist', 'lumos-panel-connect.png') });
     await page.click('#lumosCheckService');
     await page.waitForFunction(() => document.querySelector('#lumosSdkGripper').textContent.includes('TypeLJ'));
     assert.equal(await page.locator('#connectFollower').isDisabled(), true);
@@ -188,6 +193,10 @@ const ROOT = path.resolve(__dirname, '..');
         const status = document.querySelector('#modelLoadStatus');
         return status.dataset.state === 'ready' && status.textContent.includes('LumosTouch');
       });
+      assert.equal(await page.locator('#lumosConnectStage').isVisible(), false);
+      assert.equal(await page.locator('#lumosReferenceStage').isVisible(), true);
+      assert.equal(await page.locator('#stopTeleop').isVisible(), true, 'enabled CAN remains stoppable before calibration');
+      assert.equal(await page.locator('#lumosReadbacks').isVisible(), true);
     };
     const calibrate = async () => {
       await page.click('#lumosCaptureReference');
@@ -207,6 +216,11 @@ const ROOT = path.resolve(__dirname, '..');
       await page.evaluate(() => { window.__lumosSerial.angles[6] = 10; });
       await page.click('#lumosFinishCalibration');
       await page.waitForFunction(() => !document.querySelector('#lumosMappingConfirmed').disabled);
+      assert.equal(await page.locator('#lumosCalibrationStage').isVisible(), false);
+      assert.equal(await page.locator('#lumosRunStage').isVisible(), true);
+      assert.equal(await page.locator('#lumosActualOpening').textContent(), '50%');
+      await page.locator('#lumosRunStage').scrollIntoViewIfNeeded();
+      await page.screenshot({ path: path.join(ROOT, 'dist', 'lumos-panel-preview.png') });
       assert.equal(await page.locator('#startTeleop').isDisabled(), true);
       await page.check('#lumosMappingConfirmed');
       await page.click('#startTeleop');
@@ -221,6 +235,7 @@ const ROOT = path.resolve(__dirname, '..');
     assert.equal(await page.evaluate(() => window.__lumosSerial.requested), serialRequests, 'Lumos must not request a serial Follower');
     assert.equal(calls.some(call => call.action === 'start'), false);
     await calibrate();
+    assert.equal(await page.locator('#lumosMappingConfirmation').isVisible(), false, 'run view hides the completed confirmation');
     await page.waitForFunction(() => document.querySelector('#jointActualValue7').textContent === '50%'
       && document.querySelector('#jointSliderValue7').textContent === '50%'
       && document.querySelector('#teleopFrequency').textContent !== '未运行');
@@ -278,11 +293,19 @@ const ROOT = path.resolve(__dirname, '..');
     await page.click('#flTrajectoryConnect');
     await page.waitForFunction(() => document.querySelector('#flTrajectoryStatus')?.textContent.includes('仅支持 Star Arm 102-FL'));
     assert.equal(await page.evaluate(() => window.__lumosSerial.requested), serialRequests);
+    await page.click('[data-tab="teleop"]');
+    await page.selectOption('#physicalFollowerModel', 'FL');
+    assert.equal(await page.locator('#lumosPanel').isVisible(), false);
+    assert.equal(await page.locator('#standardConnectionActions #connectFollower').count(), 1);
+    assert.equal(await page.locator('#standardTeleopRunActions #startTeleop').count(), 1);
+    assert.equal(await page.locator('#standardTeleopParameters').isVisible(), true);
+    assert.equal(await page.locator('#startTeleop').isVisible(), true);
+    assert.equal(await page.locator('#stopTeleop').isVisible(), true);
     assert.deepEqual(errors, []);
     console.log(JSON.stringify({ lumosBrowser: true, matchingLeaderRequired: true, noFollowerSerial: true,
       freshSixAxesAndGripper: true, explicitCalibrationAndStart: true, gripperEndpointsRaw: true, stopLocksModel: true, missingAxisOrGripperStops: true,
       emergencyCancelsPendingConnect: true, navigationClosesCan: true, oldTrajectoryBlocked: true,
-      stationaryPoseSkipsRedrawWithoutPausingSampling: true, realHttpTransport: true, hardwareTested: false }));
+      stationaryPoseSkipsRedrawWithoutPausingSampling: true, stagedLumosPanel: true, originalControlsRestored: true, realHttpTransport: true, hardwareTested: false }));
   } catch (error) {
     if (page && !page.isClosed()) {
       console.error(JSON.stringify({ state, calls: calls.slice(-8), errors, browser: await page.evaluate(() => ({

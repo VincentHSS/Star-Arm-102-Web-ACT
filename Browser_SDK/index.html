@@ -7,7 +7,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Star Arm 102 控制台</title>
-  <link rel="stylesheet" href="./src/styles.css?v=1.1.2-lumos-20261020">
+  <link rel="stylesheet" href="./src/styles.css?v=1.1.2-lumos-layout-20261020">
   <link rel="stylesheet" href="./src/fl_trajectory_styles.css?v=1.1.2">
   <link rel="stylesheet" href="./src/workspace-switch.css?v=2026-10-12-responsive-1">
 <style>html,body{background:#0f1416}</style>
@@ -59,7 +59,7 @@
             <div class="status-card"><span data-i18n="device.leader">Leader</span><strong id="leaderStatus" data-i18n="status.not-connected">未连接</strong></div>
             <div class="status-card"><span data-i18n="device.follower">Follower</span><strong id="followerStatus" data-i18n="status.not-connected">未连接</strong></div>
           </div>
-          <div class="button-row connection-actions">
+          <div id="standardConnectionActions" class="button-row connection-actions">
             <button id="connectLeader" class="primary" data-i18n="btn.connect-leader">连接 Leader</button>
             <button id="connectFollower" class="primary" data-i18n="btn.connect-follower">连接 Follower</button>
             <button id="disconnectAll" class="ghost" data-i18n="btn.disconnect-all">全部断开</button>
@@ -85,32 +85,44 @@
           <p id="a1zVirtualNotice" class="virtual-follower-notice" role="status" hidden data-i18n="notice.a1z-virtual">星海图 A1Z 仅跟随 J1–J6，不发送硬件命令</p>
           <p id="teleopPairingStatus" class="virtual-follower-notice" role="status" hidden></p>
           <section id="lumosPanel" class="lumos-panel" hidden aria-label="LumosTouch 校准">
-            <h3>Touch R1 → LumosTouch V3</h3>
-            <p id="lumosLocalHelp" class="warning-note">实体遥操作仅支持 Ubuntu。本机运行源码中的 <code>start_ubuntu_lumos.sh</code>，使用它打开的控制台连接。</p>
-            <button id="lumosCheckService" type="button">检查本机组件</button>
-            <p id="lumosSdkGripper" role="status">先检查本机组件，核对 SDK 夹爪类型与实体一致。</p>
-            <label>CAN 接口<input id="lumosCanInterface" value="can0" maxlength="32" autocomplete="off"></label>
-            <label class="lumos-check"><input id="lumosEnableConfirmed" type="checkbox"><span>已核对本机 SDK/CAN 配置适用于这台 LumosTouch，并确认周围安全；点击“连接 Follower”将使能电机。</span></label>
-            <details open>
-              <summary>六轴映射与校准</summary>
-              <p>默认顺序和方向来自适配示例，必须按当前两台手臂核对。六轴与夹爪均参与遥操作。</p>
-              <label>Lumos J1–J6 对应主臂 ID<input id="lumosJointMap" value="0,1,2,3,4,5" autocomplete="off"></label>
-              <label>六轴方向（+1 / -1）<input id="lumosSigns" value="-1,1,1,1,-1,-1" autocomplete="off"></label>
-              <label>增益<input id="lumosGain" type="number" min="0.01" max="1" step="0.01" value="0.3"></label>
-              <label class="lumos-check"><input id="lumosInvertGripper" type="checkbox"><span>反转夹爪开合方向</span></label>
-              <button id="lumosCaptureReference" type="button">1. 记录参考姿态</button>
-              <p>逐轴移动 Touch R1 采集范围，再将主臂夹爪闭合、张开并分别记录端点。采集期间 LumosTouch 保持当前姿态。</p>
-              <div class="button-row"><button id="lumosGripperClosed" type="button">2. 记录夹爪闭合</button><button id="lumosGripperOpen" type="button">3. 记录夹爪张开</button></div>
-              <button id="lumosFinishCalibration" type="button">4. 完成校准</button>
-            </details>
-            <p id="lumosStatus" role="status">先连接 Touch R1，再连接 LumosTouch。</p>
-            <div id="lumosRange" class="lumos-values">六轴采集范围：—</div>
-            <div id="lumosPreview" class="lumos-values" aria-label="LumosTouch 六轴目标预览">目标预览：—</div>
-            <div id="lumosGripper" class="lumos-values" aria-label="LumosTouch 夹爪开度">夹爪开度：—</div>
-            <label class="lumos-check"><input id="lumosMappingConfirmed" type="checkbox" disabled><span>已核对六轴与夹爪方向、目标预览，并将主从夹爪开度对齐，确认开始真实遥操作。</span></label>
-            <p>停止、急停或失联后必须重新连接并校准。此处不支持旧款滑块、TCP 和轨迹指令。</p>
+            <header class="lumos-heading"><div><span class="lumos-eyebrow">配对遥操作</span><h3>LumosTouch</h3></div><span id="lumosPhaseBadge" class="lumos-badge">待连接</span></header>
+            <div class="lumos-pair"><span>Touch R1</span><span aria-hidden="true">→</span><strong>LumosTouch V3</strong><small>六轴 + 夹爪</small></div>
+            <ol class="lumos-steps" aria-label="遥操作步骤"><li data-lumos-step="connect"><span>1</span>连接</li><li data-lumos-step="calibrate"><span>2</span>校准</li><li data-lumos-step="run"><span>3</span>运行</li></ol>
+            <p id="lumosStatus" class="lumos-status" role="status">先连接 Touch R1，再连接 LumosTouch。</p>
+            <div id="lumosConnectStage" class="lumos-stage">
+              <div class="lumos-stage-heading"><h4>连接从臂</h4><small>Ubuntu · CAN</small></div>
+              <details id="lumosLocalHelp" class="lumos-details"><summary>打开 Ubuntu 本地控制台</summary><p>在源码目录运行 <code>sh start_ubuntu_lumos.sh</code>，使用它打开的网页连接真实 LumosTouch。</p></details>
+              <div class="lumos-connect-fields"><label>CAN 接口<input id="lumosCanInterface" value="can0" maxlength="32" autocomplete="off"></label><button id="lumosCheckService" class="ghost" type="button">检查组件</button></div>
+              <p id="lumosSdkGripper" class="lumos-hint" role="status">检查组件后，核对夹爪类型。</p>
+              <label class="lumos-check"><input id="lumosEnableConfirmed" type="checkbox"><span>已核对 SDK、夹爪及 CAN 配置并确认周围安全。连接将使能电机。</span></label>
+              <div id="lumosConnectAction" class="lumos-action"></div>
+            </div>
+            <div id="lumosCalibrationStage" class="lumos-stage" hidden>
+              <div class="lumos-stage-heading"><h4>校准主从关系</h4><small>仅采集，不跟随</small></div>
+              <details id="lumosMappingSettings" class="lumos-details"><summary>关节映射与方向<span>展开核对</span></summary>
+                <p>默认值来自适配示例，请按当前两台手臂核对。</p>
+                <label>Lumos J1–J6 对应主臂 ID<input id="lumosJointMap" value="0,1,2,3,4,5" autocomplete="off"></label>
+                <label>六轴方向（+1 / -1）<input id="lumosSigns" value="-1,1,1,1,-1,-1" autocomplete="off"></label>
+                <label>跟随增益<input id="lumosGain" type="number" min="0.01" max="1" step="0.01" value="0.3"></label>
+                <label class="lumos-check"><input id="lumosInvertGripper" type="checkbox"><span>反转夹爪开合方向</span></label>
+              </details>
+              <div id="lumosReferenceStage" class="lumos-reference"><p class="lumos-hint">将两臂摆到对应姿态，核对映射后记录参考。</p><button id="lumosCaptureReference" class="primary" type="button">记录参考姿态</button></div>
+              <div id="lumosSamplingStage" class="lumos-sampling" hidden>
+                <p class="lumos-hint">逐轴缓慢移动主臂，再记录夹爪的两个端点。</p>
+                <div class="lumos-endpoints"><div><span>闭合位置</span><strong id="lumosClosedValue">待记录</strong><button id="lumosGripperClosed" class="ghost" type="button">记录闭合</button></div><div><span>张开位置</span><strong id="lumosOpenValue">待记录</strong><button id="lumosGripperOpen" class="ghost" type="button">记录张开</button></div></div>
+                <button id="lumosFinishCalibration" class="primary" type="button">完成校准，查看预览</button>
+              </div>
+            </div>
+            <div id="lumosRunStage" class="lumos-stage" hidden>
+              <div class="lumos-stage-heading"><h4 id="lumosRunTitle">确认目标预览</h4><small>六轴 + 夹爪</small></div>
+              <div class="lumos-gripper-meter"><div><span>夹爪实际</span><strong id="lumosActualOpening">—</strong></div><span aria-hidden="true">→</span><div><span>目标开度</span><strong id="lumosTargetOpening">—</strong></div></div>
+              <div id="lumosPreview" class="lumos-values" aria-label="LumosTouch 六轴目标预览">目标预览：—</div>
+              <label id="lumosMappingConfirmation" class="lumos-check"><input id="lumosMappingConfirmed" type="checkbox" disabled><span>已核对六轴与夹爪方向、目标预览，并将主从夹爪开度对齐。</span></label>
+            </div>
+            <details id="lumosReadbacks" class="lumos-details lumos-readbacks" hidden><summary>反馈与校准数据</summary><div id="lumosRange" class="lumos-values">六轴采集范围：—</div><div id="lumosGripper" class="lumos-values" aria-label="LumosTouch 夹爪开度">夹爪开度：—</div></details>
+            <footer id="lumosRunFooter" class="lumos-run-footer" hidden><div id="lumosRunActions" class="button-row run-row"></div><p class="lumos-hint">停止或失联后，需重新连接并校准。</p></footer>
           </section>
-          <details class="debug-panel" open>
+          <details id="standardTeleopParameters" class="debug-panel" open>
             <summary data-i18n="teleop.parameters">遥操作参数</summary>
             <div class="settings-grid">
               <label><span data-i18n="label.control-interval">控制循环间隔 ms</span><input id="loopInterval" type="number" min="0" max="100" step="1" value="20"><small data-i18n="teleop.interval-help">0 ms 表示浏览器允许的最快循环（每轮仍异步让出）</small></label>
@@ -118,7 +130,7 @@
             </div>
           </details>
           <p id="settingsError" class="warning-note" role="alert" hidden></p>
-          <div class="button-row run-row"><button id="startTeleop" class="start" data-i18n="btn.start-teleop">启动遥操作</button><button id="stopTeleop" class="stop" data-i18n="btn.stop-teleop">停止</button></div>
+          <div id="standardTeleopRunActions" class="button-row run-row"><button id="startTeleop" class="start" data-i18n="btn.start-teleop">启动遥操作</button><button id="stopTeleop" class="stop" data-i18n="btn.stop-teleop">停止</button></div>
           <details class="debug-panel"><summary data-i18n="debug.settings">调试设置与运行日志</summary><div class="settings-grid"><label><span data-i18n="label.timeout">Leader 响应超时 ms</span><input id="responseTimeout" type="number" min="100" max="2000" value="800"></label><label><span data-i18n="label.raw-log">原始串口日志</span><select id="rawLogEnabled"><option value="off" data-i18n="teleop.raw-log-off">关闭</option><option value="on" data-i18n="teleop.raw-log-on">开启</option></select></label></div><pre id="logs" data-i18n="debug.waiting">等待连接串口...</pre></details>
         </section>
       </aside>
@@ -299,7 +311,7 @@
     </dialog>
   <script type="importmap">{"imports":{"./src/serial_servo_bus.js":"./src/serial_servo_bus.js?v=serial-connect-1","./src/browser_serial_utils.js":"./src/browser_serial_utils.js?v=serial-connect-1","./src/i18n.js":"./src/i18n.js?v=serial-connect-1"}}</script>
   <script type="module" src="./src/servo_setup.js?v=1.1.2-merged-piper-1"></script>
-  <script type="module" src="./src/app.js?v=1.1.2-lumos-20261020"></script>
+  <script type="module" src="./src/app.js?v=1.1.2-lumos-layout-20261020"></script>
   <script type="module" src="./src/workspace-switch.js?v=capture-flow-1"></script>
   <script type="module" src="./src/workspace-nav.js?v=20261020"></script>
 </body>

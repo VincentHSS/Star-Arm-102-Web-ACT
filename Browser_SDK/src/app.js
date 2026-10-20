@@ -69,6 +69,25 @@ const els = {
   physicalFollowerModelField: document.querySelector('#physicalFollowerModelField'),
   teleopPairingStatus: document.querySelector('#teleopPairingStatus'),
   lumosPanel: document.querySelector('#lumosPanel'),
+  lumosPhaseBadge: document.querySelector('#lumosPhaseBadge'),
+  lumosConnectStage: document.querySelector('#lumosConnectStage'),
+  lumosCalibrationStage: document.querySelector('#lumosCalibrationStage'),
+  lumosReferenceStage: document.querySelector('#lumosReferenceStage'),
+  lumosSamplingStage: document.querySelector('#lumosSamplingStage'),
+  lumosRunStage: document.querySelector('#lumosRunStage'),
+  lumosRunTitle: document.querySelector('#lumosRunTitle'),
+  lumosRunFooter: document.querySelector('#lumosRunFooter'),
+  lumosMappingConfirmation: document.querySelector('#lumosMappingConfirmation'),
+  lumosReadbacks: document.querySelector('#lumosReadbacks'),
+  lumosClosedValue: document.querySelector('#lumosClosedValue'),
+  lumosOpenValue: document.querySelector('#lumosOpenValue'),
+  lumosActualOpening: document.querySelector('#lumosActualOpening'),
+  lumosTargetOpening: document.querySelector('#lumosTargetOpening'),
+  lumosConnectAction: document.querySelector('#lumosConnectAction'),
+  lumosRunActions: document.querySelector('#lumosRunActions'),
+  standardConnectionActions: document.querySelector('#standardConnectionActions'),
+  standardTeleopParameters: document.querySelector('#standardTeleopParameters'),
+  standardTeleopRunActions: document.querySelector('#standardTeleopRunActions'),
   lumosCanInterface: document.querySelector('#lumosCanInterface'),
   lumosEnableConfirmed: document.querySelector('#lumosEnableConfirmed'),
   lumosMappingConfirmed: document.querySelector('#lumosMappingConfirmed'),
@@ -1588,17 +1607,49 @@ function renderVersion() {
 
 function renderLumosPanel() {
   const selected = controller.isLumosTarget();
+  document.querySelector('#teleopControls').classList.toggle('is-lumos-connected', selected && controller.lumos.connected);
   els.lumosPanel.hidden = !selected;
-  els.lumosLocalHelp.hidden = controller.lumos.connected;
+  els.standardTeleopParameters.hidden = selected;
+  els.standardTeleopRunActions.hidden = selected;
+  els.start.hidden = selected && !controller.lumos.ready;
+  els.stop.hidden = false;
+  // Move the existing controls, preserving their listeners and safety gates.
+  const connectionHome = selected ? els.lumosConnectAction : els.standardConnectionActions;
+  if (els.connectFollower.parentNode !== connectionHome) connectionHome.insertBefore(els.connectFollower, selected ? null : els.disconnectAll);
+  const runHome = selected ? els.lumosRunActions : els.standardTeleopRunActions;
+  for (const button of [els.start, els.stop]) if (button.parentNode !== runHome) runHome.append(button);
   if (!selected) return;
   const snapshot = controller.lumos.snapshot;
   const busy = controller.lumos.busy || Boolean(controller.lumos.closing) || controller.followerConnectionLock.active;
   const connected = controller.lumos.connected;
   const service = controller.lumos.serviceStatus;
   const configured = Boolean(service?.gripper_type && !service?.gripper_config_error);
+  const phase = snapshot.phase;
+  const calibrationActive = connected && ['connected', 'calibrating'].includes(phase);
+  const previewActive = connected && ['preview', 'running'].includes(phase);
+  const stage = calibrationActive ? 1 : previewActive || phase === 'stopping' ? 2 : 0;
+  els.lumosConnectStage.hidden = connected || phase === 'stopping';
+  els.lumosCalibrationStage.hidden = !calibrationActive;
+  els.lumosReferenceStage.hidden = phase !== 'connected';
+  els.lumosSamplingStage.hidden = phase !== 'calibrating';
+  els.lumosRunStage.hidden = !previewActive && phase !== 'stopping';
+  els.lumosRunFooter.hidden = !connected && phase !== 'stopping';
+  els.lumosMappingConfirmation.hidden = phase !== 'preview';
+  els.lumosReadbacks.hidden = !connected;
+  els.lumosLocalHelp.hidden = configured;
+  if (els.lumosPanel.dataset.phase !== phase) els.lumosReadbacks.open = phase === 'calibrating';
+  els.lumosPanel.dataset.phase = phase;
+  els.lumosRunTitle.textContent = phase === 'running' ? '正在跟随主臂' : '确认目标预览';
+  els.lumosPhaseBadge.textContent = ({ connecting: '连接中', connected: '待校准', calibrating: '采集中', preview: '待确认', running: '运行中', stopping: '停止中', fault: '连接异常' })[phase] || '待连接';
+  for (const [index, step] of [...els.lumosPanel.querySelectorAll('[data-lumos-step]')].entries()) {
+    step.classList.toggle('is-current', index === stage);
+    step.classList.toggle('is-complete', index < stage);
+    if (index === stage) step.setAttribute('aria-current', 'step'); else step.removeAttribute('aria-current');
+  }
+  if (els.connectFollower.textContent !== '连接 LumosTouch') els.connectFollower.textContent = '连接 LumosTouch';
   els.lumosSdkGripper.textContent = service?.gripper_config_error || (service?.gripper_type
-    ? `SDK 夹爪类型：${service.gripper_type}。请确认与实体一致后，再勾选连接使能。`
-    : '先检查本机组件，核对 SDK 夹爪类型与实体一致。');
+    ? `夹爪配置 ${service.gripper_type} · 请核对实体型号`
+    : '检查组件后，核对夹爪类型。');
   const phaseText = {
     idle: '先连接 Touch R1，再连接 LumosTouch。',
     connecting: '正在连接 LumosTouch…',
@@ -1623,6 +1674,12 @@ function renderLumosPanel() {
   const gripper = snapshot.gripper || {};
   const percent = ratio => Number.isFinite(ratio) ? `${(ratio * 100).toFixed(0)}%` : '—';
   const angle = degrees => Number.isFinite(degrees) ? `${degrees.toFixed(1)}°` : '—';
+  els.lumosActualOpening.textContent = percent(gripper.position_ratio);
+  els.lumosTargetOpening.textContent = percent(gripper.preview_ratio);
+  for (const [element, value] of [[els.lumosClosedValue, gripper.closed_deg], [els.lumosOpenValue, gripper.open_deg]]) {
+    element.textContent = Number.isFinite(value) ? angle(value) : '待记录';
+    element.parentElement.classList.toggle('is-recorded', Number.isFinite(value));
+  }
   els.lumosGripper.textContent = `夹爪实际 ${percent(gripper.position_ratio)} / 目标 ${percent(gripper.preview_ratio)}；主臂 ${angle(gripper.leader_deg)}；闭合端点 ${angle(gripper.closed_deg)} / 张开端点 ${angle(gripper.open_deg)}`;
   els.lumosCanInterface.disabled = connected || busy;
   els.lumosCheckService.disabled = connected || busy || !controller.lumos.api;

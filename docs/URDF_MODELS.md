@@ -7,6 +7,8 @@
 
 Touch R1 使用 FashionStar 串口读取流程，查询 ID 0–5 的六个关节和 ID 6 的夹爪，不向 Leader 发送运动或扭矩命令。上游 URDF 描述六轴本体，实体夹爪输入按遥操作程序单独读取；编码器零点、方向与 CAD 坐标仍需实机确认。
 
+当前上游模型没有额外的第七夹爪舵机几何或夹爪运动关节。第六轴腕部电机的机身位于 `link_5-servo.stl`，其舵盘位于 `link_6-horn.stl`；`link_6-structure.stl` 是末端手柄/安装结构，未合并额外夹爪电机。网页已加载上游全部 21 份网格，实体 ID 6 的读取与夹爪控制仍正常参与遥操作。上游也明确说明不补入未建模的采购件、不增加第七轴或夹爪运动，详见[上游模型说明](https://github.com/servodevelop/touch-r1-leader-arm/blob/7c6811913e0928b04a2ad69d6ab25b7f22217ee5/hardware/robot-description/README.md)。
+
 实体型号中新增 LumosTouch V3，只允许已连接的 Touch R1 遥操作。实体 Star Arm 102-FL 保留 LD / HD 配对，不能与 Touch R1 混用。LumosTouch 通过 Ubuntu 本机 CAN 组件连接，不能沿用原 FL 的串口协议、轨迹回放或滑块/TCP 控制。连接、当次校准、目标预览与开始跟随见 [LumosTouch 遥操作](LUMOS_TELEOP.md)。
 
 LumosTouch V3 使用现有虚拟 Follower 通道，六个关节按 J1–J6 顺序在原 URDF 轴线上跟随。虚拟预览的 J7 以 0–90° 对应双夹指各 0–42.5 mm 位移；实体 LumosTouch 的夹爪按当次闭合/张开校准映射为开度比例，并使用 SDK 反馈显示真实开度。显示范围受 URDF 限位约束，Touch R1 连续关节保留输入角度。新模型不使用旧 FL 的 TCP / IK 控制入口。
