@@ -3,7 +3,9 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { SUPPLIED_URDF_MODELS } from '../Browser_SDK/src/supplied_urdf_models.js';
 import { buildJointTree, applyModelJointAngles } from '../Browser_SDK/src/robot_model.js';
-import { MODEL_CONFIGS } from '../Browser_SDK/src/robot_model_configs.js';
+import { MODEL_CONFIGS, resolveDisplayModelKey } from '../Browser_SDK/src/robot_model_configs.js';
+import { getRobotProfile } from '../Browser_SDK/src/robot_profiles.js';
+import { connectLeaderForProfile, writeLeaderControlFrame, getConnectedLeaderType } from '../Browser_SDK/src/runtime_integration.js';
 import { mapSuppliedVirtualAngles } from '../Browser_SDK/src/supplied_urdf_mapping.js';
 import {
   createFollowerTargetState, createTeleopOutputOptions,
@@ -53,7 +55,7 @@ test('LD continuous joints preserve CAD axes without changing hardware model con
   assert.doesNotMatch(page, /navigator\.serial|requestPort|writeServo|sendCommand/);
 });
 
-for (const key of ['fl-v3', 'ld-touch']) {
+for (const key of ['fl-v3']) {
   test(`${key}: virtual selection connects without a serial writer and locks model changes`, () => {
     const target = createFollowerTargetState(FOLLOWER_TARGET_VIRTUAL);
     target.setVirtualModel(key);
@@ -76,6 +78,29 @@ for (const key of ['fl-v3', 'ld-touch']) {
     assert.throws(() => target.setVirtualModel('unsupported'), /未知虚拟型号/);
   });
 }
+
+test('Touch R1 is a six-axis read-only Leader and cannot be selected as a virtual Follower', async () => {
+  const profile = getRobotProfile('TOUCH');
+  assert.equal(profile.code, 'TOUCH');
+  assert.equal(profile.name, 'Touch R1');
+  assert.equal(profile.role, 'leader');
+  assert.equal(profile.canCommand, false);
+  assert.equal(profile.powered, false);
+  assert.deepEqual(profile.servoIds, [0, 1, 2, 3, 4, 5]);
+  assert.equal(getConnectedLeaderType(profile, '102LD'), '102TOUCH');
+  assert.equal(resolveDisplayModelKey({ role: 'leader', leaderType: '102TOUCH' }), 'ld-touch');
+  assert.equal(resolveDisplayModelKey({ role: 'follower', leaderType: '102TOUCH' }), 'fl');
+  assert.equal(MODEL_CONFIGS['ld-touch'].name, 'Touch R1');
+  assert.equal(MODEL_CONFIGS['fl-v3'].name, 'LumosTouch V3');
+  assert.equal(Object.hasOwn(VIRTUAL_MODEL_CONFIG_KEYS, 'ld-touch'), false);
+  assert.throws(() => createFollowerTargetState(FOLLOWER_TARGET_VIRTUAL).setVirtualModel('ld-touch'), /未知虚拟型号/);
+  const calls = [];
+  const bus = { connect: async () => calls.push('connect'), write: async () => calls.push('write') };
+  const connected = await connectLeaderForProfile({ bus, model: 'TOUCH', initializeBus: async () => calls.push('initialize') });
+  assert.equal(connected, profile);
+  assert.equal(await writeLeaderControlFrame({ bus, profile, frame: new Uint8Array([1]) }), false);
+  assert.deepEqual(calls, ['connect']);
+});
 
 test('supplied FL maps six display axes with URDF limits and J7 to opposing 42.5 mm fingers', () => {
   const input = [100, -100, 100, -100, 100, -100, Math.PI / 4];

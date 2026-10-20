@@ -54,12 +54,16 @@ const ROOT = path.resolve(__dirname, '..'), pause = ms => new Promise(resolve =>
     });
     await page.goto(site + '/index.html');
     await page.waitForFunction(() => document.querySelector('#modelLoadStatus')?.dataset.state === 'ready');
-    const actLink = page.locator('[data-workspace-target="act"]');
+    await page.locator('.workspace-nav summary').click();
+    const actLink = page.locator('.workspace-nav [href="act-workbench.html"][data-workspace-target="act"]');
     assert((await actLink.getAttribute('href')).endsWith('act-workbench.html'), 'Windows ACT entry must preserve the workbench URL');
     await actLink.click(); await page.waitForURL('**/act-workbench.html');
     assert.equal(await page.locator('.workflow [data-view]').count(), 4);
     assert.equal(await page.locator('#collect').isVisible(), true);
-    assert.equal(await page.locator('.product-tabs [href="act-browser.html"]').count(), 1);
+    assert.equal(await page.locator('.workspace-nav').count(), 1);
+    assert.equal(await page.locator('.workspace-nav [aria-current="page"]').textContent().then(text => text.includes('ACT 工作台')), true);
+    assert.equal(await page.locator('.workspace-nav [href="act-browser.html"][data-workspace-target="act"]').count(), 1);
+    assert.equal(await page.locator('.product-tabs,.workspace-launch,.browser-execute-link').count(), 0, 'Workspace links should be consolidated into one picker');
     await page.click('#capture-service-setup');
     await page.waitForFunction(() => document.querySelector('#capture-service-dialog').open);
     assert.equal(await page.locator('#capture-runtime-host #runtime-onboarding').count(), 1);

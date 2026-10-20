@@ -4,13 +4,11 @@ export const VIRTUAL_MODEL_STAR_ARM_FL = 'star-arm-102-fl';
 export const VIRTUAL_MODEL_REBOT_B601 = 'rebot-b601';
 export const VIRTUAL_MODEL_GALAXEA_A1Z = 'galaxea-a1z';
 export const VIRTUAL_MODEL_LUMOS_FL = 'fl-v3';
-export const VIRTUAL_MODEL_TOUCH_LD = 'ld-touch';
 export const VIRTUAL_MODEL_CONFIG_KEYS = Object.freeze({
   [VIRTUAL_MODEL_STAR_ARM_FL]: 'fl',
   [VIRTUAL_MODEL_REBOT_B601]: 'b601',
   [VIRTUAL_MODEL_GALAXEA_A1Z]: 'a1z',
   [VIRTUAL_MODEL_LUMOS_FL]: 'fl-v3',
-  [VIRTUAL_MODEL_TOUCH_LD]: 'ld-touch',
 });
 
 function validateVirtualModel(model) {

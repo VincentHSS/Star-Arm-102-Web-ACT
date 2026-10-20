@@ -1,0 +1,50 @@
+/* Shared workspace picker; navigation continues through workspace-switch.js. */
+.workspace-header { position:relative; z-index:50; gap:20px; }
+.workspace-header .workspace-nav { position:relative; display:block; flex:0 0 auto; margin:0; align-self:center; }
+.workspace-nav details { position:relative; }
+.workspace-nav summary { display:flex; align-items:center; justify-content:space-between; gap:18px; min-width:152px; min-height:46px; padding:7px 12px; border:1px solid #655076; border-radius:8px; background:linear-gradient(115deg,#2c2535,#22343b); color:#ebdef4; cursor:pointer; list-style:none; }
+.workspace-nav summary::-webkit-details-marker { display:none; }
+.workspace-nav summary > span { display:grid; gap:2px; }
+.workspace-nav summary small { display:block; margin:0; color:#a99ab6; font:10px/1.2 "Microsoft YaHei",sans-serif; letter-spacing:.04em; }
+.workspace-nav summary strong { color:#ebdef4; font:600 13px/1.4 "Microsoft YaHei",sans-serif; white-space:nowrap; }
+.workspace-nav summary svg { flex:none; width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:1.6; transition:transform .15s ease; }
+.workspace-nav details[open] summary svg { transform:rotate(180deg); }
+.workspace-nav summary:hover,.workspace-nav details[open] summary { border-color:#9875b0; }
+.workspace-nav summary:focus-visible,.workspace-nav-menu a:focus-visible { outline:2px solid #68d4d9; outline-offset:3px; }
+.workspace-nav-menu { position:absolute; z-index:60; top:calc(100% + 8px); left:0; width:250px; max-width:calc(100vw - 24px); display:grid; gap:4px; padding:6px; border:1px solid #5c4f69; border-radius:10px; background:#1b2429; box-shadow:0 14px 38px #0008; }
+.workspace-header .workspace-nav-menu > a,.workspace-nav-menu > span { display:grid; gap:4px; padding:11px 12px; border:1px solid transparent; border-radius:6px; color:#c6d0d7; text-decoration:none; text-align:left; }
+.workspace-nav-menu strong { color:inherit; font:600 13px/1.4 "Microsoft YaHei",sans-serif; letter-spacing:0; }
+.workspace-header .workspace-nav-menu small { display:block; margin:0; color:#96a7b1; font:10px/1.5 "Microsoft YaHei",sans-serif; letter-spacing:0; }
+.workspace-header .workspace-nav-menu > a:hover { color:#fff; background:#28343c; border-color:#41535e; }
+.workspace-nav-menu > [aria-current="page"] { color:#e2c3f1; background:#32283d; border-color:#624977; }
+.console-header .tabs { margin-left:0; min-width:0; }
+.console-header .tab { white-space:nowrap; padding-right:12px; padding-left:12px; }
+.console-header .top-state { flex:0 0 auto; }
+.browser-act-header.workspace-header { flex-wrap:wrap; height:auto; min-height:68px; padding:10px 24px; }
+.browser-act-header .brand { color:#e7eeef; }
+.browser-act-header .brand strong { font-size:17px; }
+@media (min-width:761px) {
+  .shell > .workspace-header + .digital-twin-workspace { height:calc(100dvh - var(--workspace-header-height,60px)); }
+}
+@media (max-width:1280px) {
+  .console-header.workspace-header { flex-wrap:wrap; height:auto; padding:8px 16px 0; gap:12px; }
+  .console-header .tabs { order:4; flex:0 0 100%; height:42px; overflow-x:auto; }
+  .console-header .tab { flex:0 0 auto; }
+}
+@media (max-width:760px) {
+  .workspace-header { gap:12px; }
+  .workspace-header .workspace-nav { margin-left:auto; order:1; }
+  .workspace-header .brand { order:0; min-width:0; gap:8px; }
+  .workspace-header .brand strong,.workspace-header .brand-copy strong { font-size:14px; }
+  .workspace-header .brand small { display:none; }
+  .workspace-header .brand img { width:30px; height:30px; }
+  .workspace-nav summary { min-width:132px; gap:10px; padding:6px 10px; }
+  .workspace-nav-menu { left:auto; right:0; }
+  .workspace-header .top-state { order:2; width:100%; margin-left:0; }
+  .console-header .top-state { justify-content:flex-end; margin-top:-4px; }
+  .console-header .tabs { margin:0; }
+  .browser-act-header.workspace-header { padding:10px 12px; }
+}
+@media (prefers-reduced-motion:reduce) {
+  .workspace-nav summary svg { transition:none; }
+}

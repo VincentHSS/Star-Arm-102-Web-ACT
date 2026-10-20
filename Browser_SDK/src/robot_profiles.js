@@ -1,6 +1,16 @@
 import { t, tWithVars } from './i18n.js';
 
 const profiles = Object.freeze({
+  TOUCH: Object.freeze({
+    code: 'TOUCH',
+    name: 'Touch R1',
+    role: 'leader',
+    powered: false,
+    canCommand: false,
+    servoIds: Object.freeze([0, 1, 2, 3, 4, 5]),
+    permissionNote: '六轴 Leader，仅采集姿态；不提供夹爪输入',
+    permissionNoteKey: 'profile.touch-permission',
+  }),
   LD: Object.freeze({
     code: 'LD',
     name: 'Star Arm 102-LD',

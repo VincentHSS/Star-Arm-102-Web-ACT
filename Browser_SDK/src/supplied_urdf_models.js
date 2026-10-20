@@ -2,7 +2,7 @@
 export const SUPPLIED_URDF_MODELS = {
   "fl-v3": {
     "key": "fl-v3",
-    "name": "FL · LumosTouch V3",
+    "name": "LumosTouch V3",
     "parts": [
       {
         "link": "base_link",
@@ -477,7 +477,7 @@ export const SUPPLIED_URDF_MODELS = {
   },
   "ld-touch": {
     "key": "ld-touch",
-    "name": "LD · Touch R1",
+    "name": "Touch R1",
     "parts": [
       {
         "link": "base_link",

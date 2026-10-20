@@ -521,6 +521,7 @@ class BrowserTeleopController {
     els.teleopFrequency.textContent = t('telemetry.sampling');
     this.hdButtonLocked = false;
     const virtualFollower = this.followerTarget.type === FOLLOWER_TARGET_VIRTUAL;
+    const controlledIds = this.connectedLeaderProfile?.servoIds ?? SERVO_IDS;
     if (virtualFollower) {
       els.poseSourceFollower.checked = true;
       syncDisplayedModel(t('status.virtual-fl-pose-source'));
@@ -533,12 +534,12 @@ class BrowserTeleopController {
         type: FOLLOWER_TARGET_PHYSICAL,
         writeFollowerAngles: async (angles) => {
           try {
-            await follower.write(ServoProtocol.syncMultiTurnAngleByInterval(angles, {
+            await follower.write(ServoProtocol.syncMultiTurnAngleByInterval(controlledIds.map(id => angles[id]), {
               interval: 100,
               tAcc: 50,
               tDec: 50,
               power: 0,
-              servoIds: SERVO_IDS,
+              servoIds: controlledIds,
             }));
           } catch (error) {
             error.serialRole = 'follower';
@@ -565,7 +566,10 @@ class BrowserTeleopController {
       onAngles: (angles) => {
         this.updateFrequency();
         this.latestAngles.leader = [...angles];
-        this.latestAngles.follower = [...angles];
+        const followerAngles = [...angles];
+        // A six-axis Leader has no gripper input; preserve the Follower's last J7.
+        if (!controlledIds.includes(6)) followerAngles[6] = this.latestAngles.follower?.[6] ?? 0;
+        this.latestAngles.follower = followerAngles;
         renderAngles(this.latestAngles[selectedPoseRole()], selectedPoseRole());
       },
       onError: (error) => void this.handleLoopError(error, error.serialRole, error.serialBus)
@@ -799,7 +803,7 @@ class BrowserTeleopController {
     if (!bus) throw new Error(tWithVars('error.serial-not-connected', { role: role === 'leader' ? 'Leader' : 'Follower' }));
     return new ArmManualControlSession({
       readOnly,
-      servoIds: SERVO_IDS,
+      servoIds: role === 'leader' ? (getRobotProfile(getLeaderProfileCode()).servoIds ?? SERVO_IDS) : SERVO_IDS,
       readAngles: () => this.readBusAngles(role),
       write: (frame) => role === 'leader' ? this.writeLeaderControlFrame(frame) : bus.write(frame),
       onAngles: (angles) => {
@@ -828,7 +832,8 @@ class BrowserTeleopController {
   async readBusAngles(role, extraServoIds = []) {
     const bus = role === 'leader' ? this.leader : this.follower;
     if (!bus) throw new Error(tWithVars('error.serial-not-connected', { role: role === 'leader' ? 'Leader' : 'Follower' }));
-    const monitorIds = [...SERVO_IDS, ...extraServoIds.filter((id) => !SERVO_IDS.includes(id))];
+    const roleIds = role === 'leader' ? (getRobotProfile(getLeaderProfileCode()).servoIds ?? SERVO_IDS) : SERVO_IDS;
+    const monitorIds = [...roleIds, ...extraServoIds.filter((id) => !roleIds.includes(id))];
     const initial = !this.latestAngles[role];
     const { monitors, missingIds } = await readServoFeedback({
       bus, servoIds: monitorIds, timeoutMs: getResponseTimeoutMs(),
@@ -839,8 +844,8 @@ class BrowserTeleopController {
         (role === 'leader' ? els.leaderStatus : els.followerStatus).textContent = message;
       } : undefined,
     });
-    if (initial && missingIds.some(id => SERVO_IDS.includes(id))) {
-      throw new Error(tWithVars('error.serial-first-feedback-missing', { name: bus.name, ids: missingIds.filter(id => SERVO_IDS.includes(id)).join(', ') }));
+    if (initial && missingIds.some(id => roleIds.includes(id))) {
+      throw new Error(tWithVars('error.serial-first-feedback-missing', { name: bus.name, ids: missingIds.filter(id => roleIds.includes(id)).join(', ') }));
     }
     const angles = new Array(SERVO_IDS.length).fill(0);
     for (const monitor of Object.values(monitors)) {
@@ -1016,7 +1021,10 @@ els.fullscreenScene.addEventListener('click', () => els.robotViewport.requestFul
 [els.poseSourceLeader, els.poseSourceFollower].forEach((input) => input.addEventListener('change', () => {
   syncDisplayedModel(t('status.pose-source-changed'));
 }));
-els.leaderType.addEventListener('change', () => syncDisplayedModel(t('status.leader-type-changed')));
+els.leaderType.addEventListener('change', () => {
+  els.poseSourceLeader.checked = true;
+  syncDisplayedModel(t('status.leader-type-changed'));
+});
 els.jointSliderInputs.forEach((input, index) => input.addEventListener('input', () => {
   els.jointAngleInputs[index].value = input.value;
   previewJointSliders();
@@ -1399,6 +1407,7 @@ function selectedDisplayModelName() {
 }
 
 function selectedDisplayProfile() {
+  if (selectedDisplayModelKey() === 'ld-touch' && selectedPoseRole() === 'leader') return getRobotProfile('TOUCH');
   if (isSuppliedVirtualModel(selectedDisplayModelKey())) {
     return { code: 'VIRTUAL_URDF', name: selectedDisplayModelName(), role: 'follower', canCommand: false,
       permissionNote: t('notice.supplied-virtual') };
@@ -1427,7 +1436,7 @@ function selectedDisplayProfile() {
 function selectedRoleMatchesModel() {
   const profile = selectedDisplayProfile();
   return (selectedPoseRole() === 'leader' && profile.code === 'HD')
-    || (selectedPoseRole() === 'leader' && profile.code === 'LD')
+    || (selectedPoseRole() === 'leader' && ['LD', 'TOUCH'].includes(profile.code))
     || (selectedPoseRole() === 'follower' && ['FL', 'B601', 'A1Z', 'VIRTUAL_URDF'].includes(profile.code));
 }
 

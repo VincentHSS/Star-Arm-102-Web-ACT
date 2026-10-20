@@ -144,7 +144,9 @@ const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
     const denied = await page.request.post(site + '/api/v1/emergency-stop', { headers: { Origin: 'https://other.example' }, data: {} });
     assert.equal(denied.status(), 403);
     for (const [target, destination] of [['piper', 'index.html'], ['act', 'act-workbench.html']]) {
-      const started = Date.now(); await page.click(`[data-workspace-target="${target}"]`);
+      await page.locator('.workspace-nav summary').click();
+      const started = Date.now();
+      await page.locator(`.workspace-nav [href="${destination}"][data-workspace-target="${target}"]`).click();
       await page.waitForURL('**/' + destination);
       assert(Date.now() - started >= 4800, 'Ready transition should hold for about 5 seconds');
       assert.equal(await page.locator('#workspace-switch-screen').isVisible(), false, 'Destination must not replay the loader');

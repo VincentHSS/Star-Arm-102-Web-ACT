@@ -74,8 +74,10 @@ BACKEND = {
     'training_manifest': 'Python / LeRobot / PyTorch 版本及加速源清单',
 }
 EXACT = {
-    'start_windows_urdf.bat': 'Windows 双击打开控制台，测试虚拟型号中的新 FL 和 LD 模型',
-    'Browser_SDK/src/supplied_urdf_mapping.js': '新增虚拟 FL 与 LD 的六轴顺序跟随及 FL 双夹指位移映射',
+    'start_windows_urdf.bat': 'Windows 双击打开控制台，测试 Touch R1 Leader 与 LumosTouch 虚拟从臂',
+    'Browser_SDK/src/supplied_urdf_mapping.js': 'Touch R1 Leader 和 LumosTouch 虚拟从臂的显示角度与夹指位移映射',
+    'Browser_SDK/src/workspace-nav.js': '统一工作区下拉菜单的键盘、失焦收起及控制台标题高度同步',
+    'Browser_SDK/src/workspace-nav.css': '三页统一工作区导航与桌面、窄屏布局',
     'Browser_SDK/urdf-preview.html': '用户提供的 FL 与 Touch R1 LD 模型切换和逐轴姿态预览',
     'Browser_SDK/src/urdf-preview.js': '独立 URDF 预览状态、旋转与平移关节滑块，不连接硬件',
     'Browser_SDK/src/urdf-preview.css': 'URDF 模型大画布、关节侧栏及移动端布局',

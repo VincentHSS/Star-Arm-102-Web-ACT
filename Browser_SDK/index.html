@@ -13,14 +13,25 @@
 <style>html,body{background:#0f1416}</style>
 <link rel="icon" href="assets/logo-icon.png">
 <link rel="stylesheet" href="src/interaction.css?v=responsive-1">
+<link rel="stylesheet" href="src/workspace-nav.css?v=20261020">
 </head>
 <body>
   <main class="shell">
-    <header class="topbar">
+    <header class="topbar workspace-header console-header">
       <div class="brand">
         <img src="./assets/logo-icon.png" alt="" class="brand-logo" aria-hidden="true">
         <div class="brand-copy"><strong>Star Arm 102</strong><small>CONTROL CONSOLE / 控制台</small></div>
       </div>
+      <nav class="workspace-nav" aria-label="工作区">
+        <details>
+          <summary><span><small>当前工作区</small><strong>控制台</strong></span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 7 5 5 5-5"/></svg></summary>
+          <div class="workspace-nav-menu">
+            <span aria-current="page"><strong>控制台</strong><small>机械臂连接与实时控制</small></span>
+            <a href="act-workbench.html" data-workspace-target="act"><strong>ACT 工作台</strong><small>数据采集、训练与模型管理</small></a>
+            <a href="act-browser.html" data-workspace-target="act"><strong>网页执行</strong><small>在浏览器中运行已转换模型</small></a>
+          </div>
+        </details>
+      </nav>
       <nav class="tabs" data-i18n-aria="nav.function-tabs">
         <button class="tab active" data-tab="teleop" aria-selected="true"><span data-i18n="nav.teleop">实时控制</span> <small>Beta</small></button>
         <button class="tab" data-tab="trajectory" aria-selected="false"><span data-i18n="nav.data-collection">轨迹记录</span> <small>Beta</small></button>
@@ -28,7 +39,7 @@
         <button class="tab" data-tab="factory-restore" aria-selected="false"><span data-i18n="nav.factory-restore">恢复出厂参数</span></button>
         <button class="tab" data-tab="servo-setup" aria-selected="false"><span data-i18n="nav.servo-setup">舵机配置</span></button>
       </nav>
-      <div class="top-state"><a class="workspace-launch" href="act-workbench.html" data-workspace-target="act"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z"/></svg><span>ACT 工作台</span></a>
+      <div class="top-state">
         <span class="connection-light"></span>
         <span id="runStatus" data-i18n="status.not-started">未启动</span>
         <span id="appVersion" class="version-badge">v1.1.2</span>
@@ -54,7 +65,7 @@
             <button id="disconnectAll" class="ghost" data-i18n="btn.disconnect-all">全部断开</button>
           </div>
           <label><span data-i18n="label.leader-type">Leader 类型</span>
-            <select id="leaderType"><option value="102LD">Star Arm 102-LD</option><option value="102HD" data-i18n="option.leader-hd">Star Arm 102-HD（启用悬停按键）</option><option value="102PIPER" data-i18n="option.leader-piper">PiPER Mate（仅展示本体）</option></select>
+            <select id="leaderType"><option value="102LD">Star Arm 102-LD</option><option value="102HD" data-i18n="option.leader-hd">Star Arm 102-HD（启用悬停按键）</option><option value="102TOUCH">Touch R1</option><option value="102PIPER" data-i18n="option.leader-piper">PiPER Mate（仅展示本体）</option></select>
           </label>
           <div class="follower-target-field"><span class="follower-target-label" data-i18n="label.follower-type">Follower 类型</span>
             <input id="followerType" type="hidden" value="physical">
@@ -64,7 +75,7 @@
             </div>
           </div>
           <label id="virtualFollowerModelField" class="follower-target-field" hidden><span data-i18n="label.virtual-model">虚拟型号</span>
-            <select id="virtualFollowerModel"><option value="star-arm-102-fl" selected>Star Arm 102-FL</option><option value="fl-v3">FL · LumosTouch V3</option><option value="ld-touch">LD · Touch R1</option><option value="rebot-b601">reBot Arm B601</option><option value="galaxea-a1z" data-i18n="model.a1z">星海图 A1Z（带平移夹爪）</option></select>
+            <select id="virtualFollowerModel"><option value="star-arm-102-fl" selected>Star Arm 102-FL</option><option value="fl-v3">LumosTouch V3</option><option value="rebot-b601">reBot Arm B601</option><option value="galaxea-a1z" data-i18n="model.a1z">星海图 A1Z（带平移夹爪）</option></select>
           </label>
           <p id="virtualFollowerNotice" class="virtual-follower-notice" role="status" hidden data-i18n="notice.virtual-follower">仅驱动三维模型，不发送 Follower 串口指令</p>
           <p id="b601VirtualNotice" class="virtual-follower-notice" role="status" hidden data-i18n="notice.b601-virtual">B601 仅跟随 J1–J6，不发送硬件命令</p>
@@ -258,7 +269,8 @@
     </dialog>
   <script type="importmap">{"imports":{"./src/serial_servo_bus.js":"./src/serial_servo_bus.js?v=serial-connect-1","./src/browser_serial_utils.js":"./src/browser_serial_utils.js?v=serial-connect-1","./src/i18n.js":"./src/i18n.js?v=serial-connect-1"}}</script>
   <script type="module" src="./src/servo_setup.js?v=1.1.2-merged-piper-1"></script>
-  <script type="module" src="./src/app.js?v=1.1.2-virtual-urdf-20261020"></script>
+  <script type="module" src="./src/app.js?v=1.1.2-touch-leader-20261020"></script>
   <script type="module" src="./src/workspace-switch.js?v=capture-flow-1"></script>
+  <script type="module" src="./src/workspace-nav.js?v=20261020"></script>
 </body>
 </html>

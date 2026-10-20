@@ -119,6 +119,7 @@ export function isDisplayOnlyModelKey(key) {
 
 export function resolveDisplayModelKey({ role, leaderType }) {
   const normalizedLeaderType = String(leaderType ?? '').toUpperCase();
+  if (role === 'leader' && normalizedLeaderType === '102TOUCH') return 'ld-touch';
   if (role === 'leader' && normalizedLeaderType.includes('PIPER')) return 'piper';
   return role === 'follower' ? 'fl' : 'ld';
 }

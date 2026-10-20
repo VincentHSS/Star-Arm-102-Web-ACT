@@ -12,16 +12,26 @@
 <style>html,body{background:#0f1416}</style>
 <link rel="icon" href="assets/logo-icon.png">
 <link rel="stylesheet" href="src/interaction.css?v=responsive-1">
+<link rel="stylesheet" href="src/workspace-nav.css?v=20261020">
 </head>
 <body>
 <div class="app-shell">
-  <header class="topbar">
+  <header class="topbar workspace-header">
     <div class="brand">
       <img src="assets/logo-icon.png" alt="" aria-hidden="true">
       <div><strong>Star Arm 102</strong><small>采集 · 训练 · 模型 · 实机运行</small></div>
     </div>
-    <nav class="product-tabs" aria-label="产品功能"><span class="active">ACT 工作台</span><a href="act-browser.html" data-workspace-target="act">网页执行</a></nav>
-    <div class="top-state"><a href="index.html" class="workspace-launch" data-workspace-target="piper">控制台</a>
+    <nav class="workspace-nav" aria-label="工作区">
+      <details>
+        <summary><span><small>当前工作区</small><strong>ACT 工作台</strong></span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 7 5 5 5-5"/></svg></summary>
+        <div class="workspace-nav-menu">
+          <a href="index.html" data-workspace-target="piper"><strong>控制台</strong><small>机械臂连接与实时控制</small></a>
+          <span aria-current="page"><strong>ACT 工作台</strong><small>数据采集、训练与模型管理</small></span>
+          <a href="act-browser.html" data-workspace-target="act"><strong>网页执行</strong><small>在浏览器中运行已转换模型</small></a>
+        </div>
+      </details>
+    </nav>
+    <div class="top-state">
       <div id="service-state" class="service-state pending"><i></i><span>连接本机服务</span></div>
       <span class="version">LeRobot 官方驱动版</span>
       <div class="language-switch" data-language="zh" role="group" aria-label="切换语言">
@@ -289,7 +299,7 @@
       <div class="inference-shell">
         <header class="inference-head">
           <div><p class="kicker">LEROBOT ACT / REAL FL</p><h2>实机推理运行中心</h2><p>真实双相机、J1–J7 Observation / Action 与执行性能</p></div>
-          <div class="inference-head-actions"><a class="browser-execute-link" href="act-browser.html" data-workspace-target="act">Windows 网页直接执行</a><button class="ghost camera-enlarge" type="button" data-camera-enlarge="infer" data-ui-icon="maximize">放大视频</button><b id="inference-status" class="tag blocked">等待验证</b></div>
+          <div class="inference-head-actions"><button class="ghost camera-enlarge" type="button" data-camera-enlarge="infer" data-ui-icon="maximize">放大视频</button><b id="inference-status" class="tag blocked">等待验证</b></div>
         </header>
         <aside class="inference-setup panel">
           <header class="panel-head"><div><p class="kicker">EXECUTION CONTRACT</p><h2>模型与任务</h2></div></header>
@@ -389,5 +399,6 @@
 </dialog>
 <script type="module" src="src/act-workbench.js?v=2026-10-15-capture-flow-1"></script>
 <script type="module" src="src/workspace-switch.js?v=capture-flow-1"></script>
+<script type="module" src="src/workspace-nav.js?v=20261020"></script>
 </body>
 </html>

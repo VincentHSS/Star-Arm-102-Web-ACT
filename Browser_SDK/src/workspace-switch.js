@@ -14,11 +14,11 @@ function phase(index, message) {
   overlay.querySelectorAll('[data-switch-phase]').forEach((node, i) => { node.classList.toggle('active', i === index);node.classList.toggle('done', i < index); });
   overlay.querySelector('#switch-message').textContent = message;
 }
-function show(target) {
+function show(target, title = names[target]) {
   overlay.classList.remove('switch-error', 'switch-ready');overlay.hidden = false;
   overlay.querySelector('.switch-delay').hidden = true;
   overlay.style.setProperty('--switch-countdown', '0');
-  overlay.querySelector('#switch-title').textContent = names[target];
+  overlay.querySelector('#switch-title').textContent = title;
   overlay.querySelector('#switch-cancel').textContent = '返回当前页面';
   originFocus = document.activeElement;
   overlay.focus({ preventScroll: true });
@@ -59,7 +59,7 @@ async function switchTo(link) {
   if (url.origin !== location.origin) return;
   const browserExecution = target === 'act' && url.pathname.endsWith('/act-browser.html');
   const operation = ++generation;
-  busy = true;cancelled = false;show(target);
+  busy = true;cancelled = false;show(target, browserExecution ? '网页执行' : names[target]);
   phase(0, '正在结束当前控制并释放设备连接…');
   try {
     const waits = [];

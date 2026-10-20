@@ -20,7 +20,7 @@ const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
     const errors = []; page.on('pageerror', e => errors.push(e.message));
     await page.route('http://127.0.0.1:18765/**', r => r.abort());
     await page.addInitScript(() => {
-      const state = { requested: 0, opened: 0, closed: 0, nonReadWrites: 0, rounds: [], pendingMissing: [], recoverMissing: false, first: true, manualPause: false,
+      const state = { requested: 0, opened: 0, closed: 0, nonReadWrites: 0, rounds: [], motionWrites: [], pendingMissing: [], recoverMissing: false, first: true, manualPause: false,
         angles: [10, 11, 12, 13, 14, 15, 16] };
       window.__consoleSerial = state;
       const response = id => {
@@ -37,7 +37,13 @@ const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
             state.opened++; state.first = true;
             this.readable = new ReadableStream({ start(c) { incoming = c; } });
             this.writable = new WritableStream({ write(frame) {
-              if (frame[2] !== 25 || frame[4] !== 22) { state.nonReadWrites++; return; }
+              if (frame[2] !== 25 || frame[4] !== 22) {
+                state.nonReadWrites++;
+                if (frame[2] === 25 && frame[4] === 14) {
+                  state.motionWrites.push(Array.from({ length: frame[6] }, (_, index) => frame[7 + index * frame[5]]));
+                }
+                return;
+              }
               const ids = [...frame.slice(7, -1)]; state.rounds.push(ids);
               const missing = state.first || !state.recoverMissing ? state.pendingMissing : [];
               for (const id of ids.toReversed()) if (!missing.includes(id)) incoming.enqueue(response(id));
@@ -81,15 +87,57 @@ const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
     await page.click('#disconnectAll');
     await page.waitForFunction(() => !document.querySelector('#connectFollower').disabled);
 
-    // Both supplied URDFs belong to the original virtual Follower picker and use real console rendering.
-    await page.selectOption('#leaderType', '102LD');
+    const waitModel = name => page.waitForFunction(model => document.querySelector('#modelLoadStatus')?.dataset.state === 'ready'
+      && document.querySelector('#modelLoadStatus').textContent.includes(model)
+      && document.querySelector('#displayedModelStatus')?.textContent.includes(model), name);
+    const waitJoints = async (expected, description) => {
+      await page.waitForFunction(values => values.every((value, index) =>
+        document.querySelector(`#jointActualValue${index + 1}`).textContent === value), expected).catch(async error => {
+        const diagnostic = await page.evaluate(() => ({
+          joints: Array.from({ length: 7 }, (_, index) => document.querySelector(`#jointActualValue${index + 1}`).textContent),
+          status: document.querySelector('#runStatus')?.textContent,
+          logs: document.querySelector('#logs').textContent.slice(-1500),
+        }));
+        throw new Error(`${description}: feedback did not reach the model: ${JSON.stringify({ ...diagnostic, pageErrors: errors })}`, { cause: error });
+      });
+    };
+    assert.equal(await page.locator('#leaderType option[value="102TOUCH"]').textContent(), 'Touch R1');
+    assert.equal(await page.locator('#virtualFollowerModel option[value="fl-v3"]').textContent(), 'LumosTouch V3');
+    assert.equal(await page.locator('#virtualFollowerModel option[value="ld-touch"]').count(), 0);
+
+    // Touch R1 is the read-only Leader, and an absent hardware J7 must not block connection or polling.
+    await page.check('#poseSourceLeader');
+    await page.selectOption('#leaderType', '102TOUCH');
+    await waitModel('Touch R1');
+    assert.equal(await page.locator('#displayedModelStatus').textContent(), 'Leader · Touch R1');
+    assert.equal(await page.locator('[data-target-mode="tcp"]').isDisabled(), true);
+    assert.equal(await page.locator('#jointSlider1').isDisabled(), true);
+    await page.evaluate(() => { Object.assign(window.__consoleSerial, { angles: [0, 0, 0, 0, 0, 0, 90], pendingMissing: [6], recoverMissing: false, rounds: [] }); });
+    const touchNonReadWrites = await page.evaluate(() => window.__consoleSerial.nonReadWrites);
+    await page.click('#connectLeader');
+    await page.waitForFunction(() => document.querySelector('#leaderStatus').textContent.includes('已连接'));
+    await waitJoints(['0.0°', '0.0°', '0.0°', '0.0°', '0.0°', '0.0°', '0.0°'], 'Touch R1 initial readback');
+    const touchBaseline = await page.locator('#robotCanvas').screenshot();
+    await page.evaluate(() => { window.__consoleSerial.angles = [25, 35, -45, 20, -15, 40, 90]; });
+    await waitJoints(['25.0°', '35.0°', '-45.0°', '20.0°', '-15.0°', '40.0°', '0.0°'], 'Touch R1 six-axis readback');
+    assert.notDeepEqual(await page.locator('#robotCanvas').screenshot(), touchBaseline, 'Touch R1 canvas must follow its six hardware axes');
+    assert.equal(await page.evaluate(() => window.__consoleSerial.nonReadWrites), touchNonReadWrites, 'Touch R1 must stay read-only');
+    assert.equal(await page.locator('#leaderType').isDisabled(), true);
+    assert(await page.evaluate(() => window.__consoleSerial.rounds.length > 0 && window.__consoleSerial.rounds.every(ids =>
+      JSON.stringify(ids) === JSON.stringify([0, 1, 2, 3, 4, 5]))), 'Every Touch query must contain IDs 0–5 only');
+    await page.click('#disconnectAll');
+    await page.waitForFunction(() => !document.querySelector('#connectLeader').disabled);
+
+    // The virtual LumosTouch model accepts both the six-axis Touch and the original seven-channel Leader.
     await page.click('#followerTypeVirtual');
     const virtualResults = [];
-    for (const [key, name] of [['fl-v3', 'FL'], ['ld-touch', 'LD']]) {
-      await page.evaluate(() => { window.__consoleSerial.angles = [0, 0, 0, 0, 0, 0, 0]; });
-      await page.selectOption('#virtualFollowerModel', key);
-      await page.waitForFunction(model => document.querySelector('#modelLoadStatus')?.dataset.state === 'ready'
-        && document.querySelector('#displayedModelStatus')?.textContent.includes(model), name);
+    for (const [leaderType, gripperValue] of [['102TOUCH', '0.0°'], ['102LD', '67.5°']]) {
+      await page.selectOption('#leaderType', leaderType);
+      await page.evaluate(touch => {
+        Object.assign(window.__consoleSerial, { angles: [0, 0, 0, 0, 0, 0, 0], pendingMissing: touch ? [6] : [], rounds: [] });
+      }, leaderType === '102TOUCH');
+      await page.selectOption('#virtualFollowerModel', 'fl-v3');
+      await waitModel('LumosTouch V3');
       assert.equal(await page.locator('#poseSourceFollower').isChecked(), true);
       assert.equal(await page.locator('[data-target-mode="tcp"]').isDisabled(), true);
       assert.equal(await page.locator('#confirmTarget').isDisabled(), true);
@@ -100,7 +148,7 @@ const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
       await page.click('#connectFollower');
       await page.waitForFunction(() => document.querySelector('#connectFollower').disabled && !document.querySelector('#startTeleop').disabled);
       assert.deepEqual(await page.evaluate(() => ({ requested: window.__consoleSerial.requested, opened: window.__consoleSerial.opened })), before,
-        `${key}: virtual connection must not request or open a Follower serial port`);
+        `${leaderType}: virtual connection must not request or open a Follower serial port`);
       assert.equal(await page.locator('#virtualFollowerModel').isDisabled(), true);
       await page.click('#startTeleop');
       await page.waitForFunction(() => !document.querySelector('#stopTeleop').disabled
@@ -109,47 +157,56 @@ const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
       const nonReadWrites = await page.evaluate(() => window.__consoleSerial.nonReadWrites);
       await page.evaluate(() => { window.__consoleSerial.angles = [25, 35, -45, 20, -15, 40, 45]; });
       // The existing Leader protocol scales the physical J7 angle by 1.5 before virtual mapping.
-      const expected = ['25.0°', '35.0°', '-45.0°', '20.0°', '-15.0°', '40.0°', key === 'fl-v3' ? '67.5°' : '0.0°'];
-      await page.waitForFunction(values => values.every((value, index) =>
-        document.querySelector(`#jointActualValue${index + 1}`).textContent === value), expected).catch(async error => {
-        const diagnostic = await page.evaluate(() => ({
-          joints: Array.from({ length: 7 }, (_, index) => document.querySelector(`#jointActualValue${index + 1}`).textContent),
-          status: document.querySelector('#runStatus')?.textContent,
-          logs: document.querySelector('#logs').textContent.slice(-1500),
-        }));
-        throw new Error(`${key}: feedback did not reach the virtual model: ${JSON.stringify({ ...diagnostic, pageErrors: errors })}`, { cause: error });
-      });
+      await waitJoints(['25.0°', '35.0°', '-45.0°', '20.0°', '-15.0°', '40.0°', gripperValue], `${leaderType} to virtual LumosTouch`);
       const rendered = await page.locator('#robotCanvas').screenshot();
-      assert.notDeepEqual(rendered, baseline, `${key}: the 3D canvas must change with Leader feedback`);
+      assert.notDeepEqual(rendered, baseline, `${leaderType}: the 3D canvas must change with Leader feedback`);
       assert.deepEqual(await page.evaluate(() => ({ requested: window.__consoleSerial.requested, opened: window.__consoleSerial.opened })), before);
       assert.equal(await page.evaluate(() => window.__consoleSerial.nonReadWrites), nonReadWrites,
-        `${key}: virtual following must produce only Leader feedback queries`);
+        `${leaderType}: virtual following must produce only Leader feedback queries`);
+      const expectedIds = leaderType === '102TOUCH' ? [0, 1, 2, 3, 4, 5] : [0, 1, 2, 3, 4, 5, 6];
+      assert(await page.evaluate(ids => window.__consoleSerial.rounds.every(round =>
+        JSON.stringify(round) === JSON.stringify(ids)), expectedIds), `${leaderType}: preserve the Leader's actual channel count`);
       await page.click('#stopTeleop');
       await page.waitForFunction(() => document.querySelector('#stopTeleop').disabled);
       await page.click('#disconnectAll');
       await page.waitForFunction(() => !document.querySelector('#virtualFollowerModel').disabled);
-      virtualResults.push(key);
+      virtualResults.push(`${leaderType}->fl-v3`);
     }
     await page.selectOption('#virtualFollowerModel', 'star-arm-102-fl');
-    await page.waitForFunction(() => document.querySelector('#modelLoadStatus')?.dataset.state === 'ready'
-      && document.querySelector('#modelLoadStatus').textContent.includes('Star Arm 102-FL'));
-    // Switching from the LD joint_1 tree back to physical joint1 must rebuild the renderer immediately.
-    await page.selectOption('#virtualFollowerModel', 'ld-touch');
-    await page.waitForFunction(() => document.querySelector('#modelLoadStatus')?.dataset.state === 'ready'
-      && document.querySelector('#displayedModelStatus')?.textContent.includes('LD'));
+    await waitModel('Star Arm 102-FL');
+    await page.selectOption('#virtualFollowerModel', 'fl-v3');
+    await waitModel('LumosTouch V3');
     await page.click('#followerTypePhysical');
-    await page.waitForFunction(() => document.querySelector('#modelLoadStatus')?.dataset.state === 'ready'
-      && document.querySelector('#modelLoadStatus').textContent.includes('Star Arm 102-FL'));
+    await waitModel('Star Arm 102-FL');
+
+    // Touch may command the six arm axes of a physical Follower only after explicit start; J7 is never included.
+    await page.selectOption('#leaderType', '102TOUCH');
+    await page.check('#poseSourceLeader');
+    await waitModel('Touch R1');
+    await page.evaluate(() => { Object.assign(window.__consoleSerial, { pendingMissing: [6], motionWrites: [] }); });
+    await page.click('#connectLeader');
+    await page.waitForFunction(() => document.querySelector('#leaderStatus').textContent.includes('已连接'));
+    await page.evaluate(() => { window.__consoleSerial.pendingMissing = []; });
     await page.click('#connectFollower');
-    await page.waitForFunction(() => document.querySelector('#followerStatus').textContent.includes('已连接')
-      && document.querySelector('#jointActualValue1').textContent === '25.0°');
+    await page.waitForFunction(() => !document.querySelector('#startTeleop').disabled);
+    assert.deepEqual(await page.evaluate(() => window.__consoleSerial.motionWrites), [], 'Connecting alone must not issue an angle command');
+    await page.click('#startTeleop');
+    await page.waitForFunction(() => window.__consoleSerial.motionWrites.length >= 3);
+    assert(await page.evaluate(() => window.__consoleSerial.motionWrites.every(ids =>
+      JSON.stringify(ids) === JSON.stringify([0, 1, 2, 3, 4, 5]))), 'Touch to physical FL must leave the gripper channel untouched');
+    await page.click('#stopTeleop');
+    await page.waitForFunction(() => document.querySelector('#stopTeleop').disabled);
     await page.click('#disconnectAll');
     await page.waitForFunction(() => !document.querySelector('#connectFollower').disabled);
+    await page.selectOption('#leaderType', '102LD');
+    await page.check('#poseSourceLeader');
+    await waitModel('Star Arm 102-LD');
+    await page.check('#poseSourceFollower');
+    await waitModel('Star Arm 102-FL');
     // The trajectory page also changes the Follower type internally when its physical connect button is used.
     await page.click('#followerTypeVirtual');
-    await page.selectOption('#virtualFollowerModel', 'ld-touch');
-    await page.waitForFunction(() => document.querySelector('#modelLoadStatus')?.dataset.state === 'ready'
-      && document.querySelector('#displayedModelStatus')?.textContent.includes('LD'));
+    await page.selectOption('#virtualFollowerModel', 'fl-v3');
+    await waitModel('LumosTouch V3');
     await page.click('[data-tab="trajectory"]');
     await page.click('#flTrajectoryConnect');
     await page.waitForFunction(() => document.querySelector('#flTrajectoryConnect').disabled
@@ -170,6 +227,7 @@ const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
     console.log(JSON.stringify({ consoleSerial: true, ldAndHdAndFl: true, immediateAndOutOfOrderReplies: true, retryOnlyMissingIds: true,
       failedFirstFeedbackCannotReuseOldAngles: true, missingFeedbackSharedDeadline: true, disconnectAndReconnect: true,
       suppliedVirtualModels: virtualResults, virtualFollowerHasNoSerial: true, virtualLeaderFeedbackRendered: true,
+      touchLeaderReadsSixAxes: true, touchLeaderReadOnly: true, touchPhysicalFollowerLeavesJ7Untouched: true,
       physicalModelRestored: true, trajectoryRestoresPhysicalModel: true, hardwareTested: false }));
   } finally { if (browser) await browser.close(); service.kill(); }
 })().catch(error => { console.error(error); process.exitCode = 1; });
