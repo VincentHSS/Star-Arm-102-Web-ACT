@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Star Arm 102 · FL / LD 模型预览</title>
+  <link rel="icon" href="assets/logo-icon.png">
+  <link rel="stylesheet" href="src/urdf-preview.css">
+</head>
+<body>
+  <header><a href="index.html">← Star Arm 102 控制台</a><h1>FL / LD · URDF 模型预览</h1></header>
+  <main>
+    <section class="viewport" aria-label="三维模型"><canvas id="modelCanvas"></canvas><div class="overlay"><strong id="modelStatus" role="status">正在加载…</strong><p>拖动旋转 · 滚轮缩放 · 右键平移</p></div></section>
+    <aside>
+      <label for="modelSelect">模型</label>
+      <select id="modelSelect"><option value="fl-v3">LumosTouch V3</option><option value="ld-touch">Touch R1</option></select>
+      <p id="modelDescription"></p>
+      <p class="note">此处调整的是三维模型姿态，不连接串口、不发送实机动作。URDF 零位不等于编码器零位；实机跟随需要单独确认方向和零点映射。</p>
+      <div class="actions"><button id="resetPose">恢复 URDF 零位</button><button id="fitView">完整显示</button></div>
+      <p id="modelError" role="alert" hidden></p>
+      <div id="jointControls"></div>
+      <a id="urdfDownload" download>下载配套 URDF</a><p class="note">URDF 需与同目录 meshes 文件夹一起使用；完整网格已包含在网站和源码包中。</p>
+    </aside>
+  </main>
+  <script type="importmap">{"imports":{"./src/supplied_urdf_models.js":"./src/supplied_urdf_models.js?v=server-1.0.35","./src/supplied_urdf_mapping.js":"./src/supplied_urdf_mapping.js?v=server-1.0.35","./src/robot_model.js":"./src/robot_model.js?v=server-1.0.35"}}</script>
+  <script type="module" src="src/urdf-preview.js?v=server-1.0.35"></script>
+</body>
+</html>

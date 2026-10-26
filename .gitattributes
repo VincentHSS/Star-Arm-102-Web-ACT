@@ -18,3 +18,6 @@
 *.stl binary
 *.STL binary
 *.png binary
+
+# Preserve the exact delivered bytes and their SHA256 manifests.
+/delivery/** -text

@@ -1,0 +1,31 @@
+﻿验证日期：2026-10-23
+结果：20 项本地回归检查通过，0 失败。
+
+- 全部 91 份模型通过真实本地 HTTP 连续读取、完整性校验和 STL 几何解析，每份仅一次请求。
+- Lumos 整机资源请求数：旧版 125；新版首次 9；新版复用已校验缓存 0。
+- 中途断开能从已接收的字节之后继续读取；无数据超时、持续慢速传输正常。
+- 内存缓存、跨加载器的持久缓存复用、损坏缓存删除、缓存禁用 / 空间不足时回退正常。
+- 压缩资源缺失或损坏时回退原始 STL；HTML 回退不会被当成有效模型。
+- 模型切换取消旧请求、四并发上限、重复加载合并和失败重试正常。
+- 没有原生 gzip 流接口时仍能使用压缩快速读取流程。
+- ACT 和 Lumos 的动态安装包生成检查通过。
+- 210 份模型 / vendor 文件及全部安装文件与 v1.0.34 一致；139 处本地模块 / Worker 引用有效。
+
+以下耗时为本地运行，每次网络请求模拟 15ms 延迟，不是正式服务器实测，不保证现场耗时：
+{
+  "model": "LumosTouch V3",
+  "simulatedRequestLatencyMs": 15,
+  "requests": {
+    "old": 125,
+    "cold": 9,
+    "warm": 0
+  },
+  "measuredLocalMs": {
+    "old": 2320,
+    "cold": 183,
+    "warm": 151
+  },
+  "note": "Local comparison with a simulated per-request delay; not measured on the deployed server."
+}
+
+未在 Ubuntu 实机或实体机械臂上测试。

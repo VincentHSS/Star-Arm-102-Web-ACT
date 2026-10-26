@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta content="no-store, no-cache, must-revalidate, max-age=0" http-equiv="Cache-Control"/>
+<meta content="no-cache" http-equiv="Pragma"/>
+<meta content="0" http-equiv="Expires"/>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title data-delivery-en="Lumos Console" data-delivery-zh="Lumos 控制台">Lumos 控制台</title>
+<link href="./src/styles.css?v=1.1.2-i18n-trajectory-20261020" rel="stylesheet"/>
+<style>html,body{background:#0f1416}</style>
+<link href="assets/logo-icon.png" rel="icon"/>
+<link href="src/interaction.css?v=button-flow-1" rel="stylesheet"/>
+<link href="src/lumos-local.css?v=local-1" rel="stylesheet"/></head>
+<body>
+<main class="shell">
+<header class="topbar workspace-header console-header">
+<div class="brand">
+<img alt="" aria-hidden="true" class="brand-logo" src="./assets/logo-icon.png"/>
+<div class="brand-copy"><strong data-delivery-en="Lumos Console" data-delivery-zh="Lumos 控制台">Lumos 控制台</strong><small>Touch R1 → LumosTouch V3</small></div>
+</div>
+<div class="top-state"><a class="help-link" data-delivery-en="User guide" data-delivery-zh="使用说明" href="local-help.html" rel="noopener" target="_blank">使用说明</a>
+<span class="connection-light"></span>
+<span data-i18n="status.not-started" id="runStatus">未启动</span>
+<span class="version-badge" id="appVersion">v1.0.38</span>
+<div aria-label="切换语言 / Switch Language" class="language-switch" data-i18n-title="lang.switch" data-language="zh" id="langSwitch" role="group" title="切换语言 / Switch Language">
+<span aria-hidden="true" class="language-icon"><svg viewbox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18M12 3c2.4 2.5 3.6 5.5 3.6 9S14.4 18.5 12 21M12 3C9.6 5.5 8.4 8.5 8.4 12S9.6 18.5 12 21"></path></svg></span>
+<button aria-pressed="true" class="language-option" id="langZh" title="切换到中文" type="button"><span>中文</span></button>
+<button aria-pressed="false" class="language-option" id="langEn" title="Switch to English" type="button"><span>EN</span></button>
+</div>
+</div>
+</header>
+<div class="tab-view active digital-twin-workspace" id="teleopView">
+<aside class="left-rail device-region">
+<section class="panel controls" id="teleopControls">
+<div class="panel-heading"><h1 data-delivery-en="Devices" data-delivery-zh="设备连接">设备连接</h1></div>
+<div class="status-grid">
+<div class="status-card"><span data-delivery-en="Touch R1" data-delivery-zh="Touch R1">Touch R1</span><strong data-i18n="status.not-connected" id="leaderStatus">未连接</strong></div>
+<div class="status-card"><span data-delivery-en="LumosTouch" data-delivery-zh="LumosTouch">LumosTouch</span><strong data-i18n="status.not-connected" id="followerStatus">未连接</strong></div>
+</div>
+<div class="button-row connection-actions" id="standardConnectionActions">
+<button class="primary" data-i18n="btn.connect-leader" id="connectLeader">连接 Touch R1</button>
+<button class="primary" data-i18n="btn.connect-follower" id="connectFollower">连接 Follower</button>
+<button class="ghost" data-i18n="btn.disconnect-all" id="disconnectAll">断开设备</button>
+</div>
+<section aria-label="LumosTouch 校准" class="lumos-panel" data-i18n-aria="lumos.aria.panel" hidden="" id="lumosPanel">
+<header class="lumos-heading"><div><h3 data-delivery-en="Teleoperation" data-delivery-zh="遥操作">遥操作</h3></div><span class="lumos-badge" id="lumosPhaseBadge"><span data-i18n="lumos.badge.idle">待连接</span></span></header>
+<ol aria-label="遥操作步骤" class="lumos-steps" data-i18n-aria="lumos.aria.steps"><li data-lumos-step="connect"><span>1</span><span data-i18n="lumos.step.connect">连接</span></li><li data-lumos-step="calibrate"><span>2</span><span data-i18n="lumos.step.calibrate">校准</span></li><li data-lumos-step="run"><span>3</span><span data-i18n="lumos.step.run">运行</span></li></ol>
+<p class="lumos-status" id="lumosStatus" role="status"><span data-i18n="lumos.phase.idle">连接 Touch R1，再连接 LumosTouch。</span></p>
+<div class="lumos-stage" id="lumosConnectStage">
+<div class="lumos-stage-heading"><h4><span data-i18n="lumos.connect-follower">连接 LumosTouch</span></h4><small>Ubuntu · CAN</small></div>
+<div class="lumos-connect-fields"><label><span data-i18n="lumos.can-interface">CAN 接口</span><select aria-label="USB-CAN" hidden="" id="lumosCanDevices"></select><input autocomplete="off" id="lumosCanInterface" maxlength="15" value="can0"/></label><button class="ghost" id="lumosCheckService" type="button"><span data-i18n="lumos.check-service">检查连接</span></button></div>
+<div class="button-row"><button class="ghost" hidden="" id="lumosConfigureCan" type="button">配置 CAN · 系统授权</button></div>
+<details class="advanced-settings"><summary data-delivery-en="Connection settings" data-delivery-zh="连接设置">连接设置</summary><label class="lumos-hint"><span data-i18n="lumos.leader-baud">Touch R1 波特率</span><select id="lumosLeaderBaud"><option value="1000000">1000000</option><option value="921600">921600</option></select></label><label class="lumos-check"><input id="lumosTouchButtonEnabled" type="checkbox"/><span data-i18n="lumos.button-enable">启用实体按钮板</span></label><label class="lumos-hint"><span data-i18n="lumos.button-id">按钮板 ID</span><input disabled="" id="lumosTouchButtonId" max="253" min="7" step="1" type="number" value="7"/></label></details><p class="lumos-hint" id="lumosSdkGripper" role="status"><span data-i18n="lumos.service-check-hint">检查连接后确认夹爪型号。</span></p>
+<label class="lumos-check"><input id="lumosEnableConfirmed" type="checkbox"/><span><span data-i18n="lumos.enable-confirmation">已确认设备与工作区域安全，连接将使能电机。</span></span></label>
+<div class="lumos-action" id="lumosConnectAction"></div>
+</div>
+<div class="lumos-stage" hidden="" id="lumosCalibrationStage">
+<div class="lumos-stage-heading"><h4><span data-i18n="lumos.calibrate-pair">校准主从关系</span></h4><small><span data-i18n="lumos.capture-only">仅采集，不跟随</span></small></div>
+<div class="lumos-stage" hidden="" id="lumosSavedCalibration">
+<h4 data-i18n="lumos.reuse-title">复用上次校准</h4>
+<p class="lumos-hint" data-i18n="lumos.reuse-help">先将两臂和夹爪放回上次参考姿态。复用后仍需核对预览并点击开始。</p>
+<p class="lumos-hint" id="lumosSavedSummary" role="status"></p>
+<label class="lumos-check"><input id="lumosReuseConfirmed" type="checkbox"/><span data-i18n="lumos.reuse-confirmation">确认仍是同一套主从设备，安装、机械零位及夹爪型号未改变。</span></label>
+<button class="primary" data-i18n="lumos.reuse-action" id="lumosRestoreCalibration" type="button">检查姿态并复用</button>
+</div>
+<details class="lumos-details" id="lumosMappingSettings"><summary><span data-i18n="lumos.mapping">关节映射与方向</span><span><span data-i18n="lumos.expand-check">展开核对</span></span></summary>
+<label><span data-i18n="lumos.joint-map">Lumos J1–J6 对应主臂 ID</span><input autocomplete="off" id="lumosJointMap" value="0,1,2,3,4,5"/></label>
+<label><span data-i18n="lumos.directions">六轴方向（+1 / -1）</span><input autocomplete="off" id="lumosSigns" value="-1,1,1,1,-1,-1"/></label>
+<label><span data-i18n="lumos.gain">跟随增益</span><input id="lumosGain" max="1" min="0.01" step="0.01" type="number" value="1"/></label>
+<label class="lumos-check"><input id="lumosInvertGripper" type="checkbox"/><span><span data-i18n="lumos.invert-gripper">反转夹爪开合方向</span></span></label>
+</details>
+<div class="lumos-reference" id="lumosReferenceStage"><p class="lumos-hint"><span data-i18n="lumos.reference-hint">将两臂摆到对应姿态，核对映射后记录参考。</span></p><button class="primary" id="lumosCaptureReference" type="button"><span data-i18n="lumos.capture-reference">记录参考姿态</span></button></div>
+<div class="lumos-sampling" hidden="" id="lumosSamplingStage">
+<p class="lumos-hint"><span data-i18n="lumos.sample-hint">逐轴缓慢移动主臂，再记录夹爪的两个端点。</span></p>
+<div class="lumos-endpoints"><div><span><span data-i18n="lumos.closed-position">闭合位置</span></span><strong id="lumosClosedValue"><span data-i18n="lumos.not-captured">待记录</span></strong><button class="ghost" id="lumosGripperClosed" type="button"><span data-i18n="lumos.capture-closed">记录闭合</span></button></div><div><span><span data-i18n="lumos.open-position">张开位置</span></span><strong id="lumosOpenValue"><span data-i18n="lumos.not-captured">待记录</span></strong><button class="ghost" id="lumosGripperOpen" type="button"><span data-i18n="lumos.capture-open">记录张开</span></button></div></div>
+<button class="primary" id="lumosFinishCalibration" type="button"><span data-i18n="lumos.finish-calibration">完成校准，查看预览</span></button>
+</div>
+</div>
+<div class="lumos-stage" hidden="" id="lumosRunStage">
+<div class="lumos-stage-heading"><h4 id="lumosRunTitle"><span data-i18n="lumos.confirm-preview">确认目标预览</span></h4><small><span data-i18n="lumos.six-axes-gripper">六轴 + 夹爪</span></small></div>
+<div class="lumos-gripper-meter"><div><span><span data-i18n="lumos.actual-gripper">夹爪实际</span></span><strong id="lumosActualOpening">—</strong></div><span aria-hidden="true">→</span><div><span><span data-i18n="lumos.target-gripper">目标开度</span></span><strong id="lumosTargetOpening">—</strong></div></div>
+<div aria-label="LumosTouch 六轴目标预览" class="lumos-values" data-i18n-aria="lumos.aria.preview" id="lumosPreview">目标预览：—</div>
+<label class="lumos-check" id="lumosMappingConfirmation"><input disabled="" id="lumosMappingConfirmed" type="checkbox"/><span><span data-i18n="lumos.mapping-confirmation">已核对六轴与夹爪方向、目标预览，并将主从夹爪开度对齐。</span></span></label>
+</div>
+<details class="lumos-details" id="lumosControlSettings">
+<summary data-i18n="lumos.control-settings">跟随参数</summary>
+<label><span data-i18n="lumos.control-rate">目标频率 Hz（20～200）</span><input id="lumosControlRate" max="200" min="20" step="1" type="number" value="200"/></label>
+<label><span data-i18n="lumos.filter-min-cutoff">基础截止频率 Hz（0.1～50）</span><input id="lumosFilterMinCutoff" max="50" min="0.1" step="0.1" type="number" value="5"/></label>
+<label><span data-i18n="lumos.filter-beta">动态响应系数 β（0～2）</span><input id="lumosFilterBeta" max="2" min="0" step="0.01" type="number" value="0.15"/></label>
+<label><span data-i18n="lumos.filter-speed-cutoff">速度滤波截止频率 Hz（0.1～50）</span><input id="lumosFilterSpeedCutoff" max="50" min="0.1" step="0.1" type="number" value="5"/></label>
+<p class="lumos-hint" data-i18n="lumos.filter-help">参数在开始时生效，运行中不可修改。</p>
+</details>
+<details class="lumos-details lumos-readbacks" hidden="" id="lumosReadbacks"><summary><span data-i18n="lumos.readbacks">反馈与校准数据</span></summary><div class="lumos-values" id="lumosRange">六轴采集范围：—</div><div aria-label="LumosTouch 夹爪开度" class="lumos-values" data-i18n-aria="lumos.aria.gripper" id="lumosGripper">夹爪开度：—</div></details>
+<footer class="lumos-run-footer" hidden="" id="lumosRunFooter"><div class="button-row run-row" id="lumosRunActions"></div><p class="lumos-hint"><span data-i18n="lumos.reconnect-hint">停止或失联后，需重新连接并检查上次校准。</span></p></footer>
+</section>
+<p class="warning-note" hidden="" id="settingsError" role="alert"></p>
+<details class="debug-panel"><summary data-delivery-en="Communication log" data-delivery-zh="通信记录">通信记录</summary><pre data-i18n="debug.waiting" data-i18n-initial="" id="logs">等待连接串口...</pre></details>
+</section>
+</aside>
+<section aria-labelledby="robotSceneTitle" class="scene-stage robot-scene-panel model-region" id="robotScenePanel">
+<div class="scene-title"><h2 id="robotSceneTitle"><span data-delivery-en="Live view" data-delivery-zh="实时姿态">实时姿态</span></h2><strong class="model-load-status" data-state="loading" id="modelLoadStatus" role="status"><span data-i18n="model.loading">模型加载中…</span></strong></div>
+<div class="robot-scene-controls">
+<fieldset class="pose-source" data-i18n-aria="label.pose-source"><legend data-i18n="label.pose-source">姿态来源</legend><label><input id="poseSourceLeader" name="poseSource" type="radio" value="leader"/> Leader</label><label><input checked="" id="poseSourceFollower" name="poseSource" type="radio" value="follower"/> Follower</label></fieldset>
+</div>
+<div class="robot-viewport" id="robotViewport"><canvas aria-label="Star Arm 102 三维模型" id="robotCanvas"></canvas><div class="model-load-error" hidden="" id="modelLoadError" role="alert"></div></div>
+<div aria-label="视角工具" class="scene-tool-row"><button class="ghost" id="resetCamera" type="button"><span data-i18n="btn.default-view">默认视角</span></button><button class="ghost" id="fitCamera" type="button"><span data-i18n="btn.fit-model">适应模型</span></button><button class="ghost" id="fullscreenScene" type="button"><span data-i18n="btn.fullscreen">全屏</span></button></div>
+<div class="scene-legend"><span class="actual-swatch"></span><span data-i18n="legend.actual">实体姿态</span> <span class="preview-swatch"></span><span data-i18n="legend.preview">青色目标预览</span></div>
+<div class="scene-hud" data-i18n-aria="telemetry.real-time"><div><span data-i18n="telemetry.control">控制频率</span><strong id="teleopFrequency"><span data-i18n="telemetry.not-running">未运行</span></strong></div></div>
+</section>
+<aside class="right-rail control-region"><section class="emergency-dock safety-region" data-i18n-aria="safety.emergency-stop" id="emergencyDock">
+<div class="emergency-copy"><strong data-delivery-en="Emergency stop" data-delivery-zh="紧急停止">紧急停止</strong><p aria-live="assertive" class="operation-status" data-delivery-en="Stop control and disconnect devices." data-delivery-zh="停止当前控制并断开设备。" data-i18n-initial="" id="emergencyStatus" role="alert">停止当前控制并断开设备。</p></div>
+<button class="emergency-stop" data-delivery-en="STOP" data-delivery-zh="紧急停止" id="emergencyStop" type="button">紧急停止</button>
+</section>
+<div class="target-mode-view" data-target-mode-view="joint" id="jointControlView">
+<section aria-labelledby="jointSliderTitle" class="panel joint-panel joint-slider-panel" id="leaderAnglesPanel">
+<div class="section-heading"><div><h2 data-delivery-en="Joint feedback" data-delivery-zh="关节反馈" id="jointSliderTitle">关节反馈</h2></div></div>
+<div class="feedback-heading"><span data-delivery-en="Joint" data-delivery-zh="关节">关节</span><span data-delivery-en="Actual" data-delivery-zh="实时">实时</span><span data-delivery-en="Target" data-delivery-zh="目标">目标</span></div><div class="joint-sliders" id="jointSliders">
+<label class="feedback-row"><b>J1</b><output id="jointActualValue1">0.0°</output><output id="jointSliderValue1">0.0°</output></label>
+<label class="feedback-row"><b>J2</b><output id="jointActualValue2">0.0°</output><output id="jointSliderValue2">0.0°</output></label>
+<label class="feedback-row"><b>J3</b><output id="jointActualValue3">0.0°</output><output id="jointSliderValue3">0.0°</output></label>
+<label class="feedback-row"><b>J4</b><output id="jointActualValue4">0.0°</output><output id="jointSliderValue4">0.0°</output></label>
+<label class="feedback-row"><b>J5</b><output id="jointActualValue5">0.0°</output><output id="jointSliderValue5">0.0°</output></label>
+<label class="feedback-row"><b>J6</b><output id="jointActualValue6">0.0°</output><output id="jointSliderValue6">0.0°</output></label>
+<label class="feedback-row"><b data-delivery-en="Gripper" data-delivery-zh="夹爪">夹爪</b><output id="jointActualValue7">0.0°</output><output id="jointSliderValue7">0.0°</output></label>
+</div>
+</section>
+</div>
+</aside>
+</div>
+<!-- 舵机配置视图 -->
+<script src="./src/app.js?v=server-1.0.38" type="module"></script>
+</main><script src="src/delivery-ui.js?v=1.0.38" type="module"></script><div aria-hidden="true" hidden="True" id="inactiveControls" inert=""><p id="b601VirtualNotice"></p><button id="cancelFactoryRestore" type="button"></button><button id="cancelResetOrigin" type="button"></button><button id="cancelTarget" type="button"></button><button id="confirmFactoryRestore" type="button"></button><button id="confirmResetOrigin" type="button"></button><button id="confirmTarget" type="button"></button><button id="connectFactoryArm"></button><button id="connectResetArm"></button><button id="disconnectFactoryArm"></button><button id="disconnectResetArm"></button><strong id="displayedModelStatus"></strong><button id="enterSliderControl" type="button"></button><button id="exitSliderControl" type="button"></button><button id="exitTcpControl" type="button"></button><strong id="factoryArmStatus"></strong><dialog id="factoryConfirmDialog"></dialog><span id="factoryConfirmModel"></span><pre id="factoryLogs"></pre><div id="factoryManualPowerNotice"></div><select id="factoryModel"><option value="FL">FL</option><option value="HD">HD</option><option value="U25">U25</option><option value="U45">U45</option></select><span id="factoryProgressSummary"></span><div id="factoryRestoreView"></div><strong id="factoryStatus"></strong><input id="filterSize" max="100" min="0" step="1" type="number" value="30"/><input id="followerType" type="hidden" value="physical"/><button id="followerTypePhysical" type="button"></button><div id="followerTypeSwitch"></div><button id="followerTypeVirtual" type="button"></button><input id="jointInput1" max="130.06" min="-130.06" step="0.1" type="number" value="0"/><input id="jointInput2" max="179.91" min="0" step="0.1" type="number" value="0"/><input id="jointInput3" max="0" min="-179.91" step="0.1" type="number" value="0"/><input id="jointInput4" max="126.05" min="-89.95" step="0.1" type="number" value="0"/><input id="jointInput5" max="68.75" min="-68.75" step="0.1" type="number" value="0"/><input id="jointInput6" max="179.91" min="-179.91" step="0.1" type="number" value="0"/><input id="jointInput7" max="89.95" min="0" step="0.1" type="number" value="0"/><input id="jointSlider1" max="130.06" min="-130.06" step="0.1" type="range" value="0"/><input id="jointSlider2" max="179.91" min="0" step="0.1" type="range" value="0"/><input id="jointSlider3" max="0" min="-179.91" step="0.1" type="range" value="0"/><input id="jointSlider4" max="126.05" min="-89.95" step="0.1" type="range" value="0"/><input id="jointSlider5" max="68.75" min="-68.75" step="0.1" type="range" value="0"/><input id="jointSlider6" max="179.91" min="-179.91" step="0.1" type="range" value="0"/><input id="jointSlider7" max="89.95" min="0" step="0.1" type="range" value="0"/><strong id="jointSliderPermission"></strong><select id="leaderType"><option value="102TOUCH">102TOUCH</option></select><input id="loopInterval" max="100" min="0" step="1" type="number" value="20"/><details id="lumosLocalHelp"></details><p id="lumosTouchButtonStatus"></p><strong id="manualModeStatus"></strong><strong id="modelPermission"></strong><select id="physicalFollowerModel"><option value="LUMOS">LUMOS</option></select><label id="physicalFollowerModelField"></label><button id="previewTarget" type="button"></button><select id="rawLogEnabled"><option value="off">off</option><option value="on">on</option></select><strong id="renderFps"></strong><strong id="resetArmStatus"></strong><dialog id="resetConfirmDialog"></dialog><pre id="resetLogs"></pre><p id="resetOperationDetail"></p><span id="resetOperationIcon"></span><div id="resetOperationNotice"></div><strong id="resetOperationTitle"></strong><button id="resetOrigin"></button><div id="resetOriginView"></div><strong id="resetStatus"></strong><input id="responseTimeout" max="2000" min="100" type="number" value="800"/><button id="restoreFactory"></button><div id="servoSetupView"></div><details id="standardTeleopParameters"></details><div id="standardTeleopRunActions"></div><button id="startTeleop"></button><button id="stopTeleop"></button><strong id="targetAngles"></strong><p id="targetCalibration"></p><input id="targetDuration" min="1" step="1" type="number" value="800"/><dd id="targetError"></dd><dd id="targetIterations"></dd><strong id="targetPermission"></strong><strong id="targetSourceLabel"></strong><article id="targetState"></article><p id="targetStatusDetail"></p><strong id="targetStatusTitle"></strong><strong id="targetTcpResult"></strong><input id="tcpX" step="1" type="number" value="0"/><input id="tcpY" step="1" type="number" value="0"/><input id="tcpZ" step="1" type="number" value="0"/><p id="teleopPairingStatus"></p><div id="trajectorySceneHost"></div><div id="trajectoryView"></div><select id="virtualFollowerModel"><option value="fl-v3">fl-v3</option></select><label id="virtualFollowerModelField"></label><p id="virtualFollowerNotice"></p><span id="lumosSetupStatus"></span><span id="lumosInstall"></span><span id="lumosRetrySetup"></span></div></body>
+</html>

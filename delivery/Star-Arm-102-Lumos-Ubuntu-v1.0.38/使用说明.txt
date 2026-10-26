@@ -1,0 +1,32 @@
+Lumos 控制台 v1.0.38
+Touch R1 主臂 → LumosTouch V3 从臂
+
+运行要求
+Ubuntu 22.04 / 24.04，x86-64，系统 Python 3.10～3.12，Chrome / Edge。
+首次启动需要联网准备系统依赖和 Lumos SDK。后续复用已准备的环境。
+
+启动
+在解压目录打开终端，以普通用户运行：
+  bash start_ubuntu_lumos.sh
+等待准备完成，浏览器将自动打开。地址及端口以终端输出为准。
+默认从 18767 自动选择空闲端口，也可指定：
+  bash start_ubuntu_lumos.sh --port 18800
+
+CAN 配置
+停止控制并断开设备后，在另一个终端运行：
+  sudo bash configure_can.sh can0
+该脚本将指定 CAN 接口配置为 1 Mbps。实际接口不是 can0 时，请修改命令和网页中的接口名称。
+Touch R1 的串口波特率在“连接设置”中按设备配置选择。
+
+操作
+1. 连接 Touch R1，检查 LumosTouch 连接及夹爪型号。
+2. 确认设备和工作区域安全，连接 LumosTouch。
+3. 记录参考姿态、采集各轴范围和夹爪端点，完成校准；符合条件时可复用已保存的校准。
+4. 核对目标预览、方向与夹爪开度，手动确认开始。
+5. 结束时先停止并断开设备，再在启动终端按 Ctrl+C。
+同一台设备同时只使用一个控制程序。紧急情况使用页面停止按钮及现场硬件急停。
+
+数据
+校准数据默认保存在 ~/.local/share/star-arm-102/lumos/data。
+SDK 环境默认保存在 ~/.cache/star-arm-102/lumos/。
+软件升级无需删除这两个目录。

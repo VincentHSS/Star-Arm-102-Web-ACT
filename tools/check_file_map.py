@@ -180,6 +180,17 @@ def files():
 
 def purpose(path):
     relative = path.relative_to(ROOT).as_posix()
+    if relative == 'tools/check_latest_delivery.py':
+        return '核验两份完整交付源码的文件清单与 SHA256，不启动设备'
+    if relative == 'tools/package_latest_delivery.py':
+        return '将已核验的服务器版与 Lumos 本地版重新打包到 dist/latest-delivery'
+    if relative.startswith('delivery/'):
+        if path.name == 'manifest.json': return '最新交付版本、原 ZIP 信息与每个源文件的 SHA256'
+        if relative == 'delivery/README.md': return '最新完整交付的下载、运行与打包入口'
+        if '/assets/' in relative: return '完整交付所需的模型、压缩网格、前端库与许可资源'
+        if path.suffix == '.deb': return '随完整服务器包提供的 Ubuntu 本机组件'
+        if path.name in ('使用说明.txt', '部署说明.md'): return '该交付包的使用或部署说明'
+        return '对应已交付 ZIP 的原始源文件：' + path.name
     if relative in EXACT:
         return EXACT[relative]
     if relative.startswith('docs/images/'):

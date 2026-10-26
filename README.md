@@ -1,5 +1,25 @@
 # Star Arm 102 数字孪生平台
 
+## 最新交付版本
+
+[下载 v1.0.38 发布包](https://github.com/VincentHSS/Star-Arm-102-Web-ACT/releases/tag/v1.0.38) · [交付源码与使用入口](delivery/README.md)
+
+| 下载包 | 用途 |
+| --- | --- |
+| [Star-Arm-102-SERVER-FINAL-v1.0.35.zip](https://github.com/VincentHSS/Star-Arm-102-Web-ACT/releases/download/v1.0.38/Star-Arm-102-SERVER-FINAL-v1.0.35.zip) | 完整服务器版：控制台、ACT 工作台、模型资源和 Ubuntu 组件；包含模型加载提速与缓存 |
+| [Star-Arm-102-Lumos-Ubuntu-v1.0.38.zip](https://github.com/VincentHSS/Star-Arm-102-Web-ACT/releases/download/v1.0.38/Star-Arm-102-Lumos-Ubuntu-v1.0.38.zip) | Lumos 专用 Ubuntu 客户交付版：简化布局、保留控制与校准、自动选择本地端口 |
+
+通过 Code → Download ZIP 下载整个仓库时，最新交付版位于 `delivery/`。Lumos 本地使用入口：
+
+```bash
+cd delivery/Star-Arm-102-Lumos-Ubuntu-v1.0.38
+bash start_ubuntu_lumos.sh
+```
+
+以下为原开发工程与完整平台教程。直接部署或交付客户请优先使用上面的发布包。
+
+---
+
 平台集成 Star Arm 102 控制台与 ACT 工作台，提供机械臂控制、三维可视化、双相机数据采集、模型训练、模型导入与实机执行功能。
 
 **ACT 训练使用 Ubuntu；Windows 客户支持纯网页执行转换好的模型，无需安装 Python、PyTorch 或本机服务。** 网站可以放在服务器上，机械臂、相机、数据和 GPU 仍在客户电脑上。服务器不连接机械臂，也不执行训练。
@@ -29,7 +49,7 @@
 
 ## 我应该下载哪个？
 
-- **上传网站的运营者：** 到 [Releases](https://github.com/VincentHSS/Star-Arm-102-Web-ACT/releases/latest) 下载唯一的 `Star-Arm-102-SERVER-UPLOAD-ONLY.zip`。将其中 `服务器网页` 文件夹里的内容上传到网站目录，启用 HTTPS。无需填写发布配置或网站地址。
+- **上传网站的运营者：** 到 [Releases](https://github.com/VincentHSS/Star-Arm-102-Web-ACT/releases/latest) 下载 `Star-Arm-102-SERVER-FINAL-v1.0.35.zip`。将其中 `服务器网页` 文件夹里的内容上传到网站目录，启用 HTTPS。无需填写发布配置或网站地址。
 - **在电脑上运行源码：** 点击 GitHub 的 **Code → Download ZIP**，解压后按下面的 Ubuntu 或 Windows 步骤启动。它包含网站、后台和两种启动脚本。
 - **通过服务器网站使用 ACT 的客户：** 打开 ACT 第 1 步，在“配置采集连接”中完成首次 Ubuntu 组件安装；连接后即可采集。需要训练时再到第 2 步准备训练环境。客户不需要下载源码、填写后台地址或输入训练命令。
 

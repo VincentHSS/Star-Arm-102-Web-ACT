@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Star Arm 102 · ACT 网页执行</title>
+<link rel="icon" href="assets/icon.png"><link rel="stylesheet" href="src/act-workbench.css"><link rel="stylesheet" href="src/act-inference.css"><link rel="stylesheet" href="src/act-ui-refresh.css"><link rel="stylesheet" href="src/act-browser.css?v=web-act-4"><link rel="stylesheet" href="src/workspace-switch.css"><link rel="stylesheet" href="src/workspace-nav.css?v=20261020"><link rel="stylesheet" href="src/interaction.css?v=button-flow-1"></head>
+<body class="browser-act-page">
+<header class="browser-act-header workspace-header">
+  <div class="brand"><img src="assets/logo-icon.png" alt=""><div><strong>Star Arm 102</strong><small>数字孪生平台</small></div></div>
+  <nav class="workspace-nav" aria-label="工作区">
+    <details>
+      <summary><span><small>当前工作区</small><strong>网页执行</strong></span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 7 5 5 5-5"/></svg></summary>
+      <div class="workspace-nav-menu">
+        <a href="index.html" data-workspace-target="piper"><strong>控制台</strong><small>机械臂连接与实时控制</small></a>
+        <a href="act-workbench.html" data-workspace-target="act" data-native-workbench><strong>ACT 工作台</strong><small>数据采集、训练与模型管理</small></a>
+        <span aria-current="page"><strong>网页执行</strong><small>在浏览器中运行已转换模型</small></span>
+      </div>
+    </details>
+  </nav>
+</header>
+<main class="browser-act-shell">
+<section class="browser-act-head"><div><p class="kicker">ACT / CLIENT EXECUTION</p><h1>网页实机执行</h1><p>导入网页执行模型，连接双相机与从臂。计算在本机浏览器完成，无需安装 Python、PyTorch 或本机服务。</p></div><p id="web-execution-notice" class="web-status-message" role="status" hidden></p><b id="web-state" class="tag pending">等待模型</b></section>
+<aside class="browser-act-settings">
+<section class="panel"><header class="panel-head"><h2>01　导入模型</h2></header><div class="panel-body"><strong id="web-model-name">尚未选择模型</strong><small id="web-model-detail">请使用提供方转换好的网页执行模型包</small><button id="web-model-import" class="primary wide" type="button">导入网页执行模型</button><input id="web-model-file" type="file" accept=".zip" hidden><label>任务<select id="web-task"><option>等待模型</option></select></label><button id="web-calibration-import" class="secondary wide" type="button" disabled>导入本台从臂校准 JSON</button><input id="web-calibration-file" type="file" accept=".json" hidden><p id="web-calibration-status" class="form-status">按模型的坐标格式检查校准</p></div></section>
+<section class="panel"><header class="panel-head"><h2>02　双相机</h2></header><div class="panel-body"><button id="web-detect-cameras" class="secondary wide" type="button">检测浏览器相机</button><label><span id="web-camera-label-0">第一路相机</span><select id="web-camera-0"><option value="">先检测相机</option></select></label><label><span id="web-camera-label-1">第二路相机</span><select id="web-camera-1"><option value="">先检测相机</option></select></label><div class="device-actions"><button id="web-connect-cameras" class="primary" type="button" disabled>连接双相机</button><button id="web-close-cameras" class="ghost" type="button" disabled>关闭</button></div><p id="web-camera-connection" class="form-status" role="status" hidden></p><p class="form-status">按模型视角选择设备；双路视频会直接提供给网页策略。</p></div></section>
+<section class="panel"><header class="panel-head"><h2>03　连接从臂</h2></header><div class="panel-body"><div class="device-actions"><button id="web-connect-arm" class="primary" type="button">选择并连接从臂</button><button id="web-close-arm" class="ghost" type="button" disabled>断开</button></div><p id="web-arm-status" class="form-status">Chrome / Edge 会弹出串口选择窗口</p><p class="form-status">使用真实从臂端口；连接只读取 J1–J7，点击执行后才锁力并发送动作。</p></div></section>
+</aside>
+<section class="browser-act-stage">
+<section class="panel browser-act-vision"><header class="panel-head"><div><p class="kicker">SYNCHRONIZED VISION</p><h2>双相机实时画面</h2></div></header><div class="browser-act-cameras">
+<article><video id="web-video-0" muted playsinline></video><div class="web-camera-empty"><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="8" y="14" width="32" height="24" rx="6"/><path d="m17 14 3-5h8l3 5"/><circle cx="24" cy="26" r="7"/></svg><b>等待第一路相机</b><small>连接后实时画面将在这里显示</small></div><footer><span id="web-video-label-0">CAMERA 01</span><b id="web-video-status-0">未连接</b></footer></article>
+<article><video id="web-video-1" muted playsinline></video><div class="web-camera-empty"><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="8" y="14" width="32" height="24" rx="6"/><path d="m17 14 3-5h8l3 5"/><circle cx="24" cy="26" r="7"/></svg><b>等待第二路相机</b><small>连接后实时画面将在这里显示</small></div><footer><span id="web-video-label-1">CAMERA 02</span><b id="web-video-status-1">未连接</b></footer></article>
+</div></section>
+<section class="panel browser-act-wave"><header class="panel-head"><div><p class="kicker">OBSERVATION / COMMAND</p><h2>Action / State 多通道时序</h2></div><span id="web-wave-state">等待真实反馈</span></header><div><canvas id="web-waveform"></canvas></div></section>
+<section class="panel"><header class="panel-head"><h2>真实关节反馈与动作</h2></header><div id="web-joints" class="inference-joints"></div></section>
+</section>
+<aside class="browser-act-inspector"><section class="panel"><header class="panel-head"><h2>04　执行检查</h2></header><div class="panel-body"><div id="web-gates" class="inference-gates"></div><button id="web-validate" class="secondary wide" type="button" disabled>校验设备与模型</button><p class="form-status">校验使用真实图像和关节反馈预热模型，不向舵机发送动作。</p><label class="web-confirm"><input id="web-confirm" type="checkbox" disabled><span>确认校准属于当前从臂，两路视角与训练一致；运动范围无障碍，已扶稳机械臂。启动按原版流程解除锁力、清圈后再锁力执行，可随时停止。</span></label><button id="web-start" class="primary wide" type="button" disabled>开始网页 ACT 执行</button><button id="web-stop" class="danger wide" type="button" disabled>停止执行并卸力</button><p class="form-status">执行期间保持此页面在前台。切换工作区、进入后台或设备失效会停止执行。</p></div></section>
+<section class="panel"><header class="panel-head"><h2>实时性能</h2></header><div id="web-performance" class="inference-performance"></div></section><section class="panel"><header class="panel-head"><h2>当前状态</h2></header><button id="web-download-diagnostics" class="secondary wide" type="button">下载运行诊断</button><p id="web-message" class="web-status-message" role="status">请先导入网页执行模型；客户无需下载 Ubuntu 组件或准备 PyTorch 环境。</p></section></aside>
+</main><script type="module" src="src/act-browser-app.js?v=server-1.0.35"></script><script type="module" src="src/workspace-switch.js?v=server-1.0.35"></script><script type="module" src="src/workspace-nav.js?v=server-1.0.35"></script></body></html>

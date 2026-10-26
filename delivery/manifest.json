@@ -1,0 +1,1861 @@
+{
+  "release": "v1.0.38",
+  "packages": [
+    {
+      "kind": "server",
+      "version": "1.0.35",
+      "directory": "Star-Arm-102-SERVER-FINAL-v1.0.35",
+      "archive": "Star-Arm-102-SERVER-FINAL-v1.0.35.zip",
+      "archive_sha256": "3628ea481589e660ef9018ebcd89e1418233268c8063cc05cf74b75c1a54b528",
+      "archive_bytes": 75789262,
+      "files": [
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/SHA256SUMS",
+          "sha256": "0c4bc3d83e6da04317c37277672098fffe061a89ef83a2c173b8f9088e8bd61e"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/Ubuntu安装包/star-arm-act_1.0.23_fashionstar_all.deb",
+          "sha256": "224f4833ba88ae5bf8414597dfa5900cc3e07791e275abcd71325c114daf6ae7"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/Ubuntu安装包/star-arm-lumos_1.0.32_fashionstar_amd64.deb",
+          "sha256": "29729b17ec1dde916559889aeb1fddc4f613cfbd08d755d859e25b53327d004a"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/修复说明.txt",
+          "sha256": "a4344c19d4257363c11fffb6d84c31706e6712f2461f7ff696260a0c784f1d23"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/性能对比.json",
+          "sha256": "3c79899cef23642fd831350e58fdca5fd7a0f31264366c8855ac8ebc468941d8"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/act-browser.html",
+          "sha256": "efe3bc002ca1a027a966f31b047609e1fc8e3bbaf7b6ed6002e823498d0bdbe6"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/act-workbench.html",
+          "sha256": "94a935c137d66df360f296d592a718f2812695e08ce478d823b062bbf39aeb35"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/icon.png",
+          "sha256": "d3d5e025122e7492743d740e07d8eff7f4536abd90490f504d127205381c5919"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/logo-full.png",
+          "sha256": "7c07a41337848c5e1658016cd3e094ae9e81c7b67b7f60de0dd84d1d761e499e"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/logo-icon.png",
+          "sha256": "913c8583b3121a9c8fb542fb1e8f68dc3a4b21d7452dadecdc68c4e91eb43732"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/logo.svg",
+          "sha256": "f3ce93a67f9345990c416286320a3965d9f7d9baa32db80c3b37953595b6890b"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/011d60e7ac091d136a2ecb98.bin",
+          "sha256": "f2c2027c31abc98ff93d77c3ef532132625e05077b8ac4332c7cd2a2d16d8ecf"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/0d413a2d34b308d42827e8b3.bin",
+          "sha256": "06cdc5f2536568ab97c02f239117ccd041b1c16f19181fb70e19c8c279f4bf05"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/0e5a266d6513a5c31ed1df0b.bin",
+          "sha256": "e25ee5d659334afedb73318a74dfea514bc536913a9b043f7648c2d854b7dc7c"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/0f6f96a3c94cdf559211ff81.bin",
+          "sha256": "a3500d5a4f60bd8467318ea9b400107109d63577b135383bafe51ba59397dd2e"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/0f8b91792f6f95789f355417.bin",
+          "sha256": "8a355f8ced9e90fee816b2739035181f029b3f163f116bee55d3f6079b0fe0a8"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/1498c42b0b86dea8d1577c18.bin",
+          "sha256": "c19d8196ead5971ea1baa73c01a7fa510d53e5d5d85633e910f276d5706a84d8"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/14d98e291f5eb20ce50886fc.bin",
+          "sha256": "bcc6c496212bcdad0d2c351a3856cb772937f74e165f4030b11b7668ba240dd0"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/150dc8302b45a792d4747f99.bin",
+          "sha256": "fbe9c1dc5e49c1568e1277cc5169cf959f1c74b93f38fe3fca2b9a589ca5e87c"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/153e3e4b641d01a3a358f59c.bin",
+          "sha256": "0a94b754a885843768ea6bdafae4227bf6c7e540f6fa8c9eaa5908e50557a16b"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/16885044f34f446f3ce7dc50.bin",
+          "sha256": "55df80935cf10383c6e3ff5dbb3981ac341a0e6069ad10ceee18371da198b693"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/1929795251e54eac510d1191.bin",
+          "sha256": "f7796ee430951959eae0b12ac78eb2fd24bdfba7603cb8145b46b9835c7c1ab5"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/19ea62cabf41394d4de0ce44.bin",
+          "sha256": "14df5014d4bceb9b9591dc469683a1f8bd390192be7e1218b56a621376e91c55"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/1f0597552846719e14f8ae3c.bin",
+          "sha256": "333abac5760000266417832bf1968164780ced806758d392f3e877e9cdb4fa4f"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/28fe89bb57944f81e98ed11a.bin",
+          "sha256": "3e89d85c77f80ccbf6155987d1e0c0db6c88567d041750479e5dec17e8a8ac54"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/2e95471e686c3a8f79be501e.bin",
+          "sha256": "927bbb2e122b34f7a55feaf7c7c7e07a2ad02ccd1e069f9d281eae61e36fc65f"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/314a0499f6290ecc7a26e672.bin",
+          "sha256": "53aac9300cb546b07c7aa894436d1ff291469fad4580b1958dc648799d928534"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/33fc9ebe2654cc27d47edd97.bin",
+          "sha256": "b92c5c141b1757a0572c385a3c41aa93348808a9a6fee0bb6ff9be3721006d3b"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/369d6dbaf8c2506bcb594f35.bin",
+          "sha256": "63960762826da1bf716b4b78cee7002aa2a3d869023886a6ef7ddc8bf0fb6c88"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/38735343df6f709e83edc914.bin",
+          "sha256": "0f221e9da3dc84ffa3c3191d2485ae7b8e42a27ee1de0449a7c483a27f508059"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/3a2da70ca32a76275ca2f68e.bin",
+          "sha256": "22e0bbbfa8ccdda67191e8e0c79a4289e15f5f5ad2f02a07848579b7b03b02c4"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/3a87d05e1afb964c8f7f6318.bin",
+          "sha256": "e61bfdfb8ec1ba2c70de5ed959f344ee77255ecd06092776cae47644979a05fa"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/3ad75b62388108b0792028df.bin",
+          "sha256": "0f79e422e561951bf007ce441776e11c6f292c019eeb86c1529682dffe9d7a9a"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/3b9dffb0878c92ca86dcad69.bin",
+          "sha256": "24bd9e2c164a69057e4b0fd7f57a5e0ff5508bbeb28b5a3b512f137f432afb3f"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/3dc33c484f02966f43c37b38.bin",
+          "sha256": "e6c379c4fb81c0dba41cbad22c316f494c3202267ea6dbf1ec87c31326e3005c"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/41db37ff64edfa42ec551721.bin",
+          "sha256": "45903b231ea3ab644db40026000fcd7865d7a885a53093b3637338ce5d3c2c9b"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/46d307ee511515271a4065ab.bin",
+          "sha256": "ff9fc2204b4c3a89e65be23637f5d615ffc0303397b8f1881c67e07285bfde0e"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/49f5dfc86ffe7e2a3742708c.bin",
+          "sha256": "2c386c55f78d02509231cac33f28e5e031dca8faecb1668c4b3ca4b20ff0179a"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/4a5daada45f7092ad03fba80.bin",
+          "sha256": "8897efeddfc80fc88b4c654e34c690dd59097f07b1ffac955f4389b28125cc8f"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/4a9513dc4faf2c58a23843c2.bin",
+          "sha256": "ad4d8e81eac798fc74bea4168e3e147ac2358b767cc02d521708d5f6b00b309d"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/54b36ed6c5d1a5d1e05947d2.bin",
+          "sha256": "d4cbff35c3f73f2432e44f4093fcf5500b2840420a30a1d3e0f9c7f635cd17f5"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/5908fbb54b3a400bb983ed7e.bin",
+          "sha256": "32ef5ff2d2233bdf76f247bdc216bbaa64a36d55e16009340bde12af949c49a2"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/5d297c1ee35603e618b45179.bin",
+          "sha256": "621932134525e7c57f23b59e18c1d478f0f348fb6bbf94363df278b5c4a859a9"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/5d43061373941a9c5760b472.bin",
+          "sha256": "c5484e571c40753197062deb466148a54164209a3adbe8aa6506ffc31a3039c9"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/5e6d36082999a25c352d4d82.bin",
+          "sha256": "3f63903b0248737e42aac455178f27d57a9d788f8a2f254868d7e1dc88029196"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/615b119c0bb97a032badd588.bin",
+          "sha256": "090c2ea5c89bcbe98d608af87eefdcdba2e50d8cabfe7aa95d32ee539363f1e9"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/6315a8ae1c03a2806f9e3ade.bin",
+          "sha256": "3f493a8db49ec1c255b42491ce39e4fd1f584412a07dddf6bdefd24d71e8290b"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/6b91d251eb5b96f0ba9b8a1f.bin",
+          "sha256": "94802aa5d897b843f48c9beaa4f6a609b179eb982032ec982a1967ca0bb39058"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/6c26b6b68fd6b2dfe76fc7e5.bin",
+          "sha256": "49b02312d60f186cb615d7e9adcc411013441ed1eb49768872fc495a76bdacf9"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/737afd2cc87651ed3a2e7a56.bin",
+          "sha256": "f381ba43349a1d5eb89ff1f23da50abcb6606766fbed9a91da4585a3ecb0cd8c"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/783383016dbe0a258bd94e7f.bin",
+          "sha256": "b1eda439a17db97a3d36c9dbaa1b144fb4ce8cc30bc3718026f492bd6f401788"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/7aa96b31802154e931f0182d.bin",
+          "sha256": "45339266db3ab3ee08339b999342284a7a98174d8e73427d34bcf3e50828f2d2"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/7ae5bb8843726cab85befab7.bin",
+          "sha256": "a32185691ca39ec756e1ff2191eb380de18d44edf3db572b033cfc1915f01cff"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/7c696afbc51a0e35d9f84701.bin",
+          "sha256": "0e5bb65c7cd85482ab83bcc441b834e1cc7242413708e7b1c5094669effd323c"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/86123a0fae9912548c9b3f0b.bin",
+          "sha256": "d78e3a45b40ea250da6f2c96cf8c49d1cbbd41c669aaa41a1ef121746c12fcfa"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/89c8d6d4facb21a00e8c9568.bin",
+          "sha256": "6ba67e5b3950b9c5f29b203ec8a0f79cf780a8ac8642007f1aabbede5fe9985d"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/8a92b987c41998e9edca22d9.bin",
+          "sha256": "b52b9494e1f09f7e6bafa4e96cf2d41fc8af2a162969390c9a401da6c81e2cca"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/936ccf707ef974c7fd322dae.bin",
+          "sha256": "c5f0528e1a330feb2c0e066e57690ee99b64ba875950411c8f9061f53dd0c0f3"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/95364d6a7008b62fe173f447.bin",
+          "sha256": "15de268c4b8134dc15c6a4cbd6f020bb0c4be2a109116d13a3d0128f6a30abf3"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/9662aae35b537db3b1f818e9.bin",
+          "sha256": "013bfa3795cdba8c6f9846fe751db58ebadb5c9326982822877fb637cafcce25"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/99b7c0c7993fada7a710ec4c.bin",
+          "sha256": "d94874015eee37ae1527d77325ba80ed5713debd3b69eca6b37a7b455565b097"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/a007ba1c0b0f9cb7da617b21.bin",
+          "sha256": "d2debff8566a20b2b1c2efff1e296face96f0272031d928e3409bcc01955f8cb"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/a29384cf225b638d37191443.bin",
+          "sha256": "1c91f49916ef2cbd20809fdb0fa194372740a7ea45f22e8a729e29c8bcf18154"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/a60aa8f59f4971b0ea19fc02.bin",
+          "sha256": "7f8dd079ddd0a1e57670aebaa5575c3db3768b300d600cd54d57aebc19fc481e"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/a723d1cdaf2b37fbd54135d5.bin",
+          "sha256": "bda2c352e07e24763f7590f4dc841f739e4efa8421728481863787c5b5a33b40"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/a780fc48dc8fd680e6e57fed.bin",
+          "sha256": "0e6f41e150d3a586e73e9ce4325beb3a8d5d3da029a8980dbccdc2b51100ce0f"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/a826e164d420a6922e8ad5ee.bin",
+          "sha256": "44f5e78e03c51b24f7d7c0134e93163ae05c7185bfefdaa7ae014efe1867d978"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/a8756dccb320ded3cb8d54bb.bin",
+          "sha256": "27c08f2f153d13b496880ef545f05757135ee829f886220166fc0be84259d37f"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/af16c8c513257d2b6a4a474e.bin",
+          "sha256": "152d7de22515d297ba1409a34268fdd7ec77e265ca2dd590cccf4a20d1a9582b"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/b262c751b23bce51dee582bb.bin",
+          "sha256": "0ca5a832084acf866ee88956046f640e714a8546c2657fa1075f37da53afab69"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/bae9a1daf0961cacb9e1f2e7.bin",
+          "sha256": "76c0db8bc68e859dab89e165c9dcc6670d176be358c0ef5c8387be37d81b45b3"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/c47a3c9ffdce6bc6c9a1cf21.bin",
+          "sha256": "049ae2c2b5fd6350174717099d5edcd9cc839624dceb3947561c14e2e4b20308"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/c4a1991228cdce0eedaceb9a.bin",
+          "sha256": "129f1e717715d18ab798dcf2150443a3658709cb2f54e22ff4b8e06356fc785e"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/c4e0de70f776b3573d975a6e.bin",
+          "sha256": "053dd824819aac3f895fdfeb7f44f6b614b76f556e5ca3cb170bf9ae494c34a7"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/c586a7d0b8345d2cd32eab7d.bin",
+          "sha256": "b3471392e0e4eb5a253d0a9791d989541dbf233157f34ca86ce319c6801e7453"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/c9db30dbdf8be27a648cd9f9.bin",
+          "sha256": "9fc8308cf9eaee283246639fd6e111db387563481c6c725e24a71f2d28de34b7"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/d456136c7041d4f7f0773394.bin",
+          "sha256": "c9f9b27b100266336fa29831e20eaea2e8dfedc4d4b074b35056a8fc42647803"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/d992996403392f606a0204bc.bin",
+          "sha256": "a239861570a60b9c630cb47629d56a2965d1ef76df4995c794ce4e2d8fcfcb31"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/da8d3bd051d39ba13b25636f.bin",
+          "sha256": "28f999989a56431d41475f61ae5a7af0b8902e5fd08c6f84a9515eef7113fba2"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/de6bd12937e6464399589aa1.bin",
+          "sha256": "76718588701b337b359fa55cd7a7a3b86da2bff0ee0f0523fdce2064a5330973"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/e0fa3550a433a40755c4a8c8.bin",
+          "sha256": "f9901fb090db634149bd77dcc0a4c3a8be9ede8de19b8b1bfa480fd4256b4db8"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/e169edfc6174d761048f20e6.bin",
+          "sha256": "ec21b44986579fd7815f5e9c50d33d930312c4b9dc760c286ab2d4df37fa98d7"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/e264dd2a1972ba91828c0e11.bin",
+          "sha256": "c67a738a3a59d8745131d2c6f5b7c6baa0018a35459968afc87fd2b88996db2a"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/e2ffe5fd1fdd8a68324f9b96.bin",
+          "sha256": "f6d95ae50b6f3997a65f04f1307b4d9c5457bbe2327535c2dfc64195840be89f"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/e3a17a84782a49483710ca95.bin",
+          "sha256": "93398b3c4948d8036e9ce18139c32543c1a88da7199d2e6c9258e8abb7bd898b"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/e8a1bcadd6ab0e38dc9aee9c.bin",
+          "sha256": "c5f740ae15a2afdbeddceb430206489a87984d3f4928ac39c1fa58a5b5ee53a2"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/ecebb8bb5f7277558c1438f5.bin",
+          "sha256": "d0c6ea170943ec659567b64e0b526a1d28339ac7a657a8504e042fd94bc13cb4"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/ed12189c36429cd09ae227ed.bin",
+          "sha256": "71ca71ddc0a50169f2fecca40030520a1bf7731582171419d1268d6023cd766e"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/f094eef2d183150a5f232b66.bin",
+          "sha256": "d41b2d39a1ad9527e5022c705e726e7f11ccc8a7da0b3be98b4fafd97ce10b25"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/f0bfdd48fc91b37f3156b290.bin",
+          "sha256": "7c49ad2670a6bff8e738adcc7b255159250ea5e575d81b1eb546df934adf186c"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/f2ccbbe8089679c3ddcdcf44.bin",
+          "sha256": "b1b4ecc4750eae379ac25010c259bd13344ff6cfb4de9a14e59a7384a849eb38"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/f654297bb71c6985c61e4910.bin",
+          "sha256": "f261af09bdafc92b4f5bfbabe61835eec5ea44ff653571dcd38c9244e71e0910"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/f98aececf6324771940be38f.bin",
+          "sha256": "c866f78d3ad9ebe5ef55aecf919a5b02dffd3eada998f2ad79ef096d514fdb50"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/f9a97922bc6bf86ac513e8a2.bin",
+          "sha256": "9a6ad66fe688bdbfe25ccf01828f74a6edc1bbbea63a6f7537514c7ea4e3b12e"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/fb97e1d6640aff33130fc216.bin",
+          "sha256": "df67e5d1ee53a9462025eeee0f490adfc366c8eda9e2a4a0002ed0a082e17d3a"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/mesh-data/fc4a15dba7732ae4fb632ab0.bin",
+          "sha256": "8e0131dff12a2957f2a72eef37356c4b934cf7d30149c1de4e8b1cface3ae217"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/models/a1z/arm_link1.STL",
+          "sha256": "8a92b987c41998e9edca22d9eca991fb8f85789060e59dfc8ffb0000c39b2756"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/models/a1z/arm_link2.STL",
+          "sha256": "38735343df6f709e83edc91432ad7880456cdc32af9f50df651d7eaa62cdb06f"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/models/a1z/arm_link3.STL",
+          "sha256": "6b91d251eb5b96f0ba9b8a1f875ff204627b54dd596529ce5c8f6f3eed538c89"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/models/a1z/arm_link4.STL",
+          "sha256": "da8d3bd051d39ba13b25636f243b5f0898009ca1656b5efbd226be80b1a8f410"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/models/a1z/arm_link5.STL",
+          "sha256": "737afd2cc87651ed3a2e7a56aedb1190b256cbfe1b68339b30cc04efe787ef18"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/models/a1z/arm_link6.STL",
+          "sha256": "5908fbb54b3a400bb983ed7efe0df1cdf3d27c310608b7f4c82db504aeb9b52b"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/models/a1z/base_link.STL",
+          "sha256": "3ad75b62388108b0792028dfaadb65e8cbb7e8698042d5c270f566808a479345"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/models/a1z/gripper_finger_left_link.STL",
+          "sha256": "f9a97922bc6bf86ac513e8a299739e612e93c9721ee7f7f443e194b0a09273bd"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/models/a1z/gripper_finger_right_link.STL",
+          "sha256": "1498c42b0b86dea8d1577c188f409f1aac40a5104a1fdf27c4a2899acc6178c6"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/models/a1z-gripper/arm_link1.STL",
+          "sha256": "8a92b987c41998e9edca22d9eca991fb8f85789060e59dfc8ffb0000c39b2756"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/models/a1z-gripper/arm_link2.stl",
+          "sha256": "38735343df6f709e83edc91432ad7880456cdc32af9f50df651d7eaa62cdb06f"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/models/a1z-gripper/arm_link3.stl",
+          "sha256": "6b91d251eb5b96f0ba9b8a1f875ff204627b54dd596529ce5c8f6f3eed538c89"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/models/a1z-gripper/arm_link4.stl",
+          "sha256": "da8d3bd051d39ba13b25636f243b5f0898009ca1656b5efbd226be80b1a8f410"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/models/a1z-gripper/arm_link5.stl",
+          "sha256": "737afd2cc87651ed3a2e7a56aedb1190b256cbfe1b68339b30cc04efe787ef18"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/models/a1z-gripper/arm_link6.stl",
+          "sha256": "e0fa3550a433a40755c4a8c8f2e9a8b369052b7ab8836f5c44c36554a90a4422"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/models/a1z-gripper/base_link.stl",
+          "sha256": "3ad75b62388108b0792028dfaadb65e8cbb7e8698042d5c270f566808a479345"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/models/a1z-gripper/gripper_finger_left_link.stl",
+          "sha256": "f0bfdd48fc91b37f3156b290fc5947ff54cd3e09a47c568ccc2bd53c984b916e"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/models/a1z-gripper/gripper_finger_right_link.stl",
+          "sha256": "7ae5bb8843726cab85befab71ef456f26d437ee313427fd193f25857b590cf27"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/models/b601/base_link.STL",
+          "sha256": "14d98e291f5eb20ce50886fcbc99427606a46ea5cc60fe3e89326e7c45b3d73f"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/models/b601/end_link.STL",
+          "sha256": "153e3e4b641d01a3a358f59c6a8b3e079e5c2aef97de1f2dc1fa047407d88dd5"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/models/b601/link1.STL",
+          "sha256": "33fc9ebe2654cc27d47edd97fb90b13d2611ed2eba734332b9110d93c24cc25d"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/models/b601/link2.STL",
+          "sha256": "3dc33c484f02966f43c37b38d848669d31018140a56e3ac5c9366add36cc3fa0"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/models/b601/link3.STL",
+          "sha256": "783383016dbe0a258bd94e7fffb66c7056c9aa9dd42b61e5abb24cb228a99035"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/models/b601/link4.STL",
+          "sha256": "95364d6a7008b62fe173f447219c2ce2cd2e6f0882997374cb1d8f60652c5848"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/models/b601/link5.STL",
+          "sha256": "19ea62cabf41394d4de0ce4437298484227f37fe5e0f99c20cea2d260ede45e8"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/models/b601/link6.STL",
+          "sha256": "6315a8ae1c03a2806f9e3ade2ca7e8740f34dfe05898fc02b620b0a2e459546a"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/models/b601-gripper/gripper_left.STL",
+          "sha256": "c4e0de70f776b3573d975a6eaaa746cccbe57c2d5bb12501da8889979d3af268"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/models/b601-gripper/gripper_link.STL",
+          "sha256": "a826e164d420a6922e8ad5ee27813f39fa809f6e4fdf39b42fd8a59e7d12e847"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/models/b601-gripper/gripper_right.STL",
+          "sha256": "615b119c0bb97a032badd5882144e4a2a50c905a3e071af1fa28b83bfe9b1b65"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/models/b601-gripper/link6.STL",
+          "sha256": "c586a7d0b8345d2cd32eab7dfd2e334aba56e83f582a6298d41bbf718f2ebef1"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/models/fl/base_link.STL",
+          "sha256": "16885044f34f446f3ce7dc5053ef4bc9ff031d841a37c21cd218f3a1654aa2f3"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/models/fl/link1.STL",
+          "sha256": "f98aececf6324771940be38fc198be61caca6a9fcde3201e62282e728e4b44ff"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/models/fl/link2.STL",
+          "sha256": "f2ccbbe8089679c3ddcdcf44d140f75cb5715a6b1b9514be97c2291b8f8820d3"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/models/fl/link3.STL",
+          "sha256": "a007ba1c0b0f9cb7da617b21e784c13391ba363450ee31da27c6a20cdc50e6df"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/models/fl/link4.STL",
+          "sha256": "d456136c7041d4f7f0773394f3ca1650e2909a31d0ff7b41a74fe78ac6a34d4e"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/models/fl/link5.STL",
+          "sha256": "a29384cf225b638d37191443a5db8d1b5015f3593e6400774392b6063134348b"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/models/fl/link6.STL",
+          "sha256": "e2ffe5fd1fdd8a68324f9b963bf6fde1895ed3e91fc9895fbbbc989957b59a59"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/models/fl/link7_left.STL",
+          "sha256": "5e6d36082999a25c352d4d825ba17ed95755d25e4199b170fa69007125e4cf51"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/models/fl/link7_right.STL",
+          "sha256": "e8a1bcadd6ab0e38dc9aee9c8b55669d728d720404b692a6ef71a15daeee5396"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/models/ld/base_link.STL",
+          "sha256": "ecebb8bb5f7277558c1438f5d9079076773fa3bdffd2082b70c4d27ffebf8846"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/models/ld/link1.STL",
+          "sha256": "e3a17a84782a49483710ca95355aede417f92f54b008640bc95cbb4f216ff6f1"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/models/ld/link2.STL",
+          "sha256": "7c696afbc51a0e35d9f84701986d09f11087c2e711b75f0750016a7013f6d810"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/models/ld/link3.STL",
+          "sha256": "1929795251e54eac510d11914bac94717ff8d75ecdf0b5525e4827cadcfd1e21"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/models/ld/link4.STL",
+          "sha256": "314a0499f6290ecc7a26e6725c779b03ecbde98d20fd0ce5ba5a5896c7f0a124"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/models/ld/link5.STL",
+          "sha256": "89c8d6d4facb21a00e8c9568e9f579fdfb9e5aac1954354d4cd6d4c0bb760eaf"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/models/ld/link6.STL",
+          "sha256": "7aa96b31802154e931f0182dc7500eda7dd4c326e7dcea93f0f27987336156ef"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/models/ld/link7_left.STL",
+          "sha256": "e264dd2a1972ba91828c0e11e940c5cff06d1a3ca386446937a1b0b63ec5eef1"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/models/ld/link7_right.STL",
+          "sha256": "99b7c0c7993fada7a710ec4c7329c6153ce477b9f68d41fc06501fc48ee4deab"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/models/piper/base_link.STL",
+          "sha256": "e169edfc6174d761048f20e6444672f2d535c26cfc238e90868cd4e226ab59a6"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/models/piper/link1.STL",
+          "sha256": "41db37ff64edfa42ec55172100c1c40e70591aa497088a4b9ea0cdbf2e3ab2c1"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/models/piper/link2.STL",
+          "sha256": "f654297bb71c6985c61e491018d443c1981ed01aab1ba364ce3b98d7ef66a414"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/models/piper/link3.STL",
+          "sha256": "de6bd12937e6464399589aa1807b2f949e03e336df1771f6dd963a1b38716e78"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/models/piper/link4.STL",
+          "sha256": "3a87d05e1afb964c8f7f631835b73e2d62e3c3dd4b95a01f7d039d9db7310a6a"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/models/piper/link6.STL",
+          "sha256": "a723d1cdaf2b37fbd54135d5f2b05abe15955a15ac62be35fb2ede32c3474c21"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/models/piper/link7_left.STL",
+          "sha256": "9662aae35b537db3b1f818e9cc2161fdb14b924906a84edce965c845a2e904d8"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/models/piper/link7_right.STL",
+          "sha256": "1f0597552846719e14f8ae3ca58d06ddab9fe4cdf41f1bf8119e0e501e9f0225"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/models/piper/link_5.STL",
+          "sha256": "5d297c1ee35603e618b45179bf0035fa698a9e8ad63181dcaaf8753fa78389b2"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/resource-manifest.json",
+          "sha256": "9175e1ed28fa59dd533b86bbc6603c8892e76b511e479d2d5eb22252de1e84af"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/urdf/a1z/A1Z_G1Z_with_gripper.urdf",
+          "sha256": "a3ab3492d6131ced3eeb8c7b209a79606281ebb4ff7e57fdda5ff5762e41d050"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/urdf/a1z/model.urdf",
+          "sha256": "7a6aad1cf300fef290d31f5cd954e2d821dfbb8a39d856891ce8ef99999a50d3"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/urdf/b601/reBot-DevArm_fixend.csv",
+          "sha256": "64885fc7f1d8fff1a87c17baa6769324f2d8c9e3336eaa4104438ed551e6c005"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/urdf/b601/reBot-DevArm_fixend.urdf",
+          "sha256": "8632889a6fd86e5a5276174d8d95e459fe020004dc438aaf908b9b60e617f0c1"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/urdf/b601/reBot_B601_DM_with_gripper.urdf",
+          "sha256": "b3282ea41af4bf34280b12b9dcb30c4986c4eb75d9b8005d4bd66105f029fb9c"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/urdf/fl-v3/meshes/base_link.STL",
+          "sha256": "46d307ee511515271a4065ab3b792b13bfa4a8416f8e5a86eefe07354af911e6"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/urdf/fl-v3/meshes/gripper_base.STL",
+          "sha256": "c9db30dbdf8be27a648cd9f9dd2f2ab312208103deb0785dde985f76afca00e9"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/urdf/fl-v3/meshes/gripper_link1.STL",
+          "sha256": "28fe89bb57944f81e98ed11a25b6c51d22387b89a481ca166acf48eba728a0bc"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/urdf/fl-v3/meshes/gripper_link2.STL",
+          "sha256": "150dc8302b45a792d4747f991593f126effc4e232f93e4dd184ad30ea51baefe"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/urdf/fl-v3/meshes/link1.STL",
+          "sha256": "3a2da70ca32a76275ca2f68ee19d82e73ae9809ce1c7f1b3f143423a64ae57f7"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/urdf/fl-v3/meshes/link2.STL",
+          "sha256": "bae9a1daf0961cacb9e1f2e758f9e1210f1ae4b4ec799a8da73c2636a4fc233b"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/urdf/fl-v3/meshes/link3.STL",
+          "sha256": "d992996403392f606a0204bcc126f0bc891dff788a03678b802d594b8cea5cdb"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/urdf/fl-v3/meshes/link4.STL",
+          "sha256": "ed12189c36429cd09ae227ed89e846e9ddd7ddb7fa45e763116f85b571afa279"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/urdf/fl-v3/meshes/link5.STL",
+          "sha256": "4a9513dc4faf2c58a23843c2534e0665d7303f4a199ee34912df95fc54cd7e13"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/urdf/fl-v3/model.urdf",
+          "sha256": "f77fe284bf9b317e7cb0c96d9de55b3feb4c92451da43585641890918c3ba280"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/urdf/fl-v3/source.urdf",
+          "sha256": "a1d4f464d143ae17431a107fe7809fda8474e6848da0792aae1344b08e917a48"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/urdf/ld/model.urdf",
+          "sha256": "075fd66a7a49b4dcbca5bb8ad246f9fbc345fea72b2ad5f36ed03ce6f2bce42b"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/urdf/ld-touch/kinematics.json",
+          "sha256": "17de74823490b47965e9ef77194edd63dd87c1c51072dd045cb4733db9a2476b"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/urdf/ld-touch/meshes/base_link-hardware.stl",
+          "sha256": "a780fc48dc8fd680e6e57fedf4a1c1e568569c5e1606c55b8676d271c2a0af1a"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/urdf/ld-touch/meshes/base_link-servo.stl",
+          "sha256": "a8756dccb320ded3cb8d54bb6ac813ef8c49216b5f0228361df4cb4e00a08648"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/urdf/ld-touch/meshes/base_link-structure.stl",
+          "sha256": "54b36ed6c5d1a5d1e05947d2b1f63bef4ec7aedb0fbf96b040766c289e7818df"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/urdf/ld-touch/meshes/left_finger-finger.stl",
+          "sha256": "f094eef2d183150a5f232b66b382d3f05ee34ed96de54c44de29f8675f737a81"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/urdf/ld-touch/meshes/link_1-horn.stl",
+          "sha256": "5d43061373941a9c5760b472b5a1bbd3a387776421983ea346d22264fe15e393"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/urdf/ld-touch/meshes/link_1-servo.stl",
+          "sha256": "c47a3c9ffdce6bc6c9a1cf21fbfd33ca40346a79d1219ca406923b3102a7b216"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/urdf/ld-touch/meshes/link_1-structure.stl",
+          "sha256": "936ccf707ef974c7fd322dae0d000190c658b5f15cafdfca6a92dd54bdcf6813"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/urdf/ld-touch/meshes/link_2-horn.stl",
+          "sha256": "fc4a15dba7732ae4fb632ab03ae77283d1ef7f6f8a93060393d4a0fdc0168140"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/urdf/ld-touch/meshes/link_2-servo.stl",
+          "sha256": "011d60e7ac091d136a2ecb9874acfb4d034ed506a36a1f5a1d4c67726d5fde2b"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/urdf/ld-touch/meshes/link_2-structure.stl",
+          "sha256": "86123a0fae9912548c9b3f0b0e8b8936b71cd9c18b4be7e1ff13ee44146a3ac0"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/urdf/ld-touch/meshes/link_3-horn.stl",
+          "sha256": "3b9dffb0878c92ca86dcad69bafebbb181f25bf2c8b0d946ece3b2e8991aabee"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/urdf/ld-touch/meshes/link_3-servo.stl",
+          "sha256": "0f8b91792f6f95789f355417661037c26f43f62ef4d379d7087034462e60e790"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/urdf/ld-touch/meshes/link_3-structure.stl",
+          "sha256": "fb97e1d6640aff33130fc216917d44e8940c474ef6b49b67caa44804b2e9eeb4"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/urdf/ld-touch/meshes/link_4-horn.stl",
+          "sha256": "6c26b6b68fd6b2dfe76fc7e5e75de2e6eb18d7f60e760d6a51b0d0fe498d0ddd"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/urdf/ld-touch/meshes/link_4-servo.stl",
+          "sha256": "2e95471e686c3a8f79be501efeead92a9eda778a52fd580ac43bafbcff78e963"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/urdf/ld-touch/meshes/link_4-structure.stl",
+          "sha256": "0f6f96a3c94cdf559211ff811d69e279dbd8e034563144ecfaaa60fc7c698176"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/urdf/ld-touch/meshes/link_5-hardware.stl",
+          "sha256": "a60aa8f59f4971b0ea19fc02419da03cea22290a9a290fef61cd3648aefc458b"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/urdf/ld-touch/meshes/link_5-horn.stl",
+          "sha256": "b262c751b23bce51dee582bb0937efb3dc198601636d0e9179ab3a70dca09f8e"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/urdf/ld-touch/meshes/link_5-servo.stl",
+          "sha256": "49f5dfc86ffe7e2a3742708c6c6cba2f44609179bc704da00171f022762ec435"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/urdf/ld-touch/meshes/link_5-structure.stl",
+          "sha256": "0d413a2d34b308d42827e8b339071edcf1ac79d667ce5acf1609d36d508bdd74"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/urdf/ld-touch/meshes/link_6-horn.stl",
+          "sha256": "af16c8c513257d2b6a4a474ea920a0d853c066e4d82639eca920495f9b490179"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/urdf/ld-touch/meshes/link_6-servo.stl",
+          "sha256": "4a5daada45f7092ad03fba80782fe8264b0dc938760b113f64c290bd3ebebe87"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/urdf/ld-touch/meshes/link_6-structure.stl",
+          "sha256": "369d6dbaf8c2506bcb594f35fcbb45f19d23818bcc9822d4776fec90ab0049a6"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/urdf/ld-touch/meshes/right_finger-finger.stl",
+          "sha256": "0e5a266d6513a5c31ed1df0b3225a002c7f17fc03645b36fde25f94c446814ee"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/urdf/ld-touch/meshes/right_finger-horn.stl",
+          "sha256": "c4a1991228cdce0eedaceb9a3dd62e15213d4812cfdd2367555d1750cf1a2996"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/urdf/ld-touch/model.urdf",
+          "sha256": "74b965ec9032235c08c0eb944b3283109000d0167d05692d078a058f72bd5a60"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/urdf/ld-touch/SOURCE.json",
+          "sha256": "683eaa28cbcc0f01ec2b139de8e72281c69d57e1bee714568ad4aaecdd231df4"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/urdf/ld-touch/source.urdf",
+          "sha256": "a90ce584e474b6d4ab540ff13127f7fa5bb81a2937e8b5bdbb06adbe211e9663"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/urdf/ld-touch/upstream-README.md",
+          "sha256": "2d36291d5747fcdd41f15b413e974188724d0570691cb2e347835ad9168e4df3"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/urdf/piper/export_report.json",
+          "sha256": "7f6cd88dac9dec0eeafafa587dd06ec3a24938e8f863c62edbad4c837485e430"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/urdf/piper/model.urdf",
+          "sha256": "d348d13e252d4e85c93e0be8394125a4236efe4535244e7a644b63a41afd0d92"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/urdf/piper/parts.json",
+          "sha256": "d93e3b89b0d726e4451565df928978dc74057d2e7559eb7ec6cb6257f7f24bc7"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/vendor/fflate/browser.js",
+          "sha256": "b7ca4450b19559a1d50eb381adcee94b82449674be4cd17789d9beba7e6122a1"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/vendor/fflate/LICENSE.txt",
+          "sha256": "0a1df3a083d0c010560aa342e87959c8c1070e6fd54545741f083f22d0c8b551"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/vendor/fflate/package-version.json",
+          "sha256": "14fbbed39c594de6692d8d0069fac55420edf55d4512d454c4d8448bd3231e20"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/vendor/lucide-icons.svg",
+          "sha256": "0f1cc99b45cd94b201c50ecf8b9657f936637501e5e7e739619be10e4e70802b"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/vendor/lucide-LICENSE.txt",
+          "sha256": "1e7290b35280a048667bbf0ebabac1c7fd52a75300e8b2946ac165715997f2bc"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/vendor/onnxruntime-web/LICENSE.txt",
+          "sha256": "2f07c72751aed99790b8a4869cf2311df85a860b22ded05fa22803587a48922c"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/vendor/onnxruntime-web/ort-wasm-simd-threaded.asyncify.js",
+          "sha256": "3d1c85995364bb643302fc6fd877a0c3ba5ae72401815e0f24828a53d9191e28"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/vendor/onnxruntime-web/ort-wasm-simd-threaded.asyncify.wasm",
+          "sha256": "39f9f0894d478800487ed9f7dbe92618498db320cf55c8e3d89adff8dce658da"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/vendor/onnxruntime-web/ort.webgpu.min.js",
+          "sha256": "b1695af63085f17d1cfc7a7be72190f9ddd6a73618e14c131e256e4cea8f78a3"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/vendor/onnxruntime-web/package-version.json",
+          "sha256": "2306b54849564066ea07c21bdb32a663b881ac11da6415ed49cb11192f3261df"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/vendor/OrbitControls.js",
+          "sha256": "06864a0fcb647730bfbc690b6c25a121199d716a3e299a40158509cbd247c3bf"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/vendor/STLLoader.js",
+          "sha256": "661fdded4c418b732663f0460a4dd2f189d054f783e0c071e4f4612aa086ee21"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/vendor/three.core.js",
+          "sha256": "eb077d2417f61d3e6d9264c317cabc4ea35769ed6b0ab533067292a550784c20"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/vendor/three.module.js",
+          "sha256": "c8211c69345d2e9949dc7a8ac969380497aa0600a5a8ac6a459c8cd02dd9cb8a"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/downloads/act-runtime-template.deb",
+          "sha256": "e7742c093c65998ec8c373903e2eb5f869b07d104c51cc1b63522190c7f6fe55"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/downloads/lumos-runtime-template.deb",
+          "sha256": "5f42d4d08164d012e90b274ca3de335837099f0ce187897c60e11750b98663e6"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/downloads/star-arm-act_1.0.23_fashionstar_all.deb",
+          "sha256": "224f4833ba88ae5bf8414597dfa5900cc3e07791e275abcd71325c114daf6ae7"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/downloads/star-arm-lumos_1.0.32_fashionstar_amd64.deb",
+          "sha256": "29729b17ec1dde916559889aeb1fddc4f613cfbd08d755d859e25b53327d004a"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/index.html",
+          "sha256": "d34804a6af6de754a5b3719597852577c7f223288225911b98c91b79a17dccfa"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/a1z_model_data.js",
+          "sha256": "d6d2bb922a17e143c2d13697d09b2ca19a43773b1cc04df7c2b4f68562970b00"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/act-browser-app.js",
+          "sha256": "76cbb85cba2f95389231661543ff423d67cae3067b946242e22437a498fe92c8"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/act-browser-core.js",
+          "sha256": "f83146c6eb10a58fb463a4eabe37a23d35828709369e40bd8eaffc2ba9629ce0"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/act-browser-runtime.js",
+          "sha256": "6480ee1b4ae8ce3991c6df53673263938c4229684369d93a0f51a0ebac984b15"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/act-browser-worker.js",
+          "sha256": "31cdf6954dc4c76437ee9f5b1e253f2eaa6f111bc1da3a1d6b80e4359920a1b9"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/act-browser.css",
+          "sha256": "4023ad4f8f625c46988871440c591c995ab22f87b88301c70ab1da8666a90a27"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/act-camera-frame-encoder-worker-client.js",
+          "sha256": "bf195ddeb7a85d406c7beda41f16a4d42e73a49da9eae8bb79f192e8ea6afc12"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/act-camera-frame-encoder-worker.js",
+          "sha256": "588d27ddc9b0ad5ff588f6df17f444b1d90cab7cf0af2890b58dc973e9354177"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/act-camera-frame-uploader.js",
+          "sha256": "56c22b1695c04f8f6d66b7c437784d8b918ae2bf121d445700704b952432305e"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/act-camera-state.js",
+          "sha256": "163f2c6f7869f8035d5b150843fce05700b66c70f02f8ab394ef2814cb9cebcf"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/act-cameras.js",
+          "sha256": "35772f8c3c8e895031c4ffa73425a6e683807f3eb79f50f096bf425b0c17a1da"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/act-capture-quality.js",
+          "sha256": "fe5603f3804562c81cc3ba7010d956e866977492cc176ac40b5a5ee92d8f5a66"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/act-inference.css",
+          "sha256": "5b53d41d05833d035f71787683514a3e749e0ee13be58e6fd9466b27212fe8e5"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/act-installer.js",
+          "sha256": "cddb95a5628b40189d1422c384acedb43900715c5905fd6b073d419654e88bf4"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/act-motion.js",
+          "sha256": "f1c1fde1091a95353d4a821f87d26449577307405cae283ab5dd4dbc5bdc4af2"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/act-ui-refresh.css",
+          "sha256": "e8191d049c1ce1a1e18042d811c7048352a5b88810d55f0cba1ac2365af95b64"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/act-waveform.js",
+          "sha256": "00c6643580254cba416850e2d8b7518f52d9860bb1bcda26679d94d26f4a04fc"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/act-workbench.css",
+          "sha256": "d89bfc49021d8db289ac1512a4b73d749d687325dd424fd5d66ee1b6156e5ed2"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/act-workbench.js",
+          "sha256": "7f589523ff2a785893d83f0e15767b1b7b364300bfab275e308cda5c4547e21e"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/api-client.js",
+          "sha256": "3516fd6d031b5381f1128b8b7712694f3aa3d8eec73d3564c3af7b80072e9544"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/app.js",
+          "sha256": "e10fce76b474e82ee22f5608920347597bc984085d3270a8a25898aec7f12b5f"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/b601_model_data.js",
+          "sha256": "cd53dd787f470c51334a3f1a27da53e9c94fa86503da604dbd228ad932cc9eec"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/browser_serial_utils.js",
+          "sha256": "6270348d55f748e9b0889efcc9dfafb287465499244749e6b21023ef0a1c71c4"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/command_execution.js",
+          "sha256": "4f83decab64e5b903fd32d7e964477302fc7856bca40382968b8da047876d688"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/control_lifecycle.js",
+          "sha256": "97273e14cf31aeebda3dece021595320c33fc2530e2aeb08bbe306d8b0127a37"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/control_safety.js",
+          "sha256": "59956e107b7dd9c19a18e08c938dc471b66d06ace095de0d9a8d26702f821c57"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/factory_params.js",
+          "sha256": "2c6759cf271687ad92a8ab4a82cbea5c086b5a8d2c051c07b1606f7b23b68b51"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/factory_restore.js",
+          "sha256": "3a804bf25c1b77b962df847fbca846b8531befa05f2a5f3ffc8dc4cd689c841a"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/fashionstar_serial.js",
+          "sha256": "b15a3549ea4d5d0ad6cd0e53c288f7765d356fca0a81268e00a9cb368f21044a"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/fl_trajectory_controller.js",
+          "sha256": "2b3e32284c89777be6f595ace7b9f6fb61b2dc90df85a8b89255886e7178ab32"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/fl_trajectory_model.js",
+          "sha256": "7929b1d52c741b637a4ee9b7612af7d1f18c9bf9be7ff0c01aa754ff9bc46eec"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/fl_trajectory_preview.js",
+          "sha256": "a4565e77e1eba8b3378d57c33985b2325af79e544b741a2de6ae665103926c15"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/fl_trajectory_store.js",
+          "sha256": "7c0a63c5fb35c4895a5988e66d8313f64151a64f0ca9ac9fb1a4f378337d1d17"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/fl_trajectory_styles.css",
+          "sha256": "b0096ac70f56e6d0f40f24ce4568153694a808d4e71367242f2012c1a02a1d23"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/fl_trajectory_workspace.js",
+          "sha256": "2e71a15ee6049591256bbfeb80c777b2722a0e8c65b5f86e97a3458de7f7e829"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/follower_target.js",
+          "sha256": "f97db1caf1f44c630741c794ee3dd9f886527d2a0c43e7b4bf75e27fe5b443c2"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/i18n.js",
+          "sha256": "c77f7707ec72a18e8836e7c88c2a4323e6d7b18af7b83b0d37c5a1114ab6fd48"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/ik_solver.js",
+          "sha256": "52cc74789bc469c6173a867860f9057e6eccb7ad3559ecc4ae28545ea862bc85"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/interaction.css",
+          "sha256": "22054e81d1a49978b7dc7f8061cc69dcd53d66e3fcc9e55c4b1515303d6231b6"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/joint_mapper.js",
+          "sha256": "872bf276f64101a1fa591397358d747bc044b1145d024e67f8bc80008732c4cd"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/joint_slider_control.js",
+          "sha256": "d5d8dbacb563a6fbfa541abea1793e845ac2fa6eebaaaee54bba5c45f7645451"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/local-service.js",
+          "sha256": "ee210a174d1f1a8df6ff410411efbf1aa8e21fd2a88d9b50b0ab045b056b4771"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/lumos_client.js",
+          "sha256": "57fe1435b5a6b8c174d19eb1406f953c65af94ae10daa38ac9dc23b28b1a6d1a"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/lumos_setup.js",
+          "sha256": "fd2a51d56d92c9ddb20a1824e9a9f56530c0fe4c4d71c79f2b203a5ad03913bf"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/manual_control_session.js",
+          "sha256": "564380a81fba6ff45cfdc45f866430c4684e588c10c82cfd219f302ebcead351"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/mesh_asset_cache.js",
+          "sha256": "adad64b65f0ecfbf98767f4418914fdad066f81d90114920e81baffc1f7fcc84"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/mesh_transport.js",
+          "sha256": "374e3962397dc1d982f5b9aa465815df34d37f86493bf35889b0379ec354b4e7"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/mesh_transport_manifest.js",
+          "sha256": "9bb6c1572ed0eab1f8bf564176407c7aa942b17539b60f8e8b4bb1fee8efe869"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/model_asset_loader.js",
+          "sha256": "b8989ac6c30f1170610a124ede27f12fbe905c2e004c6369bf435a5bc661be80"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/page-lifecycle.js",
+          "sha256": "b2ffc3b1d3b57bf6ae2008dc946a75051938b1938ffa030b441caea403a616ef"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/piper_model_data.js",
+          "sha256": "9d6c5802ccf0405f34ebc124d36ea3866b901c632cc9b9de441c61ff06ce8096"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/published_installers.js",
+          "sha256": "66bb90e94bb4796dc6f89d842de801e72f59df6a62b48356b736b1c7149d765e"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/rate_meter.js",
+          "sha256": "633e556cdc28f31d4cce28b02c121d4f38180edc1b99322654b72cd1c7e8f918"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/reset_origin.js",
+          "sha256": "49c66723b00d6e05b6b1c4cfe1165304cbb437f4650b3b40318eff0ab23211c9"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/resource_download.js",
+          "sha256": "b1712d35baa847c17bb8f48a0401a45c036d487ede6676213ee5eddb3b71a187"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/robot_model.js",
+          "sha256": "f6a5280d75f58eb1a267e86ec3ccf5c3da3c87715e9f498e5fb23b40452a771f"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/robot_model_configs.js",
+          "sha256": "c79db73050b9dac8bbc1529e4b810633f53047afa3aa847f492dd03144a1377c"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/robot_profiles.js",
+          "sha256": "816b738bc268db32dad2353dbbddd6ccf506aea19725fecf36d06b07a541a551"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/runtime_integration.js",
+          "sha256": "9bdce50b88becf269f233523a4d14c629698ae73a0091783f5726e2b781f2d74"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/serial_servo_bus.js",
+          "sha256": "a2b38a0342b780bb100ddc202be042efb8eb8b9def40eaab661802a2576c4f55"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/servo_bus_wizard.js",
+          "sha256": "2ea3773f676bee9806e4fbac7d1046e335a7d383d11bba08877b09ecd1f15d01"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/servo_readback.js",
+          "sha256": "8575022d6906d65b0e2b870265b0485e706b0f4ff40e5691459fd5ca154c5ac7"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/servo_setup.css",
+          "sha256": "71a34f89ed4617ec0e3dcd12f21c27cf2351bc98f524285cea075f9a5de24a37"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/servo_setup.js",
+          "sha256": "636a23b0695a91517c2ed7524219f54b03876427744f48c1f4ee8b22842d721f"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/servo_setup_flow.js",
+          "sha256": "640dbdb3a8442461c3d36f5909e2ded283d1da9689db5d10ee183977bc78d504"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/servo_setup_i18n.js",
+          "sha256": "dbe418946041339a6efb6133a7b7f576508e3cc571852f306e8dac996acb8322"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/servo_setup_model.js",
+          "sha256": "2fe2d417191011fc8f15931dec25a70f6d29b05be281abb1bbace6f6239fb166"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/servo_setup_parts.js",
+          "sha256": "7a063b7ee952c3f967044eba66641fda253f030389088c5f8899fc73d0ac6c62"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/settings.js",
+          "sha256": "a9d09ff91596cca037b5264feb74ecbcb7c7bc2839b94bde987fecf8840b4d8e"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/styles.css",
+          "sha256": "c54146be0d251c12679de3bc6596567d855fa1ec274f1f64501fb7e2711ac45a"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/supplied_urdf_mapping.js",
+          "sha256": "f6a46fed08ad38bfbc703138accd51d1bd211f3a017d837ce66e2d50fb82231b"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/supplied_urdf_models.js",
+          "sha256": "8442ffced19abf58939dd2d6e9ae36d216638dc0d2ab856be539330afddd0be3"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/target_execution_ownership.js",
+          "sha256": "834edc99f50deab0f09b2af1a3d168d40dc1e0c09312e6aa1efa879ec74cf9c8"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/tcp_drag_preview.js",
+          "sha256": "93c1adffd037c6bdf577ae32aac3f9753f95ba812d734533ddb52379d1e09008"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/tcp_translation_gizmo.js",
+          "sha256": "e179dc4e8ae0ae1def5b2c81af192702360bb7d111d594e57582375c8b98329f"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/teleop_controller.js",
+          "sha256": "9cb4f67d7710876a091f39381cd08ae5fd830fbc4a9cb351b91a0ad88659284f"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/teleop_pairing.js",
+          "sha256": "0368fdf7ab81f5af290515135df0575c227c4d4da3397d42f595cb1a79db478a"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/touch_button.js",
+          "sha256": "899dc447de49c8ee1c6d10c19392cfe55579c5602fe0e06a46dd376d3b18ba9e"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/training-submission.js",
+          "sha256": "d156570d6c0a65ff1bb7bbc8c6f210fa0aa2c7b474353c22a1205fb15eb09f1f"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/urdf-preview.css",
+          "sha256": "bd8641d5cffb4548b93f7123b462c0c63b1ae915b9a1b827f4aaea4abc6e49c6"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/urdf-preview.js",
+          "sha256": "609182b04b60044189b4ab88b8c170aa423cc6c43538fdb8bab2a18eaae399e3"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/urdf_model_data.js",
+          "sha256": "39043791140b33cb98cb8396e2ebc22096afc95bc6c263ca0ce591284bfc29b4"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/version.js",
+          "sha256": "b789ac3c3faab19fac9ba629862a982069a72130463f38696da7de4f98d93b68"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/workspace-nav.css",
+          "sha256": "398a9fabbd53a4b45da3476d1c238c4d21b463fea3a49685294f7378ba32b131"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/workspace-nav.js",
+          "sha256": "036d6cd8f668f3cb1ce23233740fad7061af6ac7acf1638a3128d802beacc935"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/workspace-switch.css",
+          "sha256": "16b6f8941a7f3c5efd7b0312bc2711528c4ee620037589872f6ca810169c9d98"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/workspace-switch.js",
+          "sha256": "1241ce3da27ead4ba8ba0804269c8062a07c132bfdbd4b9a0e7e7ca7d9877796"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/urdf-preview.html",
+          "sha256": "7f76ad50d4895458edc992d331ada8760d8a5f74b22b1af0e17814e52eeda9a4"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/部署说明.md",
+          "sha256": "7a6f5d2e23a44fe6629e811263b6148daf824d7f53af2a490fbc7bb588f91048"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/验证记录.txt",
+          "sha256": "1dcd34d8eeddc15497421ac2ec4222ad4f3ef62bed4b7a86083f438732dacbc2"
+        }
+      ]
+    },
+    {
+      "kind": "lumos-ubuntu",
+      "version": "1.0.38",
+      "directory": "Star-Arm-102-Lumos-Ubuntu-v1.0.38",
+      "archive": "Star-Arm-102-Lumos-Ubuntu-v1.0.38.zip",
+      "archive_sha256": "10a3f18194cdf9baaa8182b6f8418b29ce65bef4eaf347516a078dfb753f3468",
+      "archive_bytes": 22997122,
+      "files": [
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/ai_service/__init__.py",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/ai_service/app.py",
+          "sha256": "f964ebd19cecce03c15a515c9f44f98cfa40b53e59a7ea6bdd616bbd4aa340a4"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/ai_service/domain.py",
+          "sha256": "252ba63ef3ff099c27fb366074a9820f5b58ba78a604981f60880ae82fbabfba"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/ai_service/lumos_calibration.py",
+          "sha256": "4b57098e25d62854165f1739d83e68b1ba3d35d8b246aa8d8e6909db0ded7572"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/ai_service/lumos_runtime.py",
+          "sha256": "b90da757f97f142505a03ddd773ad733aa762614a53e6e492c2e93f9acfcae21"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/ai_service/vendor/fashionstar_uart_sdk-1.3.6-py3-none-any.whl",
+          "sha256": "43e2640acd825b9350b2dc4e76694d9de436cfbadbb20fb0cf02cff9de78f83f"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/ai_service/vendor/fashionstar_uart_sdk-1.3.6-py3-none-any.whl.LICENSE.txt",
+          "sha256": "761f7034174bf0ea8fb7e31ced59c8e18aab77e3360ff8a059caa8779dc1c436"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/ai_service/vendor/pyserial-3.5-py2.py3-none-any.whl",
+          "sha256": "c4451db6ba391ca6ca299fb3ec7bae67a5c55dde170964c7a14ceefec02f2cf0"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/ai_service/vendor/README.txt",
+          "sha256": "f68fab88a81e4b65606aebe0426ef70896743e7b6cc0841f8b49dd2474d91315"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/assets/logo-icon.png",
+          "sha256": "913c8583b3121a9c8fb542fb1e8f68dc3a4b21d7452dadecdc68c4e91eb43732"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/assets/mesh-data/011d60e7ac091d136a2ecb98.bin",
+          "sha256": "f2c2027c31abc98ff93d77c3ef532132625e05077b8ac4332c7cd2a2d16d8ecf"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/assets/mesh-data/0d413a2d34b308d42827e8b3.bin",
+          "sha256": "06cdc5f2536568ab97c02f239117ccd041b1c16f19181fb70e19c8c279f4bf05"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/assets/mesh-data/0e5a266d6513a5c31ed1df0b.bin",
+          "sha256": "e25ee5d659334afedb73318a74dfea514bc536913a9b043f7648c2d854b7dc7c"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/assets/mesh-data/0f6f96a3c94cdf559211ff81.bin",
+          "sha256": "a3500d5a4f60bd8467318ea9b400107109d63577b135383bafe51ba59397dd2e"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/assets/mesh-data/0f8b91792f6f95789f355417.bin",
+          "sha256": "8a355f8ced9e90fee816b2739035181f029b3f163f116bee55d3f6079b0fe0a8"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/assets/mesh-data/150dc8302b45a792d4747f99.bin",
+          "sha256": "fbe9c1dc5e49c1568e1277cc5169cf959f1c74b93f38fe3fca2b9a589ca5e87c"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/assets/mesh-data/28fe89bb57944f81e98ed11a.bin",
+          "sha256": "3e89d85c77f80ccbf6155987d1e0c0db6c88567d041750479e5dec17e8a8ac54"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/assets/mesh-data/2e95471e686c3a8f79be501e.bin",
+          "sha256": "927bbb2e122b34f7a55feaf7c7c7e07a2ad02ccd1e069f9d281eae61e36fc65f"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/assets/mesh-data/369d6dbaf8c2506bcb594f35.bin",
+          "sha256": "63960762826da1bf716b4b78cee7002aa2a3d869023886a6ef7ddc8bf0fb6c88"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/assets/mesh-data/3a2da70ca32a76275ca2f68e.bin",
+          "sha256": "22e0bbbfa8ccdda67191e8e0c79a4289e15f5f5ad2f02a07848579b7b03b02c4"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/assets/mesh-data/3b9dffb0878c92ca86dcad69.bin",
+          "sha256": "24bd9e2c164a69057e4b0fd7f57a5e0ff5508bbeb28b5a3b512f137f432afb3f"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/assets/mesh-data/46d307ee511515271a4065ab.bin",
+          "sha256": "ff9fc2204b4c3a89e65be23637f5d615ffc0303397b8f1881c67e07285bfde0e"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/assets/mesh-data/49f5dfc86ffe7e2a3742708c.bin",
+          "sha256": "2c386c55f78d02509231cac33f28e5e031dca8faecb1668c4b3ca4b20ff0179a"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/assets/mesh-data/4a5daada45f7092ad03fba80.bin",
+          "sha256": "8897efeddfc80fc88b4c654e34c690dd59097f07b1ffac955f4389b28125cc8f"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/assets/mesh-data/4a9513dc4faf2c58a23843c2.bin",
+          "sha256": "ad4d8e81eac798fc74bea4168e3e147ac2358b767cc02d521708d5f6b00b309d"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/assets/mesh-data/54b36ed6c5d1a5d1e05947d2.bin",
+          "sha256": "d4cbff35c3f73f2432e44f4093fcf5500b2840420a30a1d3e0f9c7f635cd17f5"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/assets/mesh-data/5d43061373941a9c5760b472.bin",
+          "sha256": "c5484e571c40753197062deb466148a54164209a3adbe8aa6506ffc31a3039c9"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/assets/mesh-data/6c26b6b68fd6b2dfe76fc7e5.bin",
+          "sha256": "49b02312d60f186cb615d7e9adcc411013441ed1eb49768872fc495a76bdacf9"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/assets/mesh-data/86123a0fae9912548c9b3f0b.bin",
+          "sha256": "d78e3a45b40ea250da6f2c96cf8c49d1cbbd41c669aaa41a1ef121746c12fcfa"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/assets/mesh-data/936ccf707ef974c7fd322dae.bin",
+          "sha256": "c5f0528e1a330feb2c0e066e57690ee99b64ba875950411c8f9061f53dd0c0f3"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/assets/mesh-data/a60aa8f59f4971b0ea19fc02.bin",
+          "sha256": "7f8dd079ddd0a1e57670aebaa5575c3db3768b300d600cd54d57aebc19fc481e"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/assets/mesh-data/a780fc48dc8fd680e6e57fed.bin",
+          "sha256": "0e6f41e150d3a586e73e9ce4325beb3a8d5d3da029a8980dbccdc2b51100ce0f"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/assets/mesh-data/a8756dccb320ded3cb8d54bb.bin",
+          "sha256": "27c08f2f153d13b496880ef545f05757135ee829f886220166fc0be84259d37f"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/assets/mesh-data/af16c8c513257d2b6a4a474e.bin",
+          "sha256": "152d7de22515d297ba1409a34268fdd7ec77e265ca2dd590cccf4a20d1a9582b"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/assets/mesh-data/b262c751b23bce51dee582bb.bin",
+          "sha256": "0ca5a832084acf866ee88956046f640e714a8546c2657fa1075f37da53afab69"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/assets/mesh-data/bae9a1daf0961cacb9e1f2e7.bin",
+          "sha256": "76c0db8bc68e859dab89e165c9dcc6670d176be358c0ef5c8387be37d81b45b3"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/assets/mesh-data/c47a3c9ffdce6bc6c9a1cf21.bin",
+          "sha256": "049ae2c2b5fd6350174717099d5edcd9cc839624dceb3947561c14e2e4b20308"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/assets/mesh-data/c4a1991228cdce0eedaceb9a.bin",
+          "sha256": "129f1e717715d18ab798dcf2150443a3658709cb2f54e22ff4b8e06356fc785e"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/assets/mesh-data/c9db30dbdf8be27a648cd9f9.bin",
+          "sha256": "9fc8308cf9eaee283246639fd6e111db387563481c6c725e24a71f2d28de34b7"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/assets/mesh-data/d992996403392f606a0204bc.bin",
+          "sha256": "a239861570a60b9c630cb47629d56a2965d1ef76df4995c794ce4e2d8fcfcb31"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/assets/mesh-data/ed12189c36429cd09ae227ed.bin",
+          "sha256": "71ca71ddc0a50169f2fecca40030520a1bf7731582171419d1268d6023cd766e"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/assets/mesh-data/f094eef2d183150a5f232b66.bin",
+          "sha256": "d41b2d39a1ad9527e5022c705e726e7f11ccc8a7da0b3be98b4fafd97ce10b25"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/assets/mesh-data/fb97e1d6640aff33130fc216.bin",
+          "sha256": "df67e5d1ee53a9462025eeee0f490adfc366c8eda9e2a4a0002ed0a082e17d3a"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/assets/mesh-data/fc4a15dba7732ae4fb632ab0.bin",
+          "sha256": "8e0131dff12a2957f2a72eef37356c4b934cf7d30149c1de4e8b1cface3ae217"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/assets/urdf/fl-v3/meshes/base_link.STL",
+          "sha256": "46d307ee511515271a4065ab3b792b13bfa4a8416f8e5a86eefe07354af911e6"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/assets/urdf/fl-v3/meshes/gripper_base.STL",
+          "sha256": "c9db30dbdf8be27a648cd9f9dd2f2ab312208103deb0785dde985f76afca00e9"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/assets/urdf/fl-v3/meshes/gripper_link1.STL",
+          "sha256": "28fe89bb57944f81e98ed11a25b6c51d22387b89a481ca166acf48eba728a0bc"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/assets/urdf/fl-v3/meshes/gripper_link2.STL",
+          "sha256": "150dc8302b45a792d4747f991593f126effc4e232f93e4dd184ad30ea51baefe"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/assets/urdf/fl-v3/meshes/link1.STL",
+          "sha256": "3a2da70ca32a76275ca2f68ee19d82e73ae9809ce1c7f1b3f143423a64ae57f7"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/assets/urdf/fl-v3/meshes/link2.STL",
+          "sha256": "bae9a1daf0961cacb9e1f2e758f9e1210f1ae4b4ec799a8da73c2636a4fc233b"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/assets/urdf/fl-v3/meshes/link3.STL",
+          "sha256": "d992996403392f606a0204bcc126f0bc891dff788a03678b802d594b8cea5cdb"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/assets/urdf/fl-v3/meshes/link4.STL",
+          "sha256": "ed12189c36429cd09ae227ed89e846e9ddd7ddb7fa45e763116f85b571afa279"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/assets/urdf/fl-v3/meshes/link5.STL",
+          "sha256": "4a9513dc4faf2c58a23843c2534e0665d7303f4a199ee34912df95fc54cd7e13"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/assets/urdf/fl-v3/model.urdf",
+          "sha256": "f77fe284bf9b317e7cb0c96d9de55b3feb4c92451da43585641890918c3ba280"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/assets/urdf/ld-touch/meshes/base_link-hardware.stl",
+          "sha256": "a780fc48dc8fd680e6e57fedf4a1c1e568569c5e1606c55b8676d271c2a0af1a"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/assets/urdf/ld-touch/meshes/base_link-servo.stl",
+          "sha256": "a8756dccb320ded3cb8d54bb6ac813ef8c49216b5f0228361df4cb4e00a08648"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/assets/urdf/ld-touch/meshes/base_link-structure.stl",
+          "sha256": "54b36ed6c5d1a5d1e05947d2b1f63bef4ec7aedb0fbf96b040766c289e7818df"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/assets/urdf/ld-touch/meshes/left_finger-finger.stl",
+          "sha256": "f094eef2d183150a5f232b66b382d3f05ee34ed96de54c44de29f8675f737a81"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/assets/urdf/ld-touch/meshes/link_1-horn.stl",
+          "sha256": "5d43061373941a9c5760b472b5a1bbd3a387776421983ea346d22264fe15e393"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/assets/urdf/ld-touch/meshes/link_1-servo.stl",
+          "sha256": "c47a3c9ffdce6bc6c9a1cf21fbfd33ca40346a79d1219ca406923b3102a7b216"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/assets/urdf/ld-touch/meshes/link_1-structure.stl",
+          "sha256": "936ccf707ef974c7fd322dae0d000190c658b5f15cafdfca6a92dd54bdcf6813"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/assets/urdf/ld-touch/meshes/link_2-horn.stl",
+          "sha256": "fc4a15dba7732ae4fb632ab03ae77283d1ef7f6f8a93060393d4a0fdc0168140"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/assets/urdf/ld-touch/meshes/link_2-servo.stl",
+          "sha256": "011d60e7ac091d136a2ecb9874acfb4d034ed506a36a1f5a1d4c67726d5fde2b"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/assets/urdf/ld-touch/meshes/link_2-structure.stl",
+          "sha256": "86123a0fae9912548c9b3f0b0e8b8936b71cd9c18b4be7e1ff13ee44146a3ac0"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/assets/urdf/ld-touch/meshes/link_3-horn.stl",
+          "sha256": "3b9dffb0878c92ca86dcad69bafebbb181f25bf2c8b0d946ece3b2e8991aabee"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/assets/urdf/ld-touch/meshes/link_3-servo.stl",
+          "sha256": "0f8b91792f6f95789f355417661037c26f43f62ef4d379d7087034462e60e790"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/assets/urdf/ld-touch/meshes/link_3-structure.stl",
+          "sha256": "fb97e1d6640aff33130fc216917d44e8940c474ef6b49b67caa44804b2e9eeb4"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/assets/urdf/ld-touch/meshes/link_4-horn.stl",
+          "sha256": "6c26b6b68fd6b2dfe76fc7e5e75de2e6eb18d7f60e760d6a51b0d0fe498d0ddd"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/assets/urdf/ld-touch/meshes/link_4-servo.stl",
+          "sha256": "2e95471e686c3a8f79be501efeead92a9eda778a52fd580ac43bafbcff78e963"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/assets/urdf/ld-touch/meshes/link_4-structure.stl",
+          "sha256": "0f6f96a3c94cdf559211ff811d69e279dbd8e034563144ecfaaa60fc7c698176"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/assets/urdf/ld-touch/meshes/link_5-hardware.stl",
+          "sha256": "a60aa8f59f4971b0ea19fc02419da03cea22290a9a290fef61cd3648aefc458b"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/assets/urdf/ld-touch/meshes/link_5-horn.stl",
+          "sha256": "b262c751b23bce51dee582bb0937efb3dc198601636d0e9179ab3a70dca09f8e"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/assets/urdf/ld-touch/meshes/link_5-servo.stl",
+          "sha256": "49f5dfc86ffe7e2a3742708c6c6cba2f44609179bc704da00171f022762ec435"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/assets/urdf/ld-touch/meshes/link_5-structure.stl",
+          "sha256": "0d413a2d34b308d42827e8b339071edcf1ac79d667ce5acf1609d36d508bdd74"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/assets/urdf/ld-touch/meshes/link_6-horn.stl",
+          "sha256": "af16c8c513257d2b6a4a474ea920a0d853c066e4d82639eca920495f9b490179"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/assets/urdf/ld-touch/meshes/link_6-servo.stl",
+          "sha256": "4a5daada45f7092ad03fba80782fe8264b0dc938760b113f64c290bd3ebebe87"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/assets/urdf/ld-touch/meshes/link_6-structure.stl",
+          "sha256": "369d6dbaf8c2506bcb594f35fcbb45f19d23818bcc9822d4776fec90ab0049a6"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/assets/urdf/ld-touch/meshes/right_finger-finger.stl",
+          "sha256": "0e5a266d6513a5c31ed1df0b3225a002c7f17fc03645b36fde25f94c446814ee"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/assets/urdf/ld-touch/meshes/right_finger-horn.stl",
+          "sha256": "c4a1991228cdce0eedaceb9a3dd62e15213d4812cfdd2367555d1750cf1a2996"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/assets/urdf/ld-touch/model.urdf",
+          "sha256": "74b965ec9032235c08c0eb944b3283109000d0167d05692d078a058f72bd5a60"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/assets/vendor/fflate/browser.js",
+          "sha256": "b7ca4450b19559a1d50eb381adcee94b82449674be4cd17789d9beba7e6122a1"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/assets/vendor/fflate/LICENSE.txt",
+          "sha256": "0a1df3a083d0c010560aa342e87959c8c1070e6fd54545741f083f22d0c8b551"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/assets/vendor/fflate/package-version.json",
+          "sha256": "14fbbed39c594de6692d8d0069fac55420edf55d4512d454c4d8448bd3231e20"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/assets/vendor/lucide-icons.svg",
+          "sha256": "0f1cc99b45cd94b201c50ecf8b9657f936637501e5e7e739619be10e4e70802b"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/assets/vendor/OrbitControls.js",
+          "sha256": "06864a0fcb647730bfbc690b6c25a121199d716a3e299a40158509cbd247c3bf"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/assets/vendor/STLLoader.js",
+          "sha256": "661fdded4c418b732663f0460a4dd2f189d054f783e0c071e4f4612aa086ee21"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/assets/vendor/three.core.js",
+          "sha256": "eb077d2417f61d3e6d9264c317cabc4ea35769ed6b0ab533067292a550784c20"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/assets/vendor/three.module.js",
+          "sha256": "c8211c69345d2e9949dc7a8ac969380497aa0600a5a8ac6a459c8cd02dd9cb8a"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/index.html",
+          "sha256": "e30b0c4aaca08f32ec6631f7f6840363610aeb3024260744a7e0cc006d16d300"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/local-help.html",
+          "sha256": "f6e85f740ab0e8d2fbd93677c64889438232c6094298400676d63cf2455a0057"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/src/a1z_model_data.js",
+          "sha256": "33f92eaecb189a82bf9dfcb8298ee1506bee2f1c65a1d076e8e247c127209ba6"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/src/app.js",
+          "sha256": "847680b8218e0ca506fcd41ce9c5870a3143a8c26a4eb7ac08cf3938b076e56a"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/src/b601_model_data.js",
+          "sha256": "a8cbffe19d7a46d904f73c0e648d613970c8a5731829bfc29affb8b30df40fa2"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/src/browser_serial_utils.js",
+          "sha256": "ab293901eb6862ede2f1ce1d01001af3788c7e1738c12e9e05cc709ac09fb8a3"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/src/command_execution.js",
+          "sha256": "80ae4813ce3b840f0c869e90354bb6045b1ccc40f45886d3783feb29c8f45e96"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/src/control_lifecycle.js",
+          "sha256": "ced4390e3c383f8e7ab2da7fc95183642f2c63a2c6b6c498db4a5f419335860c"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/src/control_safety.js",
+          "sha256": "5461dd42158bf669b79c689cbc82d7e830bdb050af426c2d054a8e44cdfc223b"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/src/delivery-ui.js",
+          "sha256": "89a9b4b29a2446c5039fed994754b8e32ed67ee6f2b67ad166e0eb755b3f53fd"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/src/factory_params.js",
+          "sha256": "8e96c6f5a3c2253bff6f286ac86f9f699b991833a38fd89d9399f55b4449e879"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/src/factory_restore.js",
+          "sha256": "57401c36b3a00d023d727f4615753c368263ba63ab18f967c9f6007b0c583302"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/src/fashionstar_serial.js",
+          "sha256": "8fa4e87d6fe1e273af4d8f2c8219582664b2c3af97d2452322167183c465ae85"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/src/follower_target.js",
+          "sha256": "79477f7b13df39d3123ae4a26f64e504616acc3560e068ac00cadf4e7a5d02e6"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/src/i18n.js",
+          "sha256": "4c7c32759d0d27c84865058b76c93119180a15dda35c9263138cf03bb4baadee"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/src/ik_solver.js",
+          "sha256": "025b31c0f973d71b23c944529c1794cb85ccb0c086b96e68b54c9212bc75f368"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/src/interaction.css",
+          "sha256": "22054e81d1a49978b7dc7f8061cc69dcd53d66e3fcc9e55c4b1515303d6231b6"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/src/joint_mapper.js",
+          "sha256": "1e00861279390b4fc6dceb5601658a095eb0ee29e6bea45a8105ebbe307b7011"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/src/joint_slider_control.js",
+          "sha256": "c02f6477ebf2bdcfcd834d04f704e2d273ebe949836446504821bdfc4413d9ef"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/src/lumos-local.css",
+          "sha256": "7f186fe0bf7130cec57ee4f4a1328e36e513de6a44ffe54f18d2cf6ac482a02e"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/src/lumos_client.js",
+          "sha256": "7e717a2e3f7d5e954a68cc4241bd63030158c1d13f3c8434cbec97df9c3890e0"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/src/lumos_setup.js",
+          "sha256": "fde200e54c49f5406f9985e58f3af036ee044e38984c0683b415645fc99d8ffa"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/src/manual_control_session.js",
+          "sha256": "cb946abfd95780e8bb19e5bcc2da36a35dc1b12e0352d08d9b309e25026b259f"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/src/mesh_asset_cache.js",
+          "sha256": "2855724bbd1fa9501221f125e19413fc6e9f860d988248ebde07b6e804e1c49a"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/src/mesh_transport.js",
+          "sha256": "bb252ccffdf48004edf396254d7c0e777975a472bb0688c1cbad3721fde74c03"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/src/mesh_transport_manifest.js",
+          "sha256": "798e60b8c7684bb54362bb0b31d5ecf4598e4800041a2300c13ce0bb74dac926"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/src/model_asset_loader.js",
+          "sha256": "a63bc08625db909893ff48a554e6ee72ce7578a88e384c14e838edf800c61038"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/src/page-lifecycle.js",
+          "sha256": "2384a04aed0b2cec19a3a220998c60f7315e8a76f280c1e122c7a1bdf3dd7470"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/src/piper_model_data.js",
+          "sha256": "4ea1e6524a186a92284c5814dc55116cff064299cbba547ceb385daeae2be10d"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/src/rate_meter.js",
+          "sha256": "5535597626536f9549da65c940e1c2c77b1b7bd7785af70c87e7f91f0c1bfe3a"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/src/reset_origin.js",
+          "sha256": "046b0c409e2fc9b8a7c81d4b4ccce9a27aa0c5da64c7dbfc7edae8d8bb9f5fb2"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/src/resource_download.js",
+          "sha256": "21a5e7d068c52134a89cf85cf46a99c20d1b1321ac46486d09a200990c2cb940"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/src/robot_model.js",
+          "sha256": "770b8d882bb8ddb2780c0d04fad9004c237a86c3bfeb3bebfd979555afb30648"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/src/robot_model_configs.js",
+          "sha256": "12d122ac6c1f091bdc4e8ab581d3951f107326a6b4b3e55a25e2ff56c465fd5e"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/src/robot_profiles.js",
+          "sha256": "79bf6f3ae27805cc820c9baeff246b484a1b1e96294c42097c91a34b1c4e1ad2"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/src/runtime_integration.js",
+          "sha256": "74faa82ae904dcc0c64d8fb340c3ab02dca5fa1b51f80871d20d3da261c68f51"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/src/serial_servo_bus.js",
+          "sha256": "ecc385c3765cb2d2b9b50020f239c31aa6634e3ac569766c43c7a58c0a5dfc34"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/src/servo_readback.js",
+          "sha256": "1b39f516e2a77536d6e40044c819f4f59e04622c9a849e221b2018924b7db606"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/src/settings.js",
+          "sha256": "63ad30463a5b49ab2db4657a42b893722285e2ca48587166d0cd3625c8a50453"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/src/styles.css",
+          "sha256": "c54146be0d251c12679de3bc6596567d855fa1ec274f1f64501fb7e2711ac45a"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/src/supplied_urdf_mapping.js",
+          "sha256": "7d92c71f4973fb6be9394ff1fda8c4429cfec4d4bbda877f1f51ad500d193ad3"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/src/supplied_urdf_models.js",
+          "sha256": "83775a6b1771c408b6bef3a7bbf69120e8dd18491e32b69008007fbe98d9a48b"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/src/target_execution_ownership.js",
+          "sha256": "09f55783f036ce587de2961478153ea1128838f01ce70b47b5370831bdf87bbf"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/src/tcp_drag_preview.js",
+          "sha256": "cff05767bcab22d7996c54ac64d49cf99777f0934c9ec73749100da5f520071c"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/src/tcp_translation_gizmo.js",
+          "sha256": "7940283001fcc2e922e2ff458d5b5b317bac134fbf723d1c9696859d608f0fb6"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/src/teleop_controller.js",
+          "sha256": "6b37f7ea6a834043cd0f83f5e9fe74a9487d2ef96831457f6ff1d2a91e4aea5d"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/src/teleop_pairing.js",
+          "sha256": "00f576ac5f4c39b3393df9e4ae0e1329b1fa57e9d4a84c6c5de21c21316c417e"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/src/touch_button.js",
+          "sha256": "8f0fd1ee731616d88afc2b5e4e3f7b6b98433ebc99230e2af5fe105674f42c52"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/src/urdf_model_data.js",
+          "sha256": "602c5d197ae847ed4fefa5f4f974c88da0ab4c73d043af563bbc4a55aefa2292"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/src/version.js",
+          "sha256": "355bcbf1db28c469b84179d7ee654e6bfa578c4c083eba5481364fa85c85dbee"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/configure_can.sh",
+          "sha256": "e4ee158a1026fb304a031c7c5ed3849ee1325b40078d1dfb0a76e9e2f7a1e278"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/package.json",
+          "sha256": "595e4de65fa532b624d697d2e6bbf0da5a156428a0e41edc41917f5bd80fecde"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/start_ubuntu_lumos.sh",
+          "sha256": "35579088e687b40943db3fd327bf3549863f0967d7dec639bdb21ba6ebf85073"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/tools/__init__.py",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/tools/start_lumos_local.py",
+          "sha256": "579a9699729a7401f9194d794e22af433c7be732e817890af94d2622063ab65e"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/tools/ubuntu_setup.py",
+          "sha256": "706527ebfe063ca80a6bc2da334b63494b7053edbe0a4eb8a8c4bfd945cba21c"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/使用说明.txt",
+          "sha256": "5ae25c74635b187950a22cbd4e6f8e91ad483078535bad5d75f2e4dc288c304f"
+        },
+        {
+          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/SHA256SUMS",
+          "sha256": "af1fcbbb4b5b8f1b68f2605f09bd6a67c0677c8d81d3a2b1bf1ba7f2a6856ff6"
+        }
+      ]
+    }
+  ]
+}

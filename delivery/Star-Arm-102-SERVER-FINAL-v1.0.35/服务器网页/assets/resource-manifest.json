@@ -1,0 +1,49 @@
+{
+  "version": "v1.1.2-server-1.0.35",
+  "models": [
+    "models/fl/base_link.STL",
+    "models/fl/link1.STL",
+    "models/fl/link2.STL",
+    "models/fl/link3.STL",
+    "models/fl/link4.STL",
+    "models/fl/link5.STL",
+    "models/fl/link6.STL",
+    "models/fl/link7_left.STL",
+    "models/fl/link7_right.STL",
+    "models/ld/base_link.STL",
+    "models/ld/link1.STL",
+    "models/ld/link2.STL",
+    "models/ld/link3.STL",
+    "models/ld/link4.STL",
+    "models/ld/link5.STL",
+    "models/ld/link6.STL",
+    "models/ld/link7_left.STL",
+    "models/ld/link7_right.STL",
+    "models/b601/base_link.STL",
+    "models/b601/link1.STL",
+    "models/b601/link2.STL",
+    "models/b601/link3.STL",
+    "models/b601/link4.STL",
+    "models/b601/link5.STL",
+    "models/b601/link6.STL",
+    "models/b601/end_link.STL"
+  ],
+  "vendor": [
+    "vendor/three.module.js",
+    "vendor/three.core.js",
+    "vendor/STLLoader.js",
+    "vendor/OrbitControls.js"
+  ],
+  "meshTransport": {
+    "manifest": "../src/mesh_transport_manifest.js?v=server-1.0.35",
+    "encoding": "gzip",
+    "directory": "mesh-data/",
+    "initialChunkBytes": 65536,
+    "minimumChunkBytes": 8192,
+    "idleTimeoutMs": 60000,
+    "resumePartialResponse": true,
+    "preferFullFile": true,
+    "verifiedBrowserCache": true,
+    "modelConcurrency": 4
+  }
+}

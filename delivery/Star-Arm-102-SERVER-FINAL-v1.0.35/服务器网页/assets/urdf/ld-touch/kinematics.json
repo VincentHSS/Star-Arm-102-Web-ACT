@@ -1,0 +1,1250 @@
+{
+  "model": "Touch R1 Leader Arm V3.2",
+  "status_zh": "七轴运动学预览草案（双 finger 联动待实物确认）",
+  "source_assembly": "robot-description/source/r1-hd-urdf-only.FCStd",
+  "source_assembly_sha256": "b6cac35a9807eb45ec3ebaecfee955961dbb27ddb454c4c01f6b9bc63b60346f",
+  "source_format": "FCStd",
+  "original_step": {
+    "revision": "V3.2",
+    "original_step_name": "遥操臂V3.2_1013(1).stp",
+    "original_step_sha256": "f2654e3ba64084a5638cb16c66ebac0a958ef50be641a09abca82bdf0ccb2bc0",
+    "original_step_solids": 115,
+    "excluded_objects": [
+      {
+        "object": "Part__Feature094",
+        "label": "A000",
+        "solids": 1
+      },
+      {
+        "object": "Part__Feature097",
+        "label": "B000",
+        "solids": 1
+      }
+    ],
+    "snapshot_solids": 113,
+    "snapshot_sha256": "b6cac35a9807eb45ec3ebaecfee955961dbb27ddb454c4c01f6b9bc63b60346f",
+    "note_zh": "FCStd 由指定 STEP 导入，移除 A000、B000；原 STEP 原样保存在 hardware/step/assembly/touch-r1-leader-arm-v3.2-1013.stp。"
+  },
+  "source_length_unit": "mm",
+  "urdf_length_unit": "m",
+  "cad_to_urdf_zh": "绕 X 轴 +90°（Y 向上改为 Z 向上），再沿 Z 平移 51.000000 mm，使基座底面为 Z=0。",
+  "floor_offset_mm": 51.00000000007678,
+  "servo_replacements": [
+    {
+      "source_object": "RP8_U45H_M_C028_STEP_ASM",
+      "model": "rp8-u45h-m-c028",
+      "axis_offset_mm": 1.9626602028385573e-12,
+      "bbox_max_difference_mm": 0.0004282055559059472,
+      "original_solids": 14,
+      "replacement_solids": 14,
+      "relative_volume_difference": 7.580496954480903e-05
+    },
+    {
+      "source_object": "_25_50KG_0001_ASM_ASM",
+      "model": "rp8-u45h-m",
+      "axis_offset_mm": 3.88647553633079e-12,
+      "bbox_max_difference_mm": 1.4695400942343895e-05,
+      "original_solids": 14,
+      "replacement_solids": 15,
+      "relative_volume_difference": 0.033925480482595444
+    },
+    {
+      "source_object": "_25_50KG_0001_ASM_ASM001",
+      "model": "rp8-u45h-m",
+      "axis_offset_mm": 3.8852656115585376e-12,
+      "bbox_max_difference_mm": 1.3554316772967923e-05,
+      "original_solids": 14,
+      "replacement_solids": 15,
+      "relative_volume_difference": 0.03392548048259433
+    },
+    {
+      "source_object": "_25_50KG_0001_ASM_ASM002",
+      "model": "rp8-u45h-m",
+      "axis_offset_mm": 3.886565250787462e-12,
+      "bbox_max_difference_mm": 1.355431321137246e-05,
+      "original_solids": 14,
+      "replacement_solids": 15,
+      "relative_volume_difference": 0.033925480482597796
+    },
+    {
+      "source_object": "RP8_U45H_M_C028_STEP_ASM001",
+      "model": "rp8-u45h-m-c028",
+      "axis_offset_mm": 1.953123537179447e-12,
+      "bbox_max_difference_mm": 0.00042820555216849243,
+      "original_solids": 14,
+      "replacement_solids": 14,
+      "relative_volume_difference": 7.580496954580709e-05
+    },
+    {
+      "source_object": "RP8_U45H_M_C028_STEP_ASM002",
+      "model": "rp8-u45h-m-c028",
+      "axis_offset_mm": 1.94950629163242e-12,
+      "bbox_max_difference_mm": 0.00042820555216849243,
+      "original_solids": 14,
+      "replacement_solids": 14,
+      "relative_volume_difference": 7.580496954740396e-05
+    },
+    {
+      "source_object": "RP8_U45H_M_C028_STEP_ASM003",
+      "model": "rp8-u45h-m-c028",
+      "axis_offset_mm": 1.9470041148298738e-12,
+      "bbox_max_difference_mm": 0.00042820555593436893,
+      "original_solids": 14,
+      "replacement_solids": 14,
+      "relative_volume_difference": 7.580496954301236e-05
+    }
+  ],
+  "sources": [
+    {
+      "file": "robot-description/source/r1-hd-urdf-only.FCStd",
+      "sha256": "b6cac35a9807eb45ec3ebaecfee955961dbb27ddb454c4c01f6b9bc63b60346f"
+    },
+    {
+      "file": "robot-description/source/assembly-source.json",
+      "sha256": "1f74e3a6917988a9abdefb96b76598ccc35dcfb772321a1c38180e380bc1991c"
+    },
+    {
+      "file": "step/components/rp8-u45h-m.step",
+      "sha256": "9b05336f4975a8c62db8ca1be515b7732e81897740106acf8d89c7fc8ab00d27"
+    },
+    {
+      "file": "step/components/rp8-u45h-m-c028.step",
+      "sha256": "ceb9222f57d3fd2b9a7a2b22f64d09b59098b455873ef0e966cc2c6bdff5b0eb"
+    }
+  ],
+  "zero_pose_zh": "源 FCStd 装配姿态，不是实机编码器零位。",
+  "joint_limits_zh": "未确认；URDF 使用 continuous 供可视化；J1–J6 ±90°、J7 0–25° 均仅为演示范围。",
+  "removed_parts_zh": "V3.2 STEP 导入时排除 A000、B000 两个限位块，不从旧 BOM 回填。",
+  "auxiliary_parts_zh": "保留当前源文件中的垫片和五个紧固件，固定归属待实物复核。",
+  "inertia_collision_control_zh": "未提供质量、惯量、碰撞模型、驱动参数或控制接口；仅用于可视化。",
+  "original_assembly_solids": 113,
+  "replacement_assembly_solids": 116,
+  "source_leaf_objects": [
+    "Part__Feature",
+    "Part__Feature001",
+    "Part__Feature002",
+    "Part__Feature003",
+    "Part__Feature004",
+    "Part__Feature005",
+    "Part__Feature006",
+    "Part__Feature007",
+    "Part__Feature008",
+    "Part__Feature009",
+    "Part__Feature010",
+    "Part__Feature011",
+    "Part__Feature012",
+    "Part__Feature013",
+    "Part__Feature014",
+    "Part__Feature015",
+    "Part__Feature016",
+    "Part__Feature017",
+    "Part__Feature018",
+    "Part__Feature019",
+    "Part__Feature020",
+    "Part__Feature021",
+    "Part__Feature022",
+    "Part__Feature023",
+    "Part__Feature024",
+    "Part__Feature025",
+    "Part__Feature026",
+    "Part__Feature027",
+    "Part__Feature028",
+    "Part__Feature029",
+    "Part__Feature030",
+    "Part__Feature031",
+    "Part__Feature032",
+    "Part__Feature033",
+    "Part__Feature034",
+    "Part__Feature035",
+    "Part__Feature036",
+    "Part__Feature037",
+    "Part__Feature038",
+    "Part__Feature039",
+    "Part__Feature040",
+    "Part__Feature041",
+    "Part__Feature042",
+    "Part__Feature043",
+    "Part__Feature044",
+    "Part__Feature045",
+    "Part__Feature046",
+    "Part__Feature047",
+    "Part__Feature048",
+    "Part__Feature049",
+    "Part__Feature050",
+    "Part__Feature051",
+    "Part__Feature052",
+    "Part__Feature053",
+    "Part__Feature054",
+    "Part__Feature055",
+    "Part__Feature056",
+    "Part__Feature057",
+    "Part__Feature058",
+    "Part__Feature059",
+    "Part__Feature060",
+    "Part__Feature061",
+    "Part__Feature062",
+    "Part__Feature063",
+    "Part__Feature064",
+    "Part__Feature065",
+    "Part__Feature066",
+    "Part__Feature067",
+    "Part__Feature068",
+    "Part__Feature069",
+    "Part__Feature070",
+    "Part__Feature071",
+    "Part__Feature072",
+    "Part__Feature073",
+    "Part__Feature074",
+    "Part__Feature075",
+    "Part__Feature076",
+    "Part__Feature077",
+    "Part__Feature078",
+    "Part__Feature079",
+    "Part__Feature080",
+    "Part__Feature081",
+    "Part__Feature082",
+    "Part__Feature083",
+    "Part__Feature084",
+    "Part__Feature085",
+    "Part__Feature086",
+    "Part__Feature087",
+    "Part__Feature088",
+    "Part__Feature089",
+    "Part__Feature090",
+    "Part__Feature091",
+    "Part__Feature092",
+    "Part__Feature093",
+    "Part__Feature095",
+    "Part__Feature096",
+    "Part__Feature098",
+    "Part__Feature099",
+    "Part__Feature100",
+    "Part__Feature101",
+    "Part__Feature102",
+    "Part__Feature103",
+    "Part__Feature104",
+    "Part__Feature105",
+    "Part__Feature106",
+    "Part__Feature107",
+    "Part__Feature108",
+    "Part__Feature109",
+    "Part__Feature110",
+    "Part__Feature111",
+    "Part__Feature112",
+    "Part__Feature113",
+    "Part__Feature114"
+  ],
+  "links": 9,
+  "independent_joints": 7,
+  "joints": [
+    {
+      "name": "joint_1",
+      "parent": "base_link",
+      "child": "link_1",
+      "origin_xyz": [
+        -0.0,
+        -5e-06,
+        0.053656545
+      ],
+      "axis": [
+        -0.0,
+        0.0,
+        1.0
+      ],
+      "cad_axis_point_mm": [
+        -0.0,
+        2.6565450138,
+        0.005
+      ],
+      "cad_axis_direction": [
+        -0.0,
+        1.0,
+        -0.0
+      ],
+      "coaxial_error_mm": 2.00277381121817e-12,
+      "source_object": "RP8_U45H_M_C028_STEP_ASM",
+      "servo_model": "rp8-u45h-m-c028",
+      "preview_range_deg": [
+        -90,
+        90
+      ],
+      "status_zh": "CAD 推导轴线及连接关系，实物方向与限位待确认"
+    },
+    {
+      "name": "joint_2",
+      "parent": "link_1",
+      "child": "link_2",
+      "origin_xyz": [
+        -0.0001311964,
+        0.0149401465,
+        0.0371079012
+      ],
+      "axis": [
+        1.0,
+        0.0,
+        -0.0
+      ],
+      "cad_axis_point_mm": [
+        -0.1311964319,
+        39.7644462086,
+        -14.9351464749
+      ],
+      "cad_axis_direction": [
+        1.0,
+        -0.0,
+        -0.0
+      ],
+      "coaxial_error_mm": 6.655923868468875e-12,
+      "source_object": "_25_50KG_0001_ASM_ASM",
+      "servo_model": "rp8-u45h-m",
+      "preview_range_deg": [
+        -90,
+        90
+      ],
+      "status_zh": "CAD 推导轴线及连接关系，实物方向与限位待确认"
+    },
+    {
+      "name": "joint_3",
+      "parent": "link_2",
+      "child": "link_3",
+      "origin_xyz": [
+        -0.0001,
+        -0.165625,
+        0.0
+      ],
+      "axis": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "cad_axis_point_mm": [
+        -0.2311964319,
+        39.7644462087,
+        150.6898535251
+      ],
+      "cad_axis_direction": [
+        1.0,
+        0.0,
+        -0.0
+      ],
+      "coaxial_error_mm": 3.8152384412084326e-11,
+      "source_object": "_25_50KG_0001_ASM_ASM001",
+      "servo_model": "rp8-u45h-m",
+      "preview_range_deg": [
+        -90,
+        90
+      ],
+      "status_zh": "CAD 推导轴线及连接关系，实物方向与限位待确认"
+    },
+    {
+      "name": "joint_4",
+      "parent": "link_3",
+      "child": "link_4",
+      "origin_xyz": [
+        0.0003623929,
+        0.165625,
+        0.03875
+      ],
+      "axis": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "cad_axis_point_mm": [
+        0.1311964319,
+        78.5144462083,
+        -14.9351464755
+      ],
+      "cad_axis_direction": [
+        1.0,
+        0.0,
+        -0.0
+      ],
+      "coaxial_error_mm": 3.181578725001634e-11,
+      "source_object": "_25_50KG_0001_ASM_ASM002",
+      "servo_model": "rp8-u45h-m",
+      "preview_range_deg": [
+        -90,
+        90
+      ],
+      "status_zh": "CAD 推导轴线及连接关系，实物方向与限位待确认"
+    },
+    {
+      "name": "joint_5",
+      "parent": "link_4",
+      "child": "link_5",
+      "origin_xyz": [
+        -0.0002311964,
+        0.048745,
+        0.019343455
+      ],
+      "axis": [
+        -0.0,
+        0.0,
+        1.0
+      ],
+      "cad_axis_point_mm": [
+        -0.1,
+        97.8579011945,
+        -63.6801464755
+      ],
+      "cad_axis_direction": [
+        -0.0,
+        1.0,
+        -0.0
+      ],
+      "coaxial_error_mm": 3.543361665283302e-12,
+      "source_object": "RP8_U45H_M_C028_STEP_ASM001",
+      "servo_model": "rp8-u45h-m-c028",
+      "preview_range_deg": [
+        -90,
+        90
+      ],
+      "status_zh": "CAD 推导轴线及连接关系，实物方向与限位待确认"
+    },
+    {
+      "name": "joint_6",
+      "parent": "link_5",
+      "child": "link_6",
+      "origin_xyz": [
+        -0.0,
+        0.015046545,
+        -0.020098455
+      ],
+      "axis": [
+        -0.0,
+        -1.0,
+        0.0
+      ],
+      "cad_axis_point_mm": [
+        -0.1,
+        77.7594462083,
+        -78.7266914893
+      ],
+      "cad_axis_direction": [
+        -0.0,
+        0.0,
+        1.0
+      ],
+      "coaxial_error_mm": 1.9700007010879524e-12,
+      "source_object": "RP8_U45H_M_C028_STEP_ASM002",
+      "servo_model": "rp8-u45h-m-c028",
+      "preview_range_deg": [
+        -90,
+        90
+      ],
+      "status_zh": "CAD 推导轴线及连接关系，实物方向与限位待确认"
+    },
+    {
+      "name": "joint_7",
+      "parent": "link_6",
+      "child": "right_finger",
+      "origin_xyz": [
+        0.006675,
+        0.0541,
+        0.00235
+      ],
+      "axis": [
+        -0.0,
+        -1.0,
+        0.0
+      ],
+      "cad_axis_point_mm": [
+        6.575,
+        80.1094462083,
+        -132.8266914893
+      ],
+      "cad_axis_direction": [
+        -0.0,
+        0.0,
+        1.0
+      ],
+      "coaxial_error_mm": 3.0497460088155616e-11,
+      "source_object": "RP8_U45H_M_C028_STEP_ASM003",
+      "servo_model": "rp8-u45h-m-c028",
+      "preview_range_deg": [
+        0,
+        25
+      ],
+      "status_zh": "CAD 推导轴线及连接关系，实物方向与限位待确认"
+    },
+    {
+      "name": "left_finger_joint",
+      "parent": "link_6",
+      "child": "left_finger",
+      "origin_xyz": [
+        -0.015325,
+        0.0541,
+        0.00235
+      ],
+      "axis": [
+        0.0,
+        -1.0,
+        0.0
+      ],
+      "cad_axis_point_mm": [
+        -15.425,
+        80.1094462083,
+        -132.8266914893
+      ],
+      "cad_axis_direction": [
+        -0.0,
+        0.0,
+        1.0
+      ],
+      "coaxial_error_mm": 2.1810797641354933e-12,
+      "source_object": "Part__Feature113",
+      "mimic": {
+        "joint": "joint_7",
+        "multiplier": -1.0,
+        "offset": 0.0
+      },
+      "status_zh": "按 CAD 齿形推定 1:1 反向联动，传动关系与实际行程待实物复核"
+    }
+  ],
+  "meshes": [
+    {
+      "link": "base_link",
+      "file": "meshes/base_link-structure.stl",
+      "category": "structure",
+      "triangles": 10034,
+      "bounds_m": [
+        [
+          -0.05250001907348633,
+          -0.05,
+          7.677414259887882e-14
+        ],
+        [
+          0.05250001907348633,
+          0.04500001907348632,
+          0.056000000000076794
+        ]
+      ],
+      "sha256": "54b36ed6c5d1a5d1e05947d2b1f63bef4ec7aedb0fbf96b040766c289e7818df"
+    },
+    {
+      "link": "base_link",
+      "file": "meshes/base_link-servo.stl",
+      "category": "servo",
+      "triangles": 10080,
+      "bounds_m": [
+        [
+          -0.010000009536743164,
+          -0.02968000411987305,
+          0.011000000000076782
+        ],
+        [
+          0.010000004768371581,
+          0.0103200044631958,
+          0.055524117946701534
+        ]
+      ],
+      "sha256": "a8756dccb320ded3cb8d54bb6ac813ef8c49216b5f0228361df4cb4e00a08648"
+    },
+    {
+      "link": "base_link",
+      "file": "meshes/base_link-hardware.stl",
+      "category": "hardware",
+      "triangles": 3452,
+      "bounds_m": [
+        [
+          -0.00875,
+          -0.0505,
+          0.03850000000007679
+        ],
+        [
+          0.00875,
+          0.041646991729736335,
+          0.08282854080207872
+        ]
+      ],
+      "sha256": "a780fc48dc8fd680e6e57fedf4a1c1e568569c5e1606c55b8676d271c2a0af1a"
+    },
+    {
+      "link": "link_1",
+      "file": "meshes/link_1-structure.stl",
+      "category": "structure",
+      "triangles": 9820,
+      "bounds_m": [
+        [
+          -0.022999999999998143,
+          -0.02299999916076738,
+          0.001143454938560481
+        ],
+        [
+          0.02300000000000186,
+          0.045999998931883994,
+          0.02978679147306059
+        ]
+      ],
+      "sha256": "936ccf707ef974c7fd322dae0d000190c658b5f15cafdfca6a92dd54bdcf6813"
+    },
+    {
+      "link": "link_1",
+      "file": "meshes/link_1-servo.stl",
+      "category": "servo",
+      "triangles": 12772,
+      "bounds_m": [
+        [
+          -0.024624118804929783,
+          0.0022090612697593676,
+          0.005999519973426814
+        ],
+        [
+          0.026700000762941312,
+          0.034289320831298056,
+          0.0500332285458145
+        ]
+      ],
+      "sha256": "c47a3c9ffdce6bc6c9a1cf21fbfd33ca40346a79d1219ca406923b3102a7b216"
+    },
+    {
+      "link": "link_1",
+      "file": "meshes/link_1-horn.stl",
+      "category": "horn",
+      "triangles": 3426,
+      "bounds_m": [
+        [
+          -0.009996114730833104,
+          -0.009996114845276653,
+          -0.001856545001834874
+        ],
+        [
+          0.009996114730836817,
+          0.009996114616393268,
+          0.00314345517697906
+        ]
+      ],
+      "sha256": "5d43061373941a9c5760b472b5a1bbd3a387776421983ea346d22264fe15e393"
+    },
+    {
+      "link": "link_2",
+      "file": "meshes/link_2-structure.stl",
+      "category": "structure",
+      "triangles": 14368,
+      "bounds_m": [
+        [
+          -0.030168802805170977,
+          -0.15581003966339174,
+          -0.01399999995008575
+        ],
+        [
+          0.029831197194829025,
+          0.01399999985687195,
+          0.014000000049914278
+        ]
+      ],
+      "sha256": "86123a0fae9912548c9b3f0b0e8b8936b71cd9c18b4be7e1ff13ee44146a3ac0"
+    },
+    {
+      "link": "link_2",
+      "file": "meshes/link_2-servo.stl",
+      "category": "servo",
+      "triangles": 12772,
+      "bounds_m": [
+        [
+          -0.024592920847163163,
+          -0.17595000853546205,
+          -0.01000000567213162
+        ],
+        [
+          0.026731196813359295,
+          -0.13594999327667295,
+          0.010000011494006087
+        ]
+      ],
+      "sha256": "011d60e7ac091d136a2ecb9874acfb4d034ed506a36a1f5a1d4c67726d5fde2b"
+    },
+    {
+      "link": "link_2",
+      "file": "meshes/link_2-horn.stl",
+      "category": "horn",
+      "triangles": 5114,
+      "bounds_m": [
+        [
+          -0.025768803186640703,
+          -0.01000000014312805,
+          -0.009999999950085752
+        ],
+        [
+          0.025831197194829025,
+          0.009999999856871949,
+          0.010000000049914248
+        ]
+      ],
+      "sha256": "fc4a15dba7732ae4fb632ab03ae77283d1ef7f6f8a93060393d4a0fdc0168140"
+    },
+    {
+      "link": "link_3",
+      "file": "meshes/link_3-structure.stl",
+      "category": "structure",
+      "triangles": 18952,
+      "bounds_m": [
+        [
+          -0.030768803568111427,
+          -0.013999996328397572,
+          -0.013999999950121108
+        ],
+        [
+          0.031231196431888573,
+          0.1521999953746359,
+          0.05274999623518161
+        ]
+      ],
+      "sha256": "fb97e1d6640aff33130fc216917d44e8940c474ef6b49b67caa44804b2e9eeb4"
+    },
+    {
+      "link": "link_3",
+      "file": "meshes/link_3-servo.stl",
+      "category": "servo",
+      "triangles": 12772,
+      "bounds_m": [
+        [
+          -0.02646880433105088,
+          0.13594999489779874,
+          0.0287499962351816
+        ],
+        [
+          0.024855315236820216,
+          0.17595000443454192,
+          0.04875001149397067
+        ]
+      ],
+      "sha256": "0f8b91792f6f95789f355417661037c26f43f62ef4d379d7087034462e60e790"
+    },
+    {
+      "link": "link_3",
+      "file": "meshes/link_3-horn.stl",
+      "category": "horn",
+      "triangles": 5114,
+      "bounds_m": [
+        [
+          -0.025768803568111426,
+          -0.009999996328397572,
+          -0.009999999950121108
+        ],
+        [
+          0.0258311968133583,
+          0.010000003671602429,
+          0.010000000049878907
+        ]
+      ],
+      "sha256": "3b9dffb0878c92ca86dcad69bafebbb181f25bf2c8b0d946ece3b2e8991aabee"
+    },
+    {
+      "link": "link_4",
+      "file": "meshes/link_4-structure.stl",
+      "category": "structure",
+      "triangles": 12802,
+      "bounds_m": [
+        [
+          -0.03423119490600965,
+          -0.014000000024532569,
+          -0.015999999949733876
+        ],
+        [
+          0.03376880509399035,
+          0.06600000367095542,
+          0.036499996235568884
+        ]
+      ],
+      "sha256": "0f6f96a3c94cdf559211ff811d69e279dbd8e034563144ecfaaa60fc7c698176"
+    },
+    {
+      "link": "link_4",
+      "file": "meshes/link_4-servo.stl",
+      "category": "servo",
+      "triangles": 10080,
+      "bounds_m": [
+        [
+          -0.01023120158172986,
+          0.019069995736385095,
+          0.017475879719455578
+        ],
+        [
+          0.009768813677059203,
+          0.05907000336577963,
+          0.06200000386496342
+        ]
+      ],
+      "sha256": "2e95471e686c3a8f79be501efeead92a9eda778a52fd580ac43bafbcff78e963"
+    },
+    {
+      "link": "link_4",
+      "file": "meshes/link_4-horn.stl",
+      "category": "horn",
+      "triangles": 5114,
+      "bounds_m": [
+        [
+          -0.025831197194828005,
+          -0.010000000143741859,
+          -0.010000003764431128
+        ],
+        [
+          0.025768803186641723,
+          0.009999999856258142,
+          0.009999996235568886
+        ]
+      ],
+      "sha256": "6c26b6b68fd6b2dfe76fc7e5e75de2e6eb18d7f60e760d6a51b0d0fe498d0ddd"
+    },
+    {
+      "link": "link_5",
+      "file": "meshes/link_5-structure.stl",
+      "category": "structure",
+      "triangles": 6086,
+      "bounds_m": [
+        [
+          -0.0122500003814717,
+          -0.030809998770455132,
+          -0.052843454935977204
+        ],
+        [
+          0.0134999996185283,
+          0.015389998177787063,
+          -0.0011434541730377533
+        ]
+      ],
+      "sha256": "0d413a2d34b308d42827e8b339071edcf1ac79d667ce5acf1609d36d508bdd74"
+    },
+    {
+      "link": "link_5",
+      "file": "meshes/link_5-servo.stl",
+      "category": "servo",
+      "triangles": 10080,
+      "bounds_m": [
+        [
+          -0.010000005149843283,
+          -0.027610001822212935,
+          -0.049773459055850254
+        ],
+        [
+          0.01000001010894578,
+          0.016914114693900344,
+          -0.009773451426455722
+        ]
+      ],
+      "sha256": "49f5dfc86ffe7e2a3742708c6c6cba2f44609179bc704da00171f022762ec435"
+    },
+    {
+      "link": "link_5",
+      "file": "meshes/link_5-horn.stl",
+      "category": "horn",
+      "triangles": 3426,
+      "bounds_m": [
+        [
+          -0.009996114158632345,
+          -0.009996114035347696,
+          -0.0031434541730377533
+        ],
+        [
+          0.009996114349363261,
+          0.009996115426322234,
+          0.0018565458269622468
+        ]
+      ],
+      "sha256": "b262c751b23bce51dee582bb0937efb3dc198601636d0e9179ab3a70dca09f8e"
+    },
+    {
+      "link": "link_5",
+      "file": "meshes/link_5-hardware.stl",
+      "category": "hardware",
+      "triangles": 1274,
+      "bounds_m": [
+        [
+          -0.0027499999046345417,
+          0.011389998177787063,
+          -0.006493452647158847
+        ],
+        [
+          0.002750000095365458,
+          0.017389998177787077,
+          -0.000993452647158847
+        ]
+      ],
+      "sha256": "a60aa8f59f4971b0ea19fc02419da03cea22290a9a290fef61cd3648aefc458b"
+    },
+    {
+      "link": "link_6",
+      "file": "meshes/link_6-structure.stl",
+      "category": "structure",
+      "triangles": 14658,
+      "bounds_m": [
+        [
+          -0.028000000381471685,
+          -0.00714343190676837,
+          -0.12123983484964071
+        ],
+        [
+          0.022300000762937495,
+          0.05724346231930589,
+          0.0166500005080253
+        ]
+      ],
+      "sha256": "369d6dbaf8c2506bcb594f35fcbb45f19d23818bcc9822d4776fec90ab0049a6"
+    },
+    {
+      "link": "link_6",
+      "file": "meshes/link_6-servo.stl",
+      "category": "servo",
+      "triangles": 10080,
+      "bounds_m": [
+        [
+          -0.023000004196168954,
+          0.011443451638153534,
+          -0.0076500101731270575
+        ],
+        [
+          0.017000005340574213,
+          0.05596756815426683,
+          0.01235000508566199
+        ]
+      ],
+      "sha256": "4a5daada45f7092ad03fba80782fe8264b0dc938760b113f64c290bd3ebebe87"
+    },
+    {
+      "link": "link_6",
+      "file": "meshes/link_6-horn.stl",
+      "category": "horn",
+      "triangles": 3426,
+      "bounds_m": [
+        [
+          -0.009996114158632332,
+          -0.0018565437842097481,
+          -0.009996117656037199
+        ],
+        [
+          0.009996114349363275,
+          0.0031434562157902518,
+          0.009996115620329989
+        ]
+      ],
+      "sha256": "af16c8c513257d2b6a4a474ea920a0d853c066e4d82639eca920495f9b490179"
+    },
+    {
+      "link": "right_finger",
+      "file": "meshes/right_finger-horn.stl",
+      "category": "horn",
+      "triangles": 3426,
+      "bounds_m": [
+        [
+          -0.009996114444734179,
+          -0.0018565376806737959,
+          -0.009996111552530308
+        ],
+        [
+          0.009996113586424268,
+          0.003143462319326204,
+          0.009996114094442333
+        ]
+      ],
+      "sha256": "c4a1991228cdce0eedaceb9a3dd62e15213d4812cfdd2367555d1750cf1a2996"
+    },
+    {
+      "link": "right_finger",
+      "file": "meshes/right_finger-finger.stl",
+      "category": "finger",
+      "triangles": 8076,
+      "bounds_m": [
+        [
+          -0.011972137641908251,
+          -0.010838127951669918,
+          -0.07919072965841868
+        ],
+        [
+          0.02367501525878755,
+          0.007343459267568392,
+          0.01275823720235249
+        ]
+      ],
+      "sha256": "0e5a266d6513a5c31ed1df0b3225a002c7f17fc03645b36fde25f94c446814ee"
+    },
+    {
+      "link": "left_finger",
+      "file": "meshes/left_finger-finger.stl",
+      "category": "finger",
+      "triangles": 7026,
+      "bounds_m": [
+        [
+          -0.024708419036865235,
+          -0.012412651877483626,
+          -0.07915748773077501
+        ],
+        [
+          0.011999977397918702,
+          0.007343459267535934,
+          0.011940183003153663
+        ]
+      ],
+      "sha256": "f094eef2d183150a5f232b66b382d3f05ee34ed96de54c44de29f8675f737a81"
+    }
+  ],
+  "source_mapping": [
+    {
+      "source_object": "RP8_U45H_M_C028_STEP_ASM",
+      "source_leaf_objects": [
+        "Part__Feature001",
+        "Part__Feature002",
+        "Part__Feature003",
+        "Part__Feature004",
+        "Part__Feature005",
+        "Part__Feature006",
+        "Part__Feature007",
+        "Part__Feature008",
+        "Part__Feature009",
+        "Part__Feature010",
+        "Part__Feature011",
+        "Part__Feature012",
+        "Part__Feature013",
+        "Part__Feature014"
+      ],
+      "body_link": 0,
+      "horn_link": 1,
+      "body_solids": 13,
+      "horn_solids": 1
+    },
+    {
+      "source_object": "_25_50KG_0001_ASM_ASM",
+      "source_leaf_objects": [
+        "Part__Feature019",
+        "Part__Feature020",
+        "Part__Feature021",
+        "Part__Feature022",
+        "Part__Feature023",
+        "Part__Feature024",
+        "Part__Feature025",
+        "Part__Feature026",
+        "Part__Feature027",
+        "Part__Feature028",
+        "Part__Feature029",
+        "Part__Feature030",
+        "Part__Feature031",
+        "Part__Feature032"
+      ],
+      "body_link": 1,
+      "horn_link": 2,
+      "body_solids": 13,
+      "horn_solids": 2
+    },
+    {
+      "source_object": "_25_50KG_0001_ASM_ASM001",
+      "source_leaf_objects": [
+        "Part__Feature034",
+        "Part__Feature035",
+        "Part__Feature036",
+        "Part__Feature037",
+        "Part__Feature038",
+        "Part__Feature039",
+        "Part__Feature040",
+        "Part__Feature041",
+        "Part__Feature042",
+        "Part__Feature043",
+        "Part__Feature044",
+        "Part__Feature045",
+        "Part__Feature046",
+        "Part__Feature047"
+      ],
+      "body_link": 2,
+      "horn_link": 3,
+      "body_solids": 13,
+      "horn_solids": 2
+    },
+    {
+      "source_object": "_25_50KG_0001_ASM_ASM002",
+      "source_leaf_objects": [
+        "Part__Feature049",
+        "Part__Feature050",
+        "Part__Feature051",
+        "Part__Feature052",
+        "Part__Feature053",
+        "Part__Feature054",
+        "Part__Feature055",
+        "Part__Feature056",
+        "Part__Feature057",
+        "Part__Feature058",
+        "Part__Feature059",
+        "Part__Feature060",
+        "Part__Feature061",
+        "Part__Feature062"
+      ],
+      "body_link": 3,
+      "horn_link": 4,
+      "body_solids": 13,
+      "horn_solids": 2
+    },
+    {
+      "source_object": "RP8_U45H_M_C028_STEP_ASM001",
+      "source_leaf_objects": [
+        "Part__Feature064",
+        "Part__Feature065",
+        "Part__Feature066",
+        "Part__Feature067",
+        "Part__Feature068",
+        "Part__Feature069",
+        "Part__Feature070",
+        "Part__Feature071",
+        "Part__Feature072",
+        "Part__Feature073",
+        "Part__Feature074",
+        "Part__Feature075",
+        "Part__Feature076",
+        "Part__Feature077"
+      ],
+      "body_link": 4,
+      "horn_link": 5,
+      "body_solids": 13,
+      "horn_solids": 1
+    },
+    {
+      "source_object": "RP8_U45H_M_C028_STEP_ASM002",
+      "source_leaf_objects": [
+        "Part__Feature079",
+        "Part__Feature080",
+        "Part__Feature081",
+        "Part__Feature082",
+        "Part__Feature083",
+        "Part__Feature084",
+        "Part__Feature085",
+        "Part__Feature086",
+        "Part__Feature087",
+        "Part__Feature088",
+        "Part__Feature089",
+        "Part__Feature090",
+        "Part__Feature091",
+        "Part__Feature092"
+      ],
+      "body_link": 5,
+      "horn_link": 6,
+      "body_solids": 13,
+      "horn_solids": 1
+    },
+    {
+      "source_object": "RP8_U45H_M_C028_STEP_ASM003",
+      "source_leaf_objects": [
+        "Part__Feature099",
+        "Part__Feature100",
+        "Part__Feature101",
+        "Part__Feature102",
+        "Part__Feature103",
+        "Part__Feature104",
+        "Part__Feature105",
+        "Part__Feature106",
+        "Part__Feature107",
+        "Part__Feature108",
+        "Part__Feature109",
+        "Part__Feature110",
+        "Part__Feature111",
+        "Part__Feature112"
+      ],
+      "body_link": 6,
+      "horn_link": 7,
+      "body_solids": 13,
+      "horn_solids": 1
+    },
+    {
+      "source_object": "Part__Feature",
+      "source_label": "_X2_51738282_X0_1_NEW",
+      "link": 0,
+      "solids": 1,
+      "status_zh": "按结构顺序归属"
+    },
+    {
+      "source_object": "Part__Feature016",
+      "source_label": "_X2_51738282_X0_2__X2_65B0_X0_",
+      "link": 1,
+      "solids": 1,
+      "status_zh": "按结构顺序归属"
+    },
+    {
+      "source_object": "Part__Feature033",
+      "source_label": "_X2_51738282_X0_3",
+      "link": 2,
+      "solids": 1,
+      "status_zh": "按结构顺序归属"
+    },
+    {
+      "source_object": "Part__Feature048",
+      "source_label": "_X2_51738282_X0_4",
+      "link": 3,
+      "solids": 1,
+      "status_zh": "按结构顺序归属"
+    },
+    {
+      "source_object": "Part__Feature063",
+      "source_label": "_X2_51738282_X0_5_NEW",
+      "link": 4,
+      "solids": 1,
+      "status_zh": "按结构顺序归属"
+    },
+    {
+      "source_object": "Part__Feature078",
+      "source_label": "_X2_51738282_X0_6_NEW",
+      "link": 5,
+      "solids": 1,
+      "status_zh": "按结构顺序归属"
+    },
+    {
+      "source_object": "Part__Feature098",
+      "source_label": "NONE-4037_1",
+      "link": 6,
+      "solids": 1,
+      "status_zh": "按结构顺序归属"
+    },
+    {
+      "source_object": "Part__Feature114",
+      "source_label": "RIGHT_ZHUA",
+      "link": 7,
+      "solids": 1,
+      "status_zh": "按结构顺序归属"
+    },
+    {
+      "source_object": "Part__Feature015",
+      "source_label": "_X2_57AB7247_X0_",
+      "link": 1,
+      "solids": 1,
+      "status_zh": "垫片／紧固件固定归属待装配工程复核"
+    },
+    {
+      "source_object": "Part__Feature017",
+      "source_label": "PRT0001",
+      "link": 0,
+      "solids": 1,
+      "status_zh": "垫片／紧固件固定归属待装配工程复核"
+    },
+    {
+      "source_object": "Part__Feature018",
+      "source_label": "PRT0002",
+      "link": 0,
+      "solids": 1,
+      "status_zh": "垫片／紧固件固定归属待装配工程复核"
+    },
+    {
+      "source_object": "Part__Feature093",
+      "source_label": "GB_T70_1-M3X400",
+      "link": 5,
+      "solids": 1,
+      "status_zh": "垫片／紧固件固定归属待装配工程复核"
+    },
+    {
+      "source_object": "Part__Feature095",
+      "source_label": "M2X4X30001",
+      "link": 0,
+      "solids": 1,
+      "status_zh": "垫片／紧固件固定归属待装配工程复核"
+    },
+    {
+      "source_object": "Part__Feature096",
+      "source_label": "M2X4X30002",
+      "link": 0,
+      "solids": 1,
+      "status_zh": "垫片／紧固件固定归属待装配工程复核"
+    },
+    {
+      "source_object": "Part__Feature113",
+      "source_label": "LEFT_ZHUA",
+      "link": 8,
+      "solids": 1,
+      "status_zh": "垫片／紧固件固定归属待装配工程复核"
+    }
+  ]
+}

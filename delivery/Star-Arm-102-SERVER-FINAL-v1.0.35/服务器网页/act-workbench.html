@@ -1,0 +1,404 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta http-equiv="Cache-Control" content="no-store">
+  <title>Star Arm 102 · ACT 工作台 v0.1.0</title>
+  <link rel="stylesheet" href="src/act-workbench.css?v=2026-10-14-training-submit-1">
+  <link rel="stylesheet" href="src/act-inference.css?v=2026-10-14-training-submit-1">
+  <link rel="stylesheet" href="src/act-ui-refresh.css?v=2026-10-14-training-submit-1">
+  <link rel="stylesheet" href="src/workspace-switch.css?v=2026-10-14-training-submit-1">
+<style>html,body{background:#0f1416}</style>
+<link rel="icon" href="assets/logo-icon.png">
+<link rel="stylesheet" href="src/interaction.css?v=button-flow-1">
+<link rel="stylesheet" href="src/workspace-nav.css?v=20261020">
+</head>
+<body>
+<div class="app-shell">
+  <header class="topbar workspace-header">
+    <div class="brand">
+      <img src="assets/logo-icon.png" alt="" aria-hidden="true">
+      <div><strong>Star Arm 102</strong><small>采集 · 训练 · 模型 · 实机运行</small></div>
+    </div>
+    <nav class="workspace-nav" aria-label="工作区">
+      <details>
+        <summary><span><small>当前工作区</small><strong>ACT 工作台</strong></span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 7 5 5 5-5"/></svg></summary>
+        <div class="workspace-nav-menu">
+          <a href="index.html" data-workspace-target="piper"><strong>控制台</strong><small>机械臂连接与实时控制</small></a>
+          <span aria-current="page"><strong>ACT 工作台</strong><small>数据采集、训练与模型管理</small></span>
+          <a href="act-browser.html" data-workspace-target="act"><strong>网页执行</strong><small>在浏览器中运行已转换模型</small></a>
+        </div>
+      </details>
+    </nav>
+    <div class="top-state">
+      <div id="service-state" class="service-state pending"><i></i><span>连接本机服务</span></div>
+      <span class="version">LeRobot 官方驱动版</span>
+      <div class="language-switch" data-language="zh" role="group" aria-label="切换语言">
+        <span class="language-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18M12 3c2.4 2.5 3.6 5.5 3.6 9S14.4 18.5 12 21M12 3C9.6 5.5 8.4 8.5 8.4 12S9.6 18.5 12 21"></path></svg></span>
+        <button class="active" type="button" aria-pressed="true">中文</button><button type="button" aria-pressed="false">EN</button>
+      </div>
+      <button id="emergency-stop" class="emergency" type="button">紧急停止 · 全局急停</button>
+    </div>
+  </header>
+
+  <nav class="workflow" aria-label="ACT 工作流程">
+    <button class="active" data-view="collect"><span>01</span><b>数据采集</b></button>
+    <button data-view="train"><span>02</span><b>训练任务</b></button>
+    <button data-view="models"><span>03</span><b>模型管理</b></button>
+    <button data-view="infer"><span>04</span><b>实机推理</b></button>
+    <div class="workflow-meta"><i></i><span>设备连接后按步骤运行</span></div>
+  </nav>
+
+  <main>
+    <section id="collect" class="view active capture-grid">
+      <aside class="capture-setup">
+        <section class="panel capture-service-card">
+          <div class="panel-body"><div class="capture-service-title"><b>采集连接</b><span id="capture-service-status" class="status-badge pending">检测中</span></div><p id="capture-service-detail">数据采集只需本机设备服务，不必先安装训练环境。</p><button id="capture-service-setup" class="secondary wide" type="button">配置采集连接</button></div>
+        </section>
+        <section class="panel device-panel">
+          <header class="panel-head"><div><p class="kicker">PHYSICAL DEVICES</p><h2>设备连接</h2></div><button id="refresh" class="icon-button" type="button" title="重新检测" aria-label="重新检测" data-ui-icon="refresh"></button></header>
+          <div class="panel-body device-stack">
+            <article class="device-card" data-role="leader">
+              <div class="device-title"><span class="device-icon"><svg class="ui-inline-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16M7 20v-4l5-4-4-5m4 5 6-5m-1-4 3 3-3 3M6 7a2 2 0 1 1 4 0 2 2 0 0 1-4 0ZM10 12a2 2 0 1 1 4 0 2 2 0 0 1-4 0Z"/></svg></span><div><strong>Leader</strong><small id="leader-transport">未连接 · 1 Mbps</small></div><span id="leader-badge" class="status-badge off">OFFLINE</span></div>
+              <label>Leader 型号<select id="leader-type"><option value="LD">Star Arm 102-LD</option><option value="HD">Star Arm 102-HD</option></select></label>
+              <label>本机串口<select id="leader-port"><option value="">未检测到串口</option></select></label>
+              <div class="device-actions"><button id="connect-leader" class="primary" type="button">选择并连接</button><button id="disconnect-leader" class="ghost" type="button" disabled>断开</button></div>
+            </article>
+
+            <article class="device-card" data-role="follower">
+              <div class="device-title"><span class="device-icon"><svg class="ui-inline-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16M7 20v-4l5-4-4-5m4 5 6-5m-1-4 3 3-3 3M6 7a2 2 0 1 1 4 0 2 2 0 0 1-4 0ZM10 12a2 2 0 1 1 4 0 2 2 0 0 1-4 0Z"/></svg></span><div><strong>真实 FL</strong><small id="follower-transport">未连接 · J1–J7</small></div><span id="follower-badge" class="status-badge off">OFFLINE</span></div>
+              <label>本机串口<select id="follower-port"><option value="">未检测到串口</option></select></label>
+              <button id="open-follower-calibration" class="secondary wide" type="button">校准从臂活动范围</button><div class="device-actions"><button id="connect-follower" class="primary" type="button">选择并连接</button><button id="disconnect-follower" class="ghost" type="button" disabled>断开</button></div>
+            </article>
+
+            <article class="device-card cameras-card">
+              <div class="device-title"><span class="device-icon"><svg class="ui-inline-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 7 2-3h4l2 3M3 7h18v13H3V7Zm13 6a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z"/></svg></span><div><strong>双相机</strong><small id="camera-transport">末端视角 + 世界视角 · 30 FPS</small></div><span id="camera-badge" class="status-badge off">LOCKED</span></div>
+              <label>采集后端<select id="camera-backend"><option value="auto" selected>自动（优先本机相机，采集与推理通用）</option><option value="browser">浏览器</option><option value="native">本机原生（Ubuntu / Windows 推理）</option></select></label>
+              <label><span id="wrist-role-label">末端视角相机</span><select id="wrist-camera-select" disabled><option value="">请先检测摄像头</option></select></label>
+              <label><span id="world-role-label">世界视角相机</span><select id="world-camera-select" disabled><option value="">请先检测摄像头</option></select></label>
+              <div class="device-actions camera-actions"><button id="detect-cameras" class="primary" type="button">检测摄像头</button><button id="connect-cameras" class="primary" type="button" disabled>连接两台摄像头</button><button id="disconnect-cameras" class="ghost" type="button" disabled>关闭预览</button></div>
+            </article>
+
+            <button id="bind-devices" class="bind-button" type="button" disabled>保存设备选择</button>
+            <p id="camera-next-action" class="next-action" role="status" aria-live="polite">下一步：连接 Leader 和真实 FL。</p>
+            <p id="binding-status" class="binding-status">请先连接 Leader、真实 FL 和两台不同的摄像头。连接后会等待真实 J1–J7 样本。</p>
+          </div>
+        </section>
+        <section class="panel setup-panel">
+          <header class="panel-head"><div><p class="kicker">COLLECTION SETUP</p><h1>采集配置</h1></div><span class="tag cyan">无需 GPU</span></header>
+          <form id="dataset-form" class="panel-body" novalidate>
+            <label>任务名称<input name="task_name" required placeholder="例如：抓取积木并放入收纳盒"></label>
+            <label>数据集标识<input name="slug" required pattern="[a-z0-9][a-z0-9-]{2,47}" placeholder="例如：block-pick-v1"></label>
+            <label>双相机采集与预览规格<select id="capture-profile" name="profile"><option value="640,480" selected>640 × 480 · 30 FPS（推荐）</option><option value="640,360">640 × 360 · 30 FPS</option><option value="1280,720">1280 × 720 · 30 FPS</option><option value="1920,1080">1920 × 1080 · 30 FPS（高负载）</option></select></label>
+            <button class="primary wide" type="submit">创建并锁定数据集</button>
+            <p id="dataset-form-status" class="form-status" role="status" aria-live="polite">填写任务名称和数据集标识后创建。</p>
+          </form>
+          <div class="dataset-manager panel-inset">
+            <label>当前数据集<select id="active-dataset"><option value="">尚未创建数据集</option></select></label>
+            <div id="dataset-stats" class="dataset-stats" aria-live="polite"><span>成功 0</span><span>失败 0</span><span>样本 0</span><span>图像 0 / 0</span><span>容量 0 B</span><span>等待数据</span></div>
+            <div class="dataset-actions">
+              <button id="dataset-export" class="ghost" type="button" disabled>导出 ZIP</button>
+              <button id="dataset-import" class="ghost" type="button">导入 ZIP</button>
+              <input id="dataset-import-file" class="sr-only" type="file" accept=".zip,application/zip">
+            </div>
+            <p id="dataset-transfer-status" class="form-status" role="status" aria-live="polite">导入会校验清单、哈希与路径；同名数据集自动创建副本。</p>
+          </div>
+          <div id="dataset-list" class="dataset-list panel-inset"></div>
+        </section>
+
+      </aside>
+
+      <section class="capture-stage">
+        <header class="stage-head">
+          <div><p class="kicker">SYNCHRONIZED VISION</p><h2>双相机与同步状态</h2></div>
+          <div class="metric-strip">
+          <div><span>EPISODE</span><strong id="episode-index">—</strong></div>
+          <div><span>主时间轴</span><strong>30 FPS</strong></div>
+          <div><span>累计样本</span><strong id="valid-frames">0</strong></div>
+          <div><span>失配率</span><strong id="mismatch-rate">0.00%</strong></div>
+        </div>
+          <div class="stage-gate"><button class="ghost camera-enlarge" type="button" data-camera-enlarge="collect" data-ui-icon="maximize">放大视频</button><span>CAPTURE GATE</span><b id="capture-gate" class="tag blocked">等待设备</b></div>
+        </header>
+        <div class="camera-grid">
+            <div class="camera-screen-toolbar"><span>双相机实时画面</span><button type="button" class="secondary" data-camera-exit data-ui-icon="minimize">返回工作台 / Esc</button></div>
+          <article class="camera-view">
+            <video id="wrist-preview" muted playsinline></video>
+            <img id="wrist-native-preview" class="native-preview active" alt="末端视角相机实时画面">
+            <img id="wrist-native-preview-buffer" class="native-preview" alt="" aria-hidden="true">
+            <div class="camera-empty"><span class="camera-placeholder-icon" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none"><rect x="8" y="14" width="32" height="24" rx="6"/><path d="m17 14 3-5h8l3 5"/><circle cx="24" cy="26" r="7"/><path d="M35 20h.01"/></svg></span><b>末端视角相机</b><small class="camera-placeholder-help">连接相机后，实时画面将在这里显示</small><span class="camera-placeholder-tag">等待连接</span></div>
+            <footer><div><i></i><span>WRIST / 末端视角</span></div><strong id="wrist-camera">未连接</strong></footer>
+          </article>
+          <article class="camera-view">
+            <video id="world-preview" muted playsinline></video>
+            <img id="world-native-preview" class="native-preview active" alt="世界视角相机实时画面">
+            <img id="world-native-preview-buffer" class="native-preview" alt="" aria-hidden="true">
+            <div class="camera-empty"><span class="camera-placeholder-icon" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none"><rect x="8" y="14" width="32" height="24" rx="6"/><path d="m17 14 3-5h8l3 5"/><circle cx="24" cy="26" r="7"/><path d="M35 20h.01"/></svg></span><b>世界视角相机</b><small class="camera-placeholder-help">连接相机后，实时画面将在这里显示</small><span class="camera-placeholder-tag">等待连接</span></div>
+            <footer><div><i></i><span>WORLD / 世界视角</span></div><strong id="world-camera">未连接</strong></footer>
+          </article>
+        </div>
+        <section class="sync-console waveform-panel" aria-labelledby="waveform-title">
+          <div class="waveform-head">
+            <div>
+              <span class="pulse"></span>
+              <div><b id="waveform-title">Action / State 多通道时序</b><small>LEADER ACTION + FOLLOWER STATE · J1–J7 · 10 秒窗口</small></div>
+            </div>
+            <div class="waveform-mode" role="group" aria-label="波形视图">
+              <button id="waveform-joint-view" class="active" type="button" data-waveform-view="joint" aria-pressed="true">关节</button>
+              <button id="waveform-sync-view" type="button" data-waveform-view="sync" aria-pressed="false">同步</button>
+            </div>
+            <strong id="waveform-status" class="waveform-status waiting">等待采集</strong>
+          </div>
+          <div class="waveform-workspace">
+            <div class="waveform-stage">
+              <canvas id="waveform-canvas" role="img" aria-label="Leader action 与 Follower state J1–J7 多通道时序图"></canvas>
+              <div id="waveform-empty" class="waveform-empty"><b>等待采集</b><span>Episode 开始并收到真实同步样本后显示 14 条通道</span></div>
+            </div>
+            <div id="waveform-channel-legend" class="channel-legend" aria-label="通道显示控制">
+              <b>Leader action · J1–J7</b>
+              <label><input type="checkbox" data-channel="action-j1" checked><i></i>J1</label><label><input type="checkbox" data-channel="action-j2" checked><i></i>J2</label><label><input type="checkbox" data-channel="action-j3" checked><i></i>J3</label><label><input type="checkbox" data-channel="action-j4" checked><i></i>J4</label><label><input type="checkbox" data-channel="action-j5" checked><i></i>J5</label><label><input type="checkbox" data-channel="action-j6" checked><i></i>J6</label><label><input type="checkbox" data-channel="action-j7" checked><i></i>J7</label>
+              <b>Follower state · J1–J7</b>
+              <label><input type="checkbox" data-channel="state-j1" checked><i></i>J1</label><label><input type="checkbox" data-channel="state-j2" checked><i></i>J2</label><label><input type="checkbox" data-channel="state-j3" checked><i></i>J3</label><label><input type="checkbox" data-channel="state-j4" checked><i></i>J4</label><label><input type="checkbox" data-channel="state-j5" checked><i></i>J5</label><label><input type="checkbox" data-channel="state-j6" checked><i></i>J6</label><label><input type="checkbox" data-channel="state-j7" checked><i></i>J7</label>
+            </div>
+          </div>
+          <div class="waveform-controls">
+            <div id="waveform-joints" class="joint-selector" role="group" aria-label="选择关节">
+              <button class="active" type="button" data-joint="all" aria-pressed="true">ALL</button>
+              <button type="button" data-joint="0" aria-pressed="false">J1</button>
+              <button type="button" data-joint="1" aria-pressed="false">J2</button>
+              <button type="button" data-joint="2" aria-pressed="false">J3</button>
+              <button type="button" data-joint="3" aria-pressed="false">J4</button>
+              <button type="button" data-joint="4" aria-pressed="false">J5</button>
+              <button type="button" data-joint="5" aria-pressed="false">J6</button>
+              <button type="button" data-joint="6" aria-pressed="false">J7</button>
+            </div>
+            <div class="waveform-legend" aria-label="波形图例">
+              <span class="leader"><i></i>Leader action</span>
+              <span class="follower"><i></i>Follower state</span>
+              <span class="tolerance"><i></i>±16 ms</span>
+            </div>
+            <div class="waveform-metrics"><span>样本 <b id="waveform-matched">0</b></span><span>丢弃 <b id="waveform-dropped">—</b></span><span>FPS <b id="waveform-fps">—</b></span></div>
+          </div>
+          <p id="waveform-a11y" class="sr-only" aria-live="polite">尚无实时采样数据</p>
+
+        </section>
+      </section>
+
+      <aside class="capture-inspector">
+        <section class="capture-run-panel" aria-label="数据采集轮次控制">
+          <header class="capture-task-head"><div><p class="kicker">COLLECTION SESSION</p><h3>采集任务</h3></div><button id="capture-configure" class="ghost" type="button" data-ui-icon="sliders">选择数据集</button></header>
+          <div class="capture-run-summary">
+            <div class="active-dataset-copy"><span>当前数据集</span><strong id="active-dataset-name">请选择数据集</strong><small id="capture-format">创建或选择数据集后显示采集规格</small></div>
+            <div class="round-target"><label for="target-rounds">目标轮数</label><div class="round-target-field"><input id="target-rounds" type="number" min="1" max="100" step="1" value="20"><span>轮</span></div></div>
+            <div class="round-progress-copy"><span>已完成</span><strong><b id="completed-rounds">0</b><span class="round-count-divider">/</span><em id="target-rounds-display">20</em><small>轮</small></strong></div>
+          </div>
+          <div class="round-progress-track"><div class="round-progress-caption"><span>成功示教进度</span><b id="capture-progress-percent">0%</b></div><div class="round-progress-rail" role="progressbar" aria-label="成功示教进度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i id="capture-progress"></i></div></div>
+          <div class="round-actions"><p class="round-state"><span class="round-state-dot" aria-hidden="true"></span><span id="round-status">请先选择数据集</span></p><div class="round-action-buttons"><button id="episode-button" class="record" data-ui-icon="play" disabled>开始数据采集</button><button id="stop-episode" class="ghost" data-ui-icon="stop" type="button" disabled>停止</button></div></div>
+          <div id="episode-review" class="review hidden" aria-live="polite">
+            <div><h3>Episode 待审核</h3><p id="episode-summary"></p></div>
+            <div class="review-actions"><button data-decision="success" class="primary">保存成功示教</button><button data-decision="failure" class="ghost">保存失败记录</button><button data-decision="discard" class="danger-outline">删除</button></div>
+          </div>
+          <p id="episode-control-status">开始后将同时启动 Leader → 真实 FL 遥操作与 J1–J7 采样</p>
+        </section>
+
+        <section class="panel telemetry-panel">
+          <header class="panel-head"><div><p class="kicker">JOINT TELEMETRY</p><h2>实时关节</h2></div><span class="tag subtle">STATE / ACTION</span></header>
+          <div id="joint-bars" class="joint-bars panel-body"></div>
+        </section>
+          <div class="sync-sources"><div><span>Leader action</span><strong id="leader-state">未连接</strong></div><div><span>Follower state</span><strong id="follower-state">未连接</strong></div><div><span>最大容差</span><strong>±16 ms</strong></div></div>
+        <section class="panel quality-panel">
+          <header class="panel-head"><div><p class="kicker">LIVE CAPTURE QUALITY</p><h2>实时采集质量</h2></div><strong id="quality-verdict" class="quality-verdict waiting">等待采集</strong></header>
+          <div class="quality-body panel-body">
+            <div class="quality-summary"><span>Action / State 平均误差</span><b id="quality-mean-error">—</b><small>实时滚动窗口</small></div>
+            <div class="quality-grid">
+              <div><span>最大误差</span><b id="quality-max-error">—</b></div>
+              <div><span>异常关节</span><b id="quality-worst-joint">—</b></div>
+              <div><span>同步偏差</span><b id="quality-sync-offset">—</b></div>
+              <div><span>真实样本</span><b id="quality-samples">0</b></div>
+            </div>
+            <div class="camera-quality"><div><span>WRIST</span><b id="quality-wrist-camera">等待连接</b></div><div><span>WORLD</span><b id="quality-world-camera">等待连接</b></div></div>
+            <p class="quality-note">相机 FPS 与帧缺口仅使用浏览器真实视频帧元数据；不支持时明确显示不可用。</p>
+          </div>
+        </section>
+        <section class="panel capability-panel">
+          <header class="panel-head"><div><p class="kicker">LOCAL RUNTIME</p><h2>本机能力</h2></div></header>
+          <div id="capability-list" class="panel-body"></div>
+          <p class="local-note">AI 模式由本机服务独占设备。页面失焦、断连或急停会撤销执行权限。</p>
+        </section>
+      </aside>
+    </section>
+
+    <section id="train" class="view single-view">
+      <div class="workspace-panel training-workspace">
+        <header class="training-page-head">
+          <div><p class="kicker">LOCAL ACT TRAINING</p><h2>训练运行中心</h2><p>真实指标、日志与 Checkpoint 持续同步</p></div>
+          <b id="training-tag" class="tag blocked">环境检查中</b>
+        </header>
+        <div class="training-console">
+          <section class="training-setup-bar">
+            <div class="training-status"><div class="status-mark">ACT</div><div><h2 id="training-title">正在检查训练环境</h2><p id="training-reason">训练环境由页面自动管理。</p></div></div>
+            <div id="training-environment-progress" class="training-progress hidden"><div><span id="training-stage">等待开始</span><b id="training-percent">0%</b></div><div class="environment-progress-rail"><progress id="training-progress" max="100" value="0"></progress><span class="environment-progress-glow" aria-hidden="true"></span></div></div>
+            <label id="windows-runtime-backend" class="hidden">模型运行方式<select id="runtime-backend"><option value="">自动选择</option><option value="cuda">NVIDIA GPU</option><option value="cpu">CPU（速度以实际测试为准）</option></select></label>
+            <p id="windows-runtime-note" class="notice hidden">当前电脑使用 Windows：这里准备模型执行环境。训练请在 Ubuntu 完成，再到第 3 步导入完整模型，第 4 步连接从臂和双相机。</p>
+            <div class="training-actions"><button id="training-prepare" class="primary">自动配置环境</button><button id="training-retry" class="secondary hidden">重试准备</button></div>
+            <section id="runtime-onboarding" class="runtime-onboarding motion-region" aria-label="ACT 首次环境配置" hidden>
+              <div class="runtime-onboarding-head"><div><small>FIRST SETUP / 一次配置</small><h3>本机连接与环境准备</h3></div><span>Ubuntu 22.04 / 24.04</span></div>
+              <ol class="runtime-setup-steps">
+                <li data-runtime-install><span class="runtime-step-number">01</span><div><h4>一次系统安装</h4><p>首次在 Ubuntu 软件安装器中打开安装文件，点击“安装”并完成系统授权。若交付电脑已预装，会直接跳过此步骤。</p><button type="button" class="runtime-download">下载 Ubuntu 安装文件<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 3v12m-5-5 5 5 5-5M5 16v4h14v-4"/></svg></button></div></li>
+                <li data-runtime-authorize><span class="runtime-step-number">02</span><div><h4>网页自动连接</h4><p>下载时自动识别并写入当前网站地址。安装后组件在后台运行，无需填写地址或手动启动。浏览器询问本地网络权限时允许。</p></div></li>
+                <li data-runtime-environment><span class="runtime-step-number">03</span><div><h4>自动配置运行环境</h4><p>连接成功后自动安装和检查 PyTorch／LeRobot，进度直接显示在当前页面。已有环境会复用，无需敲命令。</p></div></li>
+              </ol>
+              <p id="runtime-setup-status" class="runtime-setup-status" role="status" aria-live="polite">正在检测本机连接…</p>
+              <details class="runtime-recovery">
+                <summary>安装报错或网页仍未连接</summary>
+                <p><strong>安装锁被占用：</strong>系统更新或另一个安装器正在使用软件管理器。等其完成后重新打开安装文件；网页会继续检测，不需要反复下载，也不要删除锁文件。</p>
+                <p><strong>安装已中断或依赖失败：</strong>先在 Ubuntu 软件管理器完成或修复上次安装，再重新安装当前文件。网络或软件源异常时，先恢复网络。</p>
+                <p><strong>已安装，但这里仍未连接：</strong>允许浏览器访问本机网络；在 Ubuntu 应用菜单打开“Star Arm ACT 运行组件”，启动失败会显示具体错误。</p>
+                <p>网页检测的是本机组件连接，无法读取未安装电脑上的系统安装进度。</p>
+                <button type="button" class="secondary runtime-check">重新检测连接</button>
+              </details>
+            </section>
+            <div id="training-ready-controls" class="training-ready hidden"><label>训练数据集<select id="training-dataset"></select></label><div class="training-parameters"><label>Batch<input id="training-batch-size" type="number" min="1" max="256" value="1"></label><label>目标 Step<input id="training-steps" type="number" min="1" max="10000000" value="100000"></label><label>保存间隔<input id="training-save-freq" type="number" min="1" value="10000"></label></div><button id="training-start" class="primary">开始训练</button></div>
+          </section>
+          <section id="training-job" class="training-dashboard hidden" aria-live="polite">
+            <div class="training-run-head"><div><span id="training-live-dot" class="training-live-dot"></span><div><small>当前任务</small><strong id="training-run-title">等待任务</strong></div></div><div class="training-run-actions"><button id="training-stop" class="danger">停止训练</button><button id="training-resume" class="secondary hidden">从 Checkpoint 恢复</button></div></div>
+            <div id="training-failure-panel" class="training-failure hidden"><div><b>训练启动失败</b><span id="training-failure-stage">尚未进入训练循环</span></div><pre id="training-failure-message"></pre></div>
+            <div class="training-kpis">
+              <div><span>状态</span><b id="training-job-status">等待</b><small id="training-phase">等待启动</small></div>
+              <div><span>Step</span><b id="training-job-step">0 / 0</b><small id="training-step-rate">等待首个指标</small></div>
+              <div><span>Loss</span><b id="training-job-loss">—</b><small id="training-loss-trend">等待真实指标</small></div>
+              <div><span>运行时间</span><b id="training-elapsed">00:00</b><small>本次任务累计</small></div>
+              <div><span>Checkpoint</span><b id="training-job-checkpoint">0</b><small id="training-checkpoint-latest">尚未生成</small></div>
+            </div>
+            <div class="training-overall"><div><span>总训练进度</span><b id="training-overall-label">0%</b></div><progress id="training-overall-progress" max="100" value="0"></progress><small id="training-progress-copy">Step 0，等待训练器输出首个指标</small></div>
+            <div class="training-data-grid">
+              <section class="training-plot"><header><div><b>Loss 实时曲线</b><small>来自训练日志 · 最近 120 个指标</small></div><span id="training-metric-count">0 个指标</span></header><div class="training-chart-stage"><canvas id="training-loss-chart" aria-label="ACT 训练 Loss 实时曲线"></canvas><div id="training-chart-empty" class="training-chart-empty">等待训练器输出 Loss</div></div></section>
+              <section class="training-checkpoints"><header><div><b>Checkpoint 时间线</b><small>仅显示磁盘中真实生成的保存点</small></div></header><div id="training-checkpoint-list" class="training-checkpoint-list"><p>尚未生成 Checkpoint</p></div></section>
+            </div>
+            <section class="training-log-panel"><header><div><b>实时训练日志</b><small id="training-log-status">等待训练输出</small></div><span>自动滚动</span></header><pre id="training-log">尚无训练日志</pre></section>
+          </section>
+          <pre id="training-result" class="training-result"></pre>
+        </div>
+      </div>
+    </section>
+    <section id="models" class="view single-view">
+      <div class="workspace-panel model-workspace">
+        <header class="model-page-head"><div><p class="kicker">MODEL REGISTRY</p><h2>模型管理</h2><p>将训练成果整理到本机，随时准备实机运行。</p></div><b class="tag cyan">本机模型库</b></header>
+        <section class="model-import-card" aria-labelledby="model-import-title">
+          <div class="model-import-symbol" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none"><path d="M16 21V5m-6 6 6-6 6 6M6 21v5h20v-5"/></svg></div>
+          <div class="model-import-copy"><span class="kicker">IMPORT CHECKPOINT</span><h3 id="model-import-title">已有 ACT 模型？直接导入</h3><p>支持完整模型 ZIP / TAR.GZ，也支持 act-pick-v1.0.0 发布包。导入后可继续配置相机与从臂。</p><div class="model-import-steps"><span>01 选择模型包</span><i><svg class="ui-inline-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-5-5 5 5-5 5"/></svg></i><span>02 校验并入库</span><i><svg class="ui-inline-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-5-5 5 5-5 5"/></svg></i><span>03 实机准备</span></div></div>
+          <button id="model-import" class="primary" type="button">选择模型包</button>
+        </section>
+        <input id="model-import-file" type="file" accept=".zip,.tar.gz,.tgz,.tar" hidden>
+        <p id="model-import-status" class="form-status" role="status" aria-live="polite">支持完整 ACT 模型 ZIP 和 act-pick-v1.0.0 发布的 TAR.GZ，导入后无需重新训练。</p>
+        <div class="model-library-head"><div><h3>可用模型</h3><p>本机训练结果与导入模型会显示在这里</p></div><span>ACT / CHECKPOINT</span></div>
+        <div id="model-list" class="model-list"><div class="empty-state"><div class="status-mark">ACT</div><h2>模型库等待你的第一份成果</h2><p>导入已有模型，或在训练任务中完成一次 ACT 训练。</p></div></div>
+      </div>
+    </section>
+    <section id="infer" class="view inference-view">
+      <div class="inference-shell">
+        <header class="inference-head">
+          <div><p class="kicker">LEROBOT ACT / REAL FL</p><h2>实机推理运行中心</h2><p>真实双相机、J1–J7 Observation / Action 与执行性能</p></div>
+          <div class="inference-head-actions"><button class="ghost camera-enlarge" type="button" data-camera-enlarge="infer" data-ui-icon="maximize">放大视频</button><b id="inference-status" class="tag blocked">等待验证</b></div>
+        </header>
+        <aside class="inference-setup panel">
+          <header class="panel-head"><div><p class="kicker">EXECUTION CONTRACT</p><h2>模型与任务</h2></div></header>
+          <div class="panel-body inference-form">
+            <section class="inference-contract-block" aria-labelledby="inference-contract-title">
+              <div class="inference-section-head"><span>01</span><div><b id="inference-contract-title">模型与任务</b><small>可导入已有模型，也可使用本机训练结果</small></div></div>
+              <div class="inference-model-readonly"><span>当前 ACT 模型</span><strong id="inference-model-name">尚无已完成模型</strong><small id="inference-model-meta">训练完成后自动加载最新可执行模型</small></div>
+              <button id="open-inference-calibration" class="secondary wide" type="button">在这里校准从臂</button>
+              <button id="inference-calibration-import" class="secondary wide" type="button" hidden>导入本台从臂校准 JSON</button>
+              <input id="inference-calibration-file" type="file" accept=".json,application/json" hidden>
+              <p id="inference-camera-instructions" class="form-status"></p>
+              <button id="inference-model-import" class="secondary wide" type="button">导入模型并准备运行</button>
+              <p id="inference-import-status" class="form-status">支持完整模型 ZIP / TAR.GZ，导入后自动选择模型和任务。</p>
+              <label>模型支持任务<select id="inference-task"><option value="">等待 ACT 模型</option></select></label>
+              <button id="inference-validate" class="secondary wide" type="button" disabled>验证执行条件</button>
+            </section>
+            <section class="inference-readiness" aria-labelledby="inference-readiness-title">
+              <div class="inference-section-head"><span>02</span><div><b id="inference-readiness-title">执行条件</b><small>全部通过后保持有效，直到任务或设备状态变化</small></div></div>
+              <label>从臂串口<select id="inference-follower-port"><option value="">未检测到串口</option></select></label>
+              <div class="device-actions"><button id="inference-connect-follower" class="primary" type="button" data-ui-icon="link">连接从臂</button><button id="inference-disconnect-follower" class="ghost" type="button" disabled data-ui-icon="unlink">断开从臂</button><button id="inference-refresh-ports" class="ghost" type="button" data-ui-icon="refresh">刷新串口</button></div>
+              <p id="inference-serial-status" class="form-status" role="status">切换页面后串口已释放，请在这里连接从臂。</p>
+              <button id="inference-prepare-runtime" class="secondary wide hidden" type="button">准备 ACT 运行环境</button>
+              <button id="inference-camera-settings" class="secondary wide" type="button">相机设置 / 连接推理相机</button><p id="inference-camera-help" class="form-status" role="status">正在检查相机视频流…</p><div id="inference-gates" class="inference-gates">
+                <div><span>Checkpoint / Processor</span><b>等待验证</b></div>
+                <div><span>本机原生双相机</span><b>等待连接</b></div>
+                <div><span>真实 FL / J1–J7 限位</span><b>等待连接</b></div>
+              </div>
+            </section>
+            <section class="inference-launch-zone" aria-labelledby="inference-launch-title">
+              <div class="inference-section-head"><span>03</span><div><b id="inference-launch-title">安全确认与启动</b><small>启动后仅停止按钮可用</small></div></div>
+              <div class="inference-launch-authorization">
+                <span>启动授权</span>
+                <label class="operator-confirm">
+                  <input id="inference-confirm" type="checkbox" disabled>
+                  <span class="authorization-mark" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="m5 10 3.2 3.2L15 6.8"></path></svg></span>
+                  <span class="authorization-copy"><b>确认工作区安全</b><small>机械臂已扶稳，运动范围内无人员或障碍物</small></span>
+                </label>
+              </div>
+              <button id="inference-start" class="primary wide" type="button" disabled>启动真实 FL 低速推理</button>
+              <button id="inference-stop" class="danger wide" type="button" disabled>停止推理并立即卸力</button>
+              <p id="inference-message" class="form-status">导入已有 ACT 模型或完成训练，再连接真实 FL 与原生双相机。</p>
+            </section>
+          </div>
+        </aside>
+        <main class="inference-stage">
+          <section class="inference-cameras">
+            <div class="camera-screen-toolbar"><span>双相机实时画面</span><button type="button" class="secondary" data-camera-exit data-ui-icon="minimize">返回工作台 / Esc</button></div>
+            <article class="inference-camera"><video id="inference-wrist-browser-preview" class="inference-browser-preview" muted playsinline></video><img id="inference-wrist-frame" class="native-preview active" alt="末端视角相机实时画面"><img id="inference-wrist-frame-buffer" class="native-preview" alt="" aria-hidden="true"><div class="inference-camera-empty"><span class="camera-placeholder-icon" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none"><rect x="8" y="14" width="32" height="24" rx="6"/><path d="m17 14 3-5h8l3 5"/><circle cx="24" cy="26" r="7"/><path d="M35 20h.01"/></svg></span><b>末端视角相机</b><small class="camera-placeholder-help">在相机设置中连接模型对应的两台设备</small><span class="camera-placeholder-tag">等待连接</span></div><footer><span id="inference-wrist-label">WRIST / 末端视角</span><b id="inference-wrist-status">未连接</b></footer></article>
+            <article class="inference-camera"><video id="inference-world-browser-preview" class="inference-browser-preview" muted playsinline></video><img id="inference-world-frame" class="native-preview active" alt="世界视角相机实时画面"><img id="inference-world-frame-buffer" class="native-preview" alt="" aria-hidden="true"><div class="inference-camera-empty"><span class="camera-placeholder-icon" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none"><rect x="8" y="14" width="32" height="24" rx="6"/><path d="m17 14 3-5h8l3 5"/><circle cx="24" cy="26" r="7"/><path d="M35 20h.01"/></svg></span><b>世界视角相机</b><small class="camera-placeholder-help">在相机设置中连接模型对应的两台设备</small><span class="camera-placeholder-tag">等待连接</span></div><footer><span id="inference-world-label">WORLD / 世界视角</span><b id="inference-world-status">未连接</b></footer></article>
+          </section>
+          <section class="inference-wave panel">
+            <header class="panel-head"><div><p class="kicker">ACT OUTPUT / FL OBSERVATION</p><h2>J1–J7 实时执行时序</h2></div><span>安全 Action + Observation</span></header>
+            <div class="inference-wave-stage"><canvas id="inference-waveform" aria-label="ACT Action 与真实 FL Observation 实时波形"></canvas><div id="inference-wave-empty">等待真实推理样本</div></div>
+          </section>
+
+        </main>
+        <aside class="inference-inspector">
+          <section class="panel"><header class="panel-head"><div><p class="kicker">LIVE PERFORMANCE</p><h2>LeRobot 执行性能</h2></div></header><div id="inference-performance" class="inference-performance panel-body"><div><span>循环频率</span><b>—</b></div><div><span>Policy 延迟</span><b>—</b></div><div><span>串口写入</span><b>—</b></div><div><span>端到端</span><b>—</b></div><div><span>已执行 Action</span><b>0</b></div><div><span>加速后端</span><b>—</b></div></div></section>
+          <section id="inference-joints" class="inference-joints panel" aria-label="J1 到 J7 实时关节值"></section>
+          <section class="panel inference-action-panel"><header class="panel-head"><div><p class="kicker">CURRENT ACTION</p><h2>ACT 输出</h2></div></header><div class="panel-body"><div><span>原始 Action</span><code id="inference-raw-action">等待 Policy 输出</code></div><div><span>安全处理后</span><code id="inference-safe-action">等待执行</code></div></div></section>
+          <section class="panel inference-log-panel"><header class="panel-head"><div><p class="kicker">RUNTIME LOG</p><h2>真实运行日志</h2></div><span>最近 200 条</span></header><pre id="inference-log">尚无推理日志</pre></section>
+        </aside>
+      </div>
+    </section>
+  </main>
+</div>
+<div id="toast" role="status" aria-live="polite"></div>
+<div id="data-dir-setup" class="hidden" style="position:fixed;inset:0;background:rgba(10,12,16,.82);z-index:2000;display:flex;align-items:center;justify-content:center;padding:24px;">
+  <div style="max-width:520px;width:100%;background:#1c2027;border:1px solid #2c3540;border-radius:10px;padding:28px 30px;">
+    <p class="kicker" style="color:#feca57;">FIRST RUN</p>
+    <h2 style="margin:.2rem 0 .6rem;">设置数据存储目录</h2>
+    <p style="color:#b9c0c8;line-height:1.6;margin:0 0 1rem;">采集数据、训练结果和训练好的模型都会保存在这个<strong>本地目录</strong>中。请输入这台机器上的数据存储目录绝对路径。</p>
+    <input id="data-dir-input" type="text" placeholder="例如 /opt/star-arm-data" style="width:100%;padding:12px 14px;background:#12161c;border:1px solid #39434f;border-radius:6px;color:#e8edf2;font-size:15px;" />
+    <p id="data-dir-current" style="color:#8395a7;font-size:13px;margin:.7rem 0 0;"></p>
+    <p id="data-dir-error" class="form-status error" style="margin:.6rem 0 0;"></p>
+    <button id="data-dir-save" type="button" style="margin-top:16px;width:100%;padding:13px;background:#48dbfb;border:0;border-radius:6px;color:#0c1015;font-weight:700;">保存并开始</button>
+  </div>
+</div>
+<dialog id="follower-calibration-dialog" class="calibration-dialog">
+  <h2>从臂活动范围校准 · 原始角度兼容版</h2>
+  <p id="calibration-live-status" class="form-status" role="status">正在读取校准状态…</p>
+  <p>先连接真实从臂并停止采集、推理。校准只读取角度，不会自动转动关节或修改舵机零点。开始后解除锁力，请持续扶稳机械臂。</p>
+  <p>缓慢手动活动 J1–J6，再开合 J7 夹爪，覆盖各关节正常可用范围。在两端稍停，不要强推机械限位。每个关节至少记录 5° 才能保存；这只是最低检查，仍需实际覆盖完整可用范围。</p>
+  <p>原工程采集及自训模型继续使用角度。此校准用于导入的 LeRobot 归一化模型；第一次或换从臂时完成，之后复用。</p>
+  <label><input id="calibration-support-confirm" type="checkbox">我已扶稳从臂，确认可以解除锁力</label>
+  <div id="calibration-joints" aria-live="polite"></div>
+  <p id="calibration-status" class="form-status" role="status">等待连接从臂</p>
+  <label><input id="calibration-range-confirm" type="checkbox">七个关节已覆盖正常可用范围，准备保存</label>
+  <div class="device-actions"><button id="calibration-start" class="primary">开始记录</button><button id="calibration-save" class="primary" disabled>完成并保存</button><button id="calibration-resume" class="secondary" disabled>恢复记录（保留范围）</button><button id="calibration-reconnect" class="secondary" disabled>重连从臂并继续</button><button id="calibration-cancel" class="ghost">取消记录</button></div>
+  <label><input id="calibration-same-arm-confirm" type="checkbox">当前连接的是生成此校准的同一台物理从臂</label>
+  <div class="device-actions"><button id="calibration-apply" class="primary" disabled>用于当前导入模型</button><button id="calibration-download" class="secondary" disabled>下载校准 JSON</button><button id="calibration-close" class="ghost">关闭</button></div>
+</dialog>
+<dialog id="capture-service-dialog" class="capture-service-dialog" aria-labelledby="capture-service-title">
+  <header><div><p class="kicker">CAPTURE CONNECTION</p><h2 id="capture-service-title">配置本机采集连接</h2></div><button id="capture-service-close" type="button" class="ghost">关闭</button></header>
+  <p>连接本机设备服务后，即可在第 1 步创建数据集、连接主从臂与双相机并采集。PyTorch / LeRobot 在第 2 步训练时再准备。</p>
+  <p id="capture-service-dialog-status" role="status" aria-live="polite"></p><div id="capture-runtime-host"></div><button id="capture-service-recheck" type="button" class="secondary">重新检测采集连接</button>
+</dialog>
+<script type="module" src="src/act-workbench.js?v=server-1.0.35"></script>
+<script type="module" src="src/workspace-switch.js?v=server-1.0.35"></script>
+<script type="module" src="src/workspace-nav.js?v=server-1.0.35"></script>
+</body>
+</html>
