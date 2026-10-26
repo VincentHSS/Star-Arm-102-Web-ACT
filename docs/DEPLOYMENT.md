@@ -1,107 +1,66 @@
-# Star Arm 102 数字孪生平台 · 服务器上传教程
+# 完整网站部署
 
-本文给网站运营者使用。**上传一个静态网站文件夹即可**，无需部署服务器 Python、GPU 或 Docker。机械臂与相机仍连接客户电脑；Ubuntu 客户由网页引导首次组件安装，Windows 客户按 [Windows 教程](WINDOWS.md) 启动本机服务并连接当前网站后执行已有模型。
+本教程面向网站维护人员。服务器托管静态网页，机械臂、相机和运行环境位于客户电脑。
 
-## 1. 下载唯一的服务器交付包
+## 下载
 
-打开 [最新 Release](https://github.com/VincentHSS/Star-Arm-102-Web-ACT/releases/latest)，在 Assets 中下载：
-
-```text
-Star-Arm-102-SERVER-UPLOAD-ONLY.zip
-```
-
-不要用 GitHub 自动生成的 Source code ZIP 代替运营者交付包；源码下载用于本地启动和开发。
-
-解压后的主要结构：
+在 [最新发布](https://github.com/VincentHSS/Star-Arm-102-Web-ACT/releases/latest) 下载 `Star-Arm-102-SERVER-FINAL-v1.0.35.zip`。它包含完整控制台、ACT 工作台、网页执行、模型和 Ubuntu 组件。
 
 ```text
-Star-Arm-102-SERVER-UPLOAD-ONLY/
-  服务器网页/        ← 只上传这个文件夹里面的全部内容
+Star-Arm-102-SERVER-FINAL-v1.0.35/
+  服务器网页/                 ← 只上传这里的全部内容
     index.html
     act-workbench.html
+    act-browser.html
+    urdf-preview.html
     src/
     assets/
-    downloads/
-      act-runtime-template.deb
-  使用教程/          ← 图文文档与截图，可本地阅读，不必上传
-  部署说明.md        ← 交付包入口说明
-  文件校验.sha256    ← 文件完整性校验清单
+    downloads/                ← Ubuntu 安装文件与模板
+  部署说明.md
+  SHA256SUMS
 ```
 
-仍是**一个交付 ZIP**。`使用教程`不是另一个服务，`.deb` 是网页下载资源，不是运营者要另建的网站。
+Lumos 专用 Ubuntu ZIP 用于客户本机运行，不上传到服务器。整个 GitHub 源码用于维护；当前服务器交付源码位于 `delivery/Star-Arm-102-SERVER-FINAL-v1.0.35/`。
 
-## 2. 上传到网站目录
+## 上传
 
-1. 使用现有服务器面板、SFTP 或静态托管服务，打开网站的文件目录。
-2. 上传 **服务器网页文件夹里面的所有内容**，保留 `src/`、`assets/`、`downloads/` 的目录结构。
-3. 上传后网站根目录应能直接找到 `index.html` 和 `act-workbench.html`，而不是再套一层源码文件夹。
-4. 为网站启用 HTTPS，使用 Chrome / Edge 访问首页。
+1. 备份原网站目录。
+2. 将 `服务器网页/` 内的全部文件上传至目标网站目录，保留目录层级及文件名大小写。
+3. 网站目标目录下应直接存在 `index.html`，不要多套一层压缩包名称。
+4. 启用有效 HTTPS，清理该路径的 CDN 及浏览器旧缓存，再用桌面 Chrome / Edge 打开。
 
-假设网站为 `https://你的域名/`，下面几个地址应分别返回对应文件：
+网站可以放在域名根目录或子目录。更新时一起替换 HTML、`src/`、`assets/` 和 `downloads/`；只换首页可能混用旧脚本。
 
-```text
-https://你的域名/index.html
-https://你的域名/act-workbench.html
-https://你的域名/src/app.js
-https://你的域名/downloads/act-runtime-template.deb
-```
+## 资源配置
 
-这里的地址用于解释目录关系，**不是要填写的发布配置**。网页自动读取当前网站地址，运营者无需另填域名或后台地址。
-
-如果放在域名子目录内，也保持相对结构。不存在的 JavaScript 路径不要返回首页 HTML，避免浏览器把 HTML 当脚本解析。
-
-## 3. 打开网站检查界面
-
-![发布后应能显示的控制台；设备未连接是正常首次状态](images/console-overview.png)
-
-检查首页模型、左侧连接面板和顶部导航能显示。三维模型缺失时先检查 `assets/` 是否完整，不能把 STL / URDF 当作多余文件删除。
-
-点击 ACT 入口，正常会显示约 5 秒全屏切换画面；返回控制台也应正常。首次没有连接硬件时，相机显示等待连接、模型库为空均属正常状态。
-
-![工作区切换效果](images/workspace-transition.png)
-
-## 4. 用 Ubuntu 验收客户首次使用
-
-![客户第 1 步采集连接入口（硬件未连接）](images/act-collection-entry.png)
-
-1. 用目标 Ubuntu 电脑打开已发布的 HTTPS 网站，进入 ACT 第 1 步，点击“配置采集连接”。
-2. 点击 **下载 Ubuntu 安装文件**，确认能够下载 `.deb`。
-3. 客户通过系统安装器点击安装并授权，然后返回同一网站。仅下载不会安装。
-4. 允许浏览器请求的本机网络访问，确认页面检测到本机采集服务；不应在此时自动下载训练依赖，采集后再到第 2 步准备训练。
-5. 按 [Ubuntu 教程](UBUNTU.md) 和 [ACT 教程](ACT_GUIDE.md) 检查设备、相机、模型导入及执行。
-
-环境已就绪会复用。组件自动绑定产生安装包的网站 origin，也就是协议、域名和端口；改了其中任意一项，需从新地址重新下载并安装。域名下的路径不属于 origin。
-
-## 5. 更新网站时怎么避免旧文件混用
-
-Windows 客户可从“网页执行”免安装执行已转换的模型。需要本机采集或原生 LeRobot 执行时，才下载源码启动 `start_windows.bat`，并在本机确认页允许当前网站连接。采集连接在第 1 步，原生执行环境在第 2 步；模型训练仍在 Ubuntu。网站服务器不运行机械臂驱动。
-
-1. 保留客户数据和本机组件；更新服务器静态目录的整套网站文件。
-2. 同步替换 HTML、`src/`、相关 `assets/` 及 `downloads/`，不要只替换首页。
-3. 清理网站或 CDN 旧缓存，再打开页面检查。HTML 建议使用需要重新验证的缓存策略；资源未使用带哈希文件名时，不宜强制长期缓存旧脚本。
-4. `.deb` 模板和 `act-installer.js` 中的 SHA256 必须匹配；自行修改代码时按 [开发教程](DEVELOPMENT.md) 重建。
-
-教程图片位于交付包的 `使用教程`，不参与网页加载，不会增加客户打开控制台时的图片请求。
-
-## 6. 托管要求与验收表
-
-| 检查项 | 通过表现 |
+| 项目 | 要求 |
 | --- | --- |
-| HTTPS 与浏览器 | 桌面 Chrome / Edge 能打开完整首页 |
-| 静态路径 | HTML、JS、模型资源分别返回正确内容，没有用首页替代缺失文件 |
-| 页面切换 | 控制台与 ACT 可互相切换，出现完整切换动画 |
-| 组件下载 | 第 1 步采集连接窗口可下载，模板校验未报错 |
-| 本机连接 | Ubuntu 安装成功后原网站能检测到后台 |
-| 环境准备 | 页面显示真实准备进度并完成自检，失败有具体提示 |
-| 设备与相机 | 在目标电脑选择真实串口、打开正确角色的原生双相机 |
-| 模型执行 | 完整导入、校验通过，真实关节反馈与实际运动可核对 |
+| JavaScript | 返回 JavaScript MIME，不存在的文件返回 404 |
+| WASM | `application/wasm` |
+| `.bin`、`.STL`、`.deb` | 原样提供，不改写资源内容或文件名大小写 |
+| 已压缩模型 `.bin` | 不人为添加 `Content-Encoding: gzip` |
+| Range 下载 | 支持时返回正确的 206 / Content-Range；不支持时可返回完整 200 |
+| HTML / JS 更新 | 使用可重新验证的缓存策略，发布后清理旧缓存 |
 
-若自定义网站安全策略，需允许本机 `http://127.0.0.1:18765` 的连接和媒体请求；浏览器的本机网络授权仍按系统提示完成。不能通过把后台暴露到公网解决权限问题。
+当前资源加载保留原始 STL 回退；压缩模型和原始模型都属于运行文件。服务器无需安装 Python、Lumos SDK 或训练环境。
 
-不上传客户数据、模型权重、校准 JSON、日志或后台源码到公开静态目录。Ubuntu 系统安装与硬件验收需在目标电脑完成，软件测试和上述离线截图不能代替。
+## 客户 Ubuntu 安装
 
-## Windows 纯网页客户入口
+客户在设备所在的 Ubuntu 电脑打开同一个 HTTPS 网站，按页面提示下载对应 `.deb`。以当前发布文件为例，在下载目录安装：
 
-新增 `act-browser.html` 和随站点加载的 WebGPU/WASM 引擎，仍是静态托管。完整上传“服务器网页”内容，不遗漏 `assets/vendor/onnxruntime-web/` 和 `assets/vendor/fflate/`。代码模块使用 `.js` 文件名，兼容普通静态服务器的 JavaScript MIME 设置。
+```bash
+sudo apt install ./star-arm-lumos_1.0.32_fashionstar_amd64.deb
+```
 
-将 `act-browser.html` 对应的 HTTPS 地址和提供方导出的网页模型 ZIP 发给客户即可。客户无需本机服务、Python 安装或网站授权桥接。图片和模型计算不会传到网页服务器；校准仍对应客户实际连接的从臂。训练和本机 LeRobot 路线继续按原教程配置。
+ACT 组件的当前预生成文件为 `star-arm-act_1.0.23_fashionstar_all.deb`，按实际下载文件名安装。
+
+组件会在本机运行，浏览器提示本机网络访问时按使用需求授权。预生成安装文件绑定 `https://fashionstar.com.cn`；迁移域名时，从新网站页面下载对应网站的专属安装文件，不直接复用旧域名安装文件。
+
+## 验收
+
+- 首页三维模型加载，控制台、ACT 工作台和网页执行入口可打开。
+- `src/app.js`、模型及安装文件返回实际资源，不是首页 HTML。
+- 更新后控制台显示 `srv1.0.35`；这是服务器运行版本，文档整理版不改控制逻辑。
+- 在客户 Ubuntu 电脑确认本机组件连接，再按 [ACT 教程](ACT_GUIDE.md) 或 [Lumos 教程](LUMOS_TELEOP.md) 验证对应用途。
+
+完整平台页面说明见 [控制台教程](CONSOLE_GUIDE.md)，安装与权限问题见 [Ubuntu 教程](UBUNTU.md) 和 [常见问题](TROUBLESHOOTING.md)。

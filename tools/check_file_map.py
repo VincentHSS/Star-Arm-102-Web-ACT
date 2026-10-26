@@ -182,6 +182,8 @@ def purpose(path):
     relative = path.relative_to(ROOT).as_posix()
     if relative == 'tools/check_latest_delivery.py':
         return '核验两份完整交付源码的文件清单与 SHA256，不启动设备'
+    if relative == 'tools/refresh_latest_delivery.py':
+        return '维护交付内容后更新包内校验文件和版本清单，再由打包工具生成 ZIP 摘要'
     if relative == 'tools/package_latest_delivery.py':
         return '将已核验的服务器版与 Lumos 本地版重新打包到 dist/latest-delivery'
     if relative.startswith('delivery/'):

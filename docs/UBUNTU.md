@@ -2,6 +2,8 @@
 
 适用 Ubuntu 22.04 / 24.04，Python 3.10～3.12，桌面 Chrome / Edge。完整 ACT 采集、训练及原生实机执行均使用 Ubuntu。
 
+只使用 Lumos 本地控制时，请直接按 [Lumos 专用教程](LUMOS_TELEOP.md) 下载客户本地包。下面说明网站组件与完整平台开发源码。
+
 ## 方式一：客户使用服务器网站
 
 客户不需要下载源码，不用手填后台地址或训练命令。机械臂和相机连接客户当前 Ubuntu 电脑，服务器只托管网页。
@@ -28,6 +30,15 @@
 
 安装后组件会尝试在当前桌面用户下运行，并配置登录自启动。网页会检测后台；浏览器询问访问本机网络时允许。若安装成功但仍未连接，见 [常见问题](TROUBLESHOOTING.md)，必要时退出桌面并重新登录。
 
+终端安装示例（将文件名换成实际下载文件）：
+
+```bash
+cd ~/Downloads
+sudo apt install ./star-arm-act_1.0.23_fashionstar_all.deb
+```
+
+Lumos 网站组件示例：`sudo apt install ./star-arm-lumos_1.0.32_fashionstar_amd64.deb`。`.deb` 不用 Bash 执行。
+
 ### 安装器提示 dpkg 前端锁被占用
 
 这是 Ubuntu 更新或另一个安装程序占用软件管理器，发生在组件代码运行之前。普通网页无法改变系统安装器的等待行为。第 2 步展开 **安装报错或网页仍未连接** 可查看处理说明，点击 **重新检测连接** 会继续检测实际后台状态。
@@ -39,7 +50,7 @@
 系统安装器仍立即报告锁占用时，维护人员可以在“下载”目录使用 APT 的等待方式安装。文件名需对应实际下载文件：
 
 ```sh
-sudo apt-get -o DPkg::Lock::Timeout=300 -o Acquire::Retries=3 --no-remove install ./star-arm-act_1.0.13_all.deb
+sudo apt-get -o DPkg::Lock::Timeout=300 -o Acquire::Retries=3 --no-remove install ./star-arm-act_1.0.23_fashionstar_all.deb
 ```
 
 使用源码的维护人员也可运行 `/usr/bin/python3 tools/ubuntu_setup.py --package /完整路径/组件.deb`，使用同样的等待和授权逻辑。以上是安装器报错时的替代方式，日常网页客户仍按系统安装器操作。
@@ -61,8 +72,6 @@ sudo apt-get -o DPkg::Lock::Timeout=300 -o Acquire::Retries=3 --no-remove instal
 
 ## 方式二：在 Ubuntu 上运行本地源码
 
-本地测试训练提交流程时，可使用提供方的 `Star-Arm-102-UBUNTU-LOCAL-TEST-v1.0.13.zip`。完整解压后，在目录内运行 `sh start_ubuntu_training_test.sh`，直接打开本机 ACT 工作台，再进入第 2 步。它沿用当前用户原来的状态目录和数据目录配置，拒绝把本次测试交给旧版或只提供 API 的安装组件。若提示已有旧后台，请先确认现有任务已结束，再正常关闭旧服务后重试。测试包无需上传服务器或先安装 `.deb`。
-
 源码方式适合项目维护、离线本地界面或没有服务器网站的情况。启动时检测 18765 上现有 ACT 后台并复用；不会结束它的设备操作，也不会偷偷改用另一份数据目录。旧版服务仍运行时，会提示先结束任务再正常重启。
 
 ### 下载和解压
@@ -70,7 +79,7 @@ sudo apt-get -o DPkg::Lock::Timeout=300 -o Acquire::Retries=3 --no-remove instal
 1. 打开 [GitHub 仓库](https://github.com/VincentHSS/Star-Arm-102-Web-ACT)。
 2. 点击绿色 **Code → Download ZIP**，等待源码下载。
 3. 解压到自己的目录。文件夹名可能带 `-main`；打开后应能看到 `start_ubuntu.sh`、`start_windows.bat`、`Browser_SDK/` 和 `tools/`。
-4. Release 的 `SERVER-UPLOAD-ONLY.zip` 是服务器静态包，没有这些启动脚本，不要混用。
+4. Release 的 `Star-Arm-102-SERVER-FINAL-v1.0.35.zip` 是服务器静态包，没有这些启动脚本，不要混用。
 
 ### 首次准备系统依赖
 

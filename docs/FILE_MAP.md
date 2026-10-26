@@ -400,8 +400,6 @@
 | [delivery/Star-Arm-102-Lumos-Ubuntu-v1.0.38/ai_service/lumos_calibration.py](../delivery/Star-Arm-102-Lumos-Ubuntu-v1.0.38/ai_service/lumos_calibration.py) | 对应已交付 ZIP 的原始源文件：lumos_calibration.py |
 | [delivery/Star-Arm-102-Lumos-Ubuntu-v1.0.38/ai_service/lumos_runtime.py](../delivery/Star-Arm-102-Lumos-Ubuntu-v1.0.38/ai_service/lumos_runtime.py) | 对应已交付 ZIP 的原始源文件：lumos_runtime.py |
 | [delivery/Star-Arm-102-Lumos-Ubuntu-v1.0.38/ai_service/vendor/README.txt](../delivery/Star-Arm-102-Lumos-Ubuntu-v1.0.38/ai_service/vendor/README.txt) | 对应已交付 ZIP 的原始源文件：README.txt |
-| [delivery/Star-Arm-102-Lumos-Ubuntu-v1.0.38/ai_service/vendor/fashionstar_uart_sdk-1.3.6-py3-none-any.whl](../delivery/Star-Arm-102-Lumos-Ubuntu-v1.0.38/ai_service/vendor/fashionstar_uart_sdk-1.3.6-py3-none-any.whl) | 对应已交付 ZIP 的原始源文件：fashionstar_uart_sdk-1.3.6-py3-none-any.whl |
-| [delivery/Star-Arm-102-Lumos-Ubuntu-v1.0.38/ai_service/vendor/fashionstar_uart_sdk-1.3.6-py3-none-any.whl.LICENSE.txt](../delivery/Star-Arm-102-Lumos-Ubuntu-v1.0.38/ai_service/vendor/fashionstar_uart_sdk-1.3.6-py3-none-any.whl.LICENSE.txt) | 对应已交付 ZIP 的原始源文件：fashionstar_uart_sdk-1.3.6-py3-none-any.whl.LICENSE.txt |
 | [delivery/Star-Arm-102-Lumos-Ubuntu-v1.0.38/ai_service/vendor/pyserial-3.5-py2.py3-none-any.whl](../delivery/Star-Arm-102-Lumos-Ubuntu-v1.0.38/ai_service/vendor/pyserial-3.5-py2.py3-none-any.whl) | 对应已交付 ZIP 的原始源文件：pyserial-3.5-py2.py3-none-any.whl |
 | [delivery/Star-Arm-102-Lumos-Ubuntu-v1.0.38/configure_can.sh](../delivery/Star-Arm-102-Lumos-Ubuntu-v1.0.38/configure_can.sh) | 对应已交付 ZIP 的原始源文件：configure_can.sh |
 | [delivery/Star-Arm-102-Lumos-Ubuntu-v1.0.38/package.json](../delivery/Star-Arm-102-Lumos-Ubuntu-v1.0.38/package.json) | 对应已交付 ZIP 的原始源文件：package.json |
@@ -411,10 +409,6 @@
 | [delivery/Star-Arm-102-Lumos-Ubuntu-v1.0.38/tools/ubuntu_setup.py](../delivery/Star-Arm-102-Lumos-Ubuntu-v1.0.38/tools/ubuntu_setup.py) | 对应已交付 ZIP 的原始源文件：ubuntu_setup.py |
 | [delivery/Star-Arm-102-Lumos-Ubuntu-v1.0.38/使用说明.txt](../delivery/Star-Arm-102-Lumos-Ubuntu-v1.0.38/使用说明.txt) | 该交付包的使用或部署说明 |
 | [delivery/Star-Arm-102-SERVER-FINAL-v1.0.35/SHA256SUMS](../delivery/Star-Arm-102-SERVER-FINAL-v1.0.35/SHA256SUMS) | 对应已交付 ZIP 的原始源文件：SHA256SUMS |
-| [delivery/Star-Arm-102-SERVER-FINAL-v1.0.35/Ubuntu安装包/star-arm-act_1.0.23_fashionstar_all.deb](../delivery/Star-Arm-102-SERVER-FINAL-v1.0.35/Ubuntu安装包/star-arm-act_1.0.23_fashionstar_all.deb) | 随完整服务器包提供的 Ubuntu 本机组件 |
-| [delivery/Star-Arm-102-SERVER-FINAL-v1.0.35/Ubuntu安装包/star-arm-lumos_1.0.32_fashionstar_amd64.deb](../delivery/Star-Arm-102-SERVER-FINAL-v1.0.35/Ubuntu安装包/star-arm-lumos_1.0.32_fashionstar_amd64.deb) | 随完整服务器包提供的 Ubuntu 本机组件 |
-| [delivery/Star-Arm-102-SERVER-FINAL-v1.0.35/修复说明.txt](../delivery/Star-Arm-102-SERVER-FINAL-v1.0.35/修复说明.txt) | 对应已交付 ZIP 的原始源文件：修复说明.txt |
-| [delivery/Star-Arm-102-SERVER-FINAL-v1.0.35/性能对比.json](../delivery/Star-Arm-102-SERVER-FINAL-v1.0.35/性能对比.json) | 对应已交付 ZIP 的原始源文件：性能对比.json |
 | [delivery/Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/act-browser.html](../delivery/Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/act-browser.html) | 对应已交付 ZIP 的原始源文件：act-browser.html |
 | [delivery/Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/act-workbench.html](../delivery/Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/act-workbench.html) | 对应已交付 ZIP 的原始源文件：act-workbench.html |
 | [delivery/Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/icon.png](../delivery/Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/icon.png) | 完整交付所需的模型、压缩网格、前端库与许可资源 |
@@ -722,7 +716,6 @@
 | [delivery/Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/workspace-switch.js](../delivery/Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/workspace-switch.js) | 对应已交付 ZIP 的原始源文件：workspace-switch.js |
 | [delivery/Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/urdf-preview.html](../delivery/Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/urdf-preview.html) | 对应已交付 ZIP 的原始源文件：urdf-preview.html |
 | [delivery/Star-Arm-102-SERVER-FINAL-v1.0.35/部署说明.md](../delivery/Star-Arm-102-SERVER-FINAL-v1.0.35/部署说明.md) | 该交付包的使用或部署说明 |
-| [delivery/Star-Arm-102-SERVER-FINAL-v1.0.35/验证记录.txt](../delivery/Star-Arm-102-SERVER-FINAL-v1.0.35/验证记录.txt) | 对应已交付 ZIP 的原始源文件：验证记录.txt |
 | [delivery/manifest.json](../delivery/manifest.json) | 最新交付版本、原 ZIP 信息与每个源文件的 SHA256 |
 | [docs/ACT_GUIDE.md](../docs/ACT_GUIDE.md) | 采集、校准、训练、完整模型导入与执行教程 |
 | [docs/ARCHITECTURE.md](../docs/ARCHITECTURE.md) | 服务器、浏览器、本机后台与虚拟环境职责说明 |
@@ -738,7 +731,6 @@
 | [docs/URDF_MODELS.md](../docs/URDF_MODELS.md) | 新增 FL 和 LD 模型预览入口、来源和坐标说明 |
 | [docs/WINDOWS.md](../docs/WINDOWS.md) | Windows 启动与功能支持范围教程 |
 | [docs/images/act-calibration-dialog.png](../docs/images/act-calibration-dialog.png) | 真实界面教程截图（硬件未连接）：从臂校准窗口 |
-| [docs/images/act-collect-overview.png](../docs/images/act-collect-overview.png) | 真实界面教程截图（硬件未连接）：ACT 数据采集全景 |
 | [docs/images/act-collection-entry.png](../docs/images/act-collection-entry.png) | 真实界面教程截图（硬件未连接）：第 1 步采集连接与大画面入口（隔离服务、硬件未连接） |
 | [docs/images/act-dataset-form.png](../docs/images/act-dataset-form.png) | 真实界面教程截图（硬件未连接）：数据集创建表单与未提交示例 |
 | [docs/images/act-device-panel.png](../docs/images/act-device-panel.png) | 真实界面教程截图（硬件未连接）：ACT 设备连接面板 |
@@ -754,7 +746,6 @@
 | [docs/images/windows-browser-execution.png](../docs/images/windows-browser-execution.png) | 真实界面教程截图（硬件未连接）：Windows 纯网页执行全景，未连接硬件 |
 | [docs/images/windows-runtime-ready.png](../docs/images/windows-runtime-ready.png) | 真实界面教程截图（硬件未连接）：Windows 实际 CPU 执行环境自检就绪界面（未连接硬件） |
 | [docs/images/windows-website-connection.png](../docs/images/windows-website-connection.png) | 真实界面教程截图（硬件未连接）：Windows 当前网站本机连接确认页（本机测试地址） |
-| [docs/images/workspace-transition.png](../docs/images/workspace-transition.png) | 真实界面教程截图（硬件未连接）：全屏工作区切换动画 |
 | [package-lock.json](../package-lock.json) | 固定 Node 开发依赖解析版本 |
 | [package.json](../package.json) | ES module 配置、前端测试命令和 Playwright 开发依赖 |
 | [runtime/Browser_SDK/index.html](../runtime/Browser_SDK/index.html) | 安装组件自带的最小状态页面，完整界面在网站 |
@@ -856,6 +847,7 @@
 | [tools/package_lumos_local.py](../tools/package_lumos_local.py) | 打包 Ubuntu Touch R1 与 LumosTouch 本地遥操作源码 |
 | [tools/package_site.py](../tools/package_site.py) | 生成含静态网站、图文教程和 SHA256 清单的单个交付 ZIP |
 | [tools/package_training_local.py](../tools/package_training_local.py) | 打包包含网页、训练后台与启动器的 Ubuntu 本地测试源码 |
+| [tools/refresh_latest_delivery.py](../tools/refresh_latest_delivery.py) | 维护交付内容后更新包内校验文件和版本清单，再由打包工具生成 ZIP 摘要 |
 | [tools/serve_local.py](../tools/serve_local.py) | 源码启动入口，检查版本并同端口提供完整网页与 API |
 | [tools/start_browser_local.ps1](../tools/start_browser_local.ps1) | 使用 Windows 自带 .NET，仅在环回地址提供静态网页与推理资源 |
 | [tools/start_lumos_local.py](../tools/start_lumos_local.py) | 固定版本 Lumos SDK 安装、独立本机服务与重复启动检查 |

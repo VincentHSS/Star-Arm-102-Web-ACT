@@ -1,34 +1,14 @@
 {
-  "release": "v1.0.38",
+  "release": "v1.0.39",
   "packages": [
     {
       "kind": "server",
       "version": "1.0.35",
       "directory": "Star-Arm-102-SERVER-FINAL-v1.0.35",
       "archive": "Star-Arm-102-SERVER-FINAL-v1.0.35.zip",
-      "archive_sha256": "3628ea481589e660ef9018ebcd89e1418233268c8063cc05cf74b75c1a54b528",
-      "archive_bytes": 75789262,
+      "archive_sha256": "53f8a075439d3af11f62a601476bb1f5fa8a096c883283b452a8f0eaf203ef06",
+      "archive_bytes": 75364421,
       "files": [
-        {
-          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/SHA256SUMS",
-          "sha256": "0c4bc3d83e6da04317c37277672098fffe061a89ef83a2c173b8f9088e8bd61e"
-        },
-        {
-          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/Ubuntu安装包/star-arm-act_1.0.23_fashionstar_all.deb",
-          "sha256": "224f4833ba88ae5bf8414597dfa5900cc3e07791e275abcd71325c114daf6ae7"
-        },
-        {
-          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/Ubuntu安装包/star-arm-lumos_1.0.32_fashionstar_amd64.deb",
-          "sha256": "29729b17ec1dde916559889aeb1fddc4f613cfbd08d755d859e25b53327d004a"
-        },
-        {
-          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/修复说明.txt",
-          "sha256": "a4344c19d4257363c11fffb6d84c31706e6712f2461f7ff696260a0c784f1d23"
-        },
-        {
-          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/性能对比.json",
-          "sha256": "3c79899cef23642fd831350e58fdca5fd7a0f31264366c8855ac8ebc468941d8"
-        },
         {
           "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/act-browser.html",
           "sha256": "efe3bc002ca1a027a966f31b047609e1fc8e3bbaf7b6ed6002e823498d0bdbe6"
@@ -1255,11 +1235,11 @@
         },
         {
           "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/部署说明.md",
-          "sha256": "7a6f5d2e23a44fe6629e811263b6148daf824d7f53af2a490fbc7bb588f91048"
+          "sha256": "808e464755269de73b168a48887a118e4ec453af4da83b3cd3b690efbad31cb4"
         },
         {
-          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/验证记录.txt",
-          "sha256": "1dcd34d8eeddc15497421ac2ec4222ad4f3ef62bed4b7a86083f438732dacbc2"
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/SHA256SUMS",
+          "sha256": "7d32cfb56140a090cc6ca29c9de312659b544bcafc63a75fe0b26d5f580bbbe9"
         }
       ]
     },
@@ -1268,8 +1248,8 @@
       "version": "1.0.38",
       "directory": "Star-Arm-102-Lumos-Ubuntu-v1.0.38",
       "archive": "Star-Arm-102-Lumos-Ubuntu-v1.0.38.zip",
-      "archive_sha256": "10a3f18194cdf9baaa8182b6f8418b29ce65bef4eaf347516a078dfb753f3468",
-      "archive_bytes": 22997122,
+      "archive_sha256": "edf3aca755382c71f6972000fc66bfbbb869bfa78b4252c010c85e5d1e34395a",
+      "archive_bytes": 22983047,
       "files": [
         {
           "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/ai_service/__init__.py",
@@ -1292,20 +1272,12 @@
           "sha256": "b90da757f97f142505a03ddd773ad733aa762614a53e6e492c2e93f9acfcae21"
         },
         {
-          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/ai_service/vendor/fashionstar_uart_sdk-1.3.6-py3-none-any.whl",
-          "sha256": "43e2640acd825b9350b2dc4e76694d9de436cfbadbb20fb0cf02cff9de78f83f"
-        },
-        {
-          "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/ai_service/vendor/fashionstar_uart_sdk-1.3.6-py3-none-any.whl.LICENSE.txt",
-          "sha256": "761f7034174bf0ea8fb7e31ced59c8e18aab77e3360ff8a059caa8779dc1c436"
-        },
-        {
           "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/ai_service/vendor/pyserial-3.5-py2.py3-none-any.whl",
           "sha256": "c4451db6ba391ca6ca299fb3ec7bae67a5c55dde170964c7a14ceefec02f2cf0"
         },
         {
           "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/ai_service/vendor/README.txt",
-          "sha256": "f68fab88a81e4b65606aebe0426ef70896743e7b6cc0841f8b49dd2474d91315"
+          "sha256": "fd501f2fdff32e22804ed286f743301a0f2e1191bde78d86e4b0df61c8c1d556"
         },
         {
           "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/Browser_SDK/assets/logo-icon.png",
@@ -1853,7 +1825,7 @@
         },
         {
           "path": "Star-Arm-102-Lumos-Ubuntu-v1.0.38/SHA256SUMS",
-          "sha256": "af1fcbbb4b5b8f1b68f2605f09bd6a67c0677c8d81d3a2b1bf1ba7f2a6856ff6"
+          "sha256": "76a11bd8e264e97e15c97a3129a56ba8db34be8669b1fa3a1f06586d27f9be32"
         }
       ]
     }
