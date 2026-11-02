@@ -1,13 +1,13 @@
 {
-  "release": "v1.0.39",
+  "release": "v1.0.40",
   "packages": [
     {
       "kind": "server",
       "version": "1.0.35",
       "directory": "Star-Arm-102-SERVER-FINAL-v1.0.35",
       "archive": "Star-Arm-102-SERVER-FINAL-v1.0.35.zip",
-      "archive_sha256": "53f8a075439d3af11f62a601476bb1f5fa8a096c883283b452a8f0eaf203ef06",
-      "archive_bytes": 75364421,
+      "archive_sha256": "a031cb2f1258d6526f89d891f074093afe04b64ad1f294d7006cd54d8b07c71e",
+      "archive_bytes": 75369323,
       "files": [
         {
           "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/act-browser.html",
@@ -15,7 +15,7 @@
         },
         {
           "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/act-workbench.html",
-          "sha256": "94a935c137d66df360f296d592a718f2812695e08ce478d823b062bbf39aeb35"
+          "sha256": "57f5a4c1a513b297356942df248835c109f5c9c0466eb6fe4b80e518ed37917f"
         },
         {
           "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/icon.png",
@@ -879,7 +879,7 @@
         },
         {
           "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/index.html",
-          "sha256": "d34804a6af6de754a5b3719597852577c7f223288225911b98c91b79a17dccfa"
+          "sha256": "2c0854f197b50317fe59cbefc44ffcd617958ec800832748e835b02b34d5eeaf"
         },
         {
           "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/a1z_model_data.js",
@@ -930,6 +930,14 @@
           "sha256": "fe5603f3804562c81cc3ba7010d956e866977492cc176ac40b5a5ee92d8f5a66"
         },
         {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/act-delivery.css",
+          "sha256": "256b472b0d569f03da2bb5bd366e863d0c8e713938395075a8cfee5b40656ad3"
+        },
+        {
+          "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/act-import-state.js",
+          "sha256": "b7f1898b7d9d32006d0ea13c10d04fa7a2d5ef6c32c1d81dac2a09713dcad4d8"
+        },
+        {
           "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/act-inference.css",
           "sha256": "5b53d41d05833d035f71787683514a3e749e0ee13be58e6fd9466b27212fe8e5"
         },
@@ -955,7 +963,7 @@
         },
         {
           "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/act-workbench.js",
-          "sha256": "7f589523ff2a785893d83f0e15767b1b7b364300bfab275e308cda5c4547e21e"
+          "sha256": "b8c3a7904238111791714b49b0447089ddf82f44ea696826d47669f801617634"
         },
         {
           "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/api-client.js",
@@ -1107,7 +1115,7 @@
         },
         {
           "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/robot_model_configs.js",
-          "sha256": "c79db73050b9dac8bbc1529e4b810633f53047afa3aa847f492dd03144a1377c"
+          "sha256": "d96cf1af6b031160a2325d0ebda3b19bcbc2dd95dfeb571297164516172187c4"
         },
         {
           "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/robot_profiles.js",
@@ -1231,7 +1239,7 @@
         },
         {
           "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/urdf-preview.html",
-          "sha256": "7f76ad50d4895458edc992d331ada8760d8a5f74b22b1af0e17814e52eeda9a4"
+          "sha256": "cc8c26aed5186822371ab24b400757a9d6a6765eb8b37063412809a49b6920f3"
         },
         {
           "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/部署说明.md",
@@ -1239,7 +1247,7 @@
         },
         {
           "path": "Star-Arm-102-SERVER-FINAL-v1.0.35/SHA256SUMS",
-          "sha256": "7d32cfb56140a090cc6ca29c9de312659b544bcafc63a75fe0b26d5f580bbbe9"
+          "sha256": "c582ab6b8a2a27188dc969ec7be6c364cf6d010bed166c7b8bf8c4f16e2c5f9a"
         }
       ]
     },

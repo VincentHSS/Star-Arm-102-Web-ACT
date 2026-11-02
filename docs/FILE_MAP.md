@@ -639,6 +639,8 @@
 | [delivery/Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/act-camera-state.js](../delivery/Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/act-camera-state.js) | 对应已交付 ZIP 的原始源文件：act-camera-state.js |
 | [delivery/Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/act-cameras.js](../delivery/Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/act-cameras.js) | 对应已交付 ZIP 的原始源文件：act-cameras.js |
 | [delivery/Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/act-capture-quality.js](../delivery/Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/act-capture-quality.js) | 对应已交付 ZIP 的原始源文件：act-capture-quality.js |
+| [delivery/Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/act-delivery.css](../delivery/Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/act-delivery.css) | 对应已交付 ZIP 的原始源文件：act-delivery.css |
+| [delivery/Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/act-import-state.js](../delivery/Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/act-import-state.js) | 对应已交付 ZIP 的原始源文件：act-import-state.js |
 | [delivery/Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/act-inference.css](../delivery/Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/act-inference.css) | 对应已交付 ZIP 的原始源文件：act-inference.css |
 | [delivery/Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/act-installer.js](../delivery/Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/act-installer.js) | 对应已交付 ZIP 的原始源文件：act-installer.js |
 | [delivery/Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/act-motion.js](../delivery/Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/act-motion.js) | 对应已交付 ZIP 的原始源文件：act-motion.js |
@@ -772,6 +774,8 @@
 | [tests/browser_smoke.cjs](../tests/browser_smoke.cjs) | 自动浏览器验证、临时本机服务与安装包生成检查 |
 | [tests/camera_navigation_smoke.cjs](../tests/camera_navigation_smoke.cjs) | 隔离端口与模拟双相机，验证步骤切换复用预览和过期状态处理 |
 | [tests/console_serial_smoke.cjs](../tests/console_serial_smoke.cjs) | 模拟控制台 LD/HD/FL 串口、首轮反馈、共享超时、补读与重新连接 |
+| [tests/delivery_act_import.test.js](../tests/delivery_act_import.test.js) | 软件测试：服务器交付版大包导入、包类型识别、校准条件、本机路径与统计状态 |
+| [tests/delivery_ld_display.test.js](../tests/delivery_ld_display.test.js) | 软件测试：服务器交付版 LD 全范围反馈、显示方向与命令限位隔离 |
 | [tests/follower_calibration_ui.test.js](../tests/follower_calibration_ui.test.js) | 软件测试：从臂校准与重试界面 |
 | [tests/helpers/servo_setup_hardware.cjs](../tests/helpers/servo_setup_hardware.cjs) | 软件测试：可追加舵机、切速、读写公共参数及丢包的模拟 Web Serial |
 | [tests/lumos_browser_smoke.cjs](../tests/lumos_browser_smoke.cjs) | 软件测试：浏览器 Touch R1 与模拟 Lumos CAN 连接、校准、跟随和释放 |

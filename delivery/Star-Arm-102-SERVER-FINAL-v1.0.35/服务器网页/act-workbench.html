@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta http-equiv="Cache-Control" content="no-store">
-  <title>Star Arm 102 · ACT 工作台 v0.1.0</title>
+  <title>Star Arm 102 · ACT 工作台</title>
   <link rel="stylesheet" href="src/act-workbench.css?v=2026-10-14-training-submit-1">
   <link rel="stylesheet" href="src/act-inference.css?v=2026-10-14-training-submit-1">
   <link rel="stylesheet" href="src/act-ui-refresh.css?v=2026-10-14-training-submit-1">
@@ -13,6 +13,7 @@
 <link rel="icon" href="assets/logo-icon.png">
 <link rel="stylesheet" href="src/interaction.css?v=button-flow-1">
 <link rel="stylesheet" href="src/workspace-nav.css?v=20261020">
+  <link rel="stylesheet" href="src/act-delivery.css?v=20261102-1">
 </head>
 <body>
 <div class="app-shell">
@@ -34,6 +35,7 @@
     <div class="top-state">
       <div id="service-state" class="service-state pending"><i></i><span>连接本机服务</span></div>
       <span class="version">LeRobot 官方驱动版</span>
+      <button id="open-storage-info" class="secondary" type="button">本机存储</button>
       <div class="language-switch" data-language="zh" role="group" aria-label="切换语言">
         <span class="language-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18M12 3c2.4 2.5 3.6 5.5 3.6 9S14.4 18.5 12 21M12 3C9.6 5.5 8.4 8.5 8.4 12S9.6 18.5 12 21"></path></svg></span>
         <button class="active" type="button" aria-pressed="true">中文</button><button type="button" aria-pressed="false">EN</button>
@@ -99,10 +101,10 @@
             <div id="dataset-stats" class="dataset-stats" aria-live="polite"><span>成功 0</span><span>失败 0</span><span>样本 0</span><span>图像 0 / 0</span><span>容量 0 B</span><span>等待数据</span></div>
             <div class="dataset-actions">
               <button id="dataset-export" class="ghost" type="button" disabled>导出 ZIP</button>
-              <button id="dataset-import" class="ghost" type="button">导入 ZIP</button>
+              <button id="dataset-import" class="ghost" type="button">导入数据集 ZIP</button>
               <input id="dataset-import-file" class="sr-only" type="file" accept=".zip,application/zip">
             </div>
-            <p id="dataset-transfer-status" class="form-status" role="status" aria-live="polite">导入会校验清单、哈希与路径；同名数据集自动创建副本。</p>
+            <p id="dataset-transfer-status" class="form-status" role="status" aria-live="polite">选择本工作台导出的数据集 ZIP。ACT 模型请在第 3 步导入。</p>
           </div>
           <div id="dataset-list" class="dataset-list panel-inset"></div>
         </section>
@@ -375,7 +377,9 @@
     <input id="data-dir-input" type="text" placeholder="例如 /opt/star-arm-data" style="width:100%;padding:12px 14px;background:#12161c;border:1px solid #39434f;border-radius:6px;color:#e8edf2;font-size:15px;" />
     <p id="data-dir-current" style="color:#8395a7;font-size:13px;margin:.7rem 0 0;"></p>
     <p id="data-dir-error" class="form-status error" style="margin:.6rem 0 0;"></p>
+    <p>切换后读取新目录，现有文件不会自动迁移；当前设备连接会关闭。</p>
     <button id="data-dir-save" type="button" style="margin-top:16px;width:100%;padding:13px;background:#48dbfb;border:0;border-radius:6px;color:#0c1015;font-weight:700;">保存并开始</button>
+    <button id="data-dir-cancel" class="ghost" type="button">取消</button>
   </div>
 </div>
 <dialog id="follower-calibration-dialog" class="calibration-dialog">
@@ -389,15 +393,24 @@
   <p id="calibration-status" class="form-status" role="status">等待连接从臂</p>
   <label><input id="calibration-range-confirm" type="checkbox">七个关节已覆盖正常可用范围，准备保存</label>
   <div class="device-actions"><button id="calibration-start" class="primary">开始记录</button><button id="calibration-save" class="primary" disabled>完成并保存</button><button id="calibration-resume" class="secondary" disabled>恢复记录（保留范围）</button><button id="calibration-reconnect" class="secondary" disabled>重连从臂并继续</button><button id="calibration-cancel" class="ghost">取消记录</button></div>
+  <label>目标模型<select id="calibration-model-select"><option value="">请先导入需要校准的 ACT 模型</option></select></label>
   <label><input id="calibration-same-arm-confirm" type="checkbox">当前连接的是生成此校准的同一台物理从臂</label>
+  <p id="calibration-apply-hint" class="form-status" role="status">请先保存校准并选择目标模型。</p>
   <div class="device-actions"><button id="calibration-apply" class="primary" disabled>用于当前导入模型</button><button id="calibration-download" class="secondary" disabled>下载校准 JSON</button><button id="calibration-close" class="ghost">关闭</button></div>
+</dialog>
+<dialog id="storage-info-dialog" class="calibration-dialog storage-dialog" aria-labelledby="storage-info-title">
+  <h2 id="storage-info-title">本机文件保存位置</h2>
+  <p>文件保存在运行 ACT 本机服务的电脑上。</p>
+  <dl><dt>数据根目录</dt><dd><code id="storage-root-path">等待本机服务连接</code></dd><dt>当前数据集目录</dt><dd><code id="storage-dataset-path">尚未选择数据集</code></dd><dt>当前模型目录</dt><dd><code id="storage-model-path">尚未选择模型</code></dd></dl>
+  <div class="device-actions"><button id="storage-copy" class="secondary" type="button">复制保存位置</button><button id="storage-change" class="secondary" type="button">修改数据目录</button><button id="storage-close" class="ghost" type="button">关闭</button></div>
+  <p id="storage-status" class="form-status" role="status"></p>
 </dialog>
 <dialog id="capture-service-dialog" class="capture-service-dialog" aria-labelledby="capture-service-title">
   <header><div><p class="kicker">CAPTURE CONNECTION</p><h2 id="capture-service-title">配置本机采集连接</h2></div><button id="capture-service-close" type="button" class="ghost">关闭</button></header>
   <p>连接本机设备服务后，即可在第 1 步创建数据集、连接主从臂与双相机并采集。PyTorch / LeRobot 在第 2 步训练时再准备。</p>
   <p id="capture-service-dialog-status" role="status" aria-live="polite"></p><div id="capture-runtime-host"></div><button id="capture-service-recheck" type="button" class="secondary">重新检测采集连接</button>
 </dialog>
-<script type="module" src="src/act-workbench.js?v=server-1.0.35"></script>
+<script type="module" src="src/act-workbench.js?v=20261102-1"></script>
 <script type="module" src="src/workspace-switch.js?v=server-1.0.35"></script>
 <script type="module" src="src/workspace-nav.js?v=server-1.0.35"></script>
 </body>

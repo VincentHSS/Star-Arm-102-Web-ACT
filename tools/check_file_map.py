@@ -212,6 +212,8 @@ def purpose(path):
     if relative.startswith('tests/'):
         stem = path.stem.removesuffix('.test').removeprefix('test_')
         test_names = {
+            'delivery_ld_display': '服务器交付版 LD 全范围反馈、显示方向与命令限位隔离',
+            'delivery_act_import': '服务器交付版大包导入、包类型识别、校准条件、本机路径与统计状态',
             'new_ui_i18n': '新增工作区和 Lumos 面板中英文、动态错误、变量保留与日志保护',
             'urdf_asset_loading': '模型网格并发、嵌套路径、网络重试、错误定位与切换释放',
             'training_submission': '训练提交编号匹配、旧后台任务核对与准备阶段防重复提交',

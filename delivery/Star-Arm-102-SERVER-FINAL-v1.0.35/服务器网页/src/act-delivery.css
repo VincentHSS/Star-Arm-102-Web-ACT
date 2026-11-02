@@ -1,0 +1,10 @@
+/* File transfers and local storage, shared across the ACT stages. */
+#dataset-transfer-status{white-space:normal;overflow-wrap:anywhere;line-height:1.7;min-height:3em}
+#dataset-transfer-status.pending{border-left:3px solid #62d9df;padding-left:10px}
+.storage-dialog dl{display:grid;gap:8px}
+.storage-dialog dt{color:var(--muted);margin-top:10px}
+.storage-dialog dd{margin:0;padding:10px;background:var(--field);border:1px solid var(--line);border-radius:6px}
+.storage-dialog code{white-space:pre-wrap;overflow-wrap:anywhere;user-select:text;font-size:12px}
+#calibration-model-select{display:block;width:100%;margin-top:6px}
+#data-dir-cancel{margin-top:10px}
+@media(max-width:760px){.top-state{flex-wrap:wrap}#open-storage-info{min-height:34px;padding:6px 9px}}

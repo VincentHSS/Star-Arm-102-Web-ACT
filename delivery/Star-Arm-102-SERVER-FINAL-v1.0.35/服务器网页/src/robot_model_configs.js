@@ -55,6 +55,9 @@ const ldJoint = (name, parent, child, xyz, rpy, axis, lower, upper, type = 'revo
   origin: Object.freeze({ xyz: Object.freeze(xyz), rpy: Object.freeze(rpy) }),
   axis: Object.freeze(axis),
   limit: Object.freeze({ lower, upper }),
+  // LD displays measured posture. URDF nominal limits must not freeze readback;
+  // hardware command limits are validated separately before writing targets.
+  clampToLimits: false,
   displayAxisDirection,
 });
 

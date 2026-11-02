@@ -1,5 +1,7 @@
 # 当前交付文件
 
+2026-11-02 源码更新（交付清单 v1.0.40）：服务器网页包含 LD 显示修复、ACT 大包导入及校准交互、本机保存位置。直接使用下方服务器目录；历史 Release ZIP 保持原样。独立 Lumos 包及原有教程保留。
+
 到 [最新发布](https://github.com/VincentHSS/Star-Arm-102-Web-ACT/releases/latest) 下载完整 ZIP。
 
 | 目录 | 用途 | 教程 |

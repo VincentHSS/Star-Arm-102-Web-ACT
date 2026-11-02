@@ -9,6 +9,7 @@ import { BrowserCameraController } from './act-cameras.js?v=server-1.0.35';
 import { CaptureQualityMonitor } from './act-capture-quality.js?v=server-1.0.35';
 import { CameraFrameUploader, encodeFrozenFrame, freezeVideoFrame } from './act-camera-frame-uploader.js?v=server-1.0.35';
 import { CameraFrameEncoderWorkerClient } from './act-camera-frame-encoder-worker-client.js?v=server-1.0.35';
+import { DATASET_TRANSFER_TIMEOUT_MS, localStoragePaths, calibrationApplyState, zipArchiveKind } from './act-import-state.js?v=20261102-1';
 
 const API = getLocalApi();
 const state = { navigationPending: false, deviceEpoch: 0, cameraEpoch: 0, cameraConnecting: false, cameraDisconnecting: false, capabilities: null, trainingEnvironment: null, trainingPoll: null, trainingJob: null, trainingJobPoll: null, datasets: [], episodes: [], episode: null, selectedDatasetId: null, datasetStats: null, deviceBinding: null, serial: { leader: null, follower: null }, browserCameras: [], nativeCameras: [], cameraBackend: null, cameraFaultResetting: false, telemetryStream: null, completedRounds: 0, targetRounds: 20, cameraFrameCallbacks: { wrist: null, world: null }, cameraFrameOwners: { wrist: null, world: null }, cameraFrameSupport: { wrist: null, world: null }, frameDrain: null, models: [], selectedInferenceModelId: null, modelImporting: false, modelExporting: false, inference: null, inferenceGate: null, inferencePoll: null, inferenceStarting: false, inferenceStartError: null, inferenceLastActionCount: 0 };
@@ -59,12 +60,13 @@ function formatBytes(value) { const bytes = Number(value || 0); if (bytes < 1024
 function setTransferStatus(message, mode = '') { const target = $('#dataset-transfer-status'); target.textContent = message; target.className = `form-status ${mode}`.trim(); }
 async function downloadDataset() {
   const dataset = selectedDataset();
-  if (!dataset || state.episode || state.frameDrain) return toast('当前状态不能导出数据集');
+  if (!dataset || state.episode || state.frameDrain || state.datasetImporting || state.datasetExporting || inferenceIsActive()) return toast('请先停止采集或推理，并等待当前文件操作完成。');
   const button = $('#dataset-export');
+  state.datasetExporting = true;
   button.disabled = true;
   setTransferStatus('正在校验并生成完整数据集 ZIP…', 'pending');
   try {
-    const blob = await fetchWithDeadline(localFetch, `${API}/datasets/${dataset.id}/export`, {}, async response => {
+    const blob = await fetchWithDeadline(localFetch, `${API}/datasets/${dataset.id}/export`, { timeoutMs: DATASET_TRANSFER_TIMEOUT_MS }, async response => {
       if (!response.ok) { const body = await response.json(); throw new Error(body.error?.message || `HTTP ${response.status}`); }
       return response.blob();
     });
@@ -74,20 +76,38 @@ async function downloadDataset() {
     URL.revokeObjectURL(url);
     setTransferStatus(`已导出 ${dataset.slug}.zip（${formatBytes(blob.size)}）。`, 'success');
   } catch (error) { setTransferStatus(`导出失败：${error.message}`, 'error'); }
-  finally { renderDatasetStats(state.datasetStats); }
+  finally { state.datasetExporting = false; renderDatasetStats(state.datasetStats); renderStoragePaths(); }
 }
 
 async function importDataset(file) {
-  if (!file || state.episode || state.frameDrain) return toast('当前状态不能导入数据集');
+  if (!file) return;
+  if (state.datasetImporting || state.datasetExporting || state.episode || state.frameDrain || inferenceIsActive()) return toast('请先停止采集或推理，并等待当前文件操作完成。');
+  if (!/\.zip$/i.test(file.name) || file.size <= 0 || file.size > 2_000_000_000) {
+    setTransferStatus('请选择不超过 2 GB 的完整数据集 ZIP。ACT 模型请在第 3 步导入。', 'error');
+    $('#dataset-import-file').value = '';
+    return;
+  }
+  state.datasetImporting = true;
   $('#dataset-import').disabled = true;
-  setTransferStatus(`正在校验并导入 ${file.name}…`, 'pending');
+  const started = Date.now();
+  const showPending = () => setTransferStatus(`正在上传并校验 ${file.name}（${formatBytes(file.size)}） · 已等待 ${Math.floor((Date.now() - started) / 1000)} 秒。大包需要解压和逐文件校验，请勿重复导入。`, 'pending');
+  showPending();
+  const timer = setInterval(showPending, 1000);
   try {
-    const body = await requestJson(localFetch, `${API}/datasets/import`, { method: 'POST', headers: { 'Content-Type': 'application/octet-stream' }, body: file });
+    const kind = await zipArchiveKind(file);
+    if (kind === 'model' || kind === 'browser-model') throw new Error('这是模型包；请到第 3 步“模型管理”导入。网页模型请在“网页执行”中导入。');
+    const body = await requestJson(localFetch, `${API}/datasets/import`, { method: 'POST', headers: { 'Content-Type': 'application/octet-stream' }, body: file, timeoutMs: DATASET_TRANSFER_TIMEOUT_MS });
+    if (!body.dataset?.id) throw new Error('本机服务未返回导入的数据集，请检查组件版本。');
+    clearInterval(timer);
     state.selectedDatasetId = body.dataset.id;
-    setTransferStatus(`已作为副本导入：${body.dataset.task_name} · ${body.dataset.slug}`, 'success');
+    renderDatasets([...state.datasets.filter(item => item.id !== body.dataset.id), body.dataset]);
+    if (body.stats) renderDatasetStats(body.stats);
+    renderStoragePaths();
+    setTransferStatus(`已导入：${body.dataset.task_name} · ${body.dataset.slug}。${state.data_dir ? `保存位置：${localStoragePaths(state.data_dir, body.dataset).dataset}` : '保存位置见本机存储。'}`, 'success');
     await refreshAfterMutation();
-  } catch (error) { setTransferStatus(`导入失败：${error.message}`, 'error'); }
-  finally { $('#dataset-import').disabled = false; $('#dataset-import-file').value = ''; }
+    return true;
+  } catch (error) { clearInterval(timer); setTransferStatus(`导入失败：${error.message}`, 'error'); toast(`导入失败：${error.message}`); return false; }
+  finally { clearInterval(timer); state.datasetImporting = false; $('#dataset-import').disabled = false; $('#dataset-import-file').value = ''; renderStoragePaths(); }
 }
 function toast(message) { const target = $('#toast'); target.textContent = message; target.classList.add('show'); clearTimeout(toast.timer); toast.timer = setTimeout(() => target.classList.remove('show'), 2800); }
 function capabilityRow(label, value, ok) { return `<div class="cap-row"><span>${label}</span><b class="${ok ? 'ok' : 'bad'}">${value}</b></div>`; }
@@ -293,10 +313,19 @@ function populateInferenceTasks() {
   const model = selectedInferenceModel();
   const tasks = model?.tasks || [];
   const select = $('#inference-task');
+  const previousTask = select.value;
+  const signature = JSON.stringify(model || null);
+  const unchanged = signature === state.inferenceModelSignature && tasks.includes(previousTask);
   select.innerHTML = tasks.length
     ? tasks.map(task => `<option value="${escapeHtml(task)}">${escapeHtml(task)}</option>`).join('')
     : '<option value="">模型没有可用任务</option>';
-  state.inferenceGate = null;
+  if (unchanged) select.value = previousTask;
+  else {
+    state.inferenceGate = null;
+    $('#inference-confirm').checked = false;
+    inferenceValidationGeneration++;
+  }
+  state.inferenceModelSignature = signature;
   const normalized = model?.coordinate_contract === 'starai_0_0_4_calibrated';
   const button = $('#inference-calibration-import');
   if (button) button.hidden = !normalized;
@@ -323,6 +352,7 @@ function populateInferenceTasks() {
 }
 
 function renderInferenceGate(gate = state.inferenceGate) {
+  updateCalibrationActions();
   renderInferenceSerialState();
   const model = selectedInferenceModel();
   const blockers = gate?.blockers || model?.blockers || [];
@@ -338,6 +368,9 @@ function renderInferenceGate(gate = state.inferenceGate) {
   $('#inference-gates').innerHTML = rows.map(([label, value]) => `<div><span>${label}</span><b class="${(['完整', '已连接', '已就绪'].includes(value) || value.startsWith('已就绪 ·')) ? 'ok' : ''}">${value}</b></div>`).join('');
   const ready = runtimeReady && Boolean(gate?.ready) && nativeCameraReady(state.inference?.cameras);
   const active = state.inferenceStarting || ['loading', 'running', 'stopping'].includes(state.inference?.status);
+  const transferring = Boolean(state.datasetImporting || state.datasetExporting);
+  $('#dataset-import').disabled = active || transferring || Boolean(state.episode || state.frameDrain);
+  $('#dataset-export').disabled = active || transferring || Boolean(state.episode || state.frameDrain) || !state.datasetStats?.integrity_ok;
   $('#model-import').disabled = active || state.modelImporting;
   $('#inference-model-import').disabled = active || state.modelImporting;
   const calibrationButton = $('#inference-calibration-import');
@@ -346,7 +379,7 @@ function renderInferenceGate(gate = state.inferenceGate) {
   $('#inference-confirm').disabled = !ready || active;
   if (!ready) $('#inference-confirm').checked = false;
   $('#inference-task').disabled = active;
-  $('#inference-start').disabled = !ready || !$('#inference-confirm').checked || active || state.modelImporting;
+  $('#inference-start').disabled = !ready || !$('#inference-confirm').checked || active || state.modelImporting || transferring;
   $('#inference-stop').disabled = !active;
   $('#inference-camera-settings').textContent = runtimeReady ? (state.cameraBackend === 'browser' ? '接入推理相机 / 核对视角' : '相机设置 / 连接推理相机') : environment?.status === 'preparing' ? '查看环境准备进度' : '准备环境并连接推理相机';
   $('#inference-camera-help').textContent = !runtimeReady
@@ -522,6 +555,8 @@ function pollInference(delay = 500) {
 async function startInference() {
   if (state.navigationPending) return toast('正在切换页面，请稍候。');
   if (state.inferenceStarting || ['loading', 'running', 'stopping'].includes(state.inference?.status)) return;
+  if (state.modelImporting || state.datasetImporting || state.datasetExporting) return toast('请等待文件导入或导出完成。');
+  if (!$('#inference-confirm').checked) return toast('请先验证执行条件，并确认工作区安全。');
   let startError = null;
   state.inferenceStartError = null;
   state.inferenceStarting = true;
@@ -558,6 +593,7 @@ async function stopInference() {
 async function loadModels(result = null) {
   result = result || await request('/models');
   state.models = result.items || [];
+  renderStoragePaths();
   const root = $('#model-list');
   if (!state.models.length) {
     root.innerHTML = '<div class="empty-state"><div class="status-mark">ACT</div><h2>尚无本机模型</h2><p>可导入已有 ACT 模型，无需重新训练；本机训练完成后也会自动注册。</p></div>';
@@ -606,7 +642,10 @@ async function importActModel(file) {
   renderInferenceGate();
   setModelImportStatus(`正在导入 ${file.name}（${formatBytes(file.size)}）…`, 'pending');
   try {
-    const model = await request('/models/import', { method: 'POST', headers: { 'Content-Type': file.name.toLowerCase().endsWith('.zip') ? 'application/zip' : 'application/octet-stream' }, body: file });
+    const kind = await zipArchiveKind(file);
+    if (kind === 'dataset') throw new Error('这是数据集 ZIP，请在第 1 步“导入数据集 ZIP”中导入。');
+    if (kind === 'browser-model') throw new Error('这是网页执行模型，请在“网页执行”中导入。');
+    const model = await request('/models/import', { method: 'POST', headers: { 'Content-Type': file.name.toLowerCase().endsWith('.zip') ? 'application/zip' : 'application/octet-stream' }, body: file, timeoutMs: DATASET_TRANSFER_TIMEOUT_MS });
     state.selectedInferenceModelId = model.id;
     state.inferenceStartError = null;
     $('#inference-confirm').checked = false;
@@ -814,7 +853,7 @@ function renderDatasetStats(stats) {
   const review = episodes.filter(item => item.status === 'review').length;
   const totals = stats?.totals || {};
   $('#dataset-stats').innerHTML = `<span>成功 ${success}</span><span>失败 ${failure}</span><span>待审核 ${review}</span><span>样本 ${totals.samples || 0}</span><span>图像 ${totals.wrist || 0} / ${totals.world || 0}</span><span>容量 ${formatBytes(totals.bytes)}</span><span class="${stats?.integrity_ok ? 'ok' : 'bad'}">${stats ? (stats.integrity_ok ? '完整' : '需检查') : '等待数据'}</span>`;
-  $('#dataset-export').disabled = !stats || !stats.integrity_ok || Boolean(state.episode) || Boolean(state.frameDrain);
+  $('#dataset-export').disabled = !stats || !stats.integrity_ok || Boolean(state.episode) || Boolean(state.frameDrain) || Boolean(state.datasetImporting || state.datasetExporting);
   if (state.episode?.status === 'review') {
     const episode = episodes.find(item => item.id === state.episode.id);
     const successButton = $('#episode-review [data-decision="success"]');
@@ -833,6 +872,7 @@ function renderDatasetStats(stats) {
 function renderSelectedDataset() {
   const dataset = selectedDataset();
   state.selectedDatasetId = dataset?.id || null;
+  renderStoragePaths();
   $('#active-dataset-name').textContent = dataset ? `${dataset.task_name} · ${dataset.slug}` : '请选择数据集';
   $('#capture-format').textContent = dataset ? `${dataset.capture.width}×${dataset.capture.height}@${dataset.capture.fps} · JPEG 85` : '创建或选择数据集后显示采集规格';
   $('#dataset-export').disabled = !dataset || Boolean(state.episode) || Boolean(state.frameDrain);
@@ -845,8 +885,14 @@ function renderSelectedDataset() {
 async function refreshDatasetStats() {
   const datasetId = selectedDatasetId();
   if (!datasetId) { renderDatasetStats(null); return; }
-  try { renderDatasetStats(await request(`/datasets/${datasetId}/stats`)); }
-  catch (error) { renderDatasetStats(null); setTransferStatus(`统计读取失败：${error.message}`, 'error'); }
+  try {
+    const stats = await request(`/datasets/${datasetId}/stats`, { timeoutMs: 180000 });
+    if (selectedDatasetId() === datasetId) renderDatasetStats(stats);
+  } catch (error) {
+    if (selectedDatasetId() !== datasetId) return;
+    if (state.datasetStats?.dataset_id !== datasetId) renderDatasetStats(null);
+    setTransferStatus(`数据集统计暂未更新：${error.message}`, 'error');
+  }
 }
 function renderJoints(values = []) {
   const joints = values.length === 7 ? values : [0, 0, 0, 0, 0, 0, 0];
@@ -1564,6 +1610,7 @@ $('.waveform-mode').addEventListener('click', event => { const button = event.ta
 $('#waveform-joints').addEventListener('click', event => { const button = event.target.closest('[data-joint]'); if (button) selectWaveformJoint(button.dataset.joint); });
 $('#waveform-channel-legend').addEventListener('change', event => { const input = event.target.closest('[data-channel]'); if (input) setWaveformChannel(input.dataset.channel, input.checked); });
 async function startEpisode() {
+  if (state.datasetImporting || state.datasetExporting) return toast('请等待数据集导入或导出完成。');
   if (state.navigationPending) return toast('正在切换页面，请稍候。');
   const datasetId = selectedDatasetId();
   if (!datasetId) return toast('请先创建并选择数据集');
@@ -1644,7 +1691,8 @@ $('#dataset-import-file').addEventListener('change', event => importDataset(even
 function maybeShowDataDirSetup() {
   const overlay = $('#data-dir-setup');
   if (!overlay) return;
-  if (state.data_dir_explicit === false) {
+  renderStoragePaths();
+  if (state.data_dir_explicit === false || state.storageEditing) {
     if (!state.data_dir || state.data_dir === 'data') {
       $('#data-dir-current').textContent = '尚未配置，将保存到工程目录下的 data/ 目录。';
     } else {
@@ -1657,7 +1705,36 @@ function maybeShowDataDirSetup() {
     overlay.classList.add('hidden');
   }
 }
+function renderStoragePaths() {
+  const paths = localStoragePaths(state.data_dir, selectedDataset(), selectedInferenceModel());
+  for (const [id, path, empty] of [['storage-root-path', paths.root, '等待本机服务连接'], ['storage-dataset-path', paths.dataset, '尚未选择数据集'], ['storage-model-path', paths.model, '尚未选择模型']]) {
+    const element = document.getElementById(id);
+    if (element) element.textContent = path || empty;
+  }
+  const change = $('#storage-change');
+  if (change) change.disabled = !paths.root || Boolean(state.datasetImporting || state.datasetExporting || state.modelImporting || state.modelExporting || state.episode || state.frameDrain || inferenceIsActive() || followerCalibrationBusy || ['recording', 'paused'].includes(followerCalibrationState?.status));
+}
+$('#open-storage-info').addEventListener('click', () => { renderStoragePaths(); $('#storage-status').textContent = ''; $('#storage-info-dialog').showModal(); });
+$('#storage-close').addEventListener('click', () => $('#storage-info-dialog').close());
+$('#storage-copy').addEventListener('click', async () => {
+  try {
+    const paths = localStoragePaths(state.data_dir, selectedDataset(), selectedInferenceModel());
+    if (!paths.root) throw new Error('请先连接本机服务。');
+    await navigator.clipboard.writeText([paths.root, paths.dataset, paths.model].filter(Boolean).join('\n'));
+    $('#storage-status').textContent = '保存位置已复制。';
+  } catch (error) { $('#storage-status').textContent = `复制失败，可选中上方路径手动复制：${error.message}`; }
+});
+$('#storage-change').addEventListener('click', () => {
+  renderStoragePaths();
+  if ($('#storage-change').disabled) return;
+  state.storageEditing = true;
+  $('#storage-info-dialog').close();
+  $('#data-dir-input').value = state.data_dir || '';
+  maybeShowDataDirSetup();
+});
+$('#data-dir-cancel').addEventListener('click', () => { state.storageEditing = false; $('#data-dir-setup').classList.add('hidden'); });
 $('#data-dir-save').addEventListener('click', async () => {
+  if (state.datasetImporting || state.datasetExporting || state.modelImporting || state.modelExporting) { $('#data-dir-error').textContent = '请等待文件导入或导出完成。'; return; }
   const dir = ($('#data-dir-input').value || '').trim();
   if (!dir) { $('#data-dir-error').textContent = '请填写数据存储目录。'; return; }
   $('#data-dir-save').disabled = true;
@@ -1722,8 +1799,23 @@ function renderFollowerCalibration(data) {
   if (resume) resume.disabled = !(paused || recording);
   if (reconnect) reconnect.disabled = !(paused || recording);
   $('#calibration-save').disabled = !recording;
-  $('#calibration-apply').disabled = !saved || selectedInferenceModel()?.coordinate_contract !== 'starai_0_0_4_calibrated';
-  $('#calibration-download').disabled = !saved;
+  updateCalibrationActions();
+}
+function updateCalibrationActions() {
+  const model = selectedInferenceModel();
+  const choice = $('#calibration-model-select');
+  if (choice) {
+    choice.innerHTML = '<option value="">选择需要校准的导入模型</option>' + state.models.filter(item => item.coordinate_contract === 'starai_0_0_4_calibrated').map(item => `<option value="${escapeHtml(item.id)}">${escapeHtml(item.id)}</option>`).join('');
+    choice.value = model?.coordinate_contract === 'starai_0_0_4_calibrated' ? model.id : '';
+    choice.disabled = followerCalibrationBusy || inferenceIsActive() || state.modelImporting;
+  }
+  const gate = calibrationApplyState({ snapshot: followerCalibrationState, model,
+    busy: followerCalibrationBusy || state.modelImporting, active: inferenceIsActive(), sameArm: $('#calibration-same-arm-confirm').checked });
+  $('#calibration-apply').disabled = !gate.allowed;
+  $('#calibration-apply').title = gate.reason;
+  const hint = $('#calibration-apply-hint');
+  if (hint) hint.textContent = gate.reason;
+  $('#calibration-download').disabled = followerCalibrationState?.status !== 'saved' || followerCalibrationBusy;
 }
 function scheduleFollowerCalibration() {
   clearTimeout(followerCalibrationTimer);
@@ -1767,6 +1859,11 @@ async function openFollowerCalibration() {
   catch (error) { setCalibrationStatus(error.message); }
 }
 async function followerCalibrationOperation(operation) {
+  if (operation === 'apply' && !followerCalibrationBusy) {
+    const gate = calibrationApplyState({ snapshot: followerCalibrationState, model: selectedInferenceModel(), busy: state.modelImporting,
+      active: inferenceIsActive(), sameArm: $('#calibration-same-arm-confirm').checked });
+    if (!gate.allowed) { setCalibrationStatus(gate.reason); return; }
+  }
   if (followerCalibrationBusy) {
     if (operation === 'cancel') {
       followerCalibrationPendingCancel = true;
@@ -1775,6 +1872,7 @@ async function followerCalibrationOperation(operation) {
     return;
   }
   followerCalibrationBusy = true;
+  updateCalibrationActions();
   followerCalibrationGeneration += 1;
   followerCalibrationNotice = null;
   clearTimeout(followerCalibrationTimer);
@@ -1792,6 +1890,7 @@ async function followerCalibrationOperation(operation) {
   } catch (error) { followerCalibrationNotice = error.name === 'AbortError' ? '操作等待超过 4 秒，请检查后台服务连接，随后重试。' : error.message; setCalibrationStatus(followerCalibrationNotice); }
   finally {
     followerCalibrationBusy = false;
+    updateCalibrationActions();
     if (followerCalibrationPendingCancel) {
       followerCalibrationPendingCancel = false;
       await followerCalibrationOperation('cancel');
@@ -1800,6 +1899,17 @@ async function followerCalibrationOperation(operation) {
 }
 $('#open-follower-calibration').addEventListener('click', openFollowerCalibration);
 $('#open-inference-calibration').addEventListener('click', openFollowerCalibration);
+$('#calibration-same-arm-confirm').addEventListener('change', updateCalibrationActions);
+$('#calibration-model-select').addEventListener('change', async event => {
+  if (inferenceIsActive() || state.modelImporting || followerCalibrationBusy) return updateCalibrationActions();
+  const id = event.target.value;
+  if (!state.models.some(model => model.id === id && model.coordinate_contract === 'starai_0_0_4_calibrated')) return updateCalibrationActions();
+  state.selectedInferenceModelId = id;
+  $('#inference-confirm').checked = false;
+  state.inferenceStartError = null;
+  try { await loadModels(); updateCalibrationActions(); await validateInference(); }
+  catch (error) { setCalibrationStatus(error.message); }
+});
 for (const [id, operation] of [['calibration-start','start'],['calibration-save','finish'],['calibration-resume','resume'],['calibration-reconnect','reconnect'],['calibration-cancel','cancel'],['calibration-apply','apply']]) {
   document.getElementById(id).addEventListener('click', () => followerCalibrationOperation(operation));
 }
