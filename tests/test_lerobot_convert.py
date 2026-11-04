@@ -127,6 +127,31 @@ class LeRobotConvertTests(unittest.TestCase):
         finally:
             self._restore_modules(previous)
 
+    def test_resamples_fast_joint_records_over_shared_camera_timeline(self):
+        converter, _modules, previous = self._load_converter(lambda _path: None)
+        try:
+            start = 1_793_604_732_000
+            samples = [
+                {"timestamp_ms": start + 12.5 * index, "action": [index] * 7, "observation_state": [-index] * 7}
+                for index in range(81)
+            ]
+            cameras = {
+                "wrist": [{"captured_at_ms": start + offset} for offset in range(0, 1001, 40)],
+                "world": [{"captured_at_ms": start + offset} for offset in range(40, 961, 40)],
+            }
+            frames = list(converter.aligned_frames(samples, cameras, 30, "ep-1"))
+            self.assertEqual(len(frames), 28)
+            for index, (sample, images) in enumerate(frames):
+                tick = start + 40 + index * 1000 / 30
+                self.assertLessEqual(abs(sample["timestamp_ms"] - tick), 6.26)
+                self.assertEqual(sample["action"][0], -sample["observation_state"][0])
+                for image in images.values():
+                    self.assertLessEqual(abs(image["captured_at_ms"] - tick), 20.01)
+            self.assertEqual(frames[0][1]["world"]["captured_at_ms"], start + 40)
+            self.assertEqual(frames[-1][1]["world"]["captured_at_ms"], start + 920)
+        finally:
+            self._restore_modules(previous)
+
     def test_image_retries_only_broken_data_stream_with_truncated_mode(self):
         attempts = []
 

@@ -14,6 +14,37 @@ from .action_schedule import ActionSchedule
 
 
 _clock = time.perf_counter  # High-resolution monotonic clock, including on Windows.
+LOCAL_FL_LIMITS_FILE = Path(__file__).with_name("fl_execution_limits.json")
+
+
+def with_local_fl_limits(model):
+    from .training_jobs import STAR_ARM_102_FL_JOINT_LIMITS
+
+    if (model.get("coordinate_contract") not in (None, "degrees")
+            or model.get("joint_limits_contract") != "star-arm-102-fl-v0.1.0"
+            or not model.get("job_id")
+            or model.get("joint_limits") != STAR_ARM_102_FL_JOINT_LIMITS):
+        return model
+    try:
+        profile = json.loads(LOCAL_FL_LIMITS_FILE.read_text(encoding="utf-8"))
+        if not isinstance(profile, dict) or not profile.get("dataset_id"):
+            raise ValueError("缺少数据集 ID")
+        if model.get("dataset_id") != profile["dataset_id"]:
+            return model
+        j2_upper = float(profile["j2_upper_deg"])
+        j3_lower = float(profile["j3_lower_deg"])
+        # FL joint model covers positive J2 and negative J3. Use a tighter
+        # measured envelope supplied for this dataset, within the URDF bounds.
+        if not (90 <= j2_upper <= 179.9 and -179.9 <= j3_lower <= -90):
+            raise ValueError("J2 或 J3 超出 FL 执行范围")
+    except FileNotFoundError:
+        return model
+    except (OSError, ValueError, KeyError, TypeError) as error:
+        raise DomainError(f"本机 FL 执行限位配置无效：{error}", "invalid_local_fl_limits") from error
+    configured = deepcopy(model)
+    configured["joint_limits"][1][1] = j2_upper
+    configured["joint_limits"][2][0] = j3_lower
+    return configured
 
 
 class PolicyWorkerClient:
@@ -233,6 +264,10 @@ class ActInferenceRuntime:
         gate = self.validate(model, task, environment)
         if not gate["ready"]:
             raise DomainError("；".join(gate["blockers"]), "inference_gate_blocked")
+        configured_model = with_local_fl_limits(model)
+        uses_local_limits = configured_model is not model
+        model = configured_model
+        action_steps, ensemble_coefficient = self._checkpoint_schedule(model)
         fps = float((model.get("camera_contract") or {}).get("fps", 30))
         if not math.isfinite(fps) or not 1 <= fps <= 100:
             raise DomainError("模型采样频率无效", "invalid_model_fps")
@@ -304,12 +339,38 @@ class ActInferenceRuntime:
                 raise DomainError("实机推理启动已取消", "inference_start_cancelled")
             self._worker = worker
             self._state["status"] = "running"
+            if uses_local_limits:
+                j2, j3 = model["joint_limits"][1:3]
+                self._log(f"已启用本机示教范围限位：J2 [{j2[0]:g}, {j2[1]:g}]°，J3 [{j3[0]:g}, {j3[1]:g}]°")
+            if action_steps is not None:
+                self._log(f"原生 ACT 动作队列：依次执行 {action_steps} 步后重新预测")
             self._log(f"ACT 目标更新 {1000 / period_ms:.1f} Hz；舵机运动时间 {self.servo_motion_time_ms} ms，加减速 {self.t_acc}/{self.t_dec} ms（原版驱动兼容）")
-            thread = threading.Thread(target=self._loop, args=(generation, model, worker, self._stop), daemon=True,
+            thread = threading.Thread(target=self._loop, args=(generation, model, worker, self._stop, action_steps, ensemble_coefficient), daemon=True,
                                       name="act-real-inference")
             self._thread = thread
             thread.start()
             return deepcopy(self._state)
+
+    def _checkpoint_schedule(self, model):
+        config_path = Path(model["checkpoint_path"]) / "config.json"
+        try:
+            config = json.loads(config_path.read_text(encoding="utf-8"))
+            if not isinstance(config, dict):
+                raise ValueError("config.json 必须是对象")
+            if "temporal_ensemble_coeff" not in config:
+                return None, self.temporal_ensemble_coeff
+            coefficient = config["temporal_ensemble_coeff"]
+            if coefficient is not None:
+                return None, ActionSchedule(coefficient).coefficient
+            chunk_size = config.get("chunk_size", 100)
+            steps = config.get("n_action_steps", 100)
+            if type(steps) is not int or type(chunk_size) is not int or not 1 <= steps <= chunk_size:
+                raise ValueError("n_action_steps 必须在 1 到 chunk_size 之间")
+            return steps, 0.0
+        except FileNotFoundError:
+            return None, self.temporal_ensemble_coeff
+        except (OSError, ValueError, TypeError) as error:
+            raise DomainError(f"ACT 动作队列配置无效：{error}", "invalid_act_schedule") from error
 
     def _write_frame(self, role, sequence, jpeg):
         path = self.root / f"{role}-{sequence}.jpg"
@@ -360,11 +421,18 @@ class ActInferenceRuntime:
                     observation = list(context["observation"])
                     if start <= last_start:
                         continue
+                    action_steps = context["action_steps"]
+                    if action_steps is not None and start != context["next_tick"]:
+                        continue
                 policy_started = _clock()
                 frames = self._frames()
                 paths = {role: self._write_frame(f"{generation}-{role}", "latest", data[1])
                          for role, data in frames.items()}
                 actions = worker.predict_chunk(observation, paths["wrist"], paths["world"], task)
+                if action_steps is not None:
+                    if len(actions) < action_steps:
+                        raise RuntimeError("ACT 返回的动作块短于 n_action_steps")
+                    actions = actions[:action_steps]
                 now = _clock()
                 with self._lock:
                     if generation != self._generation or stop.is_set():
@@ -384,8 +452,10 @@ class ActInferenceRuntime:
                     context["error"] = str(error)
                     context["ready"].set()
 
-    def _loop(self, generation, model, worker, stop):
+    def _loop(self, generation, model, worker, stop, action_steps, ensemble_coefficient):
         period = self.interval_ms / 1000
+        queued = action_steps is not None
+        empty_since = None
         last_write = None
         previous_observation = None
         previous_safe = None
@@ -394,7 +464,7 @@ class ActInferenceRuntime:
             observation = [float(v) for v in self.serial.read_follower_angles()]
             if len(observation) != 7 or not all(math.isfinite(v) for v in observation):
                 raise RuntimeError("机械臂读回的 J1-J7 角度无效")
-            context = {"schedule": ActionSchedule(self.temporal_ensemble_coeff),
+            context = {"schedule": ActionSchedule(ensemble_coefficient), "action_steps": action_steps,
                        "observation": observation, "observation_tick": 0, "next_tick": 0,
                        "last_prediction": None, "error": None,
                        "ready": threading.Event(), "wake": threading.Event()}
@@ -429,18 +499,32 @@ class ActInferenceRuntime:
                 if len(observation) != 7 or not all(math.isfinite(float(v)) for v in observation):
                     raise RuntimeError("机械臂读回的 J1-J7 角度无效")
                 # Skip missed timeline slots; never burst a backlog into the arm.
-                tick = max(next_tick, int((_clock() - epoch) / period))
+                tick = next_tick if queued else max(next_tick, int((_clock() - epoch) / period))
                 with self._lock:
                     if generation != self._generation or stop.is_set():
                         break
                     if context["error"]:
                         raise RuntimeError(context["error"])
                     policy_age_ms = (_clock() - context["last_prediction"]) * 1000
-                    if policy_age_ms > self.max_policy_age_ms:
+                    if not queued and policy_age_ms > self.max_policy_age_ms:
                         raise RuntimeError(f"ACT 后台预测已停滞 {policy_age_ms:.0f} ms")
                     raw, contributors = context["schedule"].action(tick)
                     if raw is None:
-                        raise RuntimeError("ACT 动作缓冲耗尽，模型或串口速度不足以连续控制")
+                        if not queued:
+                            raise RuntimeError("ACT 动作缓冲耗尽，模型或串口速度不足以连续控制")
+                        if empty_since is None:
+                            empty_since = cycle_started
+                            context.update(observation=observation, observation_tick=next_tick)
+                            context["wake"].set()
+                        if (_clock() - empty_since) * 1000 > self.max_policy_age_ms:
+                            raise RuntimeError("原生 ACT 队列等待下一动作块超时")
+                if raw is None:
+                    stop.wait(min(period, 0.01))
+                    continue
+                if queued:
+                    empty_since = None
+                    # A new block may arrive late. Keep all steps and resume at normal cadence.
+                    epoch = max(epoch, cycle_started - tick * period)
                 safe = self._safe_action(raw, observation, model["joint_limits"])
                 # Bound commanded velocity in physical units, independent of sampling FPS.
                 reference = previous_safe if previous_safe is not None else observation
@@ -469,10 +553,11 @@ class ActInferenceRuntime:
                               power=0, t_acc=self.t_acc, t_dec=self.t_dec)
                     now = _clock()
                     serial_ms = (now - serial_started) * 1000
-                    context["observation"] = list(observation)
-                    context["observation_tick"] = tick
                     context["next_tick"] = tick + 1
-                    context["wake"].set()
+                    if not queued:
+                        context["observation"] = list(observation)
+                        context["observation_tick"] = tick
+                        context["wake"].set()
                     self._state.update(observation_state=list(observation), raw_action=list(raw), safe_action=list(safe))
                     metrics = self._state["metrics"]
                     metrics["executed_actions"] += 1

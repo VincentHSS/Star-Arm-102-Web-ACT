@@ -33,6 +33,9 @@ class TrainingDatasetAdapter:
         dataset = self.episode_store._read_json(dataset_dir / "dataset.json")
         episodes = []
         digest = hashlib.sha256()
+        # Conversion changes require rebuilding the LeRobot dataset from the original recordings.
+        digest.update(self.converter_path.read_bytes())
+        digest.update(json.dumps(dataset["capture"], sort_keys=True).encode("utf-8"))
         for episode_dir in sorted((dataset_dir / "episodes").iterdir()):
             if not episode_dir.is_dir() or episode_dir.name.startswith("."):
                 continue

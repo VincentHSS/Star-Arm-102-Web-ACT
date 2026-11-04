@@ -7,7 +7,7 @@
 | 目的 | 入口 | 下一步 |
 | --- | --- | --- |
 | Ubuntu 本地用 Touch R1 控制 LumosTouch | `Star-Arm-102-Lumos-Ubuntu-v1.0.38.zip` | [Lumos 教程](LUMOS_TELEOP.md) |
-| 将完整网站部署到服务器 | `Star-Arm-102-SERVER-FINAL-v1.0.35.zip` | [部署教程](DEPLOYMENT.md) |
+| 将完整网站部署到服务器 | [服务器网页 v1.0.37](https://github.com/servodevelop/star-arm-studio/archive/refs/heads/main.zip) | [部署教程](DEPLOYMENT.md) |
 | 使用已经部署的网站做 ACT | 提供方 HTTPS 网站 | [ACT 教程](ACT_GUIDE.md) |
 | Windows 纯网页执行已转换模型 | 网站的 `act-browser.html` | [网页执行教程](BROWSER_EXECUTION.md) |
 | 开发或维护完整平台 | GitHub Code → Download ZIP | [Ubuntu](UBUNTU.md) / [Windows](WINDOWS.md) |

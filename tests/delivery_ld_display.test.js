@@ -1,11 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import * as THREE from '../delivery/Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/vendor/three.module.js';
-import { MODEL_CONFIGS } from '../delivery/Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/robot_model_configs.js';
-import { buildJointTree, applyModelJointAngles, renderedJointAngle } from '../delivery/Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/robot_model.js';
-import { servoToModelAngles, validateJointTargets } from '../delivery/Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/joint_mapper.js';
-import { canCommand } from '../delivery/Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/robot_profiles.js';
+import * as THREE from '../delivery/Star-Arm-102-SERVER-FINAL-v1.0.37/服务器网页/assets/vendor/three.module.js';
+import { MODEL_CONFIGS } from '../delivery/Star-Arm-102-SERVER-FINAL-v1.0.37/服务器网页/src/robot_model_configs.js';
+import { buildJointTree, applyModelJointAngles, renderedJointAngle } from '../delivery/Star-Arm-102-SERVER-FINAL-v1.0.37/服务器网页/src/robot_model.js';
+import { servoToModelAngles, validateJointTargets } from '../delivery/Star-Arm-102-SERVER-FINAL-v1.0.37/服务器网页/src/joint_mapper.js';
+import { canCommand } from '../delivery/Star-Arm-102-SERVER-FINAL-v1.0.37/服务器网页/src/robot_profiles.js';
 
 const close = (actual, expected) => assert.ok(Math.abs(actual - expected) < 1e-10, `${actual} != ${expected}`);
 
@@ -64,12 +64,12 @@ test('non-finite feedback is still rejected', () => {
 });
 
 test('console and preview override cached model config imports with the fixed URL', async () => {
-  const root = new URL('../delivery/Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/', import.meta.url);
+  const root = new URL('../delivery/Star-Arm-102-SERVER-FINAL-v1.0.37/服务器网页/', import.meta.url);
   for (const entry of ['index.html', 'urdf-preview.html']) {
     const html = await readFile(new URL(entry, root), 'utf8');
     const map = JSON.parse(html.match(/<script type="importmap">(.*?)<\/script>/s)[1]);
-    const key = './src/robot_model_configs.js?v=server-1.0.35';
-    assert.equal(map.imports[key], './src/robot_model_configs.js?v=server-1.0.35-ld1');
+    const key = './src/robot_model_configs.js?v=server-1.0.37';
+    assert.equal(map.imports[key], './src/robot_model_configs.js?v=server-1.0.37-ld1');
     const resolvedKey = new URL(key, new URL(entry, root));
     // Relative specifiers from every existing importing module normalize to this key.
     for (const importer of ['app.js', 'robot_model.js', 'servo_setup_model.js', 'joint_slider_control.js']) {

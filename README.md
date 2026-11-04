@@ -4,16 +4,16 @@
 
 ## 下载与使用
 
-[下载最新交付包](https://github.com/VincentHSS/Star-Arm-102-Web-ACT/releases/latest)
+[服务器网页部署包](https://github.com/servodevelop/star-arm-studio/archive/refs/heads/main.zip) · [GitHub Releases](https://github.com/VincentHSS/Star-Arm-102-Web-ACT/releases)
 
 | 你的用途 | 下载文件 | 教程 |
 | --- | --- | --- |
-| 上传网站，使用完整控制台和 ACT | `Star-Arm-102-SERVER-FINAL-v1.0.35.zip` | [服务器部署](docs/DEPLOYMENT.md) |
+| 上传网站，使用完整控制台和 ACT | [服务器网页 v1.0.37](https://github.com/servodevelop/star-arm-studio/archive/refs/heads/main.zip) | [服务器部署](docs/DEPLOYMENT.md) |
 | Ubuntu 本地控制 LumosTouch | `Star-Arm-102-Lumos-Ubuntu-v1.0.38.zip` | [Lumos 启动与操作](docs/LUMOS_TELEOP.md) |
 | 使用网站上的 ACT 采集、训练或执行模型 | 打开提供方的 HTTPS 网站 | [ACT 操作](docs/ACT_GUIDE.md) |
 | Windows 客户执行已转换的网页模型 | 打开网站的 `act-browser.html` | [纯网页执行](docs/BROWSER_EXECUTION.md) |
 
-发布版本 v1.0.39 整理了教程与交付文件，服务器运行版本仍为 1.0.35，Lumos 本地运行版本仍为 1.0.38。升级此文档版本无需删除已有 SDK 环境或校准数据。
+服务器网页当前为 `srv1.0.37`，Ubuntu ACT 组件为 `1.0.25`。独立 Lumos 本地运行版为 `1.0.38`。
 
 ## Lumos 本地启动
 

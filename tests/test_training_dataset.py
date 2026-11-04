@@ -131,6 +131,28 @@ class TrainingDatasetAdapterTests(unittest.TestCase):
         with self.assertRaisesRegex(DomainError, "尚未就绪"):
             adapter.prepare("dataset-1", {"status": "failed"})
 
+    def test_changed_converter_rebuilds_prepared_dataset(self):
+        self.episode("episode-success", "accepted_success")
+        converter = self.root / "converter.py"
+        converter.write_text("# old converter\n", encoding="utf-8")
+        converted = []
+
+        def runner(command, **_kwargs):
+            output = Path(command[command.index("--output") + 1])
+            converted.append(output)
+            (output / "meta").mkdir(parents=True)
+            (output / "meta" / "info.json").write_text("{}")
+            return Result()
+
+        adapter = TrainingDatasetAdapter(self.root, self.store, runner=runner, converter_path=converter)
+        original = adapter.prepare("dataset-1", self.environment)
+        self.assertEqual(adapter.prepare("dataset-1", self.environment)["path"], original["path"])
+        converter.write_text("# timestamp-aligned converter\n", encoding="utf-8")
+        updated = adapter.prepare("dataset-1", self.environment)
+        self.assertNotEqual(updated["path"], original["path"])
+        self.assertEqual(len(converted), 2)
+        self.assertTrue(Path(original["path"]).is_dir())
+
 
 if __name__ == "__main__":
     unittest.main()

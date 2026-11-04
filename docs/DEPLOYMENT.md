@@ -4,10 +4,12 @@
 
 ## 下载
 
-在 [最新发布](https://github.com/VincentHSS/Star-Arm-102-Web-ACT/releases/latest) 下载 `Star-Arm-102-SERVER-FINAL-v1.0.35.zip`。它包含完整控制台、ACT 工作台、网页执行、模型和 Ubuntu 组件。
+下载 [纯服务器部署 ZIP](https://github.com/servodevelop/star-arm-studio/archive/refs/heads/main.zip)，或使用下方交付目录中的 `服务器网页/`。它包含完整控制台、ACT 工作台、网页执行、模型和 Ubuntu 组件。
+
+Web-ACT 仓库中的交付目录结构如下。纯部署 ZIP 解压后的 `star-arm-studio-main/` 目录直接包含 `index.html`。
 
 ```text
-Star-Arm-102-SERVER-FINAL-v1.0.35/
+Star-Arm-102-SERVER-FINAL-v1.0.37/
   服务器网页/                 ← 只上传这里的全部内容
     index.html
     act-workbench.html
@@ -20,12 +22,12 @@ Star-Arm-102-SERVER-FINAL-v1.0.35/
   SHA256SUMS
 ```
 
-Lumos 专用 Ubuntu ZIP 用于客户本机运行，不上传到服务器。整个 GitHub 源码用于维护；当前服务器交付源码位于 `delivery/Star-Arm-102-SERVER-FINAL-v1.0.35/`。
+Lumos 专用 Ubuntu ZIP 用于客户本机运行，不上传到服务器。整个 GitHub 源码用于维护；当前服务器交付源码位于 `delivery/Star-Arm-102-SERVER-FINAL-v1.0.37/`。
 
 ## 上传
 
 1. 备份原网站目录。
-2. 将 `服务器网页/` 内的全部文件上传至目标网站目录，保留目录层级及文件名大小写。
+2. 将 `index.html` 及其同级文件和目录上传至目标网站目录，保留目录层级及文件名大小写。
 3. 网站目标目录下应直接存在 `index.html`，不要多套一层压缩包名称。
 4. 启用有效 HTTPS，清理该路径的 CDN 及浏览器旧缓存，再用桌面 Chrome / Edge 打开。
 
@@ -52,7 +54,7 @@ Lumos 专用 Ubuntu ZIP 用于客户本机运行，不上传到服务器。整�
 sudo apt install ./star-arm-lumos_1.0.32_fashionstar_amd64.deb
 ```
 
-ACT 组件的当前预生成文件为 `star-arm-act_1.0.23_fashionstar_all.deb`，按实际下载文件名安装。
+ACT 组件的当前预生成文件为 `star-arm-act_1.0.25_fashionstar_all.deb`，按实际下载文件名安装。
 
 组件会在本机运行，浏览器提示本机网络访问时按使用需求授权。预生成安装文件绑定 `https://fashionstar.com.cn`；迁移域名时，从新网站页面下载对应网站的专属安装文件，不直接复用旧域名安装文件。
 
@@ -60,7 +62,7 @@ ACT 组件的当前预生成文件为 `star-arm-act_1.0.23_fashionstar_all.deb`�
 
 - 首页三维模型加载，控制台、ACT 工作台和网页执行入口可打开。
 - `src/app.js`、模型及安装文件返回实际资源，不是首页 HTML。
-- 更新后控制台显示 `srv1.0.35`；这是服务器运行版本，文档整理版不改控制逻辑。
+- 更新后控制台右上角显示 `v1.1.2 · srv1.0.37`。
 - 在客户 Ubuntu 电脑确认本机组件连接，再按 [ACT 教程](ACT_GUIDE.md) 或 [Lumos 教程](LUMOS_TELEOP.md) 验证对应用途。
 
 完整平台页面说明见 [控制台教程](CONSOLE_GUIDE.md)，安装与权限问题见 [Ubuntu 教程](UBUNTU.md) 和 [常见问题](TROUBLESHOOTING.md)。

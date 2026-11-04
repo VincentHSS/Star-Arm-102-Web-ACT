@@ -1,13 +1,16 @@
+import json
 import tempfile
 import threading
 import time
 import unittest
 import sys
 from pathlib import Path
+from unittest.mock import patch
 
 from ai_service.domain import DomainError
-from ai_service.inference_runtime import ActInferenceRuntime, PolicyWorkerClient
+from ai_service.inference_runtime import ActInferenceRuntime, PolicyWorkerClient, with_local_fl_limits
 from ai_service.telemetry import TelemetryHub
+from ai_service.training_jobs import STAR_ARM_102_FL_JOINT_LIMITS
 
 
 class Serial:
@@ -112,6 +115,85 @@ class InferenceRuntimeTests(unittest.TestCase):
     def tearDown(self):
         self.runtime.close()
         self.tmp.cleanup()
+
+    def test_matching_model_uses_local_measured_limits_in_control_loop(self):
+        model = dict(self.model, dataset_id="demonstrations", job_id="trained",
+                     joint_limits_contract="star-arm-102-fl-v0.1.0", joint_limits=STAR_ARM_102_FL_JOINT_LIMITS)
+        profile = Path(self.tmp.name) / "profile.json"
+        profile.write_text(json.dumps({"dataset_id": "demonstrations", "j2_upper_deg": 150, "j3_lower_deg": -155.4}))
+        self.serial.angles = [0, 89.5, -89.5, 0, 0, 0, 20]
+        self.worker.action = [0, 160, -165, 0, 0, 0, 20]
+        with patch("ai_service.inference_runtime.LOCAL_FL_LIMITS_FILE", profile):
+            self.runtime.start(model, "抓取积木", self.environment)
+            self.wait_for(lambda: bool(self.serial.writes))
+            first = self.serial.writes[0][0]
+            self.assertGreater(first[1], 90)
+            self.assertLess(first[2], -90)
+            self.assertLessEqual(first[1] - 89.5, 2)
+            self.assertLessEqual(-89.5 - first[2], 2)
+            self.assertIs(with_local_fl_limits(dict(model, dataset_id="other"))["joint_limits"], model["joint_limits"])
+            self.assertIs(with_local_fl_limits(dict(model, coordinate_contract="starai_0_0_4_calibrated"))["joint_limits"], model["joint_limits"])
+        self.assertEqual(model["joint_limits"][1:3], [[-90, 90], [-90, 90]])
+
+    def test_invalid_local_limits_block_start_before_locking_arm(self):
+        model = dict(self.model, dataset_id="demonstrations", job_id="trained",
+                     joint_limits_contract="star-arm-102-fl-v0.1.0", joint_limits=STAR_ARM_102_FL_JOINT_LIMITS)
+        profile = Path(self.tmp.name) / "profile.json"
+        profile.write_text(json.dumps({"dataset_id": "demonstrations", "j2_upper_deg": 200, "j3_lower_deg": -155.4}))
+        with patch("ai_service.inference_runtime.LOCAL_FL_LIMITS_FILE", profile):
+            with self.assertRaisesRegex(DomainError, "超出 FL 执行范围"):
+                self.runtime.start(model, "抓取积木", self.environment)
+        self.assertEqual(self.serial.locks, 0)
+
+    def test_checkpoint_queue_executes_all_steps_before_predicting_again(self):
+        checkpoint = Path(self.tmp.name)
+        (checkpoint / "config.json").write_text(json.dumps({
+            "chunk_size": 12, "n_action_steps": 8, "temporal_ensemble_coeff": None,
+        }))
+        model = dict(self.model, checkpoint_path=str(checkpoint))
+        self.runtime.max_policy_age_ms = 100
+        predictions_at = []
+
+        def predict(observation, *_args):
+            start = len(self.serial.writes)
+            predictions_at.append(start)
+            self.assertEqual(observation, self.serial.angles)
+            return [[(start + step + 1) / 10, *observation[1:]] for step in range(12)]
+
+        self.worker.predict_chunk = predict
+        self.runtime.start(model, "抓取积木", self.environment)
+        self.wait_for(lambda: len(self.serial.writes) >= 9)
+        self.assertEqual(predictions_at[:2], [0, 8])
+        self.assertEqual([angles[0] for angles, _ in self.serial.writes[:9]], [index / 10 for index in range(1, 10)])
+        self.assertEqual(self.runtime.snapshot()["metrics"]["ensemble_predictions"], 1)
+
+    def test_queue_timeout_releases_arm_and_discards_late_chunk(self):
+        checkpoint = Path(self.tmp.name)
+        (checkpoint / "config.json").write_text(json.dumps({
+            "chunk_size": 2, "n_action_steps": 2, "temporal_ensemble_coeff": None,
+        }))
+        model = dict(self.model, checkpoint_path=str(checkpoint))
+        self.runtime.max_policy_age_ms = 100
+        unblock = threading.Event()
+        second_prediction = threading.Event()
+
+        def predict(observation, *_args):
+            if self.serial.writes:
+                second_prediction.set()
+                unblock.wait(2)
+            return [observation, observation]
+
+        self.worker.predict_chunk = predict
+        try:
+            self.runtime.start(model, "抓取积木", self.environment)
+            self.assertTrue(second_prediction.wait(1))
+            self.wait_for(lambda: self.serial.releases == 1)
+            self.assertEqual(len(self.serial.writes), 2)
+        finally:
+            unblock.set()
+        self.wait_for(lambda: self.runtime.snapshot()["status"] == "fault")
+        self.assertIn("等待下一动作块超时", self.runtime.snapshot()["error"])
+        self.assertEqual(len(self.serial.writes), 2)
 
     def wait_for(self, predicate, timeout=1):
         deadline = time.monotonic() + timeout

@@ -2,10 +2,10 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import vm from 'node:vm';
-import { zipSync, strToU8 } from '../delivery/Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/assets/vendor/fflate/browser.js';
-import { DATASET_TRANSFER_TIMEOUT_MS, calibrationApplyState, localStoragePaths, zipArchiveKind } from '../delivery/Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/act-import-state.js';
+import { zipSync, strToU8 } from '../delivery/Star-Arm-102-SERVER-FINAL-v1.0.37/服务器网页/assets/vendor/fflate/browser.js';
+import { DATASET_TRANSFER_TIMEOUT_MS, calibrationApplyState, localStoragePaths, zipArchiveKind } from '../delivery/Star-Arm-102-SERVER-FINAL-v1.0.37/服务器网页/src/act-import-state.js';
 
-const source = await readFile(new URL('../delivery/Star-Arm-102-SERVER-FINAL-v1.0.35/服务器网页/src/act-workbench.js', import.meta.url), 'utf8');
+const source = await readFile(new URL('../delivery/Star-Arm-102-SERVER-FINAL-v1.0.37/服务器网页/src/act-workbench.js', import.meta.url), 'utf8');
 const datasetCode = source.slice(source.indexOf('async function importDataset(file)'), source.indexOf('function toast(message)'));
 const taskCode = source.slice(source.indexOf('function populateInferenceTasks()'), source.indexOf('function renderInferenceGate('));
 const statsCode = source.slice(source.indexOf('async function refreshDatasetStats()'), source.indexOf('function renderJoints('));
